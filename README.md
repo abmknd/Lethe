@@ -1,1 +1,1 @@
-# lethe-main
+# lethe
