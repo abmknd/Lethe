@@ -69,4 +69,5 @@ export const router = createBrowserRouter([
       }
     ],
   },
-]);
+],
+{ basename: "/lethe" });
