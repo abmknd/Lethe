@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lethe — Settings</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#050705;--surface:#0b0e0b;--surface2:#0f130f;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);--border3:rgba(255,255,255,0.18);
+  --ch:#ADFF2F;--ch2:rgba(173,255,47,0.08);--ch4:rgba(173,255,47,0.03);
+  --text:rgba(255,255,255,0.88);--dim:rgba(255,255,255,0.52);--ghost:rgba(255,255,255,0.25);--ghost2:rgba(255,255,255,0.07);
+  --danger:#FF4D4D;--danger2:rgba(255,77,77,0.08);
+  --serif:'Libre Baskerville',Georgia,serif;--sans:'Inter',sans-serif;
+  --ease:cubic-bezier(0.16,1,0.3,1);
+}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);cursor:none;display:flex;flex-direction:column}
+body::after{content:'';position:fixed;inset:0;opacity:.018;pointer-events:none;z-index:100;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:200px}
+#cur-dot{position:fixed;width:5px;height:5px;background:var(--ch);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);mix-blend-mode:screen}
+#cur-ring{position:fixed;width:28px;height:28px;border:1px solid rgba(173,255,47,0.18);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .25s,height .25s,border-color .25s}
+#cur-ring.h{width:44px;height:44px;border-color:rgba(173,255,47,0.38)}
+
+/* NAV */
+.l-nav{height:56px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:0 32px;background:rgba(5,7,5,0.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);z-index:20}
+.l-nav-logo{font-family:var(--serif);font-size:13px;font-weight:400;letter-spacing:.32em;text-transform:uppercase;color:var(--dim);text-decoration:none;display:flex;align-items:center;gap:9px}
+.l-nav-right{display:flex;align-items:center;gap:16px}
+.l-nav-back{font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--ghost);cursor:none;display:flex;align-items:center;gap:6px;transition:color .2s}
+.l-nav-back:hover{color:var(--dim)}
+.l-nav-back svg{width:14px;height:14px}
+.l-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#1a2a1a,#0d150d);border:1.5px solid rgba(173,255,47,0.22);overflow:hidden;cursor:none}
+.l-avatar img{width:100%;height:100%;object-fit:cover}
+
+
+
+/* BODY */
+.l-body{flex:1;min-height:0;display:flex;overflow:hidden;padding:20px 48px;gap:16px}
+
+/* SIDEBAR NAV */
+.l-sidebar{width:320px;min-width:320px;flex-shrink:0;border:1px solid var(--border);border-radius:16px;padding:16px 0;overflow-y:auto;scrollbar-width:none;background:var(--surface);align-self:flex-start}
+.l-sidebar::-webkit-scrollbar{display:none}
+.l-sidebar-section{margin-bottom:4px}
+.l-sidebar-label{font-size:9px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:var(--ghost);padding:0 20px;margin-bottom:6px;margin-top:16px;display:block}.l-sidebar-title{font-family:var(--serif);font-size:13px;font-style:italic;font-weight:400;color:var(--dim);padding:4px 20px 16px;border-bottom:1px solid var(--border);margin-bottom:8px}
+.l-sidebar-label:first-child{margin-top:0}
+.l-nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;cursor:none;transition:all .2s;border-left:2px solid transparent;border-radius:0}
+.l-nav-item:hover{background:var(--ghost2)}
+.l-nav-item.active{background:var(--ch2);border-left-color:var(--ch)}
+.l-nav-item svg{width:14px;height:14px;flex-shrink:0;color:var(--ghost)}
+.l-nav-item.active svg{color:rgba(173,255,47,0.7)}
+.l-nav-item-label{font-size:12px;font-weight:400;color:var(--ghost);transition:color .2s}
+.l-nav-item:hover .l-nav-item-label{color:var(--dim)}
+.l-nav-item.active .l-nav-item-label{color:var(--text)}
+
+/* CONTENT AREA */
+.l-content{flex:1;min-width:0;overflow-y:auto;scrollbar-width:none;padding:0}
+.l-content::-webkit-scrollbar{display:none}
+
+/* SECTION PANEL */
+.l-panel{display:none;max-width:640px}
+.l-panel.active{display:block}
+.l-panel-title{font-family:var(--serif);font-size:20px;font-weight:400;color:var(--text);margin-bottom:5px}
+.l-panel-sub{font-size:12px;font-weight:300;color:var(--ghost);margin-bottom:0;line-height:1.6}
+.l-panel-header{padding:22px 28px;border-bottom:1px solid var(--border)}
+.l-panel-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+.l-panel-section{padding:22px 28px;border-bottom:1px solid var(--border)}
+.l-panel-section:last-child{border-bottom:none}
+
+/* CARDS */
+.l-card{margin-bottom:0}
+.l-card-section{padding:0}
+
+/* FIELD */
+.l-field{margin-bottom:18px}
+.l-field:last-child{margin-bottom:0}
+.l-field-label{font-size:10px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--ghost);margin-bottom:7px;display:block}
+.l-input{width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:10px;padding:11px 14px;font-family:var(--sans);font-size:13px;font-weight:300;color:var(--text);outline:none;transition:border-color .2s;cursor:auto}
+.l-input:focus{border-color:rgba(173,255,47,0.3)}
+.l-input::placeholder{color:var(--ghost)}
+.l-textarea{resize:none;height:90px;line-height:1.65;cursor:text}
+.l-input-row{display:flex;gap:8px}
+.l-input-row .l-input{flex:1}
+.l-input-tag{font-size:10px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;padding:0 12px;border-radius:8px;background:var(--ghost2);border:1px solid var(--border2);color:var(--ghost);display:flex;align-items:center;white-space:nowrap;flex-shrink:0}
+
+/* AVATAR EDIT */
+.l-avatar-edit{display:flex;align-items:center;gap:20px;padding:20px 24px;border-bottom:1px solid var(--border)}
+.l-avatar-large{width:72px;height:72px;border-radius:50%;overflow:hidden;background:linear-gradient(135deg,#1a2a1a,#0d150d);border:2px solid var(--border2);position:relative;flex-shrink:0;cursor:none}
+.l-avatar-large img{width:100%;height:100%;object-fit:cover}
+.l-avatar-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.5);border-radius:50%;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s}
+.l-avatar-large:hover .l-avatar-overlay{opacity:1}
+.l-avatar-overlay svg{width:16px;height:16px;color:#fff}
+.l-avatar-info{flex:1}
+.l-avatar-name{font-family:var(--serif);font-size:16px;font-weight:400;color:var(--text);margin-bottom:3px}
+.l-avatar-handle{font-size:11px;font-weight:300;color:var(--ghost)}
+.l-avatar-btn{font-size:11px;font-weight:500;letter-spacing:.08em;padding:7px 14px;border-radius:8px;background:var(--ghost2);border:1px solid var(--border2);color:var(--dim);cursor:none;transition:all .2s;margin-top:8px;display:inline-flex;align-items:center;gap:6px}
+.l-avatar-btn:hover{background:rgba(255,255,255,0.06);color:var(--text)}
+.l-avatar-btn svg{width:11px;height:11px}
+
+/* TOGGLE ROW */
+.l-toggle-row{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:16px 0}
+.l-toggle-row+.l-toggle-row{border-top:1px solid var(--border)}
+.l-toggle-info{flex:1}
+.l-toggle-title{font-size:13px;font-weight:500;color:var(--text);margin-bottom:3px}
+.l-toggle-desc{font-size:11px;font-weight:300;color:var(--ghost);line-height:1.6}
+.l-toggle{width:36px;height:22px;border-radius:11px;background:rgba(255,255,255,0.1);border:none;cursor:none;position:relative;transition:background .3s;flex-shrink:0;margin-top:2px}
+.l-toggle::after{content:'';position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:rgba(255,255,255,0.4);transition:transform .3s var(--ease),background .3s}
+.l-toggle.on{background:var(--ch)}
+.l-toggle.on::after{transform:translateX(14px);background:#050705}
+
+/* NOTIFICATION ROWS — email + push columns */
+.l-notif-header{display:flex;align-items:center;padding:10px 24px;border-bottom:1px solid var(--border)}
+.l-notif-header-spacer{flex:1}
+.l-notif-col-label{width:52px;text-align:center;font-size:9px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--ghost)}
+.l-notif-row{display:flex;align-items:center;padding:14px 24px;border-bottom:1px solid var(--border)}
+.l-notif-row:last-child{border-bottom:none}
+.l-notif-info{flex:1}
+.l-notif-title{font-size:12px;font-weight:500;color:var(--text);margin-bottom:2px}
+.l-notif-desc{font-size:11px;font-weight:300;color:var(--ghost)}
+.l-notif-checks{display:flex;gap:0}
+.l-notif-check-wrap{width:52px;display:flex;justify-content:center}
+.l-checkbox{width:18px;height:18px;border-radius:5px;border:1.5px solid var(--border3);background:transparent;cursor:none;position:relative;transition:all .2s;flex-shrink:0}
+.l-checkbox.on{background:var(--ch);border-color:var(--ch)}
+.l-checkbox.on::after{content:'';position:absolute;top:3px;left:6px;width:5px;height:9px;border:1.5px solid #050705;border-top:none;border-left:none;transform:rotate(45deg)}
+
+/* ACCORDION */
+.l-accordion{border-radius:14px;overflow:hidden;border:1px solid var(--border);margin-bottom:12px}
+.l-accordion-head{display:flex;align-items:center;gap:12px;padding:16px 20px;cursor:none;user-select:none;transition:background .2s}
+.l-accordion-head:hover{background:var(--ghost2)}
+.l-accordion-icon{width:32px;height:32px;border-radius:9px;background:var(--ghost2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--ghost)}
+.l-accordion-icon svg{width:14px;height:14px}
+.l-accordion-title{font-size:13px;font-weight:500;color:var(--text);flex:1}
+.l-accordion-arrow{width:16px;height:16px;color:var(--ghost);transition:transform .3s var(--ease);flex-shrink:0}
+.l-accordion.open .l-accordion-arrow{transform:rotate(180deg)}
+.l-accordion-body{max-height:0;overflow:hidden;transition:max-height .4s var(--ease)}
+.l-accordion.open .l-accordion-body{max-height:600px}
+.l-accordion-inner{border-top:1px solid var(--border);padding:0 20px 4px}
+
+/* SOCIAL LINKS */
+.l-social-row{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--border)}
+.l-social-row:last-child{border-bottom:none}
+.l-social-icon{width:32px;height:32px;border-radius:8px;background:var(--ghost2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--ghost)}
+.l-social-icon svg{width:14px;height:14px}
+.l-social-name{font-size:12px;font-weight:500;color:var(--dim);width:80px;flex-shrink:0}
+
+/* TAGS INPUT */
+.l-tags-wrap{display:flex;flex-wrap:wrap;gap:6px;padding:10px;background:var(--bg);border:1px solid var(--border2);border-radius:10px;min-height:44px;cursor:none}
+.l-tag-pill{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:400;padding:4px 10px;border-radius:20px;background:var(--ghost2);border:1px solid var(--border2);color:var(--dim)}
+.l-tag-pill-x{width:12px;height:12px;color:var(--ghost);cursor:none;transition:color .2s}
+.l-tag-pill-x:hover{color:var(--text)}
+.l-tag-pill-x svg{width:100%;height:100%}
+.l-tags-input{background:none;border:none;outline:none;font-family:var(--sans);font-size:12px;color:var(--text);min-width:80px;flex:1;cursor:text}
+.l-tags-input::placeholder{color:var(--ghost)}
+
+/* AVAILABILITY GRID */
+.l-avail-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px}
+.l-avail-day-card{background:var(--bg);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.l-avail-day-head{padding:8px 10px;border-bottom:1px solid var(--border);font-size:9px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--ghost);display:flex;align-items:center;justify-content:space-between}
+.l-avail-add{width:14px;height:14px;color:var(--ghost);cursor:none;transition:color .2s;flex-shrink:0}
+.l-avail-add:hover:not(.disabled){color:var(--ch)}
+.l-avail-add.disabled{opacity:.25;cursor:not-allowed}
+.l-avail-add svg{width:100%;height:100%}
+.l-avail-times-list{padding:6px 8px;display:flex;flex-direction:column;gap:4px;min-height:8px}
+.l-avail-time-chip{font-size:11px;font-weight:400;color:rgba(173,255,47,0.65);display:flex;align-items:center;justify-content:space-between;gap:4px;padding:2px 4px;border-radius:5px;cursor:none;transition:background .15s}
+.l-avail-time-chip:hover{background:rgba(255,255,255,0.05)}
+.l-avail-time-chip-left{display:flex;align-items:center;gap:4px}
+.l-avail-time-chip-left::before{content:'';width:3px;height:3px;border-radius:50%;background:rgba(173,255,47,0.35);flex-shrink:0}
+.l-avail-time-chip-x{width:12px;height:12px;opacity:0;color:var(--ghost);cursor:none;transition:opacity .15s;flex-shrink:0}
+.l-avail-time-chip:hover .l-avail-time-chip-x{opacity:1}
+.l-avail-time-chip-x svg{width:100%;height:100%}
+.l-avail-counter{font-size:10px;font-weight:400;color:var(--ghost);letter-spacing:.04em}
+.l-avail-counter strong{color:var(--dim);font-weight:600}
+.l-avail-counter.at-limit strong{color:rgba(173,255,47,0.6)}
+
+/* FREQUENCY SELECT */
+.l-select{width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:10px;padding:11px 14px;font-family:var(--sans);font-size:13px;font-weight:300;color:var(--text);outline:none;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.25)' stroke-width='1.5' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;background-size:16px}
+.l-select option{background:#0b0e0b}
+
+/* GOALS — meeting preference */
+.l-meet-pref{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.l-meet-opt{padding:12px 16px;border-radius:12px;background:var(--ghost2);border:2px solid var(--border);cursor:none;transition:all .2s;text-align:left}
+.l-meet-opt:hover{border-color:var(--border3)}
+.l-meet-opt.selected{background:var(--ch2);border-color:rgba(173,255,47,0.25)}
+.l-meet-opt-title{font-size:12px;font-weight:500;color:var(--text);margin-bottom:3px}
+.l-meet-opt-desc{font-size:11px;font-weight:300;color:var(--ghost);line-height:1.5}
+
+/* GOALS — who to meet radio list */
+.l-radio-list{display:flex;flex-direction:column;border:1px solid var(--border2);border-radius:12px;overflow:hidden}
+.l-radio-opt{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;cursor:none;transition:background .18s;border-bottom:1px solid var(--border)}
+.l-radio-opt:last-child{border-bottom:none}
+.l-radio-opt:hover{background:var(--ghost2)}
+.l-radio-opt.selected{background:var(--ch2)}
+.l-radio-opt-label{font-size:13px;font-weight:300;color:var(--dim);transition:color .18s}
+.l-radio-opt.selected .l-radio-opt-label{color:var(--text)}
+.l-radio-dot{width:16px;height:16px;border-radius:50%;border:1.5px solid var(--border3);flex-shrink:0;position:relative;transition:all .18s}
+.l-radio-opt.selected .l-radio-dot{border-color:var(--ch);background:var(--ch)}
+.l-radio-opt.selected .l-radio-dot::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:5px;height:5px;border-radius:50%;background:#050705}
+
+/* GOALS — goal chips */
+.l-goal-chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px}
+.l-goal-chip{display:flex;align-items:center;gap:7px;padding:8px 13px;border-radius:22px;background:var(--ghost2);border:1px solid var(--border2);cursor:none;transition:all .2s}
+.l-goal-chip:hover{border-color:var(--border3)}
+.l-goal-chip.active{background:var(--ch2);border-color:rgba(173,255,47,0.2)}
+.l-goal-chip-icon{font-size:14px;line-height:1}
+.l-goal-chip-label{font-size:12px;font-weight:400;color:var(--dim)}
+.l-goal-chip.active .l-goal-chip-label{color:var(--text)}
+.l-goal-chip-x{width:14px;height:14px;color:var(--ghost);flex-shrink:0;display:none}
+.l-goal-chip.active .l-goal-chip-x{display:block}
+.l-goal-chip-x svg{width:100%;height:100%}
+
+/* DANGER ZONE */
+.l-danger-card{background:rgba(255,77,77,0.04);border:1px solid rgba(255,77,77,0.12);border-radius:16px;padding:20px 24px}
+.l-danger-title{font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,77,77,0.6);margin-bottom:12px}
+.l-danger-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 0;border-bottom:1px solid rgba(255,77,77,0.08)}
+.l-danger-row:last-child{border-bottom:none;padding-bottom:0}
+.l-danger-info-title{font-size:13px;font-weight:400;color:var(--text);margin-bottom:2px}
+.l-danger-info-desc{font-size:11px;font-weight:300;color:var(--ghost);line-height:1.5}
+.l-danger-btn{padding:8px 16px;border-radius:9px;background:transparent;border:1px solid rgba(255,77,77,0.25);color:rgba(255,77,77,0.6);font-family:var(--sans);font-size:11px;font-weight:500;letter-spacing:.06em;cursor:none;white-space:nowrap;transition:all .2s;flex-shrink:0}
+.l-danger-btn:hover{background:rgba(255,77,77,0.08);border-color:rgba(255,77,77,0.4);color:rgba(255,77,77,0.85)}
+
+/* SAVE BAR */
+.l-save-bar{position:fixed;bottom:0;left:0;right:0;height:64px;background:rgba(5,7,5,0.95);backdrop-filter:blur(20px);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:flex-end;padding:0 32px;gap:10px;z-index:50;transform:translateY(100%);transition:transform .35s var(--ease)}
+.l-save-bar.show{transform:translateY(0)}
+.l-body.has-save-bar .l-content{padding-bottom:80px}
+.l-save-discard{padding:10px 18px;border-radius:10px;background:transparent;border:1px solid var(--border2);color:var(--dim);font-family:var(--sans);font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;cursor:none;transition:all .2s}
+.l-save-discard:hover{background:var(--ghost2);color:var(--text)}
+.l-save-btn{padding:10px 24px;border-radius:10px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:var(--text);font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;cursor:none;transition:all .2s}
+.l-save-btn:hover{background:rgba(255,255,255,0.16);border-color:rgba(255,255,255,0.3)}
+.l-save-label{font-size:11px;font-weight:300;color:var(--ghost);margin-right:auto}
+
+/* TURN OFF ALL */
+.l-turn-off{width:100%;padding:12px;border-radius:10px;background:var(--ghost2);border:1px solid var(--border2);color:var(--dim);font-family:var(--sans);font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;cursor:none;transition:all .2s;margin-top:4px}
+.l-turn-off:hover{background:rgba(255,255,255,0.06);color:var(--text)}
+
+/* CONNECTED ACCOUNTS */
+.l-connected-row{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--border)}
+.l-connected-row:last-child{border-bottom:none}
+.l-connected-icon{width:32px;height:32px;border-radius:8px;background:var(--ghost2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px}
+.l-connected-name{font-size:13px;font-weight:400;color:var(--text);flex:1}
+.l-connect-btn{padding:7px 14px;border-radius:8px;background:var(--ghost2);border:1px solid var(--border2);color:var(--dim);font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;cursor:none;transition:all .2s;white-space:nowrap}
+.l-connect-btn:hover{background:rgba(255,255,255,0.07);color:var(--text)}
+.l-connect-btn.connected{border-color:rgba(173,255,47,0.2);color:rgba(173,255,47,0.6);background:var(--ch2)}
+
+/* toast */
+.l-toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(14px);z-index:999;background:#181e18;border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:8px 18px;font-size:11px;letter-spacing:.1em;color:var(--dim);opacity:0;transition:all .4s var(--ease);pointer-events:none;white-space:nowrap}
+.l-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<div id="cur-dot"></div>
+<div id="cur-ring"></div>
+
+<!-- NAV -->
+<nav class="l-nav">
+  <a href="#" class="l-nav-logo">
+    <svg width="15" height="15" viewBox="0 0 32 32" fill="none" style="opacity:.55"><circle cx="16" cy="16" r="13" stroke="rgba(255,255,255,0.5)" stroke-width="1.5"/><path d="M8 16 Q16 7 24 16 Q16 25 8 16Z" stroke="rgba(255,255,255,0.5)" stroke-width="1.5" fill="none"/></svg>
+    Lethe
+  </a>
+  <div class="l-nav-right">
+    <div class="l-nav-back">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      Back
+    </div>
+    <div class="l-avatar"><img src="https://images.unsplash.com/photo-1683815251677-8df20f826622?w=80&q=80&fit=crop" alt="You"></div>
+  </div>
+</nav>
+
+
+<!-- BODY -->
+<div class="l-body">
+
+  <!-- SIDEBAR -->
+  <div class="l-sidebar" id="sidebar">
+    <!-- populated by JS -->
+  </div>
+
+  <!-- CONTENT -->
+  <div class="l-content" id="content">
+    <!-- populated by JS -->
+  </div>
+
+</div>
+
+<!-- SAVE BAR -->
+<div class="l-save-bar" id="save-bar">
+  <div class="l-save-label">Unsaved changes</div>
+  <button class="l-save-discard" onclick="discardChanges()">Discard</button>
+  <button class="l-save-btn" onclick="saveChanges()">Save changes</button>
+</div>
+
+<div class="l-toast" id="toast"></div>
+
+<script>
+/* cursor */
+(function(){
+  var dot=document.getElementById('cur-dot'),ring=document.getElementById('cur-ring');
+  var lx=0,ly=0,tx=0,ty=0;
+  document.addEventListener('mousemove',function(e){tx=e.clientX;ty=e.clientY;dot.style.left=tx+'px';dot.style.top=ty+'px'});
+  (function lerp(){lx+=(tx-lx)*.1;ly+=(ty-ly)*.1;ring.style.left=lx+'px';ring.style.top=ly+'px';requestAnimationFrame(lerp)})();
+  document.addEventListener('mouseover',function(e){
+    if(e.target.closest('button,.l-nav-item,.l-meet-opt,.l-accordion-head,.l-avatar-large,.l-social-icon,.l-avail-add'))ring.classList.add('h');
+    else ring.classList.remove('h');
+  });
+})();
+
+var currentPage='settings';
+var currentSection='';
+var isDirty=false;
+
+var pages={
+  settings:{
+    sections:[
+      {id:'account',label:'Account',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>'},
+      {id:'availability',label:'Availability',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>'},
+      {id:'goals',label:'Goals',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>'},
+      {id:'notifications',label:'Notifications',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>'},
+    ]
+  }
+};
+
+var panels={
+  'account': function(){return `
+    <div class="l-panel-card">
+      <div class="l-panel-header">
+        <div class="l-panel-title">Account</div>
+        <div class="l-panel-sub">Manage your account details, connected services, and security.</div>
+      </div>
+      <div class="l-panel-section">
+        <div class="l-field">
+          <label class="l-field-label">Email address</label>
+          <div class="l-input-row">
+            <input class="l-input" type="email" value="cyon@lethe.app" oninput="markDirty()">
+            <div class="l-input-tag">verified</div>
+          </div>
+        </div>
+        <div class="l-field">
+          <label class="l-field-label">Location</label>
+          <input class="l-input" type="text" value="Lagos, Nigeria" oninput="markDirty()">
+        </div>
+        <div class="l-field">
+          <label class="l-field-label">Languages</label>
+          <div class="l-tags-wrap" id="lang-tags" onclick="focusTagInput('lang-input')">
+            <div class="l-tag-pill">English <span class="l-tag-pill-x" onclick="removeTag(event,'lang-tags',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></span></div>
+            <div class="l-tag-pill">French <span class="l-tag-pill-x" onclick="removeTag(event,'lang-tags',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></span></div>
+            <input class="l-tags-input" id="lang-input" placeholder="Add language..." onkeydown="addTag(event,'lang-tags',this)">
+          </div>
+        </div>
+        <div class="l-field" style="margin-bottom:0">
+          <label class="l-field-label">Date of birth</label>
+          <input class="l-input" type="date" value="1993-03-15" oninput="markDirty()">
+        </div>
+      </div>
+      <div class="l-panel-section">
+        <div class="l-sec-label" style="font-size:9px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:var(--ghost);margin-bottom:14px">Connected accounts</div>
+        `+[
+          {name:'Google Calendar',icon:'📅',connected:true},
+          {name:'Google',icon:'🔍',connected:false},
+          {name:'Apple',icon:'🍎',connected:false},
+        ].map(function(a){return `
+        <div class="l-connected-row">
+          <div class="l-connected-icon">`+a.icon+`</div>
+          <div class="l-connected-name">`+a.name+`</div>
+          <button class="l-connect-btn `+(a.connected?'connected':'')+`" onclick="toggleConnect(this)">`+(a.connected?'Connected':'Connect')+`</button>
+        </div>`}).join('')+`
+      </div>
+      <div class="l-panel-section">
+        <div class="l-field" style="margin-bottom:0">
+          <label class="l-field-label">Password</label>
+          <div class="l-input-row">
+            <input class="l-input" type="password" value="••••••••••" oninput="markDirty()">
+            <button class="l-connect-btn" onclick="showToast('Password update email sent')">Update</button>
+          </div>
+        </div>
+      </div>
+      <div class="l-panel-section" style="background:rgba(255,77,77,0.03)">
+        <div class="l-danger-title">Danger zone</div>
+        <div class="l-danger-row">
+          <div>
+            <div class="l-danger-info-title">Deactivate account</div>
+            <div class="l-danger-info-desc">Pause your account. You can reactivate anytime.</div>
+          </div>
+          <button class="l-danger-btn" onclick="showToast('Deactivation flow would open here')">Deactivate</button>
+        </div>
+        <div class="l-danger-row">
+          <div>
+            <div class="l-danger-info-title">Delete account</div>
+            <div class="l-danger-info-desc">Permanently delete your account and all data. This cannot be undone.</div>
+          </div>
+          <button class="l-danger-btn" onclick="showToast('Deletion confirmation would open here')">Delete</button>
+        </div>
+      </div>
+    </div>
+  `},
+
+  'availability': function(){return `
+    <div class="l-panel-card">
+      <div class="l-panel-header">
+        <div class="l-panel-title">Availability</div>
+        <div class="l-panel-sub">Set when you're available for introductions and how often you want to meet.</div>
+      </div>
+      <div class="l-panel-section">
+        <div class="l-field">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+            <span style="font-size:9px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--ghost)">Meeting times</span>
+            <span class="l-avail-counter" id="avail-counter"><strong>5</strong> of 5 slots used</span>
+          </div>
+          <div class="l-avail-grid" id="avail-grid">
+          </div>
+          <div style="font-size:10px;font-weight:300;color:var(--ghost);margin-top:2px">Hover a time to remove it. Max 5 slots across all days.</div>
+        </div>
+        <div class="l-field" style="margin-bottom:0">
+          <label class="l-field-label">Meeting frequency</label>
+          <select class="l-select" onchange="markDirty()">
+            <option>Every week</option>
+            <option>Every two weeks</option>
+            <option>Once a month</option>
+            <option>Twice a month</option>
+          </select>
+        </div>
+      </div>
+      <div class="l-panel-section">
+        <div class="l-toggle-row" style="padding-top:0">
+          <div class="l-toggle-info">
+            <div class="l-toggle-title">Meet local matches only</div>
+            <div class="l-toggle-desc">Only get introduced to people in your area.</div>
+          </div>
+          <button class="l-toggle" onclick="toggleBtn(this);markDirty()"></button>
+        </div>
+        <div class="l-toggle-row">
+          <div class="l-toggle-info">
+            <div class="l-toggle-title">Pause meetings</div>
+            <div class="l-toggle-desc">Take a break from introductions. You can still message existing matches.</div>
+          </div>
+          <button class="l-toggle" onclick="toggleBtn(this);markDirty()"></button>
+        </div>
+      </div>
+    </div>
+  `},
+
+  'goals': function(){return `
+    <div class="l-panel-card">
+      <div class="l-panel-header">
+        <div class="l-panel-title">Goals</div>
+        <div class="l-panel-sub">Help Lethe understand what you're looking for. This is never shared publicly.</div>
+      </div>
+      <div class="l-panel-section">
+        <div class="l-field" style="margin-bottom:0">
+          <label class="l-field-label">Your interests</label>
+          <div class="l-tags-wrap" id="interest-tags" onclick="focusTagInput('interest-input')">
+            `+['Design Ethics','AI Research','Systems Thinking','Effective Altruism','Building in Public','Conversation Design'].map(function(t){
+              return '<div class="l-tag-pill">'+t+' <span class="l-tag-pill-x" onclick="removeTag(event,\'interest-tags\',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></span></div>';
+            }).join('')+`
+            <input class="l-tags-input" id="interest-input" placeholder="Add interest..." onkeydown="addTag(event,'interest-tags',this)">
+          </div>
+        </div>
+      </div>
+      <div class="l-panel-section">
+        <div class="l-field">
+          <label class="l-field-label">How would you like to be introduced?</label>
+          <textarea class="l-input l-textarea" oninput="markDirty()" placeholder="e.g. I'm a product designer exploring the intersection of AI and human communication...">I'm a product designer exploring the intersection of AI and human communication. Looking for people working on hard problems who think out loud.</textarea>
+          <div style="font-size:10px;color:var(--ghost);margin-top:6px;font-weight:300">This is what Lethe uses when introducing you — different from your public bio.</div>
+        </div>
+        <div class="l-field">
+          <label class="l-field-label">Your goals</label>
+          <div class="l-goal-chips">
+            `+[
+              {icon:'🧠',label:'Brainstorm with peers',active:true},
+              {icon:'💼',label:'Business development',active:true},
+              {icon:'🌍',label:'Meet interesting people',active:true},
+              {icon:'🚀',label:'Find a co-founder',active:false},
+              {icon:'🎯',label:'Get career advice',active:false},
+              {icon:'📣',label:'Find collaborators',active:false},
+              {icon:'💡',label:'Share knowledge',active:false},
+            ].map(function(g){return '<button class="l-goal-chip'+(g.active?' active':'')+'" onclick="toggleGoalChip(this);markDirty()"><span class="l-goal-chip-icon">'+g.icon+'</span><span class="l-goal-chip-label">'+g.label+'</span><span class="l-goal-chip-x"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></span></button>';}).join('')+`
+          </div>
+        </div>
+        <div class="l-field">
+          <label class="l-field-label" style="display:flex;align-items:center;gap:7px"><span style="font-size:14px">🧩</span> I'd like to learn about...</label>
+          <textarea class="l-input l-textarea" style="height:76px" oninput="markDirty()" placeholder="e.g. I want to understand more about psychology.">I want to understand more about the intersection of cognitive science and AI design.</textarea>
+        </div>
+        <div class="l-field" style="margin-bottom:0">
+          <label class="l-field-label" style="display:flex;align-items:center;gap:7px"><span style="font-size:14px">💬</span> Ask me about...</label>
+          <textarea class="l-input l-textarea" style="height:76px" oninput="markDirty()" placeholder="e.g. Transitioning from agency to freelance, or building in public.">Designing AI products from first principles, or how to pivot into conversation design.</textarea>
+        </div>
+      </div>
+      <div class="l-panel-section">
+        <div class="l-field" style="margin-bottom:16px">
+          <label class="l-field-label">Who would you enjoy meeting most?</label>
+          <div class="l-radio-list">
+            `+[
+              'Someone in the same field as me',
+              'Someone in an adjacent or similar field',
+              'Someone I can talk about career strategy with',
+              'Anyone who I can have an interesting conversation with',
+              'Someone building a company or product',
+              'A potential mentor or mentee',
+            ].map(function(opt,i){return '<div class="l-radio-opt'+(i===3?' selected':'')+'" onclick="selectRadio(this);markDirty()"><span class="l-radio-opt-label">'+opt+'</span><div class="l-radio-dot"></div></div>';}).join('')+`
+          </div>
+        </div>
+        <div class="l-field" style="margin-bottom:0">
+          <label class="l-field-label">Where are they based?</label>
+          <select class="l-select" onchange="markDirty()">
+            <option>Anywhere in the world</option>
+            <option>Africa</option><option>Asia</option><option>Europe</option>
+            <option>Latin America</option><option>Middle East</option>
+            <option>North America</option><option>Oceania</option>
+          </select>
+        </div>
+      </div>
+      <div class="l-panel-section">
+        <div class="l-field" style="margin-bottom:14px">
+          <label class="l-field-label">Preferred meeting format</label>
+        </div>
+        <div class="l-meet-pref">
+          `+[
+            {title:'Video call',desc:'30-min video call',sel:true},
+            {title:'Voice call',desc:'Audio only, no video',sel:false},
+            {title:'In person',desc:'Meet locally when possible',sel:false},
+            {title:'No preference',desc:'Open to any format',sel:false},
+          ].map(function(o){return '<button class="l-meet-opt '+(o.sel?'selected':'')+'" onclick="selectMeetOpt(this);markDirty()"><div class="l-meet-opt-title">'+o.title+'</div><div class="l-meet-opt-desc">'+o.desc+'</div></button>';}).join('')+`
+        </div>
+      </div>
+    </div>
+  `},
+
+  'notifications': function(){return `
+    <div class="l-panel-card">
+      <div class="l-panel-header">
+        <div class="l-panel-title">Notifications</div>
+        <div class="l-panel-sub">Choose what Lethe notifies you about and how.</div>
+      </div>
+      `+[
+        {id:'engagement',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>',title:'Engagement',items:[
+          {title:'Echoes',desc:'When someone echoes your post'},
+          {title:'Replies',desc:'When someone replies to your post'},
+          {title:'Mentions',desc:'When someone mentions you'},
+          {title:'Follows',desc:'When someone follows you'},
+        ]},
+        {id:'messaging',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>',title:'Messaging',items:[
+          {title:'New messages',desc:'When you receive a message'},
+          {title:'Message requests',desc:'When a new match messages you first'},
+        ]},
+        {id:'matches',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>',title:'Match updates',items:[
+          {title:'New suggestions',desc:'Your weekly suggestions are ready'},
+          {title:'Introduction set',desc:'When Lethe schedules your introduction'},
+          {title:'Meeting reminder',desc:'24 hours before a scheduled meeting'},
+        ]},
+        {id:'community',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>',title:'Community',items:[
+          {title:'Community invites',desc:'When you get invited to an exclusive community'},
+          {title:'Lethe updates',desc:'Product news and feature announcements'},
+        ]},
+      ].map(function(group,gi){return `
+      <div class="l-panel-section`+(gi===3?' last':'')+`">
+        <div class="l-accordion" id="acc-`+group.id+`" style="border:none;border-radius:0;margin:0">
+          <div class="l-accordion-head" style="padding:0 0 12px" onclick="toggleAccordion('acc-`+group.id+`')">
+            <div class="l-accordion-icon">`+group.icon+`</div>
+            <div class="l-accordion-title">`+group.title+`</div>
+            <svg class="l-accordion-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 9l6 6 6-6"/></svg>
+          </div>
+          <div class="l-accordion-body">
+            <div style="padding-bottom:4px">
+              <div class="l-notif-header" style="padding:8px 0">
+                <div class="l-notif-header-spacer"></div>
+                <div class="l-notif-col-label">Email</div>
+                <div class="l-notif-col-label">Push</div>
+              </div>
+              `+group.items.map(function(item){return `
+              <div class="l-notif-row" style="padding:12px 0">
+                <div class="l-notif-info">
+                  <div class="l-notif-title">`+item.title+`</div>
+                  <div class="l-notif-desc">`+item.desc+`</div>
+                </div>
+                <div class="l-notif-checks">
+                  <div class="l-notif-check-wrap"><div class="l-checkbox on" onclick="toggleCheck(this);markDirty()"></div></div>
+                  <div class="l-notif-check-wrap"><div class="l-checkbox on" onclick="toggleCheck(this);markDirty()"></div></div>
+                </div>
+              </div>`}).join('')+`
+              <button class="l-turn-off" onclick="turnOffGroup('acc-`+group.id+`');markDirty()">Turn off all</button>
+            </div>
+          </div>
+        </div>
+      </div>`}).join('')+`
+    </div>
+  `},
+
+};
+
+function renderSidebar(){
+  var p=pages[currentPage];
+  var html='<div class="l-sidebar-title">Settings</div>';
+  p.sections.forEach(function(s){
+    html+='<div class="l-nav-item'+(s.id===currentSection?' active':'')+'" onclick="navigateTo(\''+s.id+'\')">'
+      +s.icon
+      +'<span class="l-nav-item-label">'+s.label+'</span>'
+      +'</div>';
+  });
+  document.getElementById('sidebar').innerHTML=html;
+}
+
+function renderContent(){
+  var html=panels[currentSection]?panels[currentSection]():'';
+  document.getElementById('content').innerHTML='<div class="l-panel active">'+html+'</div>';
+  document.getElementById('content').scrollTop=0;
+}
+
+function navigateTo(id){
+  currentSection=id;
+  renderSidebar();
+  renderContent();
+  if(id==='availability') setTimeout(renderAvailGrid,50);
+}
+
+
+
+/* availability slot management */
+var availData = {
+  Mon:['7:00 AM','8:00 PM'], Tue:['7:00 AM'], Wed:[], Thu:['6:00 PM','7:00 PM'], Fri:[], Sat:['10:00 AM','11:00 AM'], Sun:[]
+};
+var MAX_SLOTS = 5;
+var TIME_OPTIONS = ['6:00 AM','7:00 AM','8:00 AM','9:00 AM','10:00 AM','11:00 AM','12:00 PM','1:00 PM','2:00 PM','3:00 PM','4:00 PM','5:00 PM','6:00 PM','7:00 PM','8:00 PM','9:00 PM','10:00 PM'];
+
+function totalSlots(){
+  return Object.values(availData).reduce(function(s,a){return s+a.length},0);
+}
+
+function renderAvailGrid(){
+  var grid = document.getElementById('avail-grid');
+  if(!grid) return;
+  var used = totalSlots();
+  var full = used >= MAX_SLOTS;
+  var days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  var out = '';
+  for(var di=0;di<days.length;di++){
+    var d = days[di];
+    var times = availData[d];
+    var addCls = full ? ' disabled' : '';
+    var addTitle = full ? 'Limit reached (5 max)' : 'Add time';
+    var chipHtml = '';
+    for(var ti=0;ti<times.length;ti++){
+      var t = times[ti];
+      chipHtml += '<div class="l-avail-time-chip" data-day="'+d+'" data-time="'+t+'" onclick="removeSlot(this)">'
+        +'<span class="l-avail-time-chip-left">'+t+'</span>'
+        +'<span class="l-avail-time-chip-x"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></span>'
+        +'</div>';
+    }
+    out += '<div class="l-avail-day-card">'
+      +'<div class="l-avail-day-head">'+d
+      +'<div class="l-avail-add'+addCls+'" data-day="'+d+'" onclick="addSlot(this)" title="'+addTitle+'">'
+      +'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>'
+      +'</div></div>'
+      +'<div class="l-avail-times-list">'+chipHtml+'</div>'
+      +'</div>';
+  }
+  grid.innerHTML = out;
+  var counter = document.getElementById('avail-counter');
+  if(counter){
+    counter.innerHTML = '<strong>'+used+'</strong> of 5 slots used';
+    counter.className = 'l-avail-counter'+(used>=MAX_SLOTS?' at-limit':'');
+  }
+}
+
+function addSlot(el){
+  var day = el.getAttribute('data-day');
+  if(totalSlots() >= MAX_SLOTS){ showToast('5 slot limit reached. Remove a time first.'); return; }
+  // remove any existing picker
+  var old = document.getElementById('time-picker-dropdown');
+  if(old){ old.remove(); if(old.getAttribute('data-day')===day) return; }
+  var existing = availData[day];
+  var available = TIME_OPTIONS.filter(function(t){return existing.indexOf(t)===-1});
+  if(!available.length) return;
+  // build dropdown
+  var rect = el.getBoundingClientRect();
+  var drop = document.createElement('div');
+  drop.id = 'time-picker-dropdown';
+  drop.setAttribute('data-day', day);
+  drop.style.cssText = 'position:fixed;z-index:300;background:#0f130f;border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:4px;min-width:130px;box-shadow:0 8px 32px rgba(0,0,0,0.5);max-height:220px;overflow-y:auto;scrollbar-width:none;';
+  available.forEach(function(t){
+    var opt = document.createElement('div');
+    opt.textContent = t;
+    opt.style.cssText = 'padding:8px 12px;font-size:12px;font-weight:300;color:rgba(255,255,255,0.65);border-radius:7px;cursor:pointer;transition:background .15s;';
+    opt.onmouseenter = function(){this.style.background='rgba(173,255,47,0.08)';this.style.color='rgba(255,255,255,0.9)';};
+    opt.onmouseleave = function(){this.style.background='';this.style.color='rgba(255,255,255,0.65)';};
+    opt.onclick = function(e){
+      e.stopPropagation();
+      availData[day] = availData[day].concat([t]);
+      drop.remove();
+      renderAvailGrid();
+      markDirty();
+    };
+    drop.appendChild(opt);
+  });
+  // position below the + button
+  var top = rect.bottom + 4;
+  var left = rect.left - 60;
+  if(left < 8) left = 8;
+  drop.style.top = top + 'px';
+  drop.style.left = left + 'px';
+  document.body.appendChild(drop);
+  // close on outside click
+  setTimeout(function(){
+    document.addEventListener('click', function closePicker(e){
+      if(!drop.contains(e.target)){drop.remove();document.removeEventListener('click',closePicker);}
+    });
+  }, 10);
+}
+
+function removeSlot(el){
+  var day = el.getAttribute('data-day');
+  var time = el.getAttribute('data-time');
+  availData[day] = availData[day].filter(function(t){return t!==time});
+  renderAvailGrid();
+  markDirty();
+}
+
+function markDirty(){
+  isDirty=true;
+  document.getElementById('save-bar').classList.add('show');
+  document.querySelector('.l-body').classList.add('has-save-bar');
+}
+
+function hideSaveBar(){
+  isDirty=false;
+  document.getElementById('save-bar').classList.remove('show');
+  document.querySelector('.l-body').classList.remove('has-save-bar');
+}
+
+function saveChanges(){
+  hideSaveBar();
+  showToast('Changes saved');
+}
+
+function discardChanges(){
+  hideSaveBar();
+  renderContent();
+  showToast('Changes discarded');
+}
+
+function toggleBtn(btn){
+  btn.classList.toggle('on');
+}
+
+function toggleAccordion(id){
+  document.getElementById(id).classList.toggle('open');
+}
+
+function toggleCheck(el){
+  el.classList.toggle('on');
+}
+
+function turnOffGroup(id){
+  document.querySelectorAll('#'+id+' .l-checkbox').forEach(function(c){c.classList.remove('on')});
+}
+
+function selectMeetOpt(el){
+  el.closest('.l-meet-pref').querySelectorAll('.l-meet-opt').forEach(function(o){o.classList.remove('selected')});
+  el.classList.add('selected');
+}
+
+function selectRadio(el){
+  el.closest('.l-radio-list').querySelectorAll('.l-radio-opt').forEach(function(o){o.classList.remove('selected')});
+  el.classList.add('selected');
+}
+
+function toggleGoalChip(el){
+  el.classList.toggle('active');
+}
+
+function toggleConnect(btn){
+  var isConnected=btn.classList.contains('connected');
+  btn.classList.toggle('connected',!isConnected);
+  btn.textContent=isConnected?'Connect':'Connected';
+  markDirty();
+}
+
+function focusTagInput(id){
+  document.getElementById(id) && document.getElementById(id).focus();
+}
+
+function addTag(e,containerId,input){
+  if(e.key==='Enter'&&input.value.trim()){
+    e.preventDefault();
+    var tag=document.createElement('div');
+    tag.className='l-tag-pill';
+    tag.innerHTML=input.value.trim()+' <span class="l-tag-pill-x" onclick="removeTag(event,\''+containerId+'\',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></span>';
+    var container=document.getElementById(containerId);
+    container.insertBefore(tag,input);
+    input.value='';
+    markDirty();
+  }
+}
+
+function removeTag(e,containerId,el){
+  e.stopPropagation();
+  el.closest('.l-tag-pill').remove();
+  markDirty();
+}
+
+function showToast(msg){
+  var t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show')},2600);
+}
+
+/* init */
+currentPage='settings';
+currentSection=pages['settings'].sections[0].id;
+renderSidebar();
+renderContent();
+setTimeout(renderAvailGrid, 50);
+</script>
+</body>
+</html>

@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lethe — Communities</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#050705;--surface:#0b0e0b;--surface2:#0f130f;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);
+  --ch:#ADFF2F;--ch2:rgba(173,255,47,0.08);--ch3:rgba(173,255,47,0.04);
+  --text:rgba(255,255,255,0.88);--dim:rgba(255,255,255,0.52);--ghost:rgba(255,255,255,0.25);
+  --serif:'Libre Baskerville',Georgia,serif;--sans:'Inter',sans-serif;
+  --ease:cubic-bezier(0.16,1,0.3,1);
+}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);cursor:none;display:flex;flex-direction:column}
+body::after{content:'';position:fixed;inset:0;opacity:.018;pointer-events:none;z-index:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:200px}
+#cur-dot{position:fixed;width:5px;height:5px;background:var(--ch);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);mix-blend-mode:screen}
+#cur-ring{position:fixed;width:28px;height:28px;border:1px solid rgba(173,255,47,0.18);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .25s,height .25s,border-color .25s}
+#cur-ring.h{width:44px;height:44px;border-color:rgba(173,255,47,0.38)}
+
+/* NAV */
+.l-nav{height:56px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:0 32px;background:rgba(5,7,5,0.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);z-index:20}
+.l-nav-logo{font-family:var(--serif);font-size:13px;font-weight:400;letter-spacing:.32em;text-transform:uppercase;color:var(--dim);text-decoration:none;display:flex;align-items:center;gap:9px}
+.l-avatar{width:32px;height:32px;border-radius:50%;border:1.5px solid rgba(173,255,47,0.22);overflow:hidden;cursor:none;flex-shrink:0}
+.l-avatar img{width:100%;height:100%;object-fit:cover}
+
+/* TABS */
+.l-tabs{height:48px;flex-shrink:0;display:flex;align-items:center;padding:0 32px;background:var(--surface);border-bottom:1px solid var(--border)}
+.l-tab{padding:0;margin-right:28px;height:100%;display:flex;align-items:center;font-size:11px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--ghost);cursor:none;border-bottom:2px solid transparent;transition:color .2s,border-color .2s;user-select:none;gap:7px}
+.l-tab:hover{color:var(--dim)}
+.l-tab.active{color:var(--text);border-bottom-color:var(--ch)}
+.l-tab-badge{font-size:10px;font-weight:600;padding:1px 6px;border-radius:10px;background:var(--ch2);color:rgba(173,255,47,0.7);border:1px solid rgba(173,255,47,0.15)}
+
+/* BODY */
+.l-body{flex:1;min-height:0;overflow-y:auto;scrollbar-width:none;padding:32px 48px}
+.l-body::-webkit-scrollbar{display:none}
+
+/* PAGE HEADER */
+.l-page-header{margin-bottom:28px}
+.l-page-title{font-family:var(--serif);font-size:26px;font-weight:400;font-style:italic;color:var(--text);margin-bottom:6px}
+.l-page-sub{font-size:13px;font-weight:300;color:var(--ghost);line-height:1.65;max-width:520px}
+
+/* INVITE BANNER */
+.l-invite-banner{background:var(--ch3);border:1px solid rgba(173,255,47,0.1);border-radius:14px;padding:16px 20px;display:flex;align-items:center;gap:14px;margin-bottom:28px;cursor:none;transition:background .2s}
+.l-invite-banner:hover{background:rgba(173,255,47,0.06)}
+.l-invite-icon{width:36px;height:36px;border-radius:10px;background:rgba(173,255,47,0.08);border:1px solid rgba(173,255,47,0.14);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:rgba(173,255,47,0.6)}
+.l-invite-icon svg{width:16px;height:16px}
+.l-invite-info{flex:1}
+.l-invite-title{font-size:13px;font-weight:500;color:var(--text);margin-bottom:2px}
+.l-invite-desc{font-size:11px;font-weight:300;color:var(--ghost)}
+.l-invite-actions{display:flex;gap:8px;flex-shrink:0}
+.l-invite-decline{padding:7px 14px;border-radius:8px;background:transparent;border:1px solid var(--border2);color:var(--ghost);font-family:var(--sans);font-size:11px;font-weight:500;letter-spacing:.06em;cursor:none;transition:all .2s}
+.l-invite-decline:hover{border-color:var(--border);color:var(--dim)}
+.l-invite-accept{padding:7px 14px;border-radius:8px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.14);color:var(--text);font-family:var(--sans);font-size:11px;font-weight:500;letter-spacing:.06em;cursor:none;transition:all .2s}
+.l-invite-accept:hover{background:rgba(255,255,255,0.13);color:#fff}
+
+/* SECTION LABEL */
+.l-section-label{font-size:9px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:var(--ghost);margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.l-section-label::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* COMMUNITIES GRID */
+.l-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;margin-bottom:36px}
+.l-grid.list-view{display:flex;flex-direction:column;gap:10px}
+
+/* LIST VIEW CARD */
+.l-list-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;display:flex;align-items:center;gap:16px;padding:16px 20px;cursor:none;transition:border-color .2s}
+.l-list-card:hover{border-color:var(--border2)}
+.l-list-icon{width:48px;height:48px;border-radius:12px;overflow:hidden;border:1.5px solid var(--border2);flex-shrink:0}
+.l-list-icon img{width:100%;height:100%;object-fit:cover}
+.l-list-info{flex:1;min-width:0}
+.l-list-name{font-family:var(--serif);font-size:15px;font-weight:400;color:var(--text);margin-bottom:3px;display:flex;align-items:center;gap:8px}
+.l-list-desc{font-size:12px;font-weight:300;color:var(--dim);line-height:1.5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.l-list-meta{display:flex;align-items:center;gap:16px;flex-shrink:0}
+.l-list-meta-item{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:300;color:var(--ghost);white-space:nowrap}
+.l-list-meta-item svg{width:12px;height:12px;opacity:.6}
+.l-list-invited-by{font-size:11px;font-weight:300;color:rgba(255,200,80,0.5);display:flex;align-items:center;gap:5px;margin-top:3px}
+.l-list-invited-by svg{width:11px;height:11px}
+.l-list-actions{display:flex;gap:7px;flex-shrink:0}
+
+/* COMMUNITY CARD */
+.l-comm-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;cursor:none;transition:border-color .25s,transform .25s var(--ease)}
+.l-comm-card:hover{border-color:var(--border2);transform:translateY(-2px)}
+.l-comm-card-banner{height:80px;position:relative;overflow:hidden}
+.l-comm-card-banner-img{width:100%;height:100%;object-fit:cover;filter:brightness(0.6) saturate(0.7)}
+.l-comm-card-banner-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 30%,rgba(11,14,11,0.85))}
+.l-comm-card-body{padding:16px 18px}
+.l-comm-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:8px}
+.l-comm-icon{width:40px;height:40px;border-radius:10px;overflow:hidden;border:2px solid var(--border2);flex-shrink:0;margin-top:-30px;position:relative;z-index:1;background:var(--surface2)}
+.l-comm-icon img{width:100%;height:100%;object-fit:cover}
+.l-comm-badge{font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;padding:3px 9px;border-radius:20px}
+.l-comm-badge.member{background:var(--ch2);color:rgba(173,255,47,0.65);border:1px solid rgba(173,255,47,0.15)}
+.l-comm-badge.invited{background:rgba(255,200,80,0.08);color:rgba(255,200,80,0.65);border:1px solid rgba(255,200,80,0.15)}
+.l-comm-name{font-family:var(--serif);font-size:16px;font-weight:400;color:var(--text);margin-bottom:5px;line-height:1.3}
+.l-comm-desc{font-size:12px;font-weight:300;color:var(--dim);line-height:1.65;margin-bottom:12px}
+.l-comm-meta{display:flex;align-items:center;gap:14px;padding-top:12px;border-top:1px solid var(--border)}
+.l-comm-meta-item{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:300;color:var(--ghost)}
+.l-comm-meta-item svg{width:12px;height:12px;opacity:.6}
+.l-comm-members{display:flex;align-items:center}
+.l-comm-member-ava{width:20px;height:20px;border-radius:50%;overflow:hidden;border:1.5px solid var(--surface);margin-left:-6px;flex-shrink:0}
+.l-comm-member-ava:first-child{margin-left:0}
+.l-comm-member-ava img{width:100%;height:100%;object-fit:cover}
+.l-comm-member-count{font-size:11px;font-weight:300;color:var(--ghost);margin-left:8px}
+
+/* EMPTY STATE */
+.l-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 40px;text-align:center;border:1px solid var(--border);border-radius:16px;background:var(--surface)}
+.l-empty-ripple{width:72px;height:72px;position:relative;display:flex;align-items:center;justify-content:center;margin-bottom:24px}
+.l-empty-ripple::before,.l-empty-ripple::after{content:'';position:absolute;border-radius:50%;border:1px solid rgba(255,255,255,0.06);animation:emptyRipple 3s ease-out infinite}
+.l-empty-ripple::after{animation-delay:1.5s}
+@keyframes emptyRipple{0%{width:28px;height:28px;opacity:.5}100%{width:72px;height:72px;opacity:0}}
+.l-empty-dot{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;color:var(--ghost)}
+.l-empty-dot svg{width:13px;height:13px}
+.l-empty-title{font-family:var(--serif);font-size:18px;font-style:italic;font-weight:400;color:var(--text);margin-bottom:8px}
+.l-empty-desc{font-size:13px;font-weight:300;color:var(--ghost);line-height:1.7;max-width:300px}
+
+/* VIEW TOGGLE */
+.l-view-toggle{display:flex;align-items:center;gap:4px;margin-left:auto}
+.l-view-btn{width:30px;height:30px;border-radius:7px;background:transparent;border:1px solid transparent;display:flex;align-items:center;justify-content:center;color:var(--ghost);cursor:none;transition:all .2s}
+.l-view-btn:hover{color:var(--dim)}
+.l-view-btn.active{background:var(--surface2);border-color:var(--border);color:var(--text)}
+.l-view-btn svg{width:14px;height:14px}
+</style>
+</head>
+<body>
+
+<div id="cur-dot"></div>
+<div id="cur-ring"></div>
+
+<!-- NAV -->
+<nav class="l-nav">
+  <a href="#" class="l-nav-logo">
+    <svg width="15" height="15" viewBox="0 0 32 32" fill="none" style="opacity:.55"><circle cx="16" cy="16" r="13" stroke="rgba(255,255,255,0.5)" stroke-width="1.5"/><path d="M8 16 Q16 7 24 16 Q16 25 8 16Z" stroke="rgba(255,255,255,0.5)" stroke-width="1.5" fill="none"/></svg>
+    Lethe
+  </a>
+  <div class="l-avatar"><img src="https://images.unsplash.com/photo-1683815251677-8df20f826622?w=80&q=80&fit=crop" alt="You"></div>
+</nav>
+
+<!-- TABS -->
+<div class="l-tabs">
+  <div class="l-tab active" onclick="switchTab(this,'my')">My communities <span class="l-tab-badge" id="member-count">3</span></div>
+  <div class="l-tab" onclick="switchTab(this,'invites')">Invites <span class="l-tab-badge" id="invite-count">1</span></div>
+  <div class="l-view-toggle">
+    <button class="l-view-btn active" onclick="setView('grid',this)" title="Grid view">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+    </button>
+    <button class="l-view-btn" onclick="setView('list',this)" title="List view">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- BODY -->
+<div class="l-body" id="page-body">
+  <!-- rendered by JS -->
+</div>
+
+<script>
+/* cursor */
+(function(){
+  var dot=document.getElementById('cur-dot'),ring=document.getElementById('cur-ring');
+  var lx=0,ly=0,tx=0,ty=0;
+  document.addEventListener('mousemove',function(e){tx=e.clientX;ty=e.clientY;dot.style.left=tx+'px';dot.style.top=ty+'px'});
+  (function lerp(){lx+=(tx-lx)*.1;ly+=(ty-ly)*.1;ring.style.left=lx+'px';ring.style.top=ly+'px';requestAnimationFrame(lerp)})();
+  document.addEventListener('mouseover',function(e){
+    if(e.target.closest('button,.l-comm-card,.l-tab,.l-view-btn'))ring.classList.add('h');
+    else ring.classList.remove('h');
+  });
+})();
+
+var currentTab = 'my';
+var currentView = 'grid';
+
+var communities = [
+  {
+    id:1, name:'African Design Leaders', status:'member',
+    desc:'A curated space for senior designers across the African continent building products that matter.',
+    banner:'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?w=600&q=70&fit=crop',
+    icon:'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?w=80&q=70&fit=crop',
+    members:47, posts:12, invitedBy:'James Okafor',
+    tags:['Design','Africa','Leadership']
+  },
+  {
+    id:2, name:'Conversation Design Guild', status:'member',
+    desc:'Practitioners thinking at the frontier of how AI should communicate. Voice agents, chat systems, agentic UX.',
+    banner:'https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=600&q=70&fit=crop',
+    icon:'https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=80&q=70&fit=crop',
+    members:134, posts:38, invitedBy:'Sophia Chen',
+    tags:['AI','Voice','UX']
+  },
+  {
+    id:3, name:'Effective Altruism × Tech', status:'member',
+    desc:'Where people who build things think seriously about whether those things should be built.',
+    banner:'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600&q=70&fit=crop',
+    icon:'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=80&q=70&fit=crop',
+    members:289, posts:67, invitedBy:'Elena Voss',
+    tags:['EA','Ethics','Tech']
+  }
+];
+
+var invites = [
+  {
+    id:4, name:'Calm Companies Circle', status:'invited',
+    desc:'Founders and builders committed to sustainable growth, thoughtful culture, and work that doesn\'t consume you.',
+    banner:'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&q=70&fit=crop',
+    icon:'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&q=70&fit=crop',
+    members:62, posts:19, invitedBy:'Noah Bekele',
+    tags:['Startups','Culture','Calm']
+  }
+];
+
+var memberAvatars = [
+  'https://images.unsplash.com/photo-1532272278764-53cd1fe53f72?w=40&q=70&fit=crop&crop=face',
+  'https://images.unsplash.com/photo-1629507208649-70919ca33793?w=40&q=70&fit=crop&crop=face',
+  'https://images.unsplash.com/photo-1672685667592-0392f458f46f?w=40&q=70&fit=crop&crop=face',
+  'https://images.unsplash.com/photo-1770363757711-aa4db84d308d?w=40&q=70&fit=crop&crop=face',
+];
+
+function setView(v, btn){
+  currentView = v;
+  document.querySelectorAll('.l-view-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+  render();
+}
+
+function acceptInvite(id){
+  var inv = invites.find(function(i){return i.id===id});
+  if(!inv) return;
+  inv.status = 'member';
+  communities.push(inv);
+  invites = invites.filter(function(i){return i.id!==id});
+  updateCounts();
+  render();
+}
+
+function declineInvite(id){
+  invites = invites.filter(function(i){return i.id!==id});
+  updateCounts();
+  render();
+}
+
+function updateCounts(){
+  document.getElementById('member-count').textContent = communities.length;
+  document.getElementById('invite-count').textContent = invites.length;
+}
+
+function renderCard(c){
+  var avatarsHtml = memberAvatars.slice(0,3).map(function(a){
+    return '<div class="l-comm-member-ava"><img src="'+a+'" alt=""></div>';
+  }).join('');
+
+  return '<div class="l-comm-card" onclick="window.location=\'lethe-community.html\'" style="cursor:none">'
+    +'<div class="l-comm-card-banner">'
+    +'<img class="l-comm-card-banner-img" src="'+c.banner+'" alt="" loading="lazy">'
+    +'<div class="l-comm-card-banner-overlay"></div>'
+    +'</div>'
+    +'<div class="l-comm-card-body">'
+    +'<div class="l-comm-card-top">'
+    +'<div class="l-comm-icon"><img src="'+c.icon+'" alt=""></div>'
+    +'<span class="l-comm-badge '+(c.status==='member'?'member':'invited')+'">'+(c.status==='member'?'Member':'Invited')+'</span>'
+    +'</div>'
+    +'<div class="l-comm-name">'+c.name+'</div>'
+    +'<div class="l-comm-desc">'+c.desc+'</div>'
+    +'<div class="l-comm-meta">'
+    +'<div class="l-comm-members">'+avatarsHtml+'<span class="l-comm-member-count">'+c.members+' members</span></div>'
+    +'<div class="l-comm-meta-item" style="margin-left:auto">'
+    +'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>'
+    +c.posts+' posts'
+    +'</div>'
+    +'</div>'
+    +'</div>'
+    +'</div>';
+}
+
+function renderInviteCard(c){
+  return '<div class="l-comm-card" onclick="window.location=\'lethe-community.html\'" style="cursor:none">'
+    +'<div class="l-comm-card-banner">'
+    +'<img class="l-comm-card-banner-img" src="'+c.banner+'" alt="" loading="lazy">'
+    +'<div class="l-comm-card-banner-overlay"></div>'
+    +'</div>'
+    +'<div class="l-comm-card-body">'
+    +'<div class="l-comm-card-top">'
+    +'<div class="l-comm-icon"><img src="'+c.icon+'" alt=""></div>'
+    +'<span class="l-comm-badge invited">Invited</span>'
+    +'</div>'
+    +'<div class="l-comm-name">'+c.name+'</div>'
+    +'<div class="l-comm-desc">'+c.desc+'</div>'
+    +'<div style="font-size:11px;font-weight:300;color:rgba(255,200,80,0.5);margin-bottom:12px;display:flex;align-items:center;gap:5px">'
+    +'<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>'
+    +'Invited by '+c.invitedBy
+    +'</div>'
+    +'<div style="display:flex;gap:8px">'
+    +'<button class="l-invite-decline" style="flex:1" onclick="declineInvite('+c.id+')">Decline</button>'
+    +'<button class="l-invite-accept" style="flex:1.6" onclick="acceptInvite('+c.id+')">Join community</button>'
+    +'</div>'
+    +'</div>'
+    +'</div>';
+}
+
+function renderListCard(c){
+  var avatarsHtml = memberAvatars.slice(0,3).map(function(a){
+    return '<div class="l-comm-member-ava"><img src="'+a+'" alt=""></div>';
+  }).join('');
+  return '<div class="l-list-card">'
+    +'<div class="l-list-icon"><img src="'+c.icon+'" alt=""></div>'
+    +'<div class="l-list-info">'
+    +'<div class="l-list-name">'+c.name
+    +'<span class="l-comm-badge member">Member</span>'
+    +'</div>'
+    +'<div class="l-list-desc">'+c.desc+'</div>'
+    +'</div>'
+    +'<div class="l-list-meta">'
+    +'<div class="l-list-meta-item">'
+    +'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>'
+    +c.members+' members'
+    +'</div>'
+    +'<div class="l-list-meta-item">'
+    +'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>'
+    +c.posts+' posts'
+    +'</div>'
+    +'</div>'
+    +'</div>';
+}
+
+function renderInviteListCard(c){
+  return '<div class="l-list-card">'
+    +'<div class="l-list-icon"><img src="'+c.icon+'" alt=""></div>'
+    +'<div class="l-list-info">'
+    +'<div class="l-list-name">'+c.name
+    +'<span class="l-comm-badge invited">Invited</span>'
+    +'</div>'
+    +'<div class="l-list-desc">'+c.desc+'</div>'
+    +'<div class="l-list-invited-by">'
+    +'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>'
+    +'Invited by '+c.invitedBy
+    +'</div>'
+    +'</div>'
+    +'<div class="l-list-actions">'
+    +'<button class="l-invite-decline" onclick="declineInvite('+c.id+')">Decline</button>'
+    +'<button class="l-invite-accept" onclick="acceptInvite('+c.id+')">Join</button>'
+    +'</div>'
+    +'</div>';
+}
+
+function renderEmpty(tab){
+  return '<div class="l-empty">'
+    +'<div class="l-empty-ripple">'
+    +'<div class="l-empty-dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg></div>'
+    +'</div>'
+    +(tab==='invites'
+      ? '<div class="l-empty-title">No pending invites</div>'
+        +'<div class="l-empty-desc">When someone invites you to a community it\'ll appear here. Communities are invite-only — you can\'t apply to join.</div>'
+      : '<div class="l-empty-title">You\'re not in any communities yet</div>'
+        +'<div class="l-empty-desc">Communities are invite-only. When a connection invites you, you\'ll see it in your Invites tab.</div>'
+    )
+    +'</div>';
+}
+
+function render(){
+  var body = document.getElementById('page-body');
+  var html = '';
+
+  if(currentTab === 'invites'){
+    html += '<div class="l-page-header">'
+      +'<div class="l-page-title">Invites</div>'
+      +'<div class="l-page-sub">Communities are invite-only. Review who\'s invited you and decide whether to join.</div>'
+      +'</div>';
+
+    if(invites.length === 0){
+      html += renderEmpty('invites');
+    } else {
+      html += '<div class="l-section-label">Pending invites</div>';
+      var gridCls = currentView==='list' ? 'l-grid list-view' : 'l-grid';
+      html += '<div class="'+gridCls+'">';
+      invites.forEach(function(c){ html += currentView==='list' ? renderInviteListCard(c) : renderInviteCard(c); });
+      html += '</div>';
+    }
+  } else {
+    html += '<div class="l-page-header">'
+      +'<div class="l-page-title">Your communities</div>'
+      +'<div class="l-page-sub">Invite-only spaces where you can connect with people who share your world. You only see communities you\'ve been invited to.</div>'
+      +'</div>';
+
+    if(invites.length > 0){
+      html += '<div class="l-invite-banner" onclick="switchToInvites()">'
+        +'<div class="l-invite-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg></div>'
+        +'<div class="l-invite-info">'
+        +'<div class="l-invite-title">You have '+invites.length+' pending invite'+(invites.length>1?'s':'')+'</div>'
+        +'<div class="l-invite-desc">'+invites.map(function(i){return i.name}).join(', ')+'</div>'
+        +'</div>'
+        +'<button class="l-invite-accept" onclick="event.stopPropagation();switchToInvites()">Review</button>'
+        +'</div>';
+    }
+
+    if(communities.length === 0){
+      html += renderEmpty('my');
+    } else {
+      html += '<div class="l-section-label">Member of '+communities.length+' communit'+(communities.length===1?'y':'ies')+'</div>';
+      var gridCls = currentView==='list' ? 'l-grid list-view' : 'l-grid';
+      html += '<div class="'+gridCls+'">';
+      communities.forEach(function(c){ html += currentView==='list' ? renderListCard(c) : renderCard(c); });
+      html += '</div>';
+    }
+  }
+
+  body.innerHTML = html;
+}
+
+function switchToInvites(){
+  var tabs = document.querySelectorAll('.l-tab');
+  tabs[0].classList.remove('active');
+  tabs[1].classList.add('active');
+  currentTab = 'invites';
+  render();
+}
+
+function switchTab(el, tab){
+  document.querySelectorAll('.l-tab').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');
+  currentTab = tab || 'my';
+  render();
+}
+
+updateCounts();
+render();
+</script>
+</body>
+</html>

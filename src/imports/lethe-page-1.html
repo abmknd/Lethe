@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lethe — @iris.morrow</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #050705;
+      --surface: #0a0d0a;
+      --border: rgba(255,255,255,0.07);
+      --ch: #ADFF2F;
+      --ch-glow: rgba(173,255,47,0.08);
+      --text: rgba(255,255,255,0.88);
+      --dim: rgba(255,255,255,0.42);
+      --ghost: rgba(255,255,255,0.16);
+      --amber: rgba(204,153,51,0.75);
+      --serif: 'Cormorant Garamond', Georgia, serif;
+      --mono: 'DM Mono', monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--serif);
+      min-height: 100vh;
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* ── cursor ── */
+    #cur-dot {
+      position: fixed; width: 5px; height: 5px;
+      background: var(--ch); border-radius: 50%;
+      pointer-events: none; z-index: 9999;
+      transform: translate(-50%,-50%);
+      mix-blend-mode: screen;
+    }
+    #cur-ring {
+      position: fixed; width: 28px; height: 28px;
+      border: 1px solid rgba(173,255,47,0.22); border-radius: 50%;
+      pointer-events: none; z-index: 9998;
+      transform: translate(-50%,-50%);
+      transition: width .3s, height .3s, border-color .3s;
+    }
+    #cur-ring.hover { width: 44px; height: 44px; border-color: rgba(173,255,47,0.45); }
+
+    /* ── noise ── */
+    .noise {
+      position: fixed; inset: 0; opacity: 0.022; pointer-events: none; z-index: 1;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 200px;
+    }
+
+    /* ── nav ── */
+    .l-nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      height: 60px; padding: 0 40px;
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(5,7,5,0.9); backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+    .l-nav-logo { font-family: var(--serif); font-size: 13px; font-weight: 300; letter-spacing: .38em; text-transform: uppercase; color: var(--dim); text-decoration: none; }
+    .l-nav-back { font-family: var(--mono); font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--ghost); text-decoration: none; display: flex; align-items: center; gap: 8px; transition: color .25s; }
+    .l-nav-back:hover { color: var(--dim); }
+
+    /* ── page wrapper ── */
+    .l-page { padding-top: 60px; max-width: 1100px; margin: 0 auto; position: relative; z-index: 2; }
+
+    /* ═══════════════════════════════════════
+       HEADER — editorial full-bleed treatment
+    ═══════════════════════════════════════ */
+    .l-header {
+      position: relative; padding: 0 40px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* Cover: typographic — user's name fills it large */
+    .l-cover {
+      position: relative; overflow: hidden;
+      padding: 64px 0 0;
+      min-height: 220px;
+      display: flex; flex-direction: column; justify-content: flex-end;
+    }
+
+    /* Huge background name watermark */
+    .l-cover-watermark {
+      position: absolute; bottom: -24px; left: -4px;
+      font-family: var(--serif); font-size: clamp(80px, 14vw, 160px);
+      font-weight: 600; font-style: italic; letter-spacing: -.04em;
+      color: transparent;
+      -webkit-text-stroke: 1px rgba(255,255,255,0.05);
+      white-space: nowrap; pointer-events: none; user-select: none;
+      line-height: 1;
+    }
+
+    /* Avatar + identity row that sits on top of the watermark */
+    .l-identity {
+      display: flex; align-items: flex-end; gap: 24px;
+      position: relative; z-index: 2;
+      padding-bottom: 28px;
+    }
+
+    .l-avatar-wrap { position: relative; flex-shrink: 0; }
+    .l-avatar {
+      width: 80px; height: 80px; border-radius: 50%;
+      border: 2px solid var(--border);
+      background: linear-gradient(135deg, #1a2a1a, #0d150d);
+      overflow: hidden; display: flex; align-items: center; justify-content: center;
+      font-family: var(--serif); font-size: 28px; font-style: italic; color: var(--dim);
+    }
+    .l-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+    /* Half-life ring around avatar */
+    .l-avatar-ring {
+      position: absolute; inset: -6px;
+      border-radius: 50%;
+    }
+    .l-avatar-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+
+    .l-identity-text { flex: 1; }
+    .l-name {
+      font-size: clamp(28px, 4vw, 44px); font-weight: 300; font-style: italic;
+      line-height: 1.1; letter-spacing: -.02em; color: var(--text);
+      margin-bottom: 4px;
+    }
+    .l-handle {
+      font-family: var(--mono); font-size: 12px; letter-spacing: .16em;
+      color: var(--ghost); margin-bottom: 12px;
+    }
+    .l-bio {
+      font-size: 15px; font-weight: 300; line-height: 1.7;
+      color: var(--dim); max-width: 480px;
+    }
+
+    .l-edit-btn {
+      font-family: var(--mono); font-size: 11px; letter-spacing: .18em;
+      text-transform: uppercase; color: rgba(173,255,47,0.7);
+      background: rgba(173,255,47,0.06); border: 1px solid rgba(173,255,47,0.2);
+      padding: 8px 18px; border-radius: 20px; cursor: none;
+      transition: all .3s; white-space: nowrap; align-self: flex-start; margin-top: 4px;
+    }
+    .l-edit-btn:hover { background: rgba(173,255,47,0.12); border-color: rgba(173,255,47,0.4); color: var(--ch); }
+
+    /* Stats row */
+    .l-stats {
+      display: flex; gap: 32px; padding: 20px 0;
+      border-top: 1px solid var(--border);
+    }
+    .l-stat { display: flex; flex-direction: column; gap: 3px; cursor: none; }
+    .l-stat-num {
+      font-family: var(--serif); font-size: 22px; font-weight: 300;
+      color: var(--text); line-height: 1;
+    }
+    .l-stat-label {
+      font-family: var(--mono); font-size: 10px; letter-spacing: .2em;
+      text-transform: uppercase; color: var(--ghost);
+    }
+    .l-stat:hover .l-stat-num { color: var(--ch); }
+
+    /* ── Tabs ── */
+    .l-tabs {
+      display: flex; gap: 0;
+      border-bottom: 1px solid var(--border);
+      padding: 0 40px;
+      background: rgba(5,7,5,0.6); backdrop-filter: blur(12px);
+      position: sticky; top: 60px; z-index: 50;
+    }
+    .l-tab {
+      font-family: var(--mono); font-size: 11px; letter-spacing: .2em;
+      text-transform: uppercase; color: var(--ghost);
+      padding: 16px 24px; border-bottom: 2px solid transparent;
+      cursor: none; transition: color .25s, border-color .25s;
+      user-select: none;
+    }
+    .l-tab:hover { color: var(--dim); }
+    .l-tab.active { color: var(--text); border-bottom-color: var(--ch); }
+    .l-tab-count {
+      display: inline-block; margin-left: 6px;
+      font-size: 9px; color: rgba(173,255,47,0.5);
+    }
+
+    /* ═══════════════════════════════════════
+       TIMELINE — the river down the left side
+    ═══════════════════════════════════════ */
+    .l-feed {
+      display: none; padding: 40px 40px 80px;
+    }
+    .l-feed.active { display: block; }
+
+    /* The timeline river */
+    .l-timeline {
+      position: relative;
+      padding-left: 52px; /* space for the river */
+    }
+
+    /* Vertical line — the river */
+    .l-river {
+      position: absolute; left: 16px; top: 0; bottom: 0;
+      width: 1px;
+      background: linear-gradient(to bottom,
+        rgba(173,255,47,0.4) 0%,
+        rgba(173,255,47,0.2) 30%,
+        rgba(173,255,47,0.08) 60%,
+        rgba(173,255,47,0.02) 85%,
+        transparent 100%
+      );
+    }
+
+    /* ── Post card ── */
+    .l-post {
+      position: relative;
+      margin-bottom: 24px;
+      opacity: 0;
+      animation: postIn .5s ease forwards;
+    }
+    .l-post:nth-child(1) { animation-delay: .05s; }
+    .l-post:nth-child(2) { animation-delay: .12s; }
+    .l-post:nth-child(3) { animation-delay: .19s; }
+    .l-post:nth-child(4) { animation-delay: .26s; }
+    .l-post:nth-child(5) { animation-delay: .33s; }
+    .l-post:nth-child(6) { animation-delay: .40s; }
+    @keyframes postIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* River node — the dot on the timeline for each post */
+    .l-node {
+      position: absolute; left: -42px; top: 20px;
+      width: 10px; height: 10px; border-radius: 50%;
+      background: var(--bg); border: 1.5px solid rgba(173,255,47,0.4);
+      z-index: 2;
+    }
+    .l-node.fading { border-color: rgba(204,153,51,0.6); }
+    .l-node.faded  { border-color: rgba(255,255,255,0.12); background: rgba(255,255,255,0.04); }
+
+    /* Age label on river */
+    .l-age {
+      position: absolute; left: -116px; top: 16px;
+      font-family: var(--mono); font-size: 9px; letter-spacing: .14em;
+      text-transform: uppercase; color: var(--ghost);
+      text-align: right; width: 64px;
+      white-space: nowrap;
+    }
+
+    /* Card inner */
+    .l-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px; overflow: hidden;
+      transition: border-color .3s, box-shadow .3s;
+    }
+    .l-card:hover {
+      border-color: rgba(255,255,255,0.12);
+      box-shadow: 0 8px 40px rgba(0,0,0,0.4);
+    }
+
+    /* Fading card */
+    .l-post.is-fading .l-card {
+      border-color: rgba(204,153,51,0.15);
+    }
+    .l-post.is-fading .l-card:hover {
+      border-color: rgba(204,153,51,0.28);
+    }
+
+    /* Faded card */
+    .l-post.is-faded .l-card {
+      border-color: rgba(255,255,255,0.04);
+    }
+    .l-post.is-faded .l-card-body {
+      filter: blur(0.4px);
+    }
+
+    /* Card status badge */
+    .l-status-bar {
+      display: none; padding: 6px 16px;
+      font-family: var(--mono); font-size: 9px; letter-spacing: .2em;
+      text-transform: uppercase;
+      border-bottom: 1px solid transparent;
+    }
+    .l-post.is-fading .l-status-bar {
+      display: block;
+      color: var(--amber);
+      background: rgba(204,153,51,0.05);
+      border-bottom-color: rgba(204,153,51,0.1);
+    }
+    .l-post.is-faded .l-status-bar {
+      display: block;
+      color: var(--ghost);
+      background: rgba(255,255,255,0.02);
+      border-bottom-color: rgba(255,255,255,0.04);
+    }
+
+    /* Card body */
+    .l-card-body { padding: 20px 20px 16px; }
+
+    .l-card-author {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
+    }
+    .l-card-ava {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: linear-gradient(135deg, #1a2a1a, #0d150d);
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--serif); font-size: 11px; font-style: italic; color: var(--dim);
+      overflow: hidden; flex-shrink: 0;
+    }
+    .l-card-ava img { width: 100%; height: 100%; object-fit: cover; }
+    .l-card-who { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; color: var(--ghost); }
+
+    .l-card-text {
+      font-size: 16px; font-weight: 300; line-height: 1.75;
+      color: var(--text); margin-bottom: 16px;
+    }
+    .l-post.is-faded .l-card-text { color: var(--dim); }
+    .l-post.is-faded .l-card-text .l-redacted {
+      background: rgba(255,255,255,0.08); color: transparent; border-radius: 3px;
+      /* Simulates a partially redacted/blurred section */
+    }
+
+    /* Half-life arc row */
+    .l-card-meta {
+      display: flex; align-items: center; gap: 12px;
+      padding-top: 12px; border-top: 1px solid var(--border);
+    }
+    .l-arc-wrap { position: relative; width: 24px; height: 24px; }
+    .l-arc-wrap svg { width: 24px; height: 24px; transform: rotate(-90deg); }
+    .l-arc-label {
+      font-family: var(--mono); font-size: 10px; letter-spacing: .12em;
+      color: var(--ghost); flex: 1;
+    }
+    .l-post.is-fading .l-arc-label { color: var(--amber); }
+    .l-post.is-faded .l-arc-label { color: rgba(255,255,255,0.2); }
+
+    /* Card actions footer — for faded posts */
+    .l-card-actions {
+      display: none;
+      align-items: center; justify-content: space-between;
+      padding: 12px 20px;
+      border-top: 1px solid rgba(255,255,255,0.04);
+      background: rgba(255,255,255,0.015);
+    }
+    .l-post.is-faded .l-card-actions { display: flex; }
+
+    .l-revive-btn {
+      font-family: var(--mono); font-size: 10px; letter-spacing: .2em;
+      text-transform: uppercase; color: rgba(173,255,47,0.65);
+      background: rgba(173,255,47,0.07); border: 1px solid rgba(173,255,47,0.2);
+      padding: 7px 16px; border-radius: 16px; cursor: none;
+      transition: all .3s;
+    }
+    .l-revive-btn:hover { background: rgba(173,255,47,0.14); border-color: rgba(173,255,47,0.4); color: var(--ch); }
+
+    .l-action-icons { display: flex; align-items: center; gap: 4px; }
+    .l-icon-btn {
+      width: 32px; height: 32px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      background: transparent; border: none; cursor: none;
+      color: var(--ghost); transition: background .25s, color .25s;
+    }
+    .l-icon-btn:hover { background: rgba(255,255,255,0.06); color: var(--dim); }
+    .l-icon-btn.del:hover { background: rgba(204,80,80,0.1); color: rgba(204,80,80,0.7); }
+    .l-icon-btn svg { width: 14px; height: 14px; }
+
+    /* ── Faded tab notice ── */
+    .l-faded-notice {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 16px; margin-bottom: 28px;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 10px;
+    }
+    .l-faded-notice svg { flex-shrink: 0; color: var(--ghost); }
+    .l-faded-notice p {
+      font-family: var(--mono); font-size: 11px; letter-spacing: .1em;
+      color: var(--ghost); line-height: 1.6;
+    }
+
+    /* ── Empty state ── */
+    .l-empty {
+      padding: 80px 0; text-align: center;
+      display: none;
+    }
+    .l-empty.show { display: block; }
+    .l-empty-text {
+      font-size: 20px; font-style: italic; font-weight: 300;
+      color: var(--ghost); margin-bottom: 8px;
+    }
+    .l-empty-sub {
+      font-family: var(--mono); font-size: 11px; letter-spacing: .12em;
+      color: rgba(255,255,255,0.1);
+    }
+
+    /* ── Followers sheet ── */
+    .l-sheet-overlay {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,0.6); opacity: 0;
+      transition: opacity .3s; pointer-events: none;
+    }
+    .l-sheet-overlay.open { opacity: 1; pointer-events: all; }
+    .l-sheet {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 201;
+      max-height: 70vh; background: #0a0d0a;
+      border-top: 1px solid var(--border);
+      border-radius: 20px 20px 0 0;
+      transform: translateY(100%); transition: transform .4s cubic-bezier(0.16,1,0.3,1);
+      overflow: hidden; display: flex; flex-direction: column;
+    }
+    .l-sheet.open { transform: translateY(0); }
+    .l-sheet-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 24px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .l-sheet-title {
+      font-family: var(--mono); font-size: 11px; letter-spacing: .22em;
+      text-transform: uppercase; color: var(--dim);
+    }
+    .l-sheet-close {
+      width: 28px; height: 28px; border-radius: 50%; border: none;
+      background: rgba(255,255,255,0.06); color: var(--ghost);
+      cursor: none; display: flex; align-items: center; justify-content: center;
+      transition: background .25s;
+    }
+    .l-sheet-close:hover { background: rgba(255,255,255,0.1); }
+    .l-sheet-body { overflow-y: auto; flex: 1; }
+    .l-user-row {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 24px; border-bottom: 1px solid rgba(255,255,255,0.04);
+      transition: background .2s;
+    }
+    .l-user-row:hover { background: rgba(255,255,255,0.025); }
+    .l-user-ava {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: linear-gradient(135deg, #1a2a1a, #0d150d);
+      border: 1px solid var(--border); flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--serif); font-size: 13px; font-style: italic; color: var(--dim);
+    }
+    .l-user-info { flex: 1; }
+    .l-user-name { font-size: 15px; font-weight: 300; color: var(--text); margin-bottom: 2px; }
+    .l-user-handle { font-family: var(--mono); font-size: 10px; letter-spacing: .12em; color: var(--ghost); }
+    .l-follow-btn {
+      font-family: var(--mono); font-size: 10px; letter-spacing: .16em;
+      text-transform: uppercase; padding: 6px 14px; border-radius: 14px; cursor: none;
+      transition: all .25s; white-space: nowrap;
+    }
+    .l-follow-btn.following {
+      color: var(--ghost); background: transparent;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .l-follow-btn.following:hover { border-color: rgba(204,80,80,0.3); color: rgba(204,80,80,0.6); }
+    .l-follow-btn.follow-back {
+      color: rgba(173,255,47,0.8); background: rgba(173,255,47,0.07);
+      border: 1px solid rgba(173,255,47,0.22);
+    }
+    .l-follow-btn.follow-back:hover { background: rgba(173,255,47,0.14); color: var(--ch); }
+
+    /* ── Revive confirm sheet ── */
+    .l-revive-sheet {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 210;
+      background: #0a0d0a; border-top: 1px solid var(--border);
+      border-radius: 20px 20px 0 0;
+      padding: 32px 40px 48px;
+      transform: translateY(100%); transition: transform .4s cubic-bezier(0.16,1,0.3,1);
+    }
+    .l-revive-sheet.open { transform: translateY(0); }
+    .l-revive-q {
+      font-size: 22px; font-weight: 300; font-style: italic;
+      color: var(--text); line-height: 1.3; margin-bottom: 8px; text-align: center;
+    }
+    .l-revive-sub {
+      font-family: var(--mono); font-size: 11px; letter-spacing: .12em;
+      color: var(--ghost); text-align: center; margin-bottom: 32px;
+    }
+    .l-revive-btns { display: flex; gap: 12px; }
+    .l-revive-confirm {
+      flex: 1; font-family: var(--mono); font-size: 11px; letter-spacing: .2em;
+      text-transform: uppercase; color: #050705;
+      background: var(--ch); border: none; border-radius: 20px;
+      padding: 14px; cursor: none; transition: background .25s;
+    }
+    .l-revive-confirm:hover { background: #c8ff4f; }
+    .l-revive-cancel {
+      flex: 1; font-family: var(--mono); font-size: 11px; letter-spacing: .2em;
+      text-transform: uppercase; color: var(--ghost);
+      background: transparent; border: 1px solid var(--border);
+      border-radius: 20px; padding: 14px; cursor: none; transition: all .25s;
+    }
+    .l-revive-cancel:hover { border-color: rgba(255,255,255,0.15); color: var(--dim); }
+
+    /* Bottom nav */
+    .l-bottom-nav {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 90;
+      height: 64px; display: flex; align-items: center; justify-content: space-around;
+      background: rgba(5,7,5,0.95); backdrop-filter: blur(20px);
+      border-top: 1px solid var(--border);
+    }
+    .l-nav-item {
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      color: var(--ghost); cursor: none; transition: color .25s;
+      font-family: var(--mono); font-size: 9px; letter-spacing: .14em; text-transform: uppercase;
+    }
+    .l-nav-item.active { color: var(--ch); }
+    .l-nav-item svg { width: 20px; height: 20px; }
+    .l-nav-post {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: var(--ch); border: none; cursor: none;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .25s; margin-bottom: 2px;
+    }
+    .l-nav-post:hover { background: #c8ff4f; }
+    .l-nav-post svg { color: #050705; }
+  </style>
+</head>
+<body>
+
+<div class="noise"></div>
+<div id="cur-dot"></div>
+<div id="cur-ring"></div>
+
+<!-- NAV -->
+<nav class="l-nav">
+  <a href="#" class="l-nav-logo">Lethe</a>
+  <a href="#" class="l-nav-back">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    Feed
+  </a>
+</nav>
+
+<div class="l-page">
+
+  <!-- HEADER -->
+  <div class="l-header">
+    <div class="l-cover">
+      <div class="l-cover-watermark">Iris Morrow</div>
+      <div class="l-identity">
+        <!-- Avatar with half-life ring -->
+        <div class="l-avatar-wrap">
+          <div class="l-avatar">I</div>
+          <div class="l-avatar-ring">
+            <svg viewBox="0 0 92 92" fill="none">
+              <circle cx="46" cy="46" r="42" stroke="rgba(255,255,255,0.06)" stroke-width="1.5"/>
+              <circle cx="46" cy="46" r="42" stroke="rgba(173,255,47,0.5)" stroke-width="1.5"
+                stroke-dasharray="263.9" stroke-dashoffset="79" stroke-linecap="round"/>
+            </svg>
+          </div>
+        </div>
+        <div class="l-identity-text">
+          <div class="l-name">Iris Morrow</div>
+          <div class="l-handle">@iris.morrow</div>
+          <div class="l-bio">Writing about the spaces between things. Product at Tempo. Thinking about memory and what we owe the future.</div>
+        </div>
+        <button class="l-edit-btn">Edit profile</button>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="l-stats">
+      <div class="l-stat" onclick="openSheet('followers')">
+        <span class="l-stat-num">284</span>
+        <span class="l-stat-label">Followers</span>
+      </div>
+      <div class="l-stat" onclick="openSheet('following')">
+        <span class="l-stat-num">91</span>
+        <span class="l-stat-label">Following</span>
+      </div>
+      <div class="l-stat">
+        <span class="l-stat-num">47</span>
+        <span class="l-stat-label">Posts</span>
+      </div>
+      <div class="l-stat">
+        <span class="l-stat-num">12</span>
+        <span class="l-stat-label">Faded</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="l-tabs">
+    <div class="l-tab active" onclick="switchTab('all')">All Posts <span class="l-tab-count">35</span></div>
+    <div class="l-tab" onclick="switchTab('faded')">Faded <span class="l-tab-count">12</span></div>
+    <div class="l-tab" onclick="switchTab('echoes')">Echoes <span class="l-tab-count">8</span></div>
+    <div class="l-tab" onclick="switchTab('following')">Following</div>
+  </div>
+
+  <!-- ALL POSTS TAB -->
+  <div class="l-feed active" id="tab-all">
+    <div class="l-timeline">
+      <div class="l-river"></div>
+
+      <!-- POST 1 — flowing -->
+      <div class="l-post">
+        <div class="l-age">now</div>
+        <div class="l-node"></div>
+        <div class="l-card">
+          <div class="l-status-bar"></div>
+          <div class="l-card-body">
+            <div class="l-card-author">
+              <div class="l-card-ava">I</div>
+              <span class="l-card-who">iris.morrow · 2h ago</span>
+            </div>
+            <div class="l-card-text">The most underrated productivity tool is a walk without your phone. Not as a reset. As the actual work. The thinking happens there — you just write it down after.</div>
+            <div class="l-card-meta">
+              <div class="l-arc-wrap">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="9" stroke="rgba(255,255,255,0.1)" stroke-width="1.5"/>
+                  <circle cx="12" cy="12" r="9" stroke="rgba(173,255,47,0.7)" stroke-width="1.5"
+                    stroke-dasharray="56.5" stroke-dashoffset="6" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <span class="l-arc-label">29 days remaining</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- POST 2 — flowing -->
+      <div class="l-post">
+        <div class="l-age">1d</div>
+        <div class="l-node"></div>
+        <div class="l-card">
+          <div class="l-card-body">
+            <div class="l-card-author">
+              <div class="l-card-ava">I</div>
+              <span class="l-card-who">iris.morrow · 1d ago</span>
+            </div>
+            <div class="l-card-text">Something I keep returning to: the apps we use most are the ones that make us feel productive without requiring us to be. The slot machine loop dressed up as a workflow.</div>
+            <div class="l-card-meta">
+              <div class="l-arc-wrap">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="9" stroke="rgba(255,255,255,0.1)" stroke-width="1.5"/>
+                  <circle cx="12" cy="12" r="9" stroke="rgba(173,255,47,0.7)" stroke-width="1.5"
+                    stroke-dasharray="56.5" stroke-dashoffset="10" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <span class="l-arc-label">28 days remaining</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- POST 3 — fading -->
+      <div class="l-post is-fading">
+        <div class="l-age">6d</div>
+        <div class="l-node fading"></div>
+        <div class="l-card">
+          <div class="l-status-bar">Fading in 18 hours</div>
+          <div class="l-card-body">
+            <div class="l-card-author">
+              <div class="l-card-ava">I</div>
+              <span class="l-card-who">iris.morrow · 6d ago</span>
+            </div>
+            <div class="l-card-text">Had a meeting today that could have been a paragraph. The paragraph could have been a sentence. The sentence was obvious. We all knew. We just needed the room to say it out loud together.</div>
+            <div class="l-card-meta">
+              <div class="l-arc-wrap">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="9" stroke="rgba(255,255,255,0.1)" stroke-width="1.5"/>
+                  <circle cx="12" cy="12" r="9" stroke="rgba(204,153,51,0.7)" stroke-width="1.5"
+                    stroke-dasharray="56.5" stroke-dashoffset="46" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <span class="l-arc-label">Fading in 18 hours</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- POST 4 — faded -->
+      <div class="l-post is-faded">
+        <div class="l-age">3w</div>
+        <div class="l-node faded"></div>
+        <div class="l-card">
+          <div class="l-status-bar">Faded · Only you can see this</div>
+          <div class="l-card-body">
+            <div class="l-card-author">
+              <div class="l-card-ava">I</div>
+              <span class="l-card-who">iris.morrow · 3w ago</span>
+            </div>
+            <div class="l-card-text">I think I've been optimising for the wrong thing. Not productivity — <span class="l-redacted">presence</span>. The ability to be somewhere fully without immediately narrating it.</div>
+            <div class="l-card-meta">
+              <div class="l-arc-wrap">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="9" stroke="rgba(255,255,255,0.1)" stroke-width="1.5"/>
+                  <circle cx="12" cy="12" r="9" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"
+                    stroke-dasharray="56.5" stroke-dashoffset="56.5" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <span class="l-arc-label">Fully faded</span>
+            </div>
+          </div>
+          <div class="l-card-actions">
+            <button class="l-revive-btn" onclick="openRevive(this)">Revive</button>
+            <div class="l-action-icons">
+              <!-- Stats -->
+              <button class="l-icon-btn" title="Stats">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 20h18M8 20V10m4 10V4m4 16v-6"/></svg>
+              </button>
+              <!-- Share -->
+              <button class="l-icon-btn" title="Share">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13"/></svg>
+              </button>
+              <!-- Delete -->
+              <button class="l-icon-btn del" title="Delete">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- POST 5 — faded -->
+      <div class="l-post is-faded">
+        <div class="l-age">2mo</div>
+        <div class="l-node faded"></div>
+        <div class="l-card">
+          <div class="l-status-bar">Faded · Only you can see this</div>
+          <div class="l-card-body">
+            <div class="l-card-author">
+              <div class="l-card-ava">I</div>
+              <span class="l-card-who">iris.morrow · 2mo ago</span>
+            </div>
+            <div class="l-card-text">Some days I wonder if the point of social media was never communication at all. Just the feeling of having said something, recorded somewhere, witnessed by someone.</div>
+            <div class="l-card-meta">
+              <div class="l-arc-wrap">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="9" stroke="rgba(255,255,255,0.1)" stroke-width="1.5"/>
+                  <circle cx="12" cy="12" r="9" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"
+                    stroke-dasharray="56.5" stroke-dashoffset="56.5" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <span class="l-arc-label">Fully faded</span>
+            </div>
+          </div>
+          <div class="l-card-actions">
+            <button class="l-revive-btn" onclick="openRevive(this)">Revive</button>
+            <div class="l-action-icons">
+              <button class="l-icon-btn" title="Stats">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 20h18M8 20V10m4 10V4m4 16v-6"/></svg>
+              </button>
+              <button class="l-icon-btn" title="Share">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13"/></svg>
+              </button>
+              <button class="l-icon-btn del" title="Delete">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /timeline -->
+  </div>
+
+  <!-- FADED TAB -->
+  <div class="l-feed" id="tab-faded">
+    <div class="l-faded-notice">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+      <p>These posts have faded. They are invisible to everyone else. You can revive any of them at any time.</p>
+    </div>
+    <div class="l-timeline">
+      <div class="l-river"></div>
+
+      <div class="l-post is-faded">
+        <div class="l-age">3w</div>
+        <div class="l-node faded"></div>
+        <div class="l-card">
+          <div class="l-status-bar">Faded · Only you can see this</div>
+          <div class="l-card-body">
+            <div class="l-card-author">
+              <div class="l-card-ava">I</div>
+              <span class="l-card-who">iris.morrow · 3w ago</span>
+            </div>
+            <div class="l-card-text">I think I've been optimising for the wrong thing. Not productivity — presence. The ability to be somewhere fully without immediately narrating it.</div>
+            <div class="l-card-meta">
+              <div class="l-arc-wrap">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="9" stroke="rgba(255,255,255,0.1)" stroke-width="1.5"/>
+                  <circle cx="12" cy="12" r="9" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"
+                    stroke-dasharray="56.5" stroke-dashoffset="56.5" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <span class="l-arc-label">Fully faded</span>
+            </div>
+          </div>
+          <div class="l-card-actions">
+            <button class="l-revive-btn" onclick="openRevive(this)">Revive</button>
+            <div class="l-action-icons">
+              <button class="l-icon-btn" title="Stats"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 20h18M8 20V10m4 10V4m4 16v-6"/></svg></button>
+              <button class="l-icon-btn" title="Share"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13"/></svg></button>
+              <button class="l-icon-btn del" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="l-post is-faded">
+        <div class="l-age">2mo</div>
+        <div class="l-node faded"></div>
+        <div class="l-card">
+          <div class="l-status-bar">Faded · Only you can see this</div>
+          <div class="l-card-body">
+            <div class="l-card-author">
+              <div class="l-card-ava">I</div>
+              <span class="l-card-who">iris.morrow · 2mo ago</span>
+            </div>
+            <div class="l-card-text">Some days I wonder if the point of social media was never communication at all. Just the feeling of having said something, recorded somewhere, witnessed by someone.</div>
+            <div class="l-card-meta">
+              <div class="l-arc-wrap">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="9" stroke="rgba(255,255,255,0.1)" stroke-width="1.5"/>
+                  <circle cx="12" cy="12" r="9" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"
+                    stroke-dasharray="56.5" stroke-dashoffset="56.5" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <span class="l-arc-label">Fully faded</span>
+            </div>
+          </div>
+          <div class="l-card-actions">
+            <button class="l-revive-btn" onclick="openRevive(this)">Revive</button>
+            <div class="l-action-icons">
+              <button class="l-icon-btn" title="Stats"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 20h18M8 20V10m4 10V4m4 16v-6"/></svg></button>
+              <button class="l-icon-btn" title="Share"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13"/></svg></button>
+              <button class="l-icon-btn del" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ECHOES TAB -->
+  <div class="l-feed" id="tab-echoes">
+    <div class="l-empty show">
+      <div class="l-empty-text">Nothing echoed yet.</div>
+      <div class="l-empty-sub">Posts you amplify will appear here.</div>
+    </div>
+  </div>
+
+  <!-- FOLLOWING TAB -->
+  <div class="l-feed" id="tab-following">
+    <div class="l-empty show">
+      <div class="l-empty-text">Following 91 people.</div>
+      <div class="l-empty-sub">Tap the following count above to browse.</div>
+    </div>
+  </div>
+
+</div><!-- /page -->
+
+<!-- FOLLOWERS SHEET -->
+<div class="l-sheet-overlay" id="sheet-overlay" onclick="closeSheet()"></div>
+<div class="l-sheet" id="sheet">
+  <div class="l-sheet-head">
+    <span class="l-sheet-title" id="sheet-title">Followers</span>
+    <button class="l-sheet-close" onclick="closeSheet()">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="l-sheet-body" id="sheet-body"></div>
+</div>
+
+<!-- REVIVE SHEET -->
+<div class="l-revive-sheet" id="revive-sheet">
+  <div class="l-revive-q">Bring this post back to the top of your timeline?</div>
+  <div class="l-revive-sub">It will return to flowing status and be visible to your followers.</div>
+  <div class="l-revive-btns">
+    <button class="l-revive-confirm" onclick="confirmRevive()">Revive</button>
+    <button class="l-revive-cancel" onclick="cancelRevive()">Leave it</button>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="l-bottom-nav">
+  <div class="l-nav-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+    Feed
+  </div>
+  <div class="l-nav-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+    Connect
+  </div>
+  <div style="display:flex;flex-direction:column;align-items:center;gap:2px">
+    <button class="l-nav-post">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+    </button>
+    <span style="font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--ghost)">Post</span>
+  </div>
+  <div class="l-nav-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+    Messages
+  </div>
+  <div class="l-nav-item active">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    Profile
+  </div>
+</div>
+
+<script>
+  // ── cursor ──
+  const dot = document.getElementById('cur-dot');
+  const ring = document.getElementById('cur-ring');
+  let lx = 0, ly = 0;
+  document.addEventListener('mousemove', e => {
+    dot.style.left = e.clientX + 'px'; dot.style.top = e.clientY + 'px';
+  });
+  function lerpRing() {
+    lx += (parseFloat(dot.style.left||0) - lx) * 0.1;
+    ly += (parseFloat(dot.style.top||0) - ly) * 0.1;
+    ring.style.left = lx + 'px'; ring.style.top = ly + 'px';
+    requestAnimationFrame(lerpRing);
+  }
+  lerpRing();
+  document.querySelectorAll('a,button,.l-stat,.l-tab').forEach(el => {
+    el.addEventListener('mouseenter', () => ring.classList.add('hover'));
+    el.addEventListener('mouseleave', () => ring.classList.remove('hover'));
+  });
+
+  // ── tabs ──
+  function switchTab(name) {
+    document.querySelectorAll('.l-tab').forEach((t,i) => {
+      t.classList.toggle('active', ['all','faded','echoes','following'][i] === name);
+    });
+    document.querySelectorAll('.l-feed').forEach(f => f.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+  }
+
+  // ── followers/following sheet ──
+  const followers = [
+    { name: 'Marcus Jin', handle: '@marcus.jin', following: false },
+    { name: 'Sophia Chen', handle: '@sophia.chen', following: true },
+    { name: 'Kai Shore', handle: '@kai.shore', following: false },
+    { name: 'Elena Voss', handle: '@elena.voss', following: true },
+    { name: 'Theo Lark', handle: '@theo.lark', following: false },
+    { name: 'River Castellano', handle: '@river.castellano', following: true },
+  ];
+
+  function openSheet(type) {
+    document.getElementById('sheet-title').textContent = type === 'followers' ? 'Followers' : 'Following';
+    const body = document.getElementById('sheet-body');
+    body.innerHTML = followers.map((f,i) => `
+      <div class="l-user-row">
+        <div class="l-user-ava">${f.name[0]}</div>
+        <div class="l-user-info">
+          <div class="l-user-name">${f.name}</div>
+          <div class="l-user-handle">${f.handle}</div>
+        </div>
+        <button class="l-follow-btn ${f.following ? 'following' : 'follow-back'}"
+          onclick="toggleFollow(this,${i})">${f.following ? 'Following' : 'Follow back'}</button>
+      </div>
+    `).join('');
+    document.getElementById('sheet-overlay').classList.add('open');
+    document.getElementById('sheet').classList.add('open');
+  }
+
+  function closeSheet() {
+    document.getElementById('sheet-overlay').classList.remove('open');
+    document.getElementById('sheet').classList.remove('open');
+  }
+
+  function toggleFollow(btn, idx) {
+    followers[idx].following = !followers[idx].following;
+    btn.textContent = followers[idx].following ? 'Following' : 'Follow back';
+    btn.className = 'l-follow-btn ' + (followers[idx].following ? 'following' : 'follow-back');
+  }
+
+  // ── revive ──
+  let activeReviveCard = null;
+  function openRevive(btn) {
+    activeReviveCard = btn.closest('.l-post');
+    document.getElementById('revive-sheet').classList.add('open');
+  }
+  function cancelRevive() {
+    document.getElementById('revive-sheet').classList.remove('open');
+    activeReviveCard = null;
+  }
+  function confirmRevive() {
+    if (!activeReviveCard) return;
+    activeReviveCard.classList.remove('is-faded');
+    activeReviveCard.querySelector('.l-node').classList.remove('faded');
+    activeReviveCard.querySelector('.l-status-bar').style.display = 'none';
+    activeReviveCard.querySelector('.l-card-actions').style.display = 'none';
+    // Update arc to full
+    const circles = activeReviveCard.querySelectorAll('.l-arc-wrap circle:last-child');
+    circles.forEach(c => { c.setAttribute('stroke', 'rgba(173,255,47,0.7)'); c.setAttribute('stroke-dashoffset', '6'); });
+    activeReviveCard.querySelector('.l-arc-label').textContent = '30 days remaining';
+    activeReviveCard.style.transition = 'opacity .4s';
+    activeReviveCard.style.opacity = '0.3';
+    setTimeout(() => { activeReviveCard.style.opacity = '1'; }, 100);
+    document.getElementById('revive-sheet').classList.remove('open');
+    activeReviveCard = null;
+  }
+</script>
+</body>
+</html>

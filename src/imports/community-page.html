@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lethe — Community</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#050705;--surface:#0b0e0b;--surface2:#0f130f;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);
+  --ch:#ADFF2F;--ch2:rgba(173,255,47,0.08);
+  --text:rgba(255,255,255,0.88);--dim:rgba(255,255,255,0.52);--ghost:rgba(255,255,255,0.25);--ghost2:rgba(255,255,255,0.06);
+  --serif:'Libre Baskerville',Georgia,serif;--sans:'Inter',sans-serif;
+  --ease:cubic-bezier(0.16,1,0.3,1);
+}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);cursor:none;display:flex;flex-direction:column}
+body::after{content:'';position:fixed;inset:0;opacity:.018;pointer-events:none;z-index:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:200px}
+#cur-dot{position:fixed;width:5px;height:5px;background:var(--ch);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);mix-blend-mode:screen}
+#cur-ring{position:fixed;width:28px;height:28px;border:1px solid rgba(173,255,47,0.18);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .25s,height .25s,border-color .25s}
+#cur-ring.h{width:44px;height:44px;border-color:rgba(173,255,47,0.38)}
+
+/* NAV */
+.l-nav{height:56px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:rgba(5,7,5,0.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);z-index:20}
+.l-nav-left{display:flex;align-items:center;gap:16px}
+.l-nav-back{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--ghost);cursor:none;transition:color .2s}
+.l-nav-back:hover{color:var(--dim)}
+.l-nav-back svg{width:14px;height:14px}
+.l-nav-divider{width:1px;height:16px;background:var(--border)}
+.l-nav-crumb{font-size:12px;font-weight:300;color:var(--ghost)}
+.l-nav-crumb span{color:var(--dim)}
+.l-nav-logo{font-family:var(--serif);font-size:13px;letter-spacing:.32em;text-transform:uppercase;color:var(--dim);display:flex;align-items:center;gap:9px}
+.l-nav-right{display:flex;align-items:center;gap:12px}
+.l-avatar{width:32px;height:32px;border-radius:50%;border:1.5px solid rgba(173,255,47,0.22);overflow:hidden;cursor:none;flex-shrink:0}
+.l-avatar img{width:100%;height:100%;object-fit:cover}
+
+/* BODY SHELL */
+.l-body{flex:1;min-height:0;display:flex;overflow:hidden}
+
+/* LEFT — community list sidebar */
+.l-comm-sidebar{width:280px;flex-shrink:0;border-right:1px solid var(--border);display:flex;flex-direction:column;background:var(--surface);overflow:hidden}
+.l-comm-sidebar-head{padding:18px 18px 12px;flex-shrink:0;border-bottom:1px solid var(--border)}
+.l-comm-sidebar-title{font-size:10px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--ghost);margin-bottom:12px}
+.l-comm-search{display:flex;align-items:center;gap:8px;background:var(--ghost2);border:1px solid var(--border);border-radius:9px;padding:7px 11px}
+.l-comm-search svg{width:13px;height:13px;color:var(--ghost);flex-shrink:0}
+.l-comm-search input{flex:1;background:transparent;border:none;outline:none;font-family:var(--sans);font-size:12px;font-weight:300;color:var(--text);cursor:text}
+.l-comm-search input::placeholder{color:var(--ghost)}
+.l-comm-list{flex:1;overflow-y:auto;scrollbar-width:none;padding:8px 0}
+.l-comm-list::-webkit-scrollbar{display:none}
+.l-comm-item{display:flex;align-items:center;gap:11px;padding:10px 18px;cursor:none;transition:background .18s;position:relative}
+.l-comm-item:hover{background:var(--ghost2)}
+.l-comm-item.active{background:var(--ch2)}
+.l-comm-item.active::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--ch);border-radius:0 2px 2px 0}
+.l-comm-item-icon{width:36px;height:36px;border-radius:9px;overflow:hidden;flex-shrink:0;border:1px solid var(--border)}
+.l-comm-item-icon img{width:100%;height:100%;object-fit:cover}
+.l-comm-item-info{flex:1;min-width:0}
+.l-comm-item-name{font-size:12px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:1px;transition:color .18s}
+.l-comm-item.active .l-comm-item-name{color:var(--text)}
+.l-comm-item-count{font-size:10px;font-weight:300;color:var(--ghost)}
+.l-comm-item-unread{width:6px;height:6px;border-radius:50%;background:var(--ch);flex-shrink:0;opacity:0}
+.l-comm-item.has-unread .l-comm-item-unread{opacity:1}
+
+/* CENTER — feed */
+.l-feed-col{flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden}
+
+/* community header */
+.l-comm-header{flex-shrink:0;border-bottom:1px solid var(--border);overflow:hidden;position:relative}
+.l-comm-banner{height:100px;overflow:hidden;position:relative}
+.l-comm-banner img{width:100%;height:100%;object-fit:cover;filter:brightness(.45) saturate(.6)}
+.l-comm-banner-grad{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 30%,rgba(5,7,5,0.9))}
+.l-comm-header-content{padding:0 24px 16px;display:flex;align-items:flex-end;gap:14px;position:relative;margin-top:-24px}
+.l-comm-logo{width:52px;height:52px;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.07);flex-shrink:0;background:var(--surface2)}
+.l-comm-logo img{width:100%;height:100%;object-fit:cover}
+.l-comm-header-text{flex:1;min-width:0;padding-bottom:2px}
+.l-comm-header-name{font-family:var(--serif);font-size:18px;font-weight:400;color:var(--text);margin-bottom:3px;line-height:1.2}
+.l-comm-header-meta{display:flex;align-items:center;gap:12px}
+.l-comm-header-meta-item{display:flex;align-items:center;gap:4px;font-size:11px;font-weight:300;color:var(--ghost)}
+.l-comm-header-meta-item svg{width:11px;height:11px;opacity:.6}
+.l-comm-header-actions{display:flex;gap:8px;flex-shrink:0;padding-bottom:2px}
+.l-comm-action-btn{display:flex;align-items:center;gap:6px;padding:7px 13px;border-radius:8px;border:1px solid var(--border2);background:transparent;font-family:var(--sans);font-size:11px;font-weight:500;letter-spacing:.06em;color:var(--dim);cursor:none;transition:all .2s}
+.l-comm-action-btn:hover{background:var(--ghost2);color:var(--text)}
+.l-comm-action-btn svg{width:12px;height:12px}
+
+/* feed tabs */
+.l-feed-tabs{height:42px;flex-shrink:0;display:flex;align-items:center;padding:0 24px;border-bottom:1px solid var(--border);gap:0}
+.l-feed-tab{height:100%;padding:0 2px;margin-right:22px;display:flex;align-items:center;font-size:11px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--ghost);cursor:none;border-bottom:2px solid transparent;transition:color .2s,border-color .2s}
+.l-feed-tab:hover{color:var(--dim)}
+.l-feed-tab.active{color:var(--text);border-bottom-color:var(--ch)}
+
+/* feed scroll */
+.l-feed-scroll{flex:1;overflow-y:auto;scrollbar-width:none;padding:20px 24px}
+.l-feed-scroll::-webkit-scrollbar{display:none}
+
+/* compose box */
+.l-compose{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:20px;transition:border-color .2s}
+.l-compose:focus-within{border-color:var(--border2)}
+.l-compose-row{display:flex;align-items:flex-start;gap:11px}
+.l-compose-ava{width:32px;height:32px;border-radius:50%;overflow:hidden;flex-shrink:0;border:1.5px solid rgba(173,255,47,0.18)}
+.l-compose-ava img{width:100%;height:100%;object-fit:cover}
+.l-compose-input{flex:1;background:transparent;border:none;outline:none;font-family:var(--sans);font-size:13px;font-weight:300;color:var(--text);resize:none;line-height:1.65;cursor:text;min-height:40px;padding-top:6px}
+.l-compose-input::placeholder{color:var(--ghost)}
+.l-compose-footer{display:flex;align-items:center;justify-content:flex-end;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);gap:8px}
+.l-compose-footer-left{display:flex;align-items:center;gap:6px;margin-right:auto}
+.l-compose-attach{width:28px;height:28px;border-radius:7px;background:transparent;border:none;display:flex;align-items:center;justify-content:center;color:var(--ghost);cursor:none;transition:all .2s}
+.l-compose-attach:hover{background:var(--ghost2);color:var(--dim)}
+.l-compose-attach svg{width:13px;height:13px}
+.l-post-btn{padding:7px 16px;border-radius:8px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.14);color:var(--dim);font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;cursor:none;transition:all .2s}
+.l-post-btn.ready{background:rgba(255,255,255,0.12);border-color:rgba(255,255,255,0.22);color:var(--text)}
+.l-post-btn:hover.ready{background:rgba(255,255,255,0.18);color:#fff}
+
+/* post card */
+.l-post{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px 18px;margin-bottom:12px;transition:border-color .2s}
+.l-post:hover{border-color:var(--border2)}
+.l-post-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.l-post-author{display:flex;align-items:center;gap:9px}
+.l-post-ava{width:34px;height:34px;border-radius:50%;overflow:hidden;flex-shrink:0;border:1.5px solid var(--border)}
+.l-post-ava img{width:100%;height:100%;object-fit:cover}
+.l-post-author-info{display:flex;flex-direction:column;gap:1px}
+.l-post-name{font-size:12px;font-weight:500;color:var(--text)}
+.l-post-time{font-size:10px;font-weight:300;color:var(--ghost)}
+.l-post-menu{width:24px;height:24px;border-radius:6px;background:transparent;border:none;display:flex;align-items:center;justify-content:center;color:var(--ghost);cursor:none;transition:all .2s}
+.l-post-menu:hover{background:var(--ghost2);color:var(--dim)}
+.l-post-menu svg{width:14px;height:14px}
+.l-post-body{font-size:13px;font-weight:300;color:var(--dim);line-height:1.75;margin-bottom:12px}
+.l-post-body strong{font-weight:500;color:var(--text)}
+.l-post-image{border-radius:10px;overflow:hidden;margin-bottom:12px}
+.l-post-image img{width:100%;display:block;max-height:260px;object-fit:cover}
+.l-post-footer{display:flex;align-items:center;gap:0;padding-top:10px;border-top:1px solid var(--border)}
+.l-post-action{display:flex;align-items:center;gap:5px;padding:5px 10px;border-radius:7px;background:transparent;border:none;font-family:var(--sans);font-size:11px;font-weight:300;color:var(--ghost);cursor:none;transition:all .2s;margin-right:4px}
+.l-post-action:hover{background:var(--ghost2);color:var(--dim)}
+.l-post-action.active{color:rgba(173,255,47,0.65)}
+.l-post-action svg{width:13px;height:13px}
+.l-post-pin{margin-left:auto;font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:rgba(173,255,47,0.4);display:flex;align-items:center;gap:5px}
+.l-post-pin svg{width:10px;height:10px}
+
+/* pinned post */
+.l-post.pinned{border-color:rgba(173,255,47,0.1);background:rgba(173,255,47,0.02)}
+
+/* RIGHT — members sidebar */
+.l-members-col{width:260px;flex-shrink:0;border-left:1px solid var(--border);display:flex;flex-direction:column;background:var(--surface);overflow:hidden}
+.l-members-head{padding:16px 18px 12px;flex-shrink:0;border-bottom:1px solid var(--border)}
+.l-members-title{font-size:10px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--ghost);margin-bottom:0}
+.l-members-list{flex:1;overflow-y:auto;scrollbar-width:none;padding:8px 0}
+.l-members-list::-webkit-scrollbar{display:none}
+.l-member-row{display:flex;align-items:center;gap:10px;padding:9px 18px;cursor:none;transition:background .18s}
+.l-member-row:hover{background:var(--ghost2)}
+.l-member-ava{width:32px;height:32px;border-radius:50%;overflow:hidden;flex-shrink:0;border:1.5px solid var(--border);position:relative}
+.l-member-ava img{width:100%;height:100%;object-fit:cover}
+.l-member-online{position:absolute;bottom:0;right:0;width:8px;height:8px;border-radius:50%;background:var(--ch);border:1.5px solid var(--surface)}
+.l-member-info{flex:1;min-width:0}
+.l-member-name{font-size:12px;font-weight:400;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.l-member-role{font-size:10px;font-weight:300;color:var(--ghost)}
+.l-member-section-label{font-size:9px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--ghost);padding:10px 18px 4px;display:block}
+.l-about-card{margin:12px;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px}
+.l-about-card-label{font-size:9px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--ghost);margin-bottom:8px}
+.l-about-card-text{font-size:11px;font-weight:300;color:var(--dim);line-height:1.65}
+.l-about-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}
+.l-about-tag{font-size:10px;padding:3px 9px;border-radius:20px;background:var(--ghost2);border:1px solid var(--border);color:var(--ghost)}
+
+/* emoji reaction picker */
+.l-emoji-picker{position:fixed;z-index:300;background:#1a1e1a;border:1px solid rgba(255,255,255,0.1);border-radius:40px;padding:6px 10px;display:flex;align-items:center;gap:4px;box-shadow:0 8px 32px rgba(0,0,0,0.6);opacity:0;pointer-events:none;transform:translateY(6px) scale(0.92);transform-origin:bottom center;transition:opacity .2s cubic-bezier(0.16,1,0.3,1),transform .2s cubic-bezier(0.16,1,0.3,1)}
+.l-emoji-picker.show{opacity:1;pointer-events:all;transform:translateY(0) scale(1)}
+.l-emoji-btn{width:36px;height:36px;border-radius:50%;background:transparent;border:none;font-size:20px;cursor:none;display:flex;align-items:center;justify-content:center;transition:transform .15s cubic-bezier(0.16,1,0.3,1);line-height:1}
+.l-emoji-btn:hover{transform:scale(1.4) translateY(-4px)}
+.l-emoji-more{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;cursor:none;color:rgba(255,255,255,0.5);transition:all .15s;flex-shrink:0}
+.l-emoji-more svg{width:12px;height:12px}
+/* community options dropdown */
+.l-options-menu{position:fixed;z-index:300;background:#141814;border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:5px;min-width:180px;box-shadow:0 8px 32px rgba(0,0,0,0.5);opacity:0;pointer-events:none;transform:translateY(-6px);transition:opacity .2s cubic-bezier(0.16,1,0.3,1),transform .2s cubic-bezier(0.16,1,0.3,1)}
+.l-options-menu.show{opacity:1;pointer-events:all;transform:translateY(0)}
+.l-options-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:none;font-size:12px;font-weight:400;color:var(--dim);transition:background .15s,color .15s}
+.l-options-item:hover{background:rgba(255,255,255,0.06);color:var(--text)}
+.l-options-item.danger{color:rgba(255,80,80,0.55)}
+.l-options-item.danger:hover{background:rgba(255,80,80,0.07);color:rgba(255,80,80,0.85)}
+.l-options-item svg{width:13px;height:13px;flex-shrink:0;opacity:.7}
+.l-options-divider{height:1px;background:rgba(255,255,255,0.06);margin:4px 0}
+</style>
+</head>
+<body>
+
+<div id="cur-dot"></div>
+<div id="cur-ring"></div>
+
+<!-- NAV -->
+<nav class="l-nav">
+  <div class="l-nav-left">
+    <a class="l-nav-back" href="lethe-communities.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      Communities
+    </a>
+    <div class="l-nav-divider"></div>
+    <div class="l-nav-crumb"><span>Conversation Design Guild</span></div>
+  </div>
+
+  <div class="l-nav-right">
+    <div class="l-avatar"><img src="https://images.unsplash.com/photo-1683815251677-8df20f826622?w=80&q=80&fit=crop" alt="You"></div>
+  </div>
+</nav>
+
+<!-- BODY -->
+<div class="l-body">
+
+  <!-- LEFT: community switcher -->
+  <div class="l-comm-sidebar">
+    <div class="l-comm-sidebar-head">
+      <div class="l-comm-sidebar-title">My communities</div>
+      <div class="l-comm-search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input type="text" placeholder="Search communities...">
+      </div>
+    </div>
+    <div class="l-comm-list">
+      <div class="l-comm-item active has-unread">
+        <div class="l-comm-item-icon"><img src="https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=80&q=70&fit=crop" alt=""></div>
+        <div class="l-comm-item-info">
+          <div class="l-comm-item-name">Conversation Design Guild</div>
+          <div class="l-comm-item-count">134 members</div>
+        </div>
+        <div class="l-comm-item-unread"></div>
+      </div>
+      <div class="l-comm-item">
+        <div class="l-comm-item-icon"><img src="https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?w=80&q=70&fit=crop" alt=""></div>
+        <div class="l-comm-item-info">
+          <div class="l-comm-item-name">African Design Leaders</div>
+          <div class="l-comm-item-count">47 members</div>
+        </div>
+        <div class="l-comm-item-unread"></div>
+      </div>
+      <div class="l-comm-item">
+        <div class="l-comm-item-icon"><img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=80&q=70&fit=crop" alt=""></div>
+        <div class="l-comm-item-info">
+          <div class="l-comm-item-name">Effective Altruism × Tech</div>
+          <div class="l-comm-item-count">289 members</div>
+        </div>
+        <div class="l-comm-item-unread"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CENTER: feed -->
+  <div class="l-feed-col">
+
+    <!-- Community header -->
+    <div class="l-comm-header">
+      <div class="l-comm-banner">
+        <img src="https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=900&q=70&fit=crop" alt="">
+        <div class="l-comm-banner-grad"></div>
+      </div>
+      <div class="l-comm-header-content">
+        <div class="l-comm-logo"><img src="https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=80&q=70&fit=crop" alt=""></div>
+        <div class="l-comm-header-text">
+          <div class="l-comm-header-name">Conversation Design Guild</div>
+          <div class="l-comm-header-meta">
+            <div class="l-comm-header-meta-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+              134 members
+            </div>
+            <div class="l-comm-header-meta-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              Created by Sophia Chen
+            </div>
+          </div>
+        </div>
+        <div class="l-comm-header-actions">
+          <button class="l-comm-action-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98"/></svg>
+            Invite
+          </button>
+          <button class="l-comm-action-btn" onclick="toggleOptionsMenu(this)" id="options-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Feed tabs -->
+    <div class="l-feed-tabs">
+      <div class="l-feed-tab active" onclick="switchFeedTab(this)">Feed</div>
+      <div class="l-feed-tab" onclick="switchFeedTab(this)">Events</div>
+      <div class="l-feed-tab" onclick="switchFeedTab(this)">Resources</div>
+    </div>
+
+    <!-- Feed scroll -->
+    <div class="l-feed-scroll">
+
+      <!-- Compose -->
+      <div class="l-compose">
+        <div class="l-compose-row">
+          <div class="l-compose-ava"><img src="https://images.unsplash.com/photo-1683815251677-8df20f826622?w=80&q=80&fit=crop" alt="You"></div>
+          <textarea class="l-compose-input" id="compose-input" placeholder="Share something with the guild..." rows="1" oninput="onCompose(this)"></textarea>
+        </div>
+        <div class="l-compose-footer">
+          <div class="l-compose-footer-left">
+            <button class="l-compose-attach" title="Attach image">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            </button>
+            <button class="l-compose-attach" title="Attach link">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+            </button>
+          </div>
+          <button class="l-post-btn" id="post-btn" onclick="submitPost()">Post</button>
+        </div>
+      </div>
+
+      <!-- Pinned post -->
+      <div class="l-post pinned">
+        <div class="l-post-head">
+          <div class="l-post-author">
+            <div class="l-post-ava"><img src="https://images.unsplash.com/photo-1532272278764-53cd1fe53f72?w=80&q=70&fit=crop&crop=face" alt=""></div>
+            <div class="l-post-author-info">
+              <div class="l-post-name">Sophia Chen <span style="font-size:10px;font-weight:300;color:rgba(173,255,47,0.5);margin-left:4px">· Admin</span></div>
+              <div class="l-post-time">Pinned · 3 days ago</div>
+            </div>
+          </div>
+          <button class="l-post-menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+        </div>
+        <div class="l-post-body">
+          <strong>Welcome to the Conversation Design Guild.</strong> This is a space for practitioners who think seriously about how AI should speak, listen, and reason. Share work, ask questions, argue about what good looks like. We're glad you're here.
+        </div>
+        <div class="l-post-footer">
+          <button class="l-post-action" onclick="toggleReaction(this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+            24
+          </button>
+          <button class="l-post-action" onclick="toggleReply(this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+            8
+          </button>
+          <div class="l-post-pin">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            Pinned
+          </div>
+        </div>
+      </div>
+
+      <!-- Posts -->
+      <div id="feed-posts">
+
+        <div class="l-post">
+          <div class="l-post-head">
+            <div class="l-post-author">
+              <div class="l-post-ava"><img src="https://images.unsplash.com/photo-1629507208649-70919ca33793?w=80&q=70&fit=crop&crop=face" alt=""></div>
+              <div class="l-post-author-info">
+                <div class="l-post-name">Marcus Jin</div>
+                <div class="l-post-time">2 hours ago</div>
+              </div>
+            </div>
+            <button class="l-post-menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+          </div>
+          <div class="l-post-body">
+            Has anyone else noticed that the failure mode of most voice agents isn't bad intent-parsing — it's bad <strong>pacing</strong>? The agent answers correctly but speaks like it's reading from a spreadsheet. The trust never builds. Curious how people are handling this.
+          </div>
+          <div class="l-post-footer">
+            <button class="l-post-action active" onclick="toggleReaction(this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+              14
+            </button>
+            <button class="l-post-action" onclick="toggleReply(this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+              6
+            </button>
+            <button class="l-post-action" style="margin-left:auto" onclick="togglePostEmojiPicker(this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="l-post">
+          <div class="l-post-head">
+            <div class="l-post-author">
+              <div class="l-post-ava"><img src="https://images.unsplash.com/photo-1672685667592-0392f458f46f?w=80&q=70&fit=crop&crop=face" alt=""></div>
+              <div class="l-post-author-info">
+                <div class="l-post-name">Anika Patel</div>
+                <div class="l-post-time">Yesterday</div>
+              </div>
+            </div>
+            <button class="l-post-menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+          </div>
+          <div class="l-post-image"><img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&q=70&fit=crop" alt=""></div>
+          <div class="l-post-body">
+            Put together a framework for evaluating agentic conversation flows — specifically around how to think about error recovery. When should an agent apologise vs. just correct course quietly? Sharing here before I write it up properly.
+          </div>
+          <div class="l-post-footer">
+            <button class="l-post-action" onclick="toggleReaction(this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+              31
+            </button>
+            <button class="l-post-action" onclick="toggleReply(this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+              12
+            </button>
+            <button class="l-post-action" style="margin-left:auto" onclick="togglePostEmojiPicker(this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="l-post">
+          <div class="l-post-head">
+            <div class="l-post-author">
+              <div class="l-post-ava"><img src="https://images.unsplash.com/photo-1770363757711-aa4db84d308d?w=80&q=70&fit=crop&crop=face" alt=""></div>
+              <div class="l-post-author-info">
+                <div class="l-post-name">River Castillo</div>
+                <div class="l-post-time">2 days ago</div>
+              </div>
+            </div>
+            <button class="l-post-menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+          </div>
+          <div class="l-post-body">
+            Reading through some older HCI papers on conversational repair strategies. Remarkable how much of what we call "AI UX" was figured out in the 90s — we just didn't have the compute to execute. Anyone have recommendations for more obscure reading in this space?
+          </div>
+          <div class="l-post-footer">
+            <button class="l-post-action" onclick="toggleReaction(this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+              19
+            </button>
+            <button class="l-post-action" onclick="toggleReply(this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+              9
+            </button>
+            <button class="l-post-action" style="margin-left:auto" onclick="togglePostEmojiPicker(this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+            </button>
+          </div>
+        </div>
+
+      </div><!-- /feed-posts -->
+    </div><!-- /feed-scroll -->
+  </div><!-- /feed-col -->
+
+  <!-- RIGHT: members -->
+  <div class="l-members-col">
+
+    <div class="l-about-card">
+      <div class="l-about-card-label">About</div>
+      <div class="l-about-card-text">Practitioners thinking at the frontier of how AI should communicate. Voice agents, chat systems, agentic UX.</div>
+      <div class="l-about-tags">
+        <span class="l-about-tag">AI</span>
+        <span class="l-about-tag">Voice</span>
+        <span class="l-about-tag">UX</span>
+        <span class="l-about-tag">Conversation</span>
+      </div>
+    </div>
+
+    <div class="l-members-head">
+      <div class="l-members-title">Members · 134</div>
+    </div>
+
+    <div class="l-members-list">
+      <span class="l-member-section-label">Online now</span>
+
+      <div class="l-member-row">
+        <div class="l-member-ava">
+          <img src="https://images.unsplash.com/photo-1683815251677-8df20f826622?w=80&q=80&fit=crop" alt="">
+          <div class="l-member-online"></div>
+        </div>
+        <div class="l-member-info">
+          <div class="l-member-name">You</div>
+          <div class="l-member-role">Member</div>
+        </div>
+      </div>
+
+      <div class="l-member-row">
+        <div class="l-member-ava">
+          <img src="https://images.unsplash.com/photo-1532272278764-53cd1fe53f72?w=80&q=70&fit=crop&crop=face" alt="">
+          <div class="l-member-online"></div>
+        </div>
+        <div class="l-member-info">
+          <div class="l-member-name">Sophia Chen</div>
+          <div class="l-member-role">Admin</div>
+        </div>
+      </div>
+
+      <div class="l-member-row">
+        <div class="l-member-ava">
+          <img src="https://images.unsplash.com/photo-1629507208649-70919ca33793?w=80&q=70&fit=crop&crop=face" alt="">
+          <div class="l-member-online"></div>
+        </div>
+        <div class="l-member-info">
+          <div class="l-member-name">Marcus Jin</div>
+          <div class="l-member-role">Member</div>
+        </div>
+      </div>
+
+      <span class="l-member-section-label" style="margin-top:6px">All members</span>
+
+      <div class="l-member-row">
+        <div class="l-member-ava"><img src="https://images.unsplash.com/photo-1672685667592-0392f458f46f?w=80&q=70&fit=crop&crop=face" alt=""></div>
+        <div class="l-member-info"><div class="l-member-name">Anika Patel</div><div class="l-member-role">Member</div></div>
+      </div>
+      <div class="l-member-row">
+        <div class="l-member-ava"><img src="https://images.unsplash.com/photo-1770363757711-aa4db84d308d?w=80&q=70&fit=crop&crop=face" alt=""></div>
+        <div class="l-member-info"><div class="l-member-name">River Castillo</div><div class="l-member-role">Member</div></div>
+      </div>
+      <div class="l-member-row">
+        <div class="l-member-ava"><img src="https://images.unsplash.com/photo-1463453091185-61582044d556?w=80&q=70&fit=crop&crop=face" alt=""></div>
+        <div class="l-member-info"><div class="l-member-name">James Okafor</div><div class="l-member-role">Member</div></div>
+      </div>
+      <div class="l-member-row">
+        <div class="l-member-ava"><img src="https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=80&q=70&fit=crop&crop=face" alt=""></div>
+        <div class="l-member-info"><div class="l-member-name">Iris Morrow</div><div class="l-member-role">Member</div></div>
+      </div>
+      <div class="l-member-row">
+        <div class="l-member-ava"><img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&q=70&fit=crop&crop=face" alt=""></div>
+        <div class="l-member-info"><div class="l-member-name">Theo Lark</div><div class="l-member-role">Member</div></div>
+      </div>
+      <div class="l-member-row">
+        <div class="l-member-ava"><img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&q=70&fit=crop&crop=face" alt=""></div>
+        <div class="l-member-info"><div class="l-member-name">Yuki Tanaka</div><div class="l-member-role">Member</div></div>
+      </div>
+    </div>
+
+  </div><!-- /members-col -->
+
+</div><!-- /body -->
+
+<script>
+(function(){
+  var dot=document.getElementById('cur-dot'),ring=document.getElementById('cur-ring');
+  var lx=0,ly=0,tx=0,ty=0;
+  document.addEventListener('mousemove',function(e){tx=e.clientX;ty=e.clientY;dot.style.left=tx+'px';dot.style.top=ty+'px'});
+  (function lerp(){lx+=(tx-lx)*.1;ly+=(ty-ly)*.1;ring.style.left=lx+'px';ring.style.top=ly+'px';requestAnimationFrame(lerp)})();
+  document.addEventListener('mouseover',function(e){
+    if(e.target.closest('button,.l-comm-item,.l-member-row,.l-post'))ring.classList.add('h');
+    else ring.classList.remove('h');
+  });
+})();
+
+function switchFeedTab(el){
+  document.querySelectorAll('.l-feed-tab').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');
+}
+
+function onCompose(el){
+  el.style.height='auto';
+  el.style.height=el.scrollHeight+'px';
+  var btn=document.getElementById('post-btn');
+  btn.classList.toggle('ready', el.value.trim().length > 0);
+}
+
+function submitPost(){
+  var input=document.getElementById('compose-input');
+  var text=input.value.trim();
+  if(!text) return;
+  var post=document.createElement('div');
+  post.className='l-post';
+  post.style.opacity='0';
+  post.style.transform='translateY(-8px)';
+  post.style.transition='opacity .35s ease, transform .35s ease';
+  post.innerHTML='<div class="l-post-head">'
+    +'<div class="l-post-author">'
+    +'<div class="l-post-ava"><img src="https://images.unsplash.com/photo-1683815251677-8df20f826622?w=80&q=80&fit=crop" alt=""></div>'
+    +'<div class="l-post-author-info"><div class="l-post-name">You</div><div class="l-post-time">Just now</div></div>'
+    +'</div>'
+    +'<button class="l-post-menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>'
+    +'</div>'
+    +'<div class="l-post-body">'+text+'</div>'
+    +'<div class="l-post-footer">'
+    +'<button class="l-post-action" onclick="toggleReaction(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg> 0</button>'
+    +'<button class="l-post-action" onclick="toggleReply(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg> 0</button>'
+    +'</div>';
+  var feed=document.getElementById('feed-posts');
+  feed.insertBefore(post, feed.firstChild);
+  requestAnimationFrame(function(){post.style.opacity='1';post.style.transform='translateY(0)'});
+  input.value='';
+  input.style.height='auto';
+  document.getElementById('post-btn').classList.remove('ready');
+}
+
+function toggleReaction(btn){
+  var parts=btn.innerHTML.split('</svg>');
+  var count=parseInt(parts[1].trim())||0;
+  if(btn.classList.toggle('active')) count++;
+  else count=Math.max(0,count-1);
+  btn.innerHTML=parts[0]+'</svg> '+count;
+}
+
+function toggleReply(btn){
+  btn.classList.toggle('active');
+}
+
+var emojiPickerOpen = false;
+var activePostEmojiBtn = null;
+
+function togglePostEmojiPicker(btn){
+  var picker = document.getElementById('emoji-picker');
+  // if already open for this button, close
+  if(emojiPickerOpen && activePostEmojiBtn === btn){
+    picker.classList.remove('show');
+    emojiPickerOpen = false;
+    activePostEmojiBtn = null;
+    document.removeEventListener('click', closeEmojiOnOutside);
+    return;
+  }
+  activePostEmojiBtn = btn;
+  emojiPickerOpen = true;
+  var rect = btn.getBoundingClientRect();
+  picker.style.left = Math.max(8, rect.left - 60) + 'px';
+  picker.style.top = (rect.top - 58) + 'px';
+  picker.classList.add('show');
+  setTimeout(function(){
+    document.addEventListener('click', closeEmojiOnOutside);
+  }, 10);
+}
+var optionsMenuOpen = false;
+
+function toggleEmojiPicker(btn){
+  var picker = document.getElementById('emoji-picker');
+  // close options if open
+  document.getElementById('options-menu').classList.remove('show');
+  optionsMenuOpen = false;
+
+  emojiPickerOpen = !emojiPickerOpen;
+  if(emojiPickerOpen){
+    var rect = btn.getBoundingClientRect();
+    picker.style.left = rect.left + 'px';
+    picker.style.top = (rect.top - 58) + 'px';
+    picker.classList.add('show');
+    setTimeout(function(){
+      document.addEventListener('click', closeEmojiOnOutside);
+    }, 10);
+  } else {
+    picker.classList.remove('show');
+  }
+}
+
+function closeEmojiOnOutside(e){
+  var picker = document.getElementById('emoji-picker');
+  var btn = document.getElementById('react-btn');
+  if(!picker.contains(e.target) && !btn.contains(e.target)){
+    picker.classList.remove('show');
+    emojiPickerOpen = false;
+    document.removeEventListener('click', closeEmojiOnOutside);
+  }
+}
+
+function pickEmoji(emoji){
+  // for demo — just close picker and flash the react button
+  var picker = document.getElementById('emoji-picker');
+  picker.classList.remove('show');
+  emojiPickerOpen = false;
+  document.removeEventListener('click', closeEmojiOnOutside);
+}
+
+function toggleOptionsMenu(btn){
+  var menu = document.getElementById('options-menu');
+  // close emoji if open
+  document.getElementById('emoji-picker').classList.remove('show');
+  emojiPickerOpen = false;
+
+  optionsMenuOpen = !optionsMenuOpen;
+  if(optionsMenuOpen){
+    var rect = btn.getBoundingClientRect();
+    menu.style.right = (window.innerWidth - rect.right) + 'px';
+    menu.style.top = (rect.bottom + 6) + 'px';
+    menu.style.left = 'auto';
+    menu.classList.add('show');
+    setTimeout(function(){
+      document.addEventListener('click', closeOptionsOnOutside);
+    }, 10);
+  } else {
+    menu.classList.remove('show');
+  }
+}
+
+function closeOptionsOnOutside(e){
+  var menu = document.getElementById('options-menu');
+  var btn = document.getElementById('options-btn');
+  if(!menu.contains(e.target) && !btn.contains(e.target)){
+    menu.classList.remove('show');
+    optionsMenuOpen = false;
+    document.removeEventListener('click', closeOptionsOnOutside);
+  }
+}
+
+</script>
+
+<!-- EMOJI PICKER -->
+<div class="l-emoji-picker" id="emoji-picker">
+  <button class="l-emoji-btn" onclick="pickEmoji('👍')">👍</button>
+  <button class="l-emoji-btn" onclick="pickEmoji('❤️')">❤️</button>
+  <button class="l-emoji-btn" onclick="pickEmoji('😂')">😂</button>
+  <button class="l-emoji-btn" onclick="pickEmoji('😮')">😮</button>
+  <button class="l-emoji-btn" onclick="pickEmoji('😢')">😢</button>
+  <button class="l-emoji-btn" onclick="pickEmoji('🙏')">🙏</button>
+  <button class="l-emoji-more">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+  </button>
+</div>
+
+<!-- OPTIONS MENU -->
+<div class="l-options-menu" id="options-menu">
+  <div class="l-options-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+    Activity
+  </div>
+  <div class="l-options-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="1" y1="1" x2="23" y2="23"/><path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><path d="M1 12s4-8 11-8"/></svg>
+    Mute community
+  </div>
+  <div class="l-options-divider"></div>
+  <div class="l-options-item danger">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    Report community
+  </div>
+  <div class="l-options-item danger">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+    Leave community
+  </div>
+</div>
+</body>
+</html>

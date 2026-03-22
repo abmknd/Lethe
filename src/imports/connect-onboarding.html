@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lethe — Connect Onboarding</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#050705;--surface:#0c0f0c;--surface2:#101410;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);
+  --ch:#ADFF2F;--ch2:rgba(173,255,47,0.12);--ch3:rgba(173,255,47,0.06);
+  --text:rgba(255,255,255,0.88);--dim:rgba(255,255,255,0.45);
+  --ghost:rgba(255,255,255,0.18);--ghost2:rgba(255,255,255,0.08);
+  --amber:rgba(204,153,51,0.8);
+  --serif:'Cormorant Garamond',Georgia,serif;
+  --mono:'DM Mono',monospace;
+  --ease:cubic-bezier(0.16,1,0.3,1);
+}
+html,body{height:100%;overflow:hidden;min-height:0}
+body{background:var(--bg);color:var(--text);font-family:var(--serif);cursor:none;position:relative;display:flex;align-items:center;justify-content:center}
+
+/* ── noise ── */
+body::after{content:'';position:fixed;inset:0;opacity:.022;pointer-events:none;z-index:1;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size:200px}
+
+/* ── cursor ── */
+#cur-dot{position:fixed;width:5px;height:5px;background:var(--ch);border-radius:50%;
+  pointer-events:none;z-index:9999;transform:translate(-50%,-50%);mix-blend-mode:screen}
+#cur-ring{position:fixed;width:30px;height:30px;border:1px solid rgba(173,255,47,0.2);
+  border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);
+  transition:width .3s,height .3s,border-color .3s}
+#cur-ring.h{width:48px;height:48px;border-color:rgba(173,255,47,0.45)}
+
+/* ── water canvas ── */
+#wc{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+
+/* ── overlay shell ── */
+.kyc-overlay{
+  position:fixed;inset:0;z-index:10;
+  display:flex;align-items:center;justify-content:center;
+  padding:20px;
+  pointer-events:none;
+}
+.kyc-overlay>*{pointer-events:all;}
+
+/* ── card ── */
+.kyc-card{
+  width:100%;max-width:600px;
+  height:min(680px,90vh);
+  background:linear-gradient(160deg,#0e130e 0%,#090c09 100%);
+  border:1px solid var(--border);
+  border-radius:24px;
+  box-shadow:0 0 0 1px rgba(255,255,255,0.03),0 40px 120px rgba(0,0,0,0.8),0 0 80px rgba(173,255,47,0.04);
+  display:flex;flex-direction:column;
+  overflow:hidden;
+  position:relative;
+}
+
+/* ── progress bar ── */
+.kyc-progress{
+  position:absolute;top:0;left:0;right:0;height:2px;
+  background:rgba(255,255,255,0.05);z-index:2;
+}
+.kyc-progress-fill{
+  height:100%;background:var(--ch);
+  transition:width .6s var(--ease);
+  box-shadow:0 0 12px rgba(173,255,47,0.6);
+}
+
+/* ── card header ── */
+.kyc-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:24px 32px 12px;
+  position:relative;z-index:2;
+  flex-shrink:0;
+}
+.kyc-back{
+  width:32px;height:32px;border-radius:50%;border:1px solid var(--border);
+  background:transparent;color:var(--ghost);cursor:none;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .25s;opacity:0;pointer-events:none;
+}
+.kyc-back.visible{opacity:1;pointer-events:all}
+.kyc-back:hover{background:var(--ghost2);border-color:var(--border2);color:var(--dim)}
+.kyc-counter{font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:var(--ghost)}
+
+/* ── steps viewport ── */
+.kyc-viewport{
+  flex:1;
+  min-height:0;
+  overflow:hidden;
+  position:relative;
+}
+
+/* ── step ── */
+.kyc-step{
+  position:absolute;inset:0;
+  padding:16px 32px 96px;
+  overflow-y:auto;
+  overflow-x:hidden;
+  opacity:0;pointer-events:none;
+  transform:translateX(40px) scale(0.98);
+  transition:opacity .45s var(--ease),transform .45s var(--ease);
+  scrollbar-width:none;
+}
+.kyc-step.active{
+  opacity:1;pointer-events:all;
+  transform:translateX(0) scale(1);
+}
+.kyc-step.exit-left{
+  opacity:0;pointer-events:none;
+  transform:translateX(-40px) scale(0.98);
+  transition:opacity .4s var(--ease),transform .4s var(--ease);
+}
+.kyc-step.exit-right{
+  opacity:0;pointer-events:none;
+  transform:translateX(40px) scale(0.98);
+  transition:opacity .4s var(--ease),transform .4s var(--ease);
+}
+.kyc-step.enter-right{
+  opacity:0;pointer-events:none;
+  transform:translateX(40px) scale(0.98);
+  transition:none;
+}
+.kyc-step.enter-left{
+  opacity:0;pointer-events:none;
+  transform:translateX(-40px) scale(0.98);
+  transition:none;
+}
+.kyc-step::-webkit-scrollbar{display:none}
+
+/* ── step typography ── */
+.kyc-eyebrow{
+  font-family:var(--mono);font-size:10px;letter-spacing:.3em;
+  text-transform:uppercase;color:rgba(173,255,47,0.5);
+  margin-bottom:14px;display:block;
+}
+.kyc-title{
+  font-size:clamp(28px,4vw,40px);font-weight:300;font-style:italic;
+  line-height:1.15;letter-spacing:-.02em;color:var(--text);
+  margin-bottom:10px;
+}
+.kyc-title em{font-style:normal;color:var(--ch)}
+.kyc-sub{
+  font-size:15px;font-weight:300;line-height:1.75;
+  color:var(--dim);margin-bottom:32px;
+}
+
+/* ── CTA bar ── */
+.kyc-cta-bar{
+  position:absolute;bottom:0;left:0;right:0;
+  padding:12px 32px 20px;
+  background:linear-gradient(to top,#0c0f0c 55%,rgba(9,12,9,0.95) 80%,transparent);
+  z-index:5;
+}
+.kyc-btn{
+  width:100%;padding:15px;border-radius:20px;border:none;
+  font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;
+  color:#050705;background:var(--ch);cursor:none;
+  transition:background .25s,opacity .25s,transform .15s;
+}
+.kyc-btn:hover{background:#c8ff4f;transform:translateY(-1px)}
+.kyc-btn:disabled{opacity:.35;cursor:not-allowed;transform:none}
+
+/* ══════════════════════════════
+   STEP 1 — HOW IT WORKS
+══════════════════════════════ */
+.s1-features{display:flex;flex-direction:column;gap:1px}
+.s1-feat{
+  display:flex;align-items:flex-start;gap:20px;
+  padding:22px 0;border-bottom:1px solid var(--border);
+}
+.s1-feat:last-child{border-bottom:none}
+.s1-icon{
+  width:40px;height:40px;border-radius:12px;flex-shrink:0;
+  background:var(--ch3);border:1px solid rgba(173,255,47,0.12);
+  display:flex;align-items:center;justify-content:center;
+  color:rgba(173,255,47,0.7);
+}
+.s1-icon svg{width:18px;height:18px}
+.s1-feat-title{font-size:17px;font-weight:400;color:var(--text);margin-bottom:4px}
+.s1-feat-body{font-size:14px;font-weight:300;line-height:1.7;color:var(--dim)}
+
+/* ══════════════════════════════
+   STEP 2 — LOCATION
+══════════════════════════════ */
+.s2-search{
+  display:flex;align-items:center;gap:10px;
+  background:var(--ghost2);border:1px solid var(--border);
+  border-radius:12px;padding:12px 16px;margin-bottom:20px;
+  transition:border-color .25s;
+}
+.s2-search:focus-within{border-color:rgba(173,255,47,0.3)}
+.s2-search svg{color:var(--ghost);flex-shrink:0;width:16px;height:16px}
+.s2-search input{
+  flex:1;background:transparent;border:none;outline:none;
+  font-family:var(--mono);font-size:13px;letter-spacing:.04em;
+  color:var(--text);
+}
+.s2-search input::placeholder{color:var(--ghost)}
+.s2-cities{display:flex;flex-direction:column;gap:1px;margin-bottom:20px}
+.s2-city{
+  display:flex;align-items:center;gap:14px;
+  padding:13px 16px;border-radius:10px;
+  border:1px solid transparent;cursor:none;
+  transition:all .2s;
+}
+.s2-city:hover{background:var(--ghost2);border-color:var(--border)}
+.s2-city.sel{background:var(--ch2);border-color:rgba(173,255,47,0.25)}
+.s2-city-flag{font-size:20px;line-height:1;width:28px;text-align:center}
+.s2-city-name{font-size:16px;font-weight:300;color:var(--text);flex:1}
+.s2-city-tz{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--ghost)}
+.s2-tz-row{
+  display:flex;align-items:center;gap:10px;
+  padding:12px 16px;background:var(--ghost2);border:1px solid var(--border);
+  border-radius:10px;margin-top:4px;
+}
+.s2-tz-label{font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--ghost);flex:1}
+.s2-tz-val{font-family:var(--mono);font-size:12px;color:rgba(173,255,47,0.6)}
+
+/* ══════════════════════════════
+   STEP 3 — OBJECTIVES
+══════════════════════════════ */
+.s3-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.s3-tile{
+  padding:18px 16px;border-radius:14px;
+  background:var(--surface2);border:1px solid var(--border);
+  cursor:none;transition:all .2s;position:relative;
+  display:flex;flex-direction:column;gap:8px;
+}
+.s3-tile:hover{background:rgba(255,255,255,0.04);border-color:var(--border2)}
+.s3-tile.sel{background:var(--ch2);border-color:rgba(173,255,47,0.3)}
+.s3-tile.dim{opacity:.35;pointer-events:none}
+.s3-tile-icon{font-size:22px;line-height:1}
+.s3-tile-label{font-size:14px;font-weight:300;color:var(--text);line-height:1.3}
+.s3-check{
+  position:absolute;top:10px;right:10px;
+  width:18px;height:18px;border-radius:50%;
+  background:var(--ch);display:flex;align-items:center;justify-content:center;
+  opacity:0;transform:scale(0);transition:all .2s var(--ease);
+}
+.s3-tile.sel .s3-check{opacity:1;transform:scale(1)}
+.s3-check svg{width:10px;height:10px;color:#050705}
+
+/* ══════════════════════════════
+   STEP 4 — MEET KIND
+══════════════════════════════ */
+.s4-list{display:flex;flex-direction:column;gap:8px}
+.s4-opt{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:15px 18px;border-radius:12px;
+  background:var(--surface2);border:1px solid var(--border);
+  cursor:none;transition:all .2s;
+}
+.s4-opt:hover{background:rgba(255,255,255,0.04);border-color:var(--border2)}
+.s4-opt.sel{background:var(--ch2);border-color:rgba(173,255,47,0.3)}
+.s4-opt-text{font-size:15px;font-weight:300;color:var(--text)}
+.s4-dot{
+  width:20px;height:20px;border-radius:50%;flex-shrink:0;
+  border:1.5px solid var(--border2);
+  transition:all .2s;display:flex;align-items:center;justify-content:center;
+}
+.s4-opt.sel .s4-dot{background:var(--ch);border-color:var(--ch)}
+.s4-dot svg{width:10px;height:10px;color:#050705;opacity:0;transition:opacity .2s}
+.s4-opt.sel .s4-dot svg{opacity:1}
+
+/* ══════════════════════════════
+   STEP 5 — HOBBIES
+══════════════════════════════ */
+.s5-cloud{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.s5-tag{
+  font-family:var(--mono);font-size:11px;letter-spacing:.1em;
+  padding:8px 16px;border-radius:20px;
+  background:var(--surface2);border:1px solid var(--border);
+  cursor:none;transition:all .2s;user-select:none;
+}
+.s5-tag:hover{border-color:var(--border2);background:rgba(255,255,255,0.05)}
+.s5-tag.sel{background:var(--ch2);border-color:rgba(173,255,47,0.35);color:rgba(173,255,47,0.9)}
+.s5-add{
+  display:flex;align-items:center;gap:10px;margin-top:4px;
+  background:var(--ghost2);border:1px solid var(--border);
+  border-radius:20px;padding:8px 16px;
+  transition:border-color .25s;
+}
+.s5-add:focus-within{border-color:rgba(173,255,47,0.3)}
+.s5-add input{
+  flex:1;background:transparent;border:none;outline:none;
+  font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--text);
+}
+.s5-add input::placeholder{color:var(--ghost)}
+.s5-add span{font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--ghost)}
+
+/* ══════════════════════════════
+   STEP 6 — INTRO
+══════════════════════════════ */
+.s6-textarea{
+  width:100%;background:var(--ghost2);border:1px solid var(--border);
+  border-radius:14px;padding:18px;
+  font-family:var(--serif);font-size:17px;font-weight:300;line-height:1.75;
+  color:var(--text);resize:none;outline:none;
+  transition:border-color .25s;min-height:140px;
+}
+.s6-textarea:focus{border-color:rgba(173,255,47,0.3)}
+.s6-textarea::placeholder{color:var(--ghost);font-style:italic}
+.s6-meta{
+  display:flex;justify-content:flex-end;
+  margin-top:8px;margin-bottom:24px;
+}
+.s6-count{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--ghost);transition:color .25s}
+.s6-count.warn{color:var(--amber)}
+.s6-samples-label{
+  font-family:var(--mono);font-size:10px;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--ghost);margin-bottom:12px;display:block;
+}
+.s6-samples{display:flex;flex-direction:column;gap:8px}
+.s6-sample{
+  padding:14px 16px;background:var(--surface2);border:1px solid var(--border);
+  border-radius:10px;
+}
+.s6-sample p{font-size:13px;font-weight:300;font-style:italic;line-height:1.7;color:var(--ghost)}
+
+/* ══════════════════════════════
+   STEP 7 — SOCIALS
+══════════════════════════════ */
+.s7-fields{display:flex;flex-direction:column;gap:10px}
+.s7-field{
+  display:flex;align-items:center;gap:12px;
+  background:var(--ghost2);border:1px solid var(--border);
+  border-radius:12px;padding:14px 16px;
+  transition:border-color .25s;
+}
+.s7-field:focus-within{border-color:rgba(173,255,47,0.3)}
+.s7-field-icon{
+  width:28px;height:28px;border-radius:8px;flex-shrink:0;
+  background:rgba(255,255,255,0.06);
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;
+}
+.s7-field-label{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ghost);width:72px;flex-shrink:0}
+.s7-field input{
+  flex:1;background:transparent;border:none;outline:none;
+  font-family:var(--mono);font-size:12px;letter-spacing:.04em;color:var(--text);
+}
+.s7-field input::placeholder{color:rgba(255,255,255,0.12)}
+.s7-note{
+  margin-top:16px;font-family:var(--mono);font-size:10px;
+  letter-spacing:.12em;color:var(--ghost);text-align:center;line-height:1.7;
+}
+
+/* ══════════════════════════════
+   STEP 8 — VERIFY
+══════════════════════════════ */
+.s8-email-display{
+  font-family:var(--mono);font-size:12px;letter-spacing:.1em;
+  color:rgba(173,255,47,0.6);text-align:center;margin-bottom:36px;
+}
+.s8-boxes{
+  display:flex;gap:10px;justify-content:center;margin-bottom:24px;
+}
+.s8-box{
+  width:52px;height:64px;border-radius:12px;
+  background:var(--ghost2);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--serif);font-size:28px;font-weight:300;color:var(--text);
+  transition:border-color .2s,background .2s,transform .15s;
+  position:relative;overflow:hidden;
+  cursor:text;
+}
+.s8-box.active{border-color:rgba(173,255,47,0.5);background:rgba(173,255,47,0.04)}
+.s8-box.filled{color:var(--text)}
+.s8-box.success{background:rgba(173,255,47,0.12);border-color:rgba(173,255,47,0.5)}
+/* caret in active empty box */
+.s8-box.active.empty::after{
+  content:'';position:absolute;width:1.5px;height:28px;
+  background:var(--ch);animation:blink .8s step-end infinite;
+}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.s8-hidden{position:absolute;opacity:0;pointer-events:none;width:1px;height:1px}
+.s8-resend{
+  text-align:center;margin-top:8px;
+  font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--ghost);
+}
+.s8-resend span{
+  text-decoration:underline;cursor:none;
+  transition:color .2s;
+}
+.s8-resend span:hover{color:var(--dim)}
+
+/* ══════════════════════════════
+   COMPLETION SCREEN
+══════════════════════════════ */
+.kyc-done{
+  display:none;
+  position:absolute;inset:0;
+  flex-direction:column;align-items:center;justify-content:center;
+  padding:40px;text-align:center;
+  animation:fadeIn .6s ease forwards;
+}
+.kyc-done.show{display:flex}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.done-ripple{
+  width:72px;height:72px;position:relative;
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 28px;
+}
+.done-ripple::before,.done-ripple::after{
+  content:'';position:absolute;border-radius:50%;
+  border:1px solid rgba(173,255,47,0.25);
+  animation:doneRipple 2.4s ease-out infinite;
+}
+.done-ripple::after{animation-delay:1.2s}
+.done-dot{
+  width:24px;height:24px;border-radius:50%;
+  background:var(--ch);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 24px rgba(173,255,47,0.5);
+}
+.done-dot svg{width:12px;height:12px;color:#050705}
+@keyframes doneRipple{0%{width:24px;height:24px;opacity:.6}100%{width:72px;height:72px;opacity:0}}
+.done-title{font-size:32px;font-weight:300;font-style:italic;margin-bottom:10px}
+.done-sub{font-size:15px;font-weight:300;color:var(--dim);line-height:1.75;max-width:340px;margin-bottom:32px}
+.done-btn{
+  font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;
+  color:#050705;background:var(--ch);border:none;border-radius:20px;
+  padding:14px 40px;cursor:none;transition:background .25s;
+}
+.done-btn:hover{background:#c8ff4f}
+
+/* toast */
+.l-toast{
+  position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(20px);
+  z-index:999;background:#1a201a;border:1px solid rgba(173,255,47,0.2);
+  border-radius:20px;padding:10px 20px;
+  font-family:var(--mono);font-size:11px;letter-spacing:.12em;color:rgba(173,255,47,0.7);
+  opacity:0;transition:all .4s var(--ease);pointer-events:none;white-space:nowrap;
+}
+.l-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ══════════════════════════════
+   STEP 4 — ACCORDION
+══════════════════════════════ */
+.s4-accordion{
+  border:1px solid var(--border);border-radius:14px;
+  overflow:hidden;margin-bottom:10px;
+  background:var(--surface2);
+}
+.s4-acc-head{
+  display:flex;align-items:center;gap:10px;
+  padding:16px 18px;cursor:none;
+  transition:background .2s;user-select:none;
+}
+.s4-acc-head:hover{background:rgba(255,255,255,0.03)}
+.s4-acc-label{
+  flex:1;font-size:15px;font-weight:300;color:var(--text);
+}
+.s4-acc-count{
+  font-family:var(--mono);font-size:10px;letter-spacing:.14em;
+  color:rgba(173,255,47,0.6);min-width:16px;text-align:right;
+}
+.s4-acc-arrow{
+  width:16px;height:16px;color:var(--ghost);
+  transition:transform .25s var(--ease);flex-shrink:0;
+}
+.s4-accordion.open .s4-acc-arrow{transform:rotate(180deg)}
+.s4-acc-body{
+  border-top:1px solid var(--border);
+  padding:10px 10px 12px;
+}
+.s4-acc-body .s4-list{gap:6px}
+.s4-acc-body .s4-opt{background:transparent;border-color:rgba(255,255,255,0.05)}
+.s4-acc-body .s4-opt:hover{background:rgba(255,255,255,0.04)}
+
+/* ══════════════════════════════
+   STEP 6 — BIO TOGGLE
+══════════════════════════════ */
+.s6-toggle-row{
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding:14px 16px;margin-bottom:24px;
+  background:var(--ghost2);border:1px solid var(--border);
+  border-radius:12px;
+}
+.s6-toggle-text{display:flex;flex-direction:column;gap:3px}
+.s6-toggle-label{font-size:14px;font-weight:300;color:var(--text)}
+.s6-toggle-sub{font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--ghost)}
+.s6-toggle{
+  width:44px;height:26px;border-radius:13px;border:none;
+  background:rgba(255,255,255,0.1);flex-shrink:0;cursor:none;
+  position:relative;transition:background .3s;
+}
+.s6-toggle::after{
+  content:'';position:absolute;top:3px;left:3px;
+  width:20px;height:20px;border-radius:50%;
+  background:rgba(255,255,255,0.5);
+  transition:transform .3s var(--ease),background .3s;
+}
+.s6-toggle.on{background:var(--ch)}
+.s6-toggle.on::after{transform:translateX(18px);background:#050705}
+
+/* completion pause note */
+.done-pause{
+  font-family:var(--mono);font-size:10px;letter-spacing:.12em;
+  color:var(--ghost);margin-top:-20px;margin-bottom:32px;
+}
+</style>
+</head>
+<body>
+
+<canvas id="wc"></canvas>
+<div id="cur-dot"></div>
+<div id="cur-ring"></div>
+
+<div class="kyc-overlay">
+  <div class="kyc-card" id="kyc-card">
+
+    <!-- Progress bar -->
+    <div class="kyc-progress"><div class="kyc-progress-fill" id="prog-fill"></div></div>
+
+    <!-- Header -->
+    <div class="kyc-header">
+      <button class="kyc-back" id="kyc-back" onclick="goBack()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      </button>
+      <span class="kyc-counter" id="kyc-counter"></span>
+    </div>
+
+    <!-- Steps viewport -->
+    <div class="kyc-viewport">
+
+      <!-- ── STEP 1 — How It Works ── -->
+      <div class="kyc-step active" id="step-1">
+        <span class="kyc-eyebrow">Getting started</span>
+        <h1 class="kyc-title">Meet people<br><em>worth meeting.</em></h1>
+        <p class="kyc-sub">Lethe's matching is different. Here's what to expect.</p>
+        <div class="s1-features">
+          <div class="s1-feat">
+            <div class="s1-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+            </div>
+            <div>
+              <div class="s1-feat-title">One match, every week</div>
+              <div class="s1-feat-body">Lethe finds one person worth talking to and makes the introduction. Not a hundred maybes — one considered yes.</div>
+            </div>
+          </div>
+          <div class="s1-feat">
+            <div class="s1-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </div>
+            <div>
+              <div class="s1-feat-title">Context before you meet</div>
+              <div class="s1-feat-body">Their feed gives you a sense of who they are. Not a LinkedIn bio — real thoughts, real perspective.</div>
+            </div>
+          </div>
+          <div class="s1-feat">
+            <div class="s1-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+            </div>
+            <div>
+              <div class="s1-feat-title">Always in control</div>
+              <div class="s1-feat-body">Pause anytime. Skip a week. No guilt, no consequences. This is yours to use on your terms.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── STEP 2 — Location ── -->
+      <div class="kyc-step" id="step-2">
+        <span class="kyc-eyebrow">Your world</span>
+        <h1 class="kyc-title">Where are<br>you <em>based?</em></h1>
+        <p class="kyc-sub">This helps us find people in your world — and people worth crossing timezones for.</p>
+        <div class="s2-search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          <input type="text" placeholder="Search cities…" id="city-search" oninput="filterCities(this.value)">
+        </div>
+        <div class="s2-cities" id="city-list"></div>
+        <div class="s2-tz-row">
+          <span class="s2-tz-label">Timezone</span>
+          <span class="s2-tz-val" id="tz-display">—</span>
+        </div>
+      </div>
+
+      <!-- ── STEP 3 — Objectives ── -->
+      <div class="kyc-step" id="step-3">
+        <span class="kyc-eyebrow">Your intent</span>
+        <h1 class="kyc-title">What brings<br>you <em>here?</em></h1>
+        <p class="kyc-sub">Pick up to three. This shapes who we introduce you to.</p>
+        <div class="s3-grid" id="obj-grid"></div>
+      </div>
+
+      <!-- ── STEP 4 — Meet Kind ── -->
+      <div class="kyc-step" id="step-4">
+        <span class="kyc-eyebrow">Your match</span>
+        <h1 class="kyc-title">I want to meet<br>people <em>who…</em></h1>
+        <p class="kyc-sub">Select everything that resonates. The more honest you are, the better the match.</p>
+
+        <div class="s4-accordion" id="acc-who">
+          <div class="s4-acc-head" onclick="toggleAcc('who')">
+            <span class="s4-acc-label">Who they are</span>
+            <span class="s4-acc-count" id="acc-who-count"></span>
+            <svg class="s4-acc-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 9l6 6 6-6"/></svg>
+          </div>
+          <div class="s4-acc-body" id="acc-who-body">
+            <div class="s4-list" id="meet-list"></div>
+          </div>
+        </div>
+
+        <div class="s4-accordion" id="acc-where">
+          <div class="s4-acc-head" onclick="toggleAcc('where')">
+            <span class="s4-acc-label">Where they are based</span>
+            <span class="s4-acc-count" id="acc-where-count"></span>
+            <svg class="s4-acc-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 9l6 6 6-6"/></svg>
+          </div>
+          <div class="s4-acc-body" id="acc-where-body" style="display:none">
+            <div class="s4-list" id="meet-where-list"></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ── STEP 5 — Hobbies ── -->
+      <div class="kyc-step" id="step-5">
+        <span class="kyc-eyebrow">Your texture</span>
+        <h1 class="kyc-title">What are<br>you <em>into?</em></h1>
+        <p class="kyc-sub">The unexpected common ground makes the best conversations.</p>
+        <div class="s5-cloud" id="hobby-cloud"></div>
+        <div class="s5-add">
+          <input type="text" id="hobby-input" placeholder="Add your own…" onkeydown="addHobby(event)">
+          <span>↵ Enter</span>
+        </div>
+      </div>
+
+      <!-- ── STEP 6 — Intro ── -->
+      <div class="kyc-step" id="step-6">
+        <span class="kyc-eyebrow">Your voice</span>
+        <h1 class="kyc-title">How would you<br><em>introduce yourself?</em></h1>
+        <p class="kyc-sub">This is the first thing your match reads. Write like a person, not a profile.</p>
+        <textarea class="s6-textarea" id="intro-text" maxlength="300"
+          placeholder="I'm a product designer who thinks about the ethics of what we build…"
+          oninput="updateIntroCount()"></textarea>
+        <div class="s6-meta"><span class="s6-count" id="intro-count">300 remaining</span></div>
+
+        <div class="s6-toggle-row">
+          <div class="s6-toggle-text">
+            <span class="s6-toggle-label">Make this my profile bio</span>
+            <span class="s6-toggle-sub">Your intro will also appear on your public profile</span>
+          </div>
+          <button class="s6-toggle" id="bio-toggle" onclick="toggleBio()" role="switch" aria-checked="false"></button>
+        </div>
+
+        <span class="s6-samples-label">Some examples</span>
+        <div class="s6-samples">
+          <div class="s6-sample"><p>"An early-stage founder who can't stop thinking about the problem I'm building for. Looking for people who are obsessed with something."</p></div>
+          <div class="s6-sample"><p>"Researcher by training, creative by habit. I like conversations that go somewhere I didn't expect."</p></div>
+          <div class="s6-sample"><p>"I work at the intersection of design and systems thinking. Happiest in rooms where someone disagrees with me."</p></div>
+        </div>
+      </div>
+
+      <!-- ── STEP 7 — Socials ── -->
+      <div class="kyc-step" id="step-7">
+        <span class="kyc-eyebrow">Your presence</span>
+        <h1 class="kyc-title">Let others<br><em>find you.</em></h1>
+        <p class="kyc-sub">Optional. Shown on your match profile so they can get a sense of your work before you meet.</p>
+        <div class="s7-fields">
+          <div class="s7-field">
+            <div class="s7-field-icon">in</div>
+            <span class="s7-field-label">LinkedIn</span>
+            <input type="text" placeholder="linkedin.com/in/yourname">
+          </div>
+          <div class="s7-field">
+            <div class="s7-field-icon">𝕏</div>
+            <span class="s7-field-label">Twitter</span>
+            <input type="text" placeholder="@yourhandle">
+          </div>
+          <div class="s7-field">
+            <div class="s7-field-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg>
+            </div>
+            <span class="s7-field-label">Website</span>
+            <input type="text" placeholder="yourname.com">
+          </div>
+          <div class="s7-field">
+            <div class="s7-field-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22"/></svg>
+            </div>
+            <span class="s7-field-label">GitHub</span>
+            <input type="text" placeholder="github.com/yourname">
+          </div>
+        </div>
+        <p class="s7-note">All fields are optional. You can add or update these from your profile at any time.</p>
+      </div>
+
+      <!-- ── STEP 8 — Verify ── -->
+      <div class="kyc-step" id="step-8">
+        <span class="kyc-eyebrow">One last thing</span>
+        <h1 class="kyc-title">Confirm your<br><em>email.</em></h1>
+        <p class="kyc-sub">We sent a six-digit code to</p>
+        <div class="s8-email-display"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="e58d8089898aa58c978c96888a97978a92cb868a88">[email&#160;protected]</a></div>
+        <div class="s8-boxes" id="code-boxes"></div>
+        <input class="s8-hidden" type="text" id="code-input" maxlength="6" inputmode="numeric"
+          oninput="handleCodeInput(this.value)" onkeydown="handleCodeKey(event)">
+        <div class="s8-resend">Didn't receive it? <span onclick="resendCode()">Resend</span></div>
+      </div>
+
+      <!-- ── DONE ── -->
+      <div class="kyc-done" id="kyc-done">
+        <div class="done-ripple">
+          <div class="done-dot">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+          </div>
+        </div>
+        <div class="done-title">You're live.</div>
+        <div class="done-sub">Your first match arrives next week. In the meantime, the feed is yours.</div>
+        <div class="done-pause">You can pause matching anytime from your settings.</div>
+        <button class="done-btn" onclick="goToFeed()">Go to my feed</button>
+      </div>
+
+    </div><!-- /viewport -->
+
+    <!-- CTA bar -->
+    <div class="kyc-cta-bar" id="cta-bar">
+      <button class="kyc-btn" id="kyc-btn" onclick="goNext()">Let's go</button>
+    </div>
+
+  </div>
+</div>
+
+<div class="l-toast" id="toast"></div>
+
+<script>
+/* ══════════════ WATER CANVAS ══════════════ */
+(function(){
+  const c=document.getElementById('wc'),ctx=c.getContext('2d');
+  let W,H;
+  function resize(){W=c.width=innerWidth;H=c.height=innerHeight}
+  resize();window.addEventListener('resize',resize);
+  class Rip{
+    constructor(x,y){this.x=x;this.y=y;this.r=0;this.max=60+Math.random()*50;this.spd=0.8+Math.random()*0.6}
+    get alive(){return this.r<this.max}
+    get a(){return 0.2*(1-this.r/this.max)}
+    tick(){this.r+=this.spd}
+    draw(ctx){ctx.beginPath();ctx.arc(this.x,this.y,this.r,0,Math.PI*2);
+      ctx.strokeStyle='rgba(173,255,47,'+this.a+')';ctx.lineWidth=0.5;ctx.stroke()}
+  }
+  let rips=[],last=0,mx=-1000,my=-1000,tmx=-1000,tmy=-1000,moving=false,mt;
+  window.addEventListener('mousemove',function(e){
+    tmx=e.clientX;tmy=e.clientY;moving=true;
+    clearTimeout(mt);mt=setTimeout(function(){moving=false},150);
+    const now=Date.now();if(now-last>80){rips.push(new Rip(e.clientX,e.clientY));last=now}
+  });
+  function loop(){
+    ctx.clearRect(0,0,W,H);
+    const bg=ctx.createLinearGradient(0,0,0,H);
+    bg.addColorStop(0,'#040604');bg.addColorStop(1,'#020402');
+    ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+    mx+=(tmx-mx)*0.06;my+=(tmy-my)*0.06;
+    if(moving){
+      const g=ctx.createRadialGradient(mx,my,0,mx,my,180);
+      g.addColorStop(0,'rgba(173,255,47,0.03)');g.addColorStop(1,'rgba(173,255,47,0)');
+      ctx.fillStyle=g;ctx.beginPath();ctx.arc(mx,my,180,0,Math.PI*2);ctx.fill()
+    }
+    rips=rips.filter(function(r){return r.alive});
+    rips.forEach(function(r){r.tick();r.draw(ctx)});
+    requestAnimationFrame(loop)
+  }
+  loop();
+})();
+
+/* ══════════════ CURSOR ══════════════ */
+(function(){
+  const dot=document.getElementById('cur-dot'),ring=document.getElementById('cur-ring');
+  let lx=0,ly=0,tx=0,ty=0;
+  document.addEventListener('mousemove',function(e){
+    tx=e.clientX;ty=e.clientY;
+    dot.style.left=tx+'px';dot.style.top=ty+'px';
+  });
+  function lerp(){
+    lx+=(tx-lx)*0.1;ly+=(ty-ly)*0.1;
+    ring.style.left=lx+'px';ring.style.top=ly+'px';
+    requestAnimationFrame(lerp)
+  }
+  lerp();
+  function addHover(sel){
+    document.querySelectorAll(sel).forEach(function(el){
+      el.addEventListener('mouseenter',function(){ring.classList.add('h')});
+      el.addEventListener('mouseleave',function(){ring.classList.remove('h')});
+    })
+  }
+  addHover('button,input,textarea,.s2-city,.s3-tile,.s4-opt,.s5-tag,.s8-box,.s8-resend span,.s4-acc-head');
+})();
+
+/* ══════════════ KYC STATE ══════════════ */
+const TOTAL=8;
+let cur=1;
+
+/* ── City data ── */
+const cityData=[
+  {flag:'🇳🇬',name:'Lagos',tz:'WAT (UTC+1)'},
+  {flag:'🇬🇧',name:'London',tz:'GMT (UTC+0)'},
+  {flag:'🇺🇸',name:'New York',tz:'EST (UTC-5)'},
+  {flag:'🇺🇸',name:'San Francisco',tz:'PST (UTC-8)'},
+  {flag:'🇳🇱',name:'Amsterdam',tz:'CET (UTC+1)'},
+  {flag:'🇩🇪',name:'Berlin',tz:'CET (UTC+1)'},
+  {flag:'🇸🇬',name:'Singapore',tz:'SGT (UTC+8)'},
+  {flag:'🇯🇵',name:'Tokyo',tz:'JST (UTC+9)'},
+  {flag:'🇮🇳',name:'Bangalore',tz:'IST (UTC+5:30)'},
+  {flag:'🇿🇦',name:'Cape Town',tz:'SAST (UTC+2)'},
+  {flag:'🇫🇷',name:'Paris',tz:'CET (UTC+1)'},
+  {flag:'🇧🇷',name:'São Paulo',tz:'BRT (UTC-3)'},
+];
+let selCity=null;
+
+function renderCities(list){
+  document.getElementById('city-list').innerHTML=list.map(function(c){
+    var sel=selCity===c.name?' sel':'';
+    return '<div class="s2-city'+sel+'" onclick="selectCity(this,\''+c.name+'\',\''+c.tz+'\')">'
+      +'<span class="s2-city-flag">'+c.flag+'</span>'
+      +'<span class="s2-city-name">'+c.name+'</span>'
+      +'<span class="s2-city-tz">'+c.tz+'</span>'
+      +'</div>';
+  }).join('');
+}
+renderCities(cityData);
+
+function filterCities(q){
+  var f=q?cityData.filter(function(c){return c.name.toLowerCase().includes(q.toLowerCase())}):cityData;
+  renderCities(f);
+}
+function selectCity(el,name,tz){
+  selCity=name;
+  document.querySelectorAll('.s2-city').forEach(function(c){c.classList.remove('sel')});
+  el.classList.add('sel');
+  document.getElementById('tz-display').textContent=tz;
+  updateBtn();
+}
+
+/* ── Objectives ── */
+const objs=[
+  {icon:'🔨',label:'Build in public'},
+  {icon:'🤝',label:'Find a cofounder'},
+  {icon:'🌐',label:'Grow my network'},
+  {icon:'✦',label:'Meet interesting people'},
+  {icon:'🧭',label:'Get mentored'},
+  {icon:'💡',label:'Mentor others'},
+  {icon:'🔭',label:'Explore new fields'},
+  {icon:'🗣',label:'Share knowledge'},
+];
+var selObjs=new Set();
+document.getElementById('obj-grid').innerHTML=objs.map(function(o,i){
+  return '<div class="s3-tile" data-i="'+i+'" onclick="toggleObj('+i+',this)">'
+    +'<div class="s3-tile-icon">'+o.icon+'</div>'
+    +'<div class="s3-tile-label">'+o.label+'</div>'
+    +'<div class="s3-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg></div>'
+    +'</div>';
+}).join('');
+
+function toggleObj(i,el){
+  if(selObjs.has(i)){selObjs.delete(i);el.classList.remove('sel')}
+  else if(selObjs.size<3){selObjs.add(i);el.classList.add('sel')}
+  document.querySelectorAll('.s3-tile').forEach(function(t){
+    t.classList.toggle('dim',selObjs.size>=3&&!t.classList.contains('sel'))
+  });
+  updateBtn();
+}
+
+/* ── Meet kind (accordions) ── */
+var meetWhoOpts=[
+  'Are in the same field as me',
+  'Are in an adjacent field',
+  'Are building something',
+  "Have perspectives I don't",
+  'Are earlier in their career',
+  'Are further along than me',
+];
+var selMeetWho=new Set();
+var selMeetWhere=new Set();
+
+function buildOptList(containerId,opts,prefix){
+  var el=document.getElementById(containerId);
+  if(!el)return;
+  el.innerHTML=opts.map(function(o,i){
+    return '<div class="s4-opt" onclick="toggleMeetOpt(\''+prefix+'\','+i+',this)">'
+      +'<span class="s4-opt-text">'+o+'</span>'
+      +'<div class="s4-dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg></div>'
+      +'</div>';
+  }).join('');
+}
+
+buildOptList('meet-list',meetWhoOpts,'who');
+var meetWhereOpts=[
+  'Anywhere in the world',
+  'Africa',
+  'Asia',
+  'Europe',
+  'Latin America',
+  'Middle East',
+  'North America',
+  'Oceania',
+];
+buildOptList('meet-where-list',meetWhereOpts,'where');
+
+/* open who accordion by default */
+document.getElementById('acc-who').classList.add('open');
+document.getElementById('acc-who-body').style.display='block';
+document.getElementById('acc-where-body').style.display='none';
+
+function toggleAcc(which){
+  var acc=document.getElementById('acc-'+which);
+  var body=document.getElementById('acc-'+which+'-body');
+  var isOpen=acc.classList.contains('open');
+  ['who','where'].forEach(function(w){
+    document.getElementById('acc-'+w).classList.remove('open');
+    document.getElementById('acc-'+w+'-body').style.display='none';
+  });
+  if(!isOpen){
+    acc.classList.add('open');
+    body.style.display='block';
+  }
+}
+
+function toggleMeetOpt(prefix,i,el){
+  var selSet=prefix==='who'?selMeetWho:selMeetWhere;
+  if(selSet.has(i)){selSet.delete(i);el.classList.remove('sel')}
+  else{selSet.add(i);el.classList.add('sel')}
+  var wc=selMeetWho.size,lc=selMeetWhere.size;
+  var wEl=document.getElementById('acc-who-count');
+  var lEl=document.getElementById('acc-where-count');
+  if(wEl)wEl.textContent=wc?wc:'';
+  if(lEl)lEl.textContent=lc?lc:'';
+  updateBtn();
+}
+
+/* ── Hobbies ── */
+var hobbyList=['Photography','Running','Coffee','Books','Travel','Design','Music','Gaming','Cooking','Film','Writing','Startups','Meditation','Cycling','Football','Architecture','Podcasts','Philosophy'];
+var selHobbies=new Set();
+function renderHobbies(){
+  var all=hobbyList.concat([...selHobbies].filter(function(h){return hobbyList.indexOf(h)<0}));
+  document.getElementById('hobby-cloud').innerHTML=all.map(function(h){
+    var sel=selHobbies.has(h)?' sel':'';
+    return '<div class="s5-tag'+sel+'" onclick="toggleHobby(this)">'+h+'</div>';
+  }).join('');
+}
+renderHobbies();
+function toggleHobby(el){
+  var h=el.textContent;
+  if(selHobbies.has(h)){selHobbies.delete(h);el.classList.remove('sel')}
+  else{selHobbies.add(h);el.classList.add('sel')}
+}
+function addHobby(e){
+  if(e.key!=='Enter')return;
+  var v=e.target.value.trim();
+  if(!v)return;
+  if(hobbyList.indexOf(v)<0)hobbyList.push(v);
+  selHobbies.add(v);
+  e.target.value='';
+  renderHobbies();
+}
+
+/* ── Bio toggle ── */
+var bioAsProfile=false;
+function toggleBio(){
+  bioAsProfile=!bioAsProfile;
+  document.getElementById('bio-toggle').classList.toggle('on',bioAsProfile);
+  document.getElementById('bio-toggle').setAttribute('aria-checked',String(bioAsProfile));
+}
+
+/* ── Intro count ── */
+function updateIntroCount(){
+  var val=document.getElementById('intro-text').value;
+  var rem=300-val.length;
+  var el=document.getElementById('intro-count');
+  el.textContent=rem+' remaining';
+  el.classList.toggle('warn',rem<50);
+  updateBtn();
+}
+
+/* ── Code boxes ── */
+var codeVal='';
+function renderBoxes(){
+  var wrap=document.getElementById('code-boxes');
+  wrap.innerHTML=[0,1,2,3,4,5].map(function(i){
+    var cls='s8-box'+(i<codeVal.length?' filled':i===codeVal.length?' active empty':'');
+    return '<div class="'+cls+'" id="box-'+i+'">'+(i<codeVal.length?codeVal[i]:'')+'</div>';
+  }).join('');
+  wrap.querySelectorAll('.s8-box').forEach(function(b){
+    b.addEventListener('click',function(){document.getElementById('code-input').focus()});
+  });
+}
+renderBoxes();
+
+function handleCodeInput(v){
+  codeVal=v.replace(/\D/g,'').slice(0,6);
+  document.getElementById('code-input').value=codeVal;
+  renderBoxes();
+  if(codeVal.length===6)setTimeout(verifyCode,300);
+}
+function handleCodeKey(e){
+  if(e.key==='Backspace'&&codeVal.length>0){
+    codeVal=codeVal.slice(0,-1);
+    document.getElementById('code-input').value=codeVal;
+    renderBoxes();
+  }
+}
+function verifyCode(){
+  document.querySelectorAll('.s8-box').forEach(function(b){b.classList.add('success')});
+  setTimeout(showDone,700);
+}
+function resendCode(){showToast('Code resent.')}
+
+/* ══════════════ NAVIGATION ══════════════ */
+function canAdvance(){
+  if(cur===2)return !!selCity;
+  if(cur===3)return selObjs.size>0;
+  if(cur===4)return (selMeetWho.size+selMeetWhere.size)>0;
+  if(cur===6)return document.getElementById('intro-text').value.length>=60;
+  if(cur===8)return false;
+  return true;
+}
+
+function updateBtn(){
+  var btn=document.getElementById('kyc-btn');
+  var labels=['Let\'s go','Continue','Continue','Continue','Continue','Continue','Continue',''];
+  btn.textContent=labels[cur-1]||'Continue';
+  btn.disabled=!canAdvance();
+}
+
+function goNext(){
+  if(!canAdvance()||cur>=TOTAL)return;
+  transition(cur,cur+1,'forward');
+  cur++;
+  sync();
+}
+function goBack(){
+  if(cur<=1)return;
+  transition(cur,cur-1,'back');
+  cur--;
+  sync();
+}
+
+function transition(from,to,dir){
+  var fromEl=document.getElementById('step-'+from);
+  var toEl=document.getElementById('step-'+to);
+  toEl.classList.remove('active','exit-left','exit-right','enter-right','enter-left');
+  toEl.classList.add(dir==='forward'?'enter-right':'enter-left');
+  toEl.offsetHeight;
+  fromEl.classList.remove('active');
+  fromEl.classList.add(dir==='forward'?'exit-left':'exit-right');
+  toEl.classList.remove('enter-right','enter-left');
+  toEl.classList.add('active');
+  setTimeout(function(){fromEl.classList.remove('exit-left','exit-right')},450);
+}
+
+function sync(){
+  document.getElementById('prog-fill').style.width=((cur-1)/(TOTAL-1)*100)+'%';
+  document.getElementById('kyc-counter').textContent=cur+' of '+TOTAL;
+  document.getElementById('kyc-back').classList.toggle('visible',cur>1);
+  document.getElementById('cta-bar').style.display=cur===8?'none':'block';
+  updateBtn();
+  if(cur===8)setTimeout(function(){document.getElementById('code-input').focus()},500);
+}
+
+function showDone(){
+  document.getElementById('prog-fill').style.width='100%';
+  document.getElementById('cta-bar').style.display='none';
+  document.getElementById('kyc-counter').textContent='';
+  document.getElementById('kyc-back').classList.remove('visible');
+  document.getElementById('step-8').classList.remove('active');
+  document.getElementById('kyc-done').classList.add('show');
+}
+
+function goToFeed(){showToast('Welcome to Lethe ✦')}
+
+function showToast(msg){
+  var t=document.getElementById('toast');
+  t.textContent=msg;
+  t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show')},2800);
+}
+
+/* init */
+sync();
+document.getElementById('prog-fill').style.width='0%';
+
+</script>
+</body>
+</html>

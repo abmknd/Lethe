@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lethe — Messages</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#050705;
+  --surface:#0b0e0b;
+  --surface2:#0f130f;
+  --border:rgba(255,255,255,0.07);
+  --border2:rgba(255,255,255,0.12);
+  --ch:#ADFF2F;
+  --ch2:rgba(173,255,47,0.1);
+  --ch3:rgba(173,255,47,0.05);
+  --text:rgba(255,255,255,0.88);
+  --dim:rgba(255,255,255,0.45);
+  --ghost:rgba(255,255,255,0.18);
+  --ghost2:rgba(255,255,255,0.07);
+  --serif:'Libre Baskerville',Georgia,serif;
+  --sans:'Inter',sans-serif;
+  --ease:cubic-bezier(0.16,1,0.3,1);
+}
+
+html,body{height:100%;overflow:hidden}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:var(--sans);
+  display:flex;flex-direction:column;
+  cursor:none;
+}
+
+/* noise */
+body::after{
+  content:'';position:fixed;inset:0;opacity:.02;pointer-events:none;z-index:100;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size:200px;
+}
+
+/* cursor */
+#cur-dot{position:fixed;width:5px;height:5px;background:var(--ch);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);mix-blend-mode:screen}
+#cur-ring{position:fixed;width:28px;height:28px;border:1px solid rgba(173,255,47,0.2);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .3s,height .3s,border-color .3s}
+#cur-ring.h{width:44px;height:44px;border-color:rgba(173,255,47,0.45)}
+
+/* ── TOP NAV ── */
+.l-nav{
+  height:56px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 32px;
+  background:rgba(5,7,5,0.97);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  position:relative;z-index:10;
+}
+.l-nav-logo{
+  font-family:var(--serif);font-size:13px;font-weight:400;
+  letter-spacing:.32em;text-transform:uppercase;
+  color:var(--dim);text-decoration:none;
+  display:flex;align-items:center;gap:8px;
+  flex:1;
+}
+
+.l-nav-right{
+  flex:1;display:flex;justify-content:flex-end;align-items:center;
+}
+.l-avatar-btn{
+  width:32px;height:32px;border-radius:50%;
+  background:linear-gradient(135deg,#1a2a1a,#0d150d);
+  border:1.5px solid rgba(173,255,47,0.25);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--serif);font-size:13px;font-style:italic;
+  color:var(--dim);cursor:none;
+  transition:border-color .2s;
+}
+.l-avatar-btn:hover{border-color:rgba(173,255,47,0.5)}
+
+/* ── LAYOUT ── */
+.l-body{
+  flex:1;min-height:0;
+  display:flex;
+}
+
+/* ── SIDEBAR ── */
+.l-sidebar{
+  width:320px;flex-shrink:0;
+  display:flex;flex-direction:column;
+  border-right:1px solid var(--border);
+  background:var(--surface);
+}
+
+.l-sidebar-head{
+  padding:20px 20px 0;flex-shrink:0;
+}
+.l-sidebar-title{
+  font-family:var(--serif);font-size:18px;font-weight:400;font-style:italic;
+  color:var(--text);margin-bottom:14px;
+}
+.l-search{
+  display:flex;align-items:center;gap:8px;
+  background:var(--ghost2);border:1px solid var(--border);
+  border-radius:10px;padding:9px 14px;
+  margin-bottom:16px;
+  transition:border-color .2s;
+}
+.l-search:focus-within{border-color:rgba(173,255,47,0.25)}
+.l-search svg{width:14px;height:14px;color:var(--ghost);flex-shrink:0}
+.l-search input{
+  flex:1;background:transparent;border:none;outline:none;
+  font-family:var(--sans);font-size:13px;color:var(--text);
+}
+.l-search input::placeholder{color:var(--ghost)}
+
+/* filter tabs */
+.l-filter-tabs{
+  display:flex;gap:0;
+  border-bottom:1px solid var(--border);
+}
+.l-filter-tab{
+  flex:1;padding:10px 0;text-align:center;
+  font-family:var(--sans);font-size:11px;font-weight:500;
+  letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ghost);cursor:none;
+  border-bottom:2px solid transparent;
+  transition:color .2s,border-color .2s;
+  user-select:none;
+}
+.l-filter-tab:hover{color:var(--dim)}
+.l-filter-tab.active{color:var(--text);border-bottom-color:var(--ch)}
+
+/* conversation list */
+.l-convos{flex:1;overflow-y:auto;scrollbar-width:none}
+.l-convos::-webkit-scrollbar{display:none}
+
+.l-convo{
+  display:flex;align-items:center;gap:12px;
+  padding:14px 20px;
+  border-bottom:1px solid rgba(255,255,255,0.04);
+  cursor:none;transition:background .2s;
+  position:relative;
+}
+.l-convo:hover{background:rgba(255,255,255,0.03)}
+.l-convo.active{background:var(--ch2)}
+.l-convo.active::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;
+  width:2px;background:var(--ch);
+}
+
+/* unread dot */
+.l-convo-unread-dot{
+  position:absolute;left:10px;top:50%;transform:translateY(-50%);
+  width:6px;height:6px;border-radius:50%;background:var(--ch);
+  flex-shrink:0;
+}
+
+.l-convo-ava{
+  width:42px;height:42px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(135deg,#1a2a1a,#0d150d);
+  border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--serif);font-size:16px;font-style:italic;
+  color:var(--dim);overflow:hidden;position:relative;
+}
+.l-convo-ava img{width:100%;height:100%;object-fit:cover}
+.l-convo-ava.online::after{
+  content:'';position:absolute;bottom:1px;right:1px;
+  width:9px;height:9px;border-radius:50%;
+  background:var(--ch);border:1.5px solid var(--surface);
+}
+
+.l-convo-body{flex:1;min-width:0}
+.l-convo-row{
+  display:flex;align-items:baseline;justify-content:space-between;
+  margin-bottom:3px;
+}
+.l-convo-name{
+  font-family:var(--sans);font-size:14px;font-weight:500;
+  color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  max-width:160px;
+}
+.l-convo.unread .l-convo-name{color:#fff}
+.l-convo-time{
+  font-family:var(--sans);font-size:11px;
+  color:var(--ghost);flex-shrink:0;margin-left:8px;
+}
+.l-convo.unread .l-convo-time{color:rgba(173,255,47,0.55)}
+.l-convo-preview{
+  font-size:12px;font-weight:300;color:var(--ghost);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  line-height:1.5;
+}
+.l-convo.unread .l-convo-preview{color:var(--dim)}
+
+/* match badge */
+.l-match-badge{
+  font-size:10px;font-weight:500;letter-spacing:.08em;
+  padding:2px 7px;border-radius:8px;
+  background:rgba(173,255,47,0.1);
+  border:1px solid rgba(173,255,47,0.2);
+  color:rgba(173,255,47,0.7);
+  white-space:nowrap;margin-left:6px;flex-shrink:0;
+}
+
+/* new chat btn in sidebar */
+.l-new-chat-sidebar{
+  padding:12px 20px 16px;flex-shrink:0;
+  border-top:1px solid var(--border);
+}
+.l-new-chat-sidebar button{
+  width:100%;padding:11px;border-radius:12px;
+  background:var(--ch2);border:1px solid rgba(173,255,47,0.2);
+  color:rgba(173,255,47,0.8);cursor:none;
+  font-family:var(--sans);font-size:12px;font-weight:500;letter-spacing:.08em;
+  display:flex;align-items:center;justify-content:center;gap:7px;
+  transition:all .2s;
+}
+.l-new-chat-sidebar button:hover{background:rgba(173,255,47,0.16);border-color:rgba(173,255,47,0.35);color:var(--ch)}
+.l-new-chat-sidebar button svg{width:14px;height:14px}
+
+/* ── MAIN PANEL ── */
+.l-main{
+  flex:1;min-width:0;
+  display:flex;flex-direction:column;
+  background:var(--bg);
+  position:relative;
+}
+
+/* ═══════════════════
+   EMPTY STATE
+═══════════════════ */
+.l-empty-state{
+  flex:1;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:40px;
+  animation:fadeUp .5s var(--ease) forwards;
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+.l-empty-ripple{
+  width:80px;height:80px;position:relative;
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:28px;
+}
+.l-empty-ripple::before,.l-empty-ripple::after{
+  content:'';position:absolute;border-radius:50%;
+  border:1px solid rgba(173,255,47,0.12);
+  animation:emptyRipple 3s ease-out infinite;
+}
+.l-empty-ripple::after{animation-delay:1.5s}
+@keyframes emptyRipple{
+  0%{width:28px;height:28px;opacity:.5}
+  100%{width:80px;height:80px;opacity:0}
+}
+.l-empty-icon{
+  width:28px;height:28px;border-radius:50%;
+  background:var(--ch3);border:1px solid rgba(173,255,47,0.15);
+  display:flex;align-items:center;justify-content:center;
+  color:rgba(173,255,47,0.5);
+}
+.l-empty-icon svg{width:13px;height:13px}
+
+.l-empty-heading{
+  font-family:var(--serif);font-size:26px;font-weight:400;font-style:italic;
+  color:var(--text);margin-bottom:10px;text-align:center;
+}
+.l-empty-sub{
+  font-size:14px;font-weight:300;color:var(--dim);
+  text-align:center;line-height:1.7;max-width:300px;
+  margin-bottom:28px;
+}
+.l-new-chat-btn{
+  display:flex;align-items:center;gap:8px;
+  padding:13px 28px;border-radius:20px;
+  background:var(--ch);border:none;cursor:none;
+  font-family:var(--sans);font-size:12px;font-weight:600;
+  letter-spacing:.1em;text-transform:uppercase;color:#050705;
+  transition:background .2s,transform .15s;
+}
+.l-new-chat-btn:hover{background:#c8ff4f;transform:translateY(-1px)}
+.l-new-chat-btn svg{width:14px;height:14px}
+
+/* ═══════════════════
+   THREAD VIEW
+═══════════════════ */
+.l-thread{
+  flex:1;min-height:0;display:flex;flex-direction:column;
+  display:none;
+}
+.l-thread.show{display:flex}
+
+/* thread header */
+.l-thread-head{
+  padding:0 28px;height:64px;flex-shrink:0;
+  display:flex;align-items:center;gap:14px;
+  border-bottom:1px solid var(--border);
+  background:rgba(5,7,5,0.7);backdrop-filter:blur(16px);
+}
+.l-thread-ava{
+  width:36px;height:36px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(135deg,#1a2a1a,#0d150d);
+  border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--serif);font-size:13px;font-style:italic;color:var(--dim);
+  overflow:hidden;position:relative;
+}
+.l-thread-ava img{width:100%;height:100%;object-fit:cover}
+.l-thread-ava.online::after{
+  content:'';position:absolute;bottom:0px;right:0px;
+  width:9px;height:9px;border-radius:50%;
+  background:var(--ch);border:1.5px solid var(--bg);
+}
+.l-thread-info{flex:1;min-width:0}
+.l-thread-name{
+  font-family:var(--sans);font-size:14px;font-weight:500;
+  color:var(--text);margin-bottom:1px;
+}
+.l-thread-status{
+  font-size:11px;font-weight:300;color:var(--ghost);
+}
+.l-thread-status.online{color:rgba(173,255,47,0.6)}
+.l-thread-actions{display:flex;align-items:center;gap:4px}
+.l-thread-action{
+  width:32px;height:32px;border-radius:50%;border:none;
+  background:transparent;color:var(--ghost);cursor:none;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .2s;
+}
+.l-thread-action:hover{background:var(--ghost2);color:var(--dim)}
+.l-thread-action svg{width:16px;height:16px}
+
+/* profile banner — shown at top of new thread */
+.l-profile-banner{
+  padding:32px 28px 24px;
+  border-bottom:1px solid var(--border);
+  display:flex;flex-direction:column;align-items:center;
+  gap:10px;flex-shrink:0;
+  background:linear-gradient(to bottom,rgba(173,255,47,0.02),transparent);
+}
+.l-banner-ava{
+  width:64px;height:64px;border-radius:50%;
+  background:linear-gradient(135deg,#1a2a1a,#0d150d);
+  border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--serif);font-size:24px;font-style:italic;color:var(--dim);
+  overflow:hidden;margin-bottom:4px;
+  position:relative;
+}
+.l-banner-ava img{width:100%;height:100%;object-fit:cover}
+.l-banner-name{
+  font-family:var(--serif);font-size:20px;font-weight:400;font-style:italic;
+  color:var(--text);
+}
+.l-banner-handle{
+  font-size:12px;font-weight:300;color:var(--ghost);
+  margin-top:-4px;
+}
+.l-banner-subs{
+  font-size:12px;font-weight:300;color:var(--dim);
+}
+.l-banner-subs span{color:var(--text);font-weight:400}
+.l-banner-btn{
+  margin-top:4px;padding:8px 20px;border-radius:14px;
+  background:transparent;border:1px solid var(--border2);
+  font-family:var(--sans);font-size:11px;font-weight:500;
+  letter-spacing:.08em;color:var(--dim);cursor:none;
+  transition:all .2s;
+}
+.l-banner-btn:hover{background:var(--ghost2);color:var(--text)}
+
+/* match context strip */
+.l-match-strip{
+  margin:0 28px 0;
+  padding:10px 14px;
+  background:var(--ch3);border:1px solid rgba(173,255,47,0.12);
+  border-radius:10px;
+  display:flex;align-items:center;gap:10px;
+  flex-shrink:0;
+}
+.l-match-strip svg{width:14px;height:14px;color:rgba(173,255,47,0.5);flex-shrink:0}
+.l-match-strip p{
+  font-size:12px;font-weight:300;color:rgba(173,255,47,0.65);line-height:1.5;
+}
+.l-match-strip p strong{font-weight:500;color:rgba(173,255,47,0.85)}
+
+/* messages area */
+.l-messages{
+  flex:1;overflow-y:auto;
+  padding:20px 28px 8px;
+  display:flex;flex-direction:column;gap:4px;
+  scrollbar-width:none;
+}
+.l-messages::-webkit-scrollbar{display:none}
+
+/* date separator */
+.l-date-sep{
+  display:flex;align-items:center;gap:12px;
+  margin:16px 0 12px;
+}
+.l-date-sep::before,.l-date-sep::after{
+  content:'';flex:1;height:1px;background:var(--border);
+}
+.l-date-sep span{
+  font-size:11px;font-weight:400;color:var(--ghost);
+  white-space:nowrap;letter-spacing:.06em;
+}
+
+/* message bubble */
+.l-msg{
+  display:flex;align-items:flex-end;gap:8px;
+  margin-bottom:2px;
+  animation:msgIn .3s var(--ease) forwards;
+}
+@keyframes msgIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+.l-msg.mine{flex-direction:row-reverse}
+.l-msg.mine+.l-msg.mine{margin-top:-1px}
+.l-msg.theirs+.l-msg.theirs .l-msg-ava{visibility:hidden}
+
+.l-msg-ava{
+  width:26px;height:26px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(135deg,#1a2a1a,#0d150d);
+  border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--serif);font-size:10px;font-style:italic;color:var(--dim);
+  overflow:hidden;align-self:flex-end;
+}
+.l-msg-ava img{width:100%;height:100%;object-fit:cover}
+.l-msg.mine .l-msg-ava{display:none}
+
+.l-msg-bubble{
+  max-width:68%;padding:11px 15px;border-radius:18px;
+  font-size:14px;font-weight:300;line-height:1.65;
+  position:relative;
+}
+.l-msg.theirs .l-msg-bubble{
+  background:var(--surface2);border:1px solid var(--border);
+  color:var(--text);border-bottom-left-radius:4px;
+}
+.l-msg.mine .l-msg-bubble{
+  background:var(--ch);color:#050705;
+  border-bottom-right-radius:4px;
+  font-weight:400;
+}
+
+/* timestamp on hover */
+.l-msg-time{
+  font-size:10px;color:var(--ghost);
+  opacity:0;transition:opacity .2s;
+  white-space:nowrap;padding-bottom:2px;
+  align-self:flex-end;
+}
+.l-msg:hover .l-msg-time{opacity:1}
+.l-msg.mine .l-msg-time{order:-1}
+
+/* sender name for their first in group */
+.l-msg-sender{
+  font-size:11px;font-weight:500;color:var(--ghost);
+  margin-bottom:3px;margin-left:34px;
+  letter-spacing:.04em;
+}
+
+/* ── INPUT BAR ── */
+.l-input-bar{
+  padding:12px 28px 20px;flex-shrink:0;
+  border-top:1px solid var(--border);
+  background:rgba(5,7,5,0.8);backdrop-filter:blur(16px);
+}
+.l-input-wrap{
+  display:flex;align-items:flex-end;gap:10px;
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:16px;padding:10px 10px 10px 16px;
+  transition:border-color .2s;
+}
+.l-input-wrap:focus-within{border-color:rgba(173,255,47,0.25)}
+.l-input-wrap textarea{
+  flex:1;background:transparent;border:none;outline:none;resize:none;
+  font-family:var(--sans);font-size:14px;font-weight:300;
+  color:var(--text);line-height:1.5;max-height:120px;
+  scrollbar-width:none;
+}
+.l-input-wrap textarea::-webkit-scrollbar{display:none}
+.l-input-wrap textarea::placeholder{color:var(--ghost)}
+.l-input-actions{display:flex;align-items:center;gap:4px;flex-shrink:0}
+.l-input-btn{
+  width:32px;height:32px;border-radius:50%;border:none;
+  background:transparent;color:var(--ghost);cursor:none;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .2s;
+}
+.l-input-btn:hover{background:var(--ghost2);color:var(--dim)}
+.l-input-btn svg{width:16px;height:16px}
+.l-send-btn{
+  width:36px;height:36px;border-radius:50%;border:none;cursor:none;
+  background:var(--ch);color:#050705;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .2s;opacity:0;transform:scale(0.8);pointer-events:none;
+}
+.l-send-btn.show{opacity:1;transform:scale(1);pointer-events:all}
+.l-send-btn:hover{background:#c8ff4f;transform:scale(1.05)}
+.l-send-btn svg{width:15px;height:15px}
+
+/* bottom nav */
+
+</style>
+</head>
+<body>
+
+<div id="cur-dot"></div>
+<div id="cur-ring"></div>
+
+<!-- TOP NAV -->
+<nav class="l-nav">
+  <a href="#" class="l-nav-logo">
+    <svg width="18" height="18" viewBox="0 0 32 32" fill="none" style="opacity:0.7">
+      <circle cx="16" cy="16" r="14" stroke="rgba(255,255,255,0.5)" stroke-width="1.5"/>
+      <path d="M8 16 Q16 6 24 16 Q16 26 8 16Z" stroke="rgba(255,255,255,0.5)" stroke-width="1.5" fill="none"/>
+    </svg>
+    Lethe
+  </a>
+
+  <div class="l-nav-right">
+    <div class="l-avatar-btn">I</div>
+  </div>
+</nav>
+
+<!-- BODY -->
+<div class="l-body">
+
+  <!-- SIDEBAR -->
+  <aside class="l-sidebar">
+    <div class="l-sidebar-head">
+      <div class="l-sidebar-title">Messages</div>
+      <div class="l-search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input type="text" placeholder="Search chats…">
+      </div>
+      <div class="l-filter-tabs">
+        <div class="l-filter-tab active" onclick="filterTab(this)">All</div>
+        <div class="l-filter-tab" onclick="filterTab(this)">Direct</div>
+        <div class="l-filter-tab" onclick="filterTab(this)">Unread</div>
+      </div>
+    </div>
+
+    <div class="l-convos" id="convo-list"></div>
+
+    <div class="l-new-chat-sidebar">
+      <button onclick="openNewChat()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 5v14M5 12h14"/></svg>
+        New chat
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN PANEL -->
+  <main class="l-main" id="main-panel">
+
+    <!-- EMPTY STATE -->
+    <div class="l-empty-state" id="empty-state">
+      <div class="l-empty-ripple">
+        <div class="l-empty-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        </div>
+      </div>
+      <h2 class="l-empty-heading">Start a conversation</h2>
+      <p class="l-empty-sub">Choose from your existing conversations, or start a new one.</p>
+      <button class="l-new-chat-btn" onclick="openNewChat()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        New chat
+      </button>
+    </div>
+
+    <!-- THREAD VIEW -->
+    <div class="l-thread" id="thread-view">
+
+      <!-- thread header -->
+      <div class="l-thread-head">
+        <div class="l-thread-ava online" id="thread-ava">M</div>
+        <div class="l-thread-info">
+          <div class="l-thread-name" id="thread-name">Marcus Jin</div>
+          <div class="l-thread-status online" id="thread-status">Active now</div>
+        </div>
+        <div class="l-thread-actions">
+          <button class="l-thread-action" title="Profile">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </button>
+          <button class="l-thread-action" title="More">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- profile banner (shown on first open) -->
+      <div class="l-profile-banner" id="profile-banner">
+        <div class="l-banner-ava" id="banner-ava">M</div>
+        <div class="l-banner-name" id="banner-name">Marcus Jin</div>
+        <div class="l-banner-handle" id="banner-handle">@marcus.jin</div>
+        <div class="l-banner-subs"><span>Iris</span> and <span>2 others</span> follow them</div>
+        <button class="l-banner-btn">View profile</button>
+      </div>
+
+      <!-- match context strip -->
+      <div style="padding:12px 28px 0;flex-shrink:0">
+        <div class="l-match-strip" id="match-strip">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+          <p><strong>Lethe match</strong> — You two were introduced this week. Your meeting is scheduled for Thursday at 3pm.</p>
+        </div>
+      </div>
+
+      <!-- messages -->
+      <div class="l-messages" id="messages-area"></div>
+
+      <!-- input -->
+      <div class="l-input-bar">
+        <div class="l-input-wrap">
+          <textarea id="msg-input" rows="1" placeholder="Write a message…"
+            oninput="handleInput(this)" onkeydown="handleKey(event)"></textarea>
+          <div class="l-input-actions">
+            <button class="l-input-btn" title="Attach">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
+            </button>
+            <button class="l-send-btn" id="send-btn" onclick="sendMessage()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /thread -->
+
+  </main>
+</div>
+
+
+
+<script>
+/* ── CURSOR ── */
+(function(){
+  const dot=document.getElementById('cur-dot'),ring=document.getElementById('cur-ring');
+  let lx=0,ly=0,tx=0,ty=0;
+  document.addEventListener('mousemove',function(e){
+    tx=e.clientX;ty=e.clientY;
+    dot.style.left=tx+'px';dot.style.top=ty+'px';
+  });
+  (function lerp(){lx+=(tx-lx)*0.1;ly+=(ty-ly)*0.1;ring.style.left=lx+'px';ring.style.top=ly+'px';requestAnimationFrame(lerp)})();
+  document.addEventListener('mouseover',function(e){
+    if(e.target.closest('button,a,input,textarea,.l-convo,.l-filter-tab,.l-banner-btn'))
+      ring.classList.add('h');
+    else ring.classList.remove('h');
+  });
+})();
+
+/* ── DATA ── */
+var convos=[
+  {id:1, name:'Marcus Jin',    handle:'@marcus.jin',    initial:'M', time:'2h',    preview:"Looking forward to our meeting Thursday.",       unread:true,  online:true,  match:true},
+  {id:2, name:'Sophia Chen',   handle:'@sophia.chen',   initial:'S', time:'1d',    preview:"That's a really interesting take on it.",         unread:false, online:false, match:false},
+  {id:3, name:'Elena Voss',    handle:'@elena.voss',    initial:'E', time:'3d',    preview:"Let me know what time works for you.",             unread:true,  online:true,  match:true},
+  {id:4, name:'Theo Lark',     handle:'@theo.lark',     initial:'T', time:'1w',    preview:"I read your post about memory — really resonant.", unread:false, online:false, match:false},
+  {id:5, name:'River C.',      handle:'@river.c',       initial:'R', time:'2w',    preview:"Same. We should talk more about this.",            unread:false, online:false, match:false},
+];
+
+var threads={
+  1:[
+    {mine:false, text:"Hey Iris, great to be connected. I read a few of your posts — love how you think about product ethics.", time:"Jan 27, 10:43 AM", date:"Jan 27"},
+    {mine:true,  text:"Thanks Marcus! Your thread on distributed systems was something I kept coming back to.", time:"Jan 27, 11:02 AM"},
+    {mine:true,  text:"Curious what drew you to that particular framing.", time:"Jan 27, 11:02 AM"},
+    {mine:false, text:"Honestly it started as a shower thought and I couldn't let it go. The best ones usually do.", time:"Jan 27, 11:18 AM"},
+    {mine:false, text:"Looking forward to our meeting Thursday — I'll send a calendar invite.", time:"2h ago", date:"Today"},
+  ],
+  2:[
+    {mine:false, text:"Your post on optimising for presence really got to me. I've been doing exactly the opposite.", time:"Yesterday, 3:12 PM", date:"Yesterday"},
+    {mine:true,  text:"I wrote it at 2am which probably says everything.", time:"Yesterday, 3:20 PM"},
+    {mine:false, text:"That's a really interesting take on it.", time:"Yesterday, 3:45 PM"},
+  ],
+  3:[
+    {mine:false, text:"Hi Iris, Lethe introduced us this week! I build at the intersection of AI and healthcare.", time:"3 days ago", date:"3 days ago"},
+    {mine:true,  text:"Hi Elena! That intersection is fascinating. What's the hardest problem you're working on right now?", time:"3 days ago"},
+    {mine:false, text:"Let me know what time works for you — happy to do async or a call.", time:"3 days ago"},
+  ],
+  4:[
+    {mine:false, text:"I read your post about memory — really resonant. The idea of posts aging like memory does is beautiful.", time:"1 week ago", date:"1 week ago"},
+    {mine:true,  text:"That was one of those posts I almost didn't publish. Glad it landed.", time:"1 week ago"},
+  ],
+  5:[
+    {mine:true,  text:"Great conversation last week. Same time next month?", time:"2 weeks ago", date:"2 weeks ago"},
+    {mine:false, text:"Same. We should talk more about this.", time:"2 weeks ago"},
+  ],
+};
+
+var activeId=null;
+
+/* ── RENDER SIDEBAR ── */
+function renderConvos(list){
+  var el=document.getElementById('convo-list');
+  el.innerHTML=list.map(function(c){
+    return '<div class="l-convo'+(c.unread?' unread':'')+(activeId===c.id?' active':'')+'" onclick="openThread('+c.id+')">'
+      +(c.unread?'<div class="l-convo-unread-dot"></div>':'')
+      +'<div class="l-convo-ava'+(c.online?' online':'')+'">'+(c.initial)+'</div>'
+      +'<div class="l-convo-body">'
+        +'<div class="l-convo-row">'
+          +'<span class="l-convo-name">'+c.name+(c.match?'<span class="l-match-badge">Match</span>':'')+'</span>'
+          +'<span class="l-convo-time">'+c.time+'</span>'
+        +'</div>'
+        +'<div class="l-convo-preview">'+c.preview+'</div>'
+      +'</div>'
+      +'</div>';
+  }).join('');
+}
+renderConvos(convos);
+
+/* ── FILTER TABS ── */
+function filterTab(el){
+  document.querySelectorAll('.l-filter-tab').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');
+  var f=el.textContent.trim();
+  var filtered=f==='Unread'?convos.filter(function(c){return c.unread})
+    :f==='Direct'?convos.filter(function(c){return !c.match})
+    :convos;
+  renderConvos(filtered);
+}
+
+/* ── OPEN THREAD ── */
+function openThread(id){
+  activeId=id;
+  var c=convos.find(function(x){return x.id===id});
+  renderConvos(convos);
+
+  // mark unread
+  c.unread=false;
+
+  // update header
+  var ava=document.getElementById('thread-ava');
+  ava.textContent=c.initial;
+  ava.className='l-thread-ava'+(c.online?' online':'');
+  document.getElementById('thread-name').textContent=c.name;
+  document.getElementById('thread-status').textContent=c.online?'Active now':'Last seen recently';
+  document.getElementById('thread-status').className='l-thread-status'+(c.online?' online':'');
+
+  // update banner
+  document.getElementById('banner-ava').textContent=c.initial;
+  document.getElementById('banner-name').textContent=c.name;
+  document.getElementById('banner-handle').textContent=c.handle;
+
+  // show/hide match strip
+  document.getElementById('match-strip').parentElement.style.display=c.match?'block':'none';
+
+  // render messages
+  renderMessages(id);
+
+  // show thread, hide empty
+  document.getElementById('empty-state').style.display='none';
+  document.getElementById('thread-view').classList.add('show');
+
+  // scroll to bottom
+  var area=document.getElementById('messages-area');
+  setTimeout(function(){area.scrollTop=area.scrollHeight},50);
+}
+
+/* ── RENDER MESSAGES ── */
+function renderMessages(id){
+  var msgs=threads[id]||[];
+  var area=document.getElementById('messages-area');
+  var html='';
+  var lastDate='';
+  msgs.forEach(function(m,i){
+    if(m.date&&m.date!==lastDate){
+      html+='<div class="l-date-sep"><span>'+m.date+'</span></div>';
+      lastDate=m.date;
+    }
+    var prev=msgs[i-1];
+    var showSender=!m.mine&&(!prev||prev.mine||prev.date!==m.date);
+    if(showSender){
+      var c=convos.find(function(x){return x.id===id});
+      html+='<div class="l-msg-sender">'+c.name+'</div>';
+    }
+    html+='<div class="l-msg '+(m.mine?'mine':'theirs')+'">'
+      +(!m.mine?'<div class="l-msg-ava">'+convos.find(function(x){return x.id===id}).initial+'</div>':'')
+      +'<div class="l-msg-bubble">'+m.text+'</div>'
+      +'<span class="l-msg-time">'+m.time+'</span>'
+      +'</div>';
+  });
+  area.innerHTML=html;
+}
+
+/* ── SEND MESSAGE ── */
+function handleInput(ta){
+  ta.style.height='auto';
+  ta.style.height=Math.min(ta.scrollHeight,120)+'px';
+  document.getElementById('send-btn').classList.toggle('show',ta.value.trim().length>0);
+}
+
+function handleKey(e){
+  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage()}
+}
+
+function sendMessage(){
+  if(!activeId)return;
+  var ta=document.getElementById('msg-input');
+  var text=ta.value.trim();
+  if(!text)return;
+
+  if(!threads[activeId])threads[activeId]=[];
+  threads[activeId].push({mine:true,text:text,time:'Just now'});
+
+  // update preview
+  var c=convos.find(function(x){return x.id===activeId});
+  c.preview=text;c.time='now';
+
+  renderMessages(activeId);
+  renderConvos(convos);
+
+  ta.value='';ta.style.height='auto';
+  document.getElementById('send-btn').classList.remove('show');
+
+  var area=document.getElementById('messages-area');
+  area.scrollTop=area.scrollHeight;
+}
+
+function openNewChat(){
+  // deselect and show empty state with prompt
+  activeId=null;
+  renderConvos(convos);
+  document.getElementById('empty-state').style.display='flex';
+  document.getElementById('thread-view').classList.remove('show');
+}
+</script>
+</body>
+</html>

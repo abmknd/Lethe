@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lethe — Connect</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#050705;--surface:#0b0e0b;--surface2:#111411;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);--border3:rgba(255,255,255,0.18);
+  --ch:#ADFF2F;--ch2:rgba(173,255,47,0.1);--ch4:rgba(173,255,47,0.03);
+  --text:rgba(255,255,255,0.88);--dim:rgba(255,255,255,0.52);--ghost:rgba(255,255,255,0.25);--ghost2:rgba(255,255,255,0.07);
+  --serif:'Libre Baskerville',Georgia,serif;--sans:'Inter',sans-serif;
+  --ease:cubic-bezier(0.16,1,0.3,1);
+}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);cursor:none;display:flex;flex-direction:column}
+body::after{content:'';position:fixed;inset:0;opacity:.018;pointer-events:none;z-index:100;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:200px}
+#cur-dot{position:fixed;width:5px;height:5px;background:var(--ch);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);mix-blend-mode:screen}
+#cur-ring{position:fixed;width:28px;height:28px;border:1px solid rgba(173,255,47,0.18);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .25s,height .25s,border-color .25s}
+#cur-ring.h{width:44px;height:44px;border-color:rgba(173,255,47,0.38)}
+
+/* NAV */
+.l-nav{height:56px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:0 32px;background:rgba(5,7,5,0.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);z-index:20}
+.l-nav-logo{font-family:var(--serif);font-size:13px;font-weight:400;letter-spacing:.32em;text-transform:uppercase;color:var(--dim);text-decoration:none;display:flex;align-items:center;gap:9px}
+.l-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#1a2a1a,#0d150d);border:1.5px solid rgba(173,255,47,0.22);overflow:hidden;cursor:none}
+.l-avatar img{width:100%;height:100%;object-fit:cover}
+
+/* TABS */
+.l-tabs{height:48px;flex-shrink:0;display:flex;align-items:center;padding:0 32px;background:var(--surface);border-bottom:1px solid var(--border)}
+.l-tab{padding:0;margin-right:28px;height:100%;display:flex;align-items:center;font-size:11px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--ghost);cursor:none;border-bottom:2px solid transparent;transition:color .2s,border-color .2s;user-select:none}
+.l-tab:hover{color:var(--dim)}
+.l-tab.active{color:var(--text);border-bottom-color:var(--ch)}
+.l-matching-toggle{margin-left:auto;display:flex;align-items:center;gap:10px}
+.l-matching-label{font-size:11px;color:var(--ghost);letter-spacing:.06em}
+.l-toggle{width:36px;height:22px;border-radius:11px;background:rgba(255,255,255,0.08);border:none;cursor:none;position:relative;transition:background .3s}
+.l-toggle::after{content:'';position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:rgba(255,255,255,0.28);transition:transform .3s var(--ease),background .3s}
+.l-toggle.on{background:var(--ch)}
+.l-toggle.on::after{transform:translateX(14px);background:#050705}
+
+/* WEEKLY BANNER — single line, inline progress */
+.l-weekly{flex-shrink:0;padding:0 32px;background:var(--ch4);border-bottom:1px solid rgba(173,255,47,0.07);display:flex;align-items:center;justify-content:space-between;height:40px}
+.l-weekly-left{display:flex;align-items:center;gap:9px}
+.l-weekly-dot{width:5px;height:5px;border-radius:50%;background:var(--ch);flex-shrink:0;box-shadow:0 0 7px rgba(173,255,47,0.55)}
+.l-weekly-text{font-size:11px;color:rgba(173,255,47,0.6);letter-spacing:.03em}
+.l-weekly-text strong{color:rgba(173,255,47,0.85);font-weight:600}
+.l-weekly-progress{font-size:11px;font-weight:500;color:var(--ghost);letter-spacing:.04em;white-space:nowrap}
+.l-weekly-progress strong{color:var(--dim);font-weight:600}
+
+/* BODY */
+.l-body{flex:1;min-height:0;display:flex;overflow:hidden;padding:20px;gap:16px}
+
+/* ══ PROFILE PANEL — center, Elena's info ══ */
+.l-profile{flex:1;min-width:0;background:var(--surface);border:1px solid var(--border);border-radius:16px;display:flex;flex-direction:column;overflow:hidden}
+.l-profile-content{flex:1;min-height:0;overflow-y:auto;scrollbar-width:none;transition:opacity .22s}
+.l-profile-content::-webkit-scrollbar{display:none}
+.l-profile-content.fade{opacity:0}
+
+/* profile header — compact avatar row */
+.l-hero{display:flex;align-items:center;gap:16px;padding:20px 20px;flex-shrink:0;border-bottom:1px solid var(--border)}
+.l-hero-ava{width:52px;height:52px;border-radius:50%;flex-shrink:0;overflow:hidden;background:#0d150d}
+.l-hero-ava img{width:100%;height:100%;object-fit:cover;object-position:center 20%;display:block}
+.l-hero-stack{display:flex;flex-direction:column;justify-content:center;gap:3px}
+.l-hero-name{font-family:var(--serif);font-size:20px;font-weight:400;color:var(--text);line-height:1.2}
+.l-hero-handle{font-size:11px;font-weight:400;color:var(--ghost);letter-spacing:.05em}
+.l-hero-meta-row{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.l-hero-loc{display:flex;align-items:center;gap:4px;font-size:11px;font-weight:300;color:var(--ghost)}
+.l-hero-loc svg{width:9px;height:9px;opacity:.55;flex-shrink:0}
+.l-hero-sep{width:3px;height:3px;border-radius:50%;background:rgba(255,255,255,0.18)}
+.l-hero-pronouns{font-size:11px;font-weight:300;color:var(--ghost);letter-spacing:.04em}
+
+/* compat strip */
+.l-compat-strip{padding:12px 20px;border-bottom:1px solid var(--border);flex-shrink:0;display:flex;align-items:center;gap:14px}
+.l-compat-bar{flex:1;height:2px;border-radius:2px;background:rgba(255,255,255,0.07);overflow:hidden}
+.l-compat-fill{height:100%;background:var(--ch);border-radius:2px;transition:width .8s var(--ease)}
+.l-compat-pct{font-size:11px;font-weight:600;letter-spacing:.08em;color:rgba(173,255,47,0.72);white-space:nowrap;flex-shrink:0}
+.l-compat-word{font-size:11px;font-weight:300;color:var(--ghost);white-space:nowrap;flex-shrink:0}
+
+/* sections */
+.l-sec{padding:16px 20px;border-bottom:1px solid var(--border)}
+.l-sec:last-child{border-bottom:none}
+.l-sec-label{font-size:9px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:var(--ghost);margin-bottom:10px}
+.l-bio{font-size:13px;font-weight:300;line-height:1.78;color:var(--dim)}
+
+/* common interests — dark grey, no chartreuse */
+.l-ci-tags{display:flex;flex-wrap:wrap;gap:6px}
+.l-ci-tag{font-size:11px;font-weight:400;letter-spacing:.04em;padding:5px 12px;border-radius:20px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.5)}
+
+/* action buttons — white/grey/black, minimal chartreuse */
+.l-panel-actions{padding:16px 20px 20px;display:flex;gap:10px;flex-shrink:0;border-top:1px solid var(--border);background:var(--surface)}
+.l-btn-pass{flex:1;padding:13px;border-radius:13px;background:transparent;border:1px solid var(--border3);color:rgba(255,255,255,0.45);cursor:none;font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:7px;transition:all .2s}
+.l-btn-pass:hover{background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.7);border-color:rgba(255,255,255,0.28)}
+.l-btn-pass svg{width:12px;height:12px}
+.l-btn-match{flex:1.6;padding:13px;border-radius:13px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.18);color:rgba(255,255,255,0.88);cursor:none;font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:7px;transition:all .2s}
+.l-btn-match:hover{background:rgba(255,255,255,0.16);border-color:rgba(255,255,255,0.3);color:#fff}
+.l-btn-match svg{width:12px;height:12px}
+
+/* ══ RIGHT CARD ══ */
+.l-right{width:420px;min-width:400px;flex-shrink:0;display:flex;flex-direction:column;background:transparent;overflow-y:auto;scrollbar-width:none}
+.l-right::-webkit-scrollbar{display:none}
+.l-right-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;padding:0;display:flex;flex-direction:column}
+
+/* Lethe summary — inside card, no outer margin */
+.l-summary{border-radius:0;background:var(--ch4);border:none;border-bottom:none;overflow:hidden;transition:opacity .22s}
+.l-summary.fade{opacity:0}
+.l-summary-head{display:flex;align-items:center;gap:10px;padding:13px 16px 10px}
+.l-summary-icon{width:26px;height:26px;border-radius:7px;background:rgba(173,255,47,0.08);border:1px solid rgba(173,255,47,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:rgba(173,255,47,0.6)}
+.l-summary-icon svg{width:12px;height:12px}
+.l-summary-ttl{font-size:10px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:rgba(173,255,47,0.65)}
+.l-summary-sub{font-size:10px;font-weight:300;color:var(--ghost);margin-top:1px}
+.l-insights{padding:0 16px 14px;display:flex;flex-direction:column;gap:9px}
+.l-insight{display:flex;align-items:flex-start;gap:9px}
+.l-insight-dot{width:4px;height:4px;border-radius:50%;background:rgba(173,255,47,0.35);flex-shrink:0;margin-top:7px}
+.l-insight-txt{font-size:12px;font-weight:300;line-height:1.72;color:rgba(255,255,255,0.5)}
+.l-insight-txt strong{color:rgba(255,255,255,0.78);font-weight:500}
+
+/* your availability */
+.l-your-avail-label{font-size:9px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:var(--ghost);margin-bottom:10px;padding:16px 16px 0}
+.l-your-avail-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-bottom:10px;padding:0 16px}
+.l-your-avail-slot{padding:10px 12px;border-radius:10px;background:var(--bg);border:1px solid var(--border)}
+.l-your-avail-day{font-size:9px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--ghost);margin-bottom:5px}
+.l-your-avail-times{display:flex;flex-direction:column;gap:3px}
+.l-your-avail-time{font-size:11px;font-weight:400;color:var(--dim);display:flex;align-items:center;gap:5px}
+.l-your-avail-time::before{content:'';width:3px;height:3px;border-radius:50%;background:rgba(173,255,47,0.3);flex-shrink:0}
+.l-avail-note{font-size:10px;font-weight:300;color:var(--ghost);line-height:1.6;padding:0 16px 16px;margin-bottom:0}
+
+/* match flash overlay */
+.l-match-flash{position:fixed;inset:0;z-index:500;background:rgba(5,7,5,0.92);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;opacity:0;pointer-events:none;transition:opacity .35s}
+.l-match-flash.show{opacity:1;pointer-events:all}
+.l-mf-ripple{width:60px;height:60px;position:relative;display:flex;align-items:center;justify-content:center}
+.l-mf-ripple::before,.l-mf-ripple::after{content:'';position:absolute;border-radius:50%;border:1px solid rgba(173,255,47,0.2);animation:mfRipple 2s ease-out infinite}
+.l-mf-ripple::after{animation-delay:1s}
+@keyframes mfRipple{0%{width:22px;height:22px;opacity:.7}100%{width:60px;height:60px;opacity:0}}
+.l-mf-dot{width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);display:flex;align-items:center;justify-content:center}
+.l-mf-dot svg{width:11px;height:11px;color:rgba(255,255,255,0.8)}
+.l-mf-title{font-family:var(--serif);font-size:22px;font-style:italic;color:var(--text)}
+.l-mf-sub{font-size:12px;font-weight:300;color:var(--dim);text-align:center;max-width:220px;line-height:1.65}
+
+/* toast */
+.l-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(14px);z-index:999;background:#181e18;border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:8px 18px;font-size:11px;letter-spacing:.1em;color:var(--dim);opacity:0;transition:all .4s var(--ease);pointer-events:none;white-space:nowrap}
+.l-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<div id="cur-dot"></div>
+<div id="cur-ring"></div>
+
+<!-- NAV -->
+<nav class="l-nav">
+  <a href="#" class="l-nav-logo">
+    <svg width="15" height="15" viewBox="0 0 32 32" fill="none" style="opacity:.55"><circle cx="16" cy="16" r="13" stroke="rgba(255,255,255,0.5)" stroke-width="1.5"/><path d="M8 16 Q16 7 24 16 Q16 25 8 16Z" stroke="rgba(255,255,255,0.5)" stroke-width="1.5" fill="none"/></svg>
+    Lethe
+  </a>
+  <div class="l-avatar"><img src="https://images.unsplash.com/photo-1683815251677-8df20f826622?w=80&q=80&fit=crop" alt="You"></div>
+</nav>
+
+<!-- TABS -->
+<div class="l-tabs">
+  <div class="l-tab active">Suggestions</div>
+  <div class="l-tab">Recent matches</div>
+  <div class="l-matching-toggle">
+    <span class="l-matching-label" id="toggle-label">Matching on</span>
+    <button class="l-toggle on" id="matching-toggle" onclick="toggleMatching()"></button>
+  </div>
+</div>
+
+<!-- WEEKLY BANNER — inline progress -->
+<div class="l-weekly">
+  <div class="l-weekly-left">
+    <div class="l-weekly-dot"></div>
+    <div class="l-weekly-text">Your weekly summary — <strong>10 suggestions</strong> this week. Your next introduction goes out <strong>Monday.</strong></div>
+  </div>
+  <div class="l-weekly-progress"><strong id="progress-text">0 of 10</strong> reviewed</div>
+</div>
+
+<!-- BODY -->
+<div class="l-body">
+
+  <!-- PROFILE PANEL — Elena's info -->
+  <div class="l-profile" id="profile-panel">
+    <div class="l-profile-content" id="profile-content">
+
+      <div class="l-hero">
+        <div class="l-hero-ava"><img id="p-img" src="" alt=""></div>
+        <div class="l-hero-stack">
+          <div class="l-hero-name" id="p-name"></div>
+          <div class="l-hero-handle" id="p-handle"></div>
+          <div class="l-hero-meta-row">
+            <div class="l-hero-loc">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              <span id="p-loc"></span>
+            </div>
+            <div class="l-hero-sep"></div>
+            <div class="l-hero-pronouns" id="p-pronouns"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="l-compat-strip">
+        <div class="l-compat-bar"><div class="l-compat-fill" id="p-compat-fill" style="width:0%"></div></div>
+        <div class="l-compat-pct" id="p-compat-pct"></div>
+        <div class="l-compat-word">match</div>
+      </div>
+
+      <div class="l-sec">
+        <div class="l-sec-label">About</div>
+        <div class="l-bio" id="p-bio"></div>
+      </div>
+
+      <div class="l-sec">
+        <div class="l-sec-label">Common interests</div>
+        <div class="l-ci-tags" id="p-ci-tags"></div>
+      </div>
+
+    </div><!-- /profile-content -->
+
+    <div class="l-panel-actions">
+      <button class="l-btn-pass" onclick="doPass()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        Pass
+      </button>
+      <button class="l-btn-match" onclick="doMatch()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+        Match
+      </button>
+    </div>
+  </div>
+
+  <!-- RIGHT CARD -->
+  <div class="l-right">
+    <div class="l-right-card">
+
+      <!-- Lethe summary -->
+      <div class="l-summary" id="summary-block">
+        <div class="l-summary-head">
+          <div class="l-summary-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          </div>
+          <div>
+            <div class="l-summary-ttl">Lethe summary</div>
+            <div class="l-summary-sub" id="summary-sub">What makes this introduction worth having</div>
+          </div>
+        </div>
+        <div class="l-insights" id="p-insights"></div>
+      </div>
+
+      <div style="height:1px;background:var(--border)"></div>
+
+      <div class="l-your-avail-label">Your availability</div>
+      <div class="l-your-avail-grid">
+        <div class="l-your-avail-slot">
+          <div class="l-your-avail-day">Mon</div>
+          <div class="l-your-avail-times">
+            <div class="l-your-avail-time">7:00 AM</div>
+            <div class="l-your-avail-time">8:00 PM</div>
+          </div>
+        </div>
+        <div class="l-your-avail-slot">
+          <div class="l-your-avail-day">Tue</div>
+          <div class="l-your-avail-times">
+            <div class="l-your-avail-time">7:00 AM</div>
+          </div>
+        </div>
+        <div class="l-your-avail-slot">
+          <div class="l-your-avail-day">Thu</div>
+          <div class="l-your-avail-times">
+            <div class="l-your-avail-time">6:00 PM</div>
+            <div class="l-your-avail-time">7:00 PM</div>
+          </div>
+        </div>
+        <div class="l-your-avail-slot">
+          <div class="l-your-avail-day">Sat</div>
+          <div class="l-your-avail-times">
+            <div class="l-your-avail-time">10:00 AM</div>
+            <div class="l-your-avail-time">11:00 AM</div>
+          </div>
+        </div>
+      </div>
+      <div class="l-avail-note">You can change your availability in your profile settings.</div>
+    </div>
+
+  </div><!-- /right card -->
+
+</div><!-- /body -->
+
+<!-- match flash -->
+<div class="l-match-flash" id="match-flash">
+  <div class="l-mf-ripple"><div class="l-mf-dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg></div></div>
+  <div class="l-mf-title">Match set.</div>
+  <div class="l-mf-sub">Lethe will handle the introduction when the time is right.</div>
+</div>
+
+<div class="l-toast" id="toast"></div>
+
+<script>
+(function(){
+  var dot=document.getElementById('cur-dot'),ring=document.getElementById('cur-ring');
+  var lx=0,ly=0,tx=0,ty=0;
+  document.addEventListener('mousemove',function(e){tx=e.clientX;ty=e.clientY;dot.style.left=tx+'px';dot.style.top=ty+'px'});
+  (function lerp(){lx+=(tx-lx)*.1;ly+=(ty-ly)*.1;ring.style.left=lx+'px';ring.style.top=ly+'px';requestAnimationFrame(lerp)})();
+  document.addEventListener('mouseover',function(e){
+    if(e.target.closest('button,.l-tab'))ring.classList.add('h');
+    else ring.classList.remove('h');
+  });
+})();
+
+var suggestions=[
+  {name:'Elena Voss',handle:'@elena.voss',pronouns:'She / Her',role:'Product Designer',loc:'Berlin, Germany',compat:94,
+   img:'https://images.unsplash.com/photo-1770363757711-aa4db84d308d?w=800&q=80&fit=crop&crop=face',
+   bio:"I build at the intersection of design and systems thinking. Happiest in rooms where someone disagrees with me. Currently focused on ethical design frameworks for emerging tech.",
+   commonInterests:['Design Ethics','Systems Thinking','Effective Altruism','Architecture','Coffee'],
+   insights:[
+     {text:"You're both active in the <strong>Effective Altruism community</strong> — she's attended the same chapter events."},
+     {text:"She left agency work to go independent <strong>within the same 6-month window</strong> as you."},
+     {text:"She wrote about <strong>design ethics in AI</strong> last month — a topic you've circled in your last 4 posts."},
+   ]},
+  {name:'Marcus Jin',handle:'@marcus.jin',pronouns:'He / Him',role:'Founder · Stealth',loc:'Singapore',compat:88,
+   img:'https://images.unsplash.com/photo-1532272278764-53cd1fe53f72?w=800&q=80&fit=crop&crop=face',
+   bio:"Building something I can't talk about yet. Previously distributed systems at a place you've heard of. I think in systems and ship in sprints.",
+   commonInterests:['AI / ML','Distributed Systems','Building in Public','Lagos Tech Scene'],
+   insights:[
+     {text:"You both follow the same <strong>3 niche newsletters</strong> on distributed systems — and cited them in posts."},
+     {text:"You'll both be in <strong>Lagos next month</strong> during the same conference window."},
+     {text:"He's been thinking about <strong>product ethics</strong> — you've written about this twice this month."},
+   ]},
+  {name:'Sophia Chen',handle:'@sophia.chen',pronouns:'She / Her',role:'Research Scientist',loc:'London, UK',compat:91,
+   img:'https://images.unsplash.com/photo-1770894807442-108cc33c0a7a?w=800&q=80&fit=crop&crop=face',
+   bio:"Researcher by training, creative by habit. I like conversations that go somewhere unexpected. Currently studying how memory shapes decision-making.",
+   commonInterests:['AI Research','Cognitive Science','Memory Studies','Podcasts'],
+   insights:[
+     {text:"You both referenced the <strong>same Kahneman footnote</strong> on memory in posts published a day apart."},
+     {text:"She's looking for someone to think through <strong>AI alignment framing</strong> with — your exact stated interest."},
+     {text:"You're in the <strong>same book club</strong> — neither of you knows the other is a member."},
+   ]},
+  {name:'Theo Lark',handle:'@theo.lark',pronouns:'He / Him',role:'Writer · Investor',loc:'Amsterdam, NL',compat:79,
+   img:'https://images.unsplash.com/photo-1629507208649-70919ca33793?w=800&q=80&fit=crop&crop=face',
+   bio:"Write about what I fund. Fund what I find interesting. Mostly trying to stay curious and avoid pretending I know more than I do.",
+   commonInterests:['Early Stage Investing','Long-form Writing','Philosophy','Podcasts'],
+   insights:[
+     {text:"He angel-invested in a company explicitly looking for <strong>a designer with your exact background</strong>."},
+     {text:"You're both reading <strong>the same three books</strong> right now — from different recommendation paths."},
+     {text:"He's been asking his network for intros to <strong>product designers who think structurally</strong>."},
+   ]},
+  {name:'Iris Morrow',handle:'@iris.morrow',pronouns:'She / Her',role:'Head of Design',loc:'New York, USA',compat:86,
+   img:'https://images.unsplash.com/photo-1689600944138-da3b150d9cb8?w=800&q=80&fit=crop&crop=face',
+   bio:"Three cups of coffee and still thinking about design systems at scale. Building teams that outlast the product. Open to mentoring one designer this quarter.",
+   commonInterests:['Design Systems','Design Leadership','Mentoring','Running'],
+   insights:[
+     {text:"She's explicitly looking to <strong>mentor one designer this quarter</strong> — your profile came up first."},
+     {text:"You both left your last role within <strong>two weeks of each other</strong> citing the same frustration."},
+     {text:"You're both in Lagos this week. <strong>She'd be open to meeting in person</strong> if you match."},
+   ]},
+  {name:'River Castillo',handle:'@river.castillo',pronouns:'They / Them',role:'UX Researcher',loc:'Mexico City, MX',compat:83,
+   img:'https://images.unsplash.com/photo-1672685667592-0392f458f46f?w=800&q=80&fit=crop&crop=face',
+   bio:"I study how people make sense of complex systems. Fascinated by where research ends and design begins. Usually found with too many browser tabs open.",
+   commonInterests:['UX Research','Complexity Theory','Design Systems','Open Source'],
+   insights:[
+     {text:"You both contributed to the <strong>same open-source design toolkit</strong> in the past year."},
+     {text:"They've cited your Lethe posts <strong>in two separate research threads</strong> — they know your work."},
+     {text:"Both of you list <strong>complexity theory</strong> as a non-work obsession nobody asks about."},
+   ]},
+  {name:'Anika Patel',handle:'@anika.patel',pronouns:'She / Her',role:'Product Lead · Fintech',loc:'Bangalore, India',compat:77,
+   img:'https://images.unsplash.com/photo-1762522921456-cdfe882d36c3?w=800&q=80&fit=crop&crop=face',
+   bio:"Building financial tools for people who've never had access to them. Product by day, urban sketcher by night. Strong opinions, loosely held.",
+   commonInterests:['Fintech','Inclusive Design','Urban Sketching','Side Projects'],
+   insights:[
+     {text:"You both have <strong>side projects focused on financial access</strong> for underserved communities."},
+     {text:"She runs the design blog you've bookmarked — <strong>you never connected the handle to the face</strong>."},
+     {text:"Both of you have spoken publicly about <strong>the loneliness of product work</strong> in the last 3 months."},
+   ]},
+  {name:'James Okafor',handle:'@james.okafor',pronouns:'He / Him',role:'Co-founder · B2B SaaS',loc:'Lagos, Nigeria',compat:90,
+   img:'https://images.unsplash.com/photo-1629507208649-70919ca33793?w=800&q=80&fit=crop&crop=face',
+   bio:"Building tools for African businesses to go global. Two years in, still learning. I believe in calm companies and thoughtful growth.",
+   commonInterests:['African Tech Ecosystem','B2B SaaS','Calm Companies','Lagos Scene'],
+   insights:[
+     {text:"You're both based in Lagos and have <strong>attended the same 3 events</strong> without ever meeting."},
+     {text:"He quoted you in a post last month <strong>without knowing your Lethe handle</strong>."},
+     {text:"You both believe in <strong>calm companies</strong> — and have each written about it independently."},
+   ]},
+  {name:'Yuki Tanaka',handle:'@yuki.tanaka',pronouns:'She / Her',role:'Creative Technologist',loc:'Tokyo, Japan',compat:81,
+   img:'https://images.unsplash.com/photo-1770363757711-aa4db84d308d?w=800&q=80&fit=crop&crop=face',
+   bio:"I sit between art and engineering and refuse to move. Building generative tools for visual artists. Very much a night person.",
+   commonInterests:['Generative Art','Creative Coding','Tools for Creators','Night Owl Hours'],
+   insights:[
+     {text:"You both follow the same <strong>generative art community</strong> and bookmarked the same 12 projects."},
+     {text:"She's looking for a <strong>design-thinking collaborator</strong> — your profile matched her brief exactly."},
+     {text:"Both of you are most active on Lethe <strong>between midnight and 3am</strong>."},
+   ]},
+  {name:'Noah Bekele',handle:'@noah.bekele',pronouns:'He / Him',role:'Climate Tech Founder',loc:'Nairobi, Kenya',compat:85,
+   img:'https://images.unsplash.com/photo-1532272278764-53cd1fe53f72?w=800&q=80&fit=crop&crop=face',
+   bio:"Building infrastructure for climate resilience in East Africa. I care about what lasts. Avid reader, slow runner.",
+   commonInterests:['Climate Tech','African Infrastructure','Long-form Reading','Thoughtful Design'],
+   insights:[
+     {text:"You both believe <strong>design has a direct role in climate outcomes</strong> — and have each said so publicly."},
+     {text:"He's been looking for a <strong>product design advisor</strong> for three months. Your name came up twice."},
+     {text:"You're both reading <strong>the same biography</strong> and annotating the same chapters."},
+   ]},
+];
+
+var currentIdx=0,isAnimating=false,total=suggestions.length;
+
+function renderProfile(idx){
+  if(idx>=suggestions.length){showDone();return}
+  var s=suggestions[idx];
+  var content=document.getElementById('profile-content');
+  var summ=document.getElementById('summary-block');
+  content.classList.add('fade');
+  summ.classList.add('fade');
+  setTimeout(function(){
+    document.getElementById('p-img').src=s.img;
+    document.getElementById('p-name').textContent=s.name;
+    document.getElementById('p-handle').textContent=s.handle;
+    document.getElementById('p-loc').textContent=s.loc;
+    document.getElementById('p-pronouns').textContent=s.pronouns;
+    document.getElementById('p-bio').textContent=s.bio;
+    document.getElementById('p-compat-fill').style.width=s.compat+'%';
+    document.getElementById('p-compat-pct').textContent=s.compat+'%';
+    document.getElementById('p-ci-tags').innerHTML=s.commonInterests.map(function(t){
+      return '<span class="l-ci-tag">'+t+'</span>'
+    }).join('');
+    document.getElementById('p-insights').innerHTML=s.insights.map(function(i){
+      return '<div class="l-insight"><div class="l-insight-dot"></div><div class="l-insight-txt">'+i.text+'</div></div>'
+    }).join('');
+    document.getElementById('summary-sub').textContent='What you and '+s.name.split(' ')[0]+' have in common';
+    // progress
+    document.getElementById('progress-text').textContent=idx+' of '+total;
+    content.classList.remove('fade');
+    summ.classList.remove('fade');
+    document.getElementById('profile-panel').scrollTop=0;
+  },220);
+}
+
+function doPass(){
+  if(isAnimating)return;isAnimating=true;
+  currentIdx++;
+  renderProfile(currentIdx);
+  setTimeout(function(){isAnimating=false},380);
+}
+
+function doMatch(){
+  if(isAnimating)return;isAnimating=true;
+  document.getElementById('match-flash').classList.add('show');
+  setTimeout(function(){
+    document.getElementById('match-flash').classList.remove('show');
+    currentIdx++;
+    renderProfile(currentIdx);
+    setTimeout(function(){isAnimating=false},380);
+  },2000);
+}
+
+function showDone(){
+  document.getElementById('profile-content').innerHTML='<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:12px;padding:60px 40px;text-align:center"><p style="font-family:var(--serif);font-size:20px;font-style:italic;color:var(--text)">You\'re all caught up.</p><p style="font-size:13px;font-weight:300;color:var(--dim);line-height:1.7;max-width:240px">New suggestions arrive each Monday.</p></div>';
+  document.querySelector('.l-panel-actions').style.display='none';
+  document.getElementById('summary-block').style.display='none';
+  document.getElementById('progress-text').textContent=total+' of '+total;
+}
+
+function toggleMatching(){
+  var btn=document.getElementById('matching-toggle'),label=document.getElementById('toggle-label');
+  var isOn=btn.classList.contains('on');
+  btn.classList.toggle('on',!isOn);
+  label.textContent=isOn?'Matching off':'Matching on';
+  showToast(isOn?'Matching paused':'Matching is on');
+}
+
+document.querySelectorAll('.l-tab').forEach(function(tab){
+  tab.addEventListener('click',function(){
+    document.querySelectorAll('.l-tab').forEach(function(t){t.classList.remove('active')});
+    tab.classList.add('active');
+  });
+});
+
+function showToast(msg){
+  var t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show')},2600);
+}
+
+renderProfile(0);
+</script>
+</body>
+</html>
