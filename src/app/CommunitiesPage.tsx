@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { Grid, List, Users, MessageCircle, Bell, Search } from 'lucide-react';
 import { AvatarDropdown } from './components/AvatarDropdown';
-import imgAvatar from "figma:asset/8c692006a4e235a1e390f04abab516d1cc8c4603.png";
+import imgAvatar from "../assets/8c692006a4e235a1e390f04abab516d1cc8c4603.png";
 import LetheLogo from '../imports/LetheLogo';
 
 type ViewType = 'grid' | 'list';
