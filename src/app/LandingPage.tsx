@@ -3,7 +3,7 @@ import { useNavigate } from "react-router";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ArrowRight } from "lucide-react";
-import demoThumb from "figma:asset/a70a950bf7228e76ca10f85df8f58e89c216f662.png";
+import demoThumb from "../assets/a70a950bf7228e76ca10f85df8f58e89c216f662.png";
 import LetheLogo from "../imports/LetheLogo";
 
 gsap.registerPlugin(ScrollTrigger);
