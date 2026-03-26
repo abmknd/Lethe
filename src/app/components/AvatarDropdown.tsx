@@ -13,73 +13,59 @@ export function AvatarDropdown({ avatarUrl }: AvatarDropdownProps) {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
     };
-
-    if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    if (isOpen) document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isOpen]);
 
   const menuItems = [
-    { icon: User, label: "Profile", action: () => navigate("/profile") },
-    { icon: MessageSquare, label: "Messages", action: () => navigate("/messages") },
-    { icon: Users, label: "Communities", action: () => navigate("/communities") },
-    { icon: Settings, label: "Settings", action: () => navigate("/settings") },
-    { icon: HelpCircle, label: "Support", action: () => console.log("Support") },
+    { icon: User,         label: "Profile",     action: () => navigate("/profile") },
+    { icon: MessageSquare, label: "Messages",   action: () => navigate("/messages") },
+    { icon: Users,        label: "Communities", action: () => navigate("/communities") },
+    { icon: Settings,     label: "Settings",    action: () => navigate("/settings") },
+    { icon: HelpCircle,   label: "Support",     action: () => console.log("Support") },
   ];
-
-  const avatarBorder = "border-[#3A3A3A]";
-  const hoverBorder = "hover:border-[#6B6B6B]";
 
   return (
     <div className="relative" ref={dropdownRef}>
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex-shrink-0"
-      >
+      <button onClick={() => setIsOpen(!isOpen)} className="flex-shrink-0">
         <img
           src={avatarUrl}
           alt="Profile"
-          className={`w-9 h-9 rounded-full object-cover bg-[#1a1a1a] border ${avatarBorder} ${hoverBorder} transition-colors`}
+          className="w-9 h-9 rounded-full object-cover bg-lethe-raised border border-lethe-line-dim hover:border-lethe-muted transition-colors"
         />
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-[240px] bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg shadow-2xl overflow-hidden z-[100]">
-          {/* Menu Items */}
+        <div className="absolute right-0 mt-2 w-[240px] bg-lethe-raised border border-lethe-line-subtle rounded-lg shadow-2xl overflow-hidden z-[100]">
+          {/* Menu items */}
           {menuItems.map((item, index) => (
             <button
               key={index}
-              onClick={() => {
-                item.action();
-                setIsOpen(false);
-              }}
-              className={`w-full px-4 py-3.5 flex items-center gap-3 text-white hover:bg-[#2a2a2a] transition-colors text-left ${
-                index === 0 ? '' : 'border-t border-[#2a2a2a]'
+              onClick={() => { item.action(); setIsOpen(false); }}
+              className={`w-full px-4 py-3.5 flex items-center gap-3 text-lethe-fg hover:bg-lethe-line-subtle transition-colors text-left ${
+                index === 0 ? "" : "border-t border-lethe-line-subtle"
               }`}
             >
-              <item.icon size={18} strokeWidth={1.5} className="text-white" />
-              <span className="font-['Inter'] text-[14px] leading-[21px] tracking-[0.35px]">{item.label}</span>
+              <item.icon size={18} strokeWidth={1.5} className="text-lethe-fg" />
+              <span className="font-sans text-[length:var(--lethe-text-sm)] leading-[21px] tracking-[0.35px]">
+                {item.label}
+              </span>
             </button>
           ))}
 
           {/* Divider */}
-          <div className="border-t border-[#2a2a2a]" />
+          <div className="border-t border-lethe-line-subtle" />
 
-          {/* Theme Toggle */}
+          {/* Theme toggle */}
           <div className="px-4 py-3.5">
             <div className="flex items-center justify-between mb-2.5">
-              <span className="font-['Inter'] text-[12px] leading-[18px] tracking-[0.6px] uppercase text-[#6B6B6B] font-light">
+              <span className="font-sans text-[length:var(--lethe-text-xs)] leading-[18px] tracking-[length:var(--lethe-tracking-caps)] uppercase text-lethe-muted font-light">
                 Theme
               </span>
             </div>
@@ -88,37 +74,36 @@ export function AvatarDropdown({ avatarUrl }: AvatarDropdownProps) {
                 onClick={() => toggleTheme("dark")}
                 className={`flex-1 py-2.5 rounded-lg flex items-center justify-center gap-2 transition-colors ${
                   theme === "dark"
-                    ? 'bg-[#2a2a2a] text-white'
-                    : 'text-[#6B6B6B] hover:bg-[#2a2a2a]'
+                    ? "bg-lethe-line-subtle text-lethe-fg"
+                    : "text-lethe-muted hover:bg-lethe-line-subtle"
                 }`}
               >
                 <Moon size={16} strokeWidth={1.5} />
-                <span className="font-['Inter'] text-[13px] leading-[19.5px] tracking-[0.325px]">Dark</span>
+                <span className="font-sans text-[length:var(--lethe-text-sm)]">Dark</span>
               </button>
               <button
                 onClick={() => toggleTheme("light")}
-                disabled={true}
-                className="flex-1 py-2.5 rounded-lg flex items-center justify-center gap-2 transition-colors opacity-40 cursor-not-allowed text-[#6B6B6B]"
+                disabled
+                className="flex-1 py-2.5 rounded-lg flex items-center justify-center gap-2 transition-colors opacity-40 cursor-not-allowed text-lethe-muted"
               >
                 <Sun size={16} strokeWidth={1.5} />
-                <span className="font-['Inter'] text-[13px] leading-[19.5px] tracking-[0.325px]">Light</span>
+                <span className="font-sans text-[length:var(--lethe-text-sm)]">Light</span>
               </button>
             </div>
           </div>
 
           {/* Divider */}
-          <div className="border-t border-[#2a2a2a]" />
+          <div className="border-t border-lethe-line-subtle" />
 
           {/* Logout */}
           <button
-            onClick={() => {
-              console.log("Logout");
-              setIsOpen(false);
-            }}
-            className="w-full px-4 py-3.5 flex items-center gap-3 text-[#DC2626] hover:bg-[#DC2626]/10 transition-colors text-left border-t border-[#2a2a2a]"
+            onClick={() => { console.log("Logout"); setIsOpen(false); }}
+            className="w-full px-4 py-3.5 flex items-center gap-3 text-lethe-danger hover:bg-lethe-danger/10 transition-colors text-left border-t border-lethe-line-subtle"
           >
             <LogOut size={18} strokeWidth={1.5} />
-            <span className="font-['Inter'] text-[14px] leading-[21px] tracking-[0.35px]">Logout</span>
+            <span className="font-sans text-[length:var(--lethe-text-sm)] leading-[21px] tracking-[0.35px]">
+              Logout
+            </span>
           </button>
         </div>
       )}
