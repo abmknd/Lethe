@@ -228,14 +228,14 @@ export function ConnectContent({ activeTab }: ConnectContentProps) {
   return (
     <>
       {/* Weekly banner */}
-      <div className="mb-6 px-8 py-4 bg-[rgba(173,255,47,0.03)] border border-[rgba(173,255,47,0.07)] rounded-2xl flex items-center justify-between">
+      <div className="mb-6 px-8 py-4 bg-lethe-accent-bg border border-lethe-accent-border rounded-2xl flex items-center justify-between">
         <div className="flex items-center gap-[10px]">
-          <div className="w-[6px] h-[6px] rounded-full bg-[#ADFF2F] flex-shrink-0 shadow-[0_0_7px_rgba(173,255,47,0.55)]" />
-          <div className="text-[13px] text-[rgba(173,255,47,0.6)] tracking-[0.02em]">
-            This week's suggestions. New suggestions every <strong className="text-[rgba(173,255,47,0.85)] font-semibold">Monday.</strong>
+          <div className="w-[6px] h-[6px] rounded-full bg-lethe-accent flex-shrink-0 shadow-[0_0_7px_rgba(173,255,47,0.55)]" />
+          <div className="text-[length:var(--lethe-text-sm)] text-lethe-accent-text tracking-[length:var(--lethe-tracking-body)]">
+            This week's suggestions. New suggestions every <strong className="text-lethe-accent font-semibold">Monday.</strong>
           </div>
         </div>
-        <div className="text-[13px] font-medium text-white/[0.25] tracking-[0.03em] whitespace-nowrap">
+        <div className="text-[length:var(--lethe-text-sm)] font-medium text-lethe-ghost tracking-[0.03em] whitespace-nowrap">
           <strong className="text-white/[0.52] font-semibold">{isComplete ? totalSuggestions : currentIdx} of {totalSuggestions}</strong> reviewed
         </div>
       </div>
@@ -243,29 +243,29 @@ export function ConnectContent({ activeTab }: ConnectContentProps) {
       {/* Body - Two column layout */}
       <div className="flex gap-4">
         {/* Profile panel */}
-        <div className="flex-1 min-w-0 bg-[#0b0e0b] border border-white/[0.07] rounded-2xl flex flex-col overflow-hidden">
+        <div className="flex-1 min-w-0 bg-lethe-overlay border border-lethe-line rounded-2xl flex flex-col overflow-hidden">
           {!isComplete ? (
             <>
               <div className={`flex-1 min-h-0 overflow-y-auto transition-opacity duration-[220ms] ${profileFade ? 'opacity-0' : 'opacity-100'}`}>
                 {/* Hero */}
                 <div className="flex items-start gap-4 p-5 flex-shrink-0 border-b border-white/[0.07] relative">
                   <div 
-                    className="w-[70px] h-[70px] rounded-full flex-shrink-0 overflow-hidden bg-[#0d150d] cursor-pointer hover:ring-2 hover:ring-[#7FFF00]/40 transition-all"
+                    className="w-[70px] h-[70px] rounded-full flex-shrink-0 overflow-hidden bg-[#0d150d] cursor-pointer hover:ring-2 hover:ring-lethe-accent/40 transition-all"
                     onClick={() => navigate(`/user/${currentSuggestion.handle.replace('@', '')}`)}
                   >
                     <img src={currentSuggestion.img} alt={currentSuggestion.name} className="w-full h-full object-cover object-[center_20%]" />
                   </div>
                   <div className="flex flex-col justify-center gap-[4px]">
                     <div 
-                      className="font-['Libre_Baskerville'] text-[22px] leading-[1.2] text-white/[0.88] cursor-pointer hover:text-[#7FFF00] transition-colors"
+                      className="font-serif text-[length:var(--lethe-text-xl)] leading-[1.2] text-white/[0.88] cursor-pointer hover:text-lethe-accent transition-colors"
                       onClick={() => navigate(`/user/${currentSuggestion.handle.replace('@', '')}`)}
                     >
                       {currentSuggestion.name}
                     </div>
-                    <div className="text-[13px] text-white/[0.25] tracking-[0.04em]">{currentSuggestion.handle}</div>
+                    <div className="text-[length:var(--lethe-text-sm)] text-lethe-ghost tracking-[length:var(--lethe-tracking-body)]">{currentSuggestion.handle}</div>
                     
                     <div className="flex flex-col gap-[4px] mt-[8px]">
-                      <div className="font-['Libre_Baskerville'] text-[13px] leading-[1.5] text-[rgba(255,255,255,0.4)]">
+                      <div className="font-serif text-[length:var(--lethe-text-sm)] leading-[1.5] text-[rgba(255,255,255,0.4)]">
                         {currentSuggestion.role}
                       </div>
                       <div className="flex items-center gap-6 flex-wrap">
@@ -292,7 +292,7 @@ export function ConnectContent({ activeTab }: ConnectContentProps) {
                             </g>
                           </svg>
                         </div>
-                        <p className="text-[13px] text-white/[0.25] tracking-[0.04em]">
+                        <p className="text-[length:var(--lethe-text-sm)] text-lethe-ghost tracking-[length:var(--lethe-tracking-body)]">
                           {currentSuggestion.loc}
                         </p>
                       </div>
@@ -307,7 +307,7 @@ export function ConnectContent({ activeTab }: ConnectContentProps) {
                             <GenderIcon />
                           )}
                         </div>
-                        <p className="text-[13px] text-white/[0.25] tracking-[0.04em]">
+                        <p className="text-[length:var(--lethe-text-sm)] text-lethe-ghost tracking-[length:var(--lethe-tracking-body)]">
                           {currentSuggestion.pronouns}
                         </p>
                       </div>
@@ -317,25 +317,25 @@ export function ConnectContent({ activeTab }: ConnectContentProps) {
                   
                   {/* Compatibility badge */}
                   <div className="absolute top-5 right-5 bg-[rgba(173,255,47,0.08)] flex gap-[6px] items-center justify-center px-[12px] py-[6px] rounded-[120px]">
-                    <p className="font-semibold leading-[16.5px] text-[11px] text-[rgba(173,255,47,0.72)] tracking-[0.88px] whitespace-nowrap">{currentSuggestion.compat}%</p>
-                    <p className="font-light leading-[16.5px] text-[11px] text-[rgba(255,255,255,0.25)] whitespace-nowrap">match</p>
+                    <p className="font-semibold leading-[16.5px] text-[length:var(--lethe-text-xs)] text-lethe-accent-text tracking-[0.88px] whitespace-nowrap">{currentSuggestion.compat}%</p>
+                    <p className="font-light leading-[16.5px] text-[length:var(--lethe-text-xs)] text-lethe-ghost whitespace-nowrap">match</p>
                   </div>
                 </div>
 
                 {/* Bio section */}
                 <div className="px-5 py-4 border-b border-white/[0.07]">
-                  <div className="text-[13px] font-semibold tracking-[0.16em] uppercase text-white/[0.25] mb-[10px]">About</div>
-                  <div className="text-[15px] font-light leading-[1.7] text-white/[0.52]">{currentSuggestion.bio}</div>
+                  <div className="text-[length:var(--lethe-text-sm)] font-semibold tracking-[0.16em] uppercase text-lethe-ghost mb-[10px]">About</div>
+                  <div className="text-[length:var(--lethe-text-md)] font-light leading-[var(--lethe-leading-loose)] text-white/[0.52]">{currentSuggestion.bio}</div>
                 </div>
 
                 {/* Common interests */}
                 <div className="px-5 py-4">
-                  <div className="text-[13px] font-semibold tracking-[0.16em] uppercase text-white/[0.25] mb-[10px]">Common interests</div>
+                  <div className="text-[length:var(--lethe-text-sm)] font-semibold tracking-[0.16em] uppercase text-lethe-ghost mb-[10px]">Common interests</div>
                   <div className="flex flex-wrap gap-[6px]">
                     {currentSuggestion.commonInterests.map((interest, idx) => (
                       <span
                         key={idx}
-                        className="text-[13px] tracking-[0.03em] px-3 py-[6px] rounded-[20px] bg-white/[0.06] border border-white/[0.1] text-white/[0.5]"
+                        className="text-[length:var(--lethe-text-sm)] tracking-[0.03em] px-3 py-[6px] rounded-[20px] bg-white/[0.06] border border-white/[0.1] text-white/[0.5]"
                       >
                         {interest}
                       </span>
@@ -345,18 +345,18 @@ export function ConnectContent({ activeTab }: ConnectContentProps) {
               </div>
 
               {/* Action buttons */}
-              <div className="px-5 py-4 flex gap-2 flex-shrink-0 border-t border-white/[0.07] bg-[#0b0e0b]">
+              <div className="px-5 py-4 flex gap-2 flex-shrink-0 border-t border-lethe-line bg-lethe-overlay">
                 <button
                   onClick={handlePass}
                   disabled={isAnimating}
-                  className="text-[#d4d4d4] text-[13px] font-sans px-4 py-[6px] rounded-full transition-colors duration-300 flex-1 border border-[#2a2a2a] tracking-wider font-light bg-[#0f0f0f] hover:bg-[#1a1a1a] hover:border-[#333] disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="text-lethe-dim text-[length:var(--lethe-text-sm)] font-sans px-4 py-[6px] rounded-full transition-colors duration-300 flex-1 border border-lethe-line-subtle tracking-wider font-light bg-lethe-subtle hover:bg-lethe-raised hover:border-lethe-line-dim disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Pass
                 </button>
                 <button
                   onClick={handleMatch}
                   disabled={isAnimating}
-                  className="bg-[rgba(173,255,47,0.06)] border border-[rgba(173,255,47,0.2)] rounded-full px-7 h-[34px] font-['Inter'] text-[11px] tracking-[1.98px] uppercase text-[rgba(173,255,47,0.7)] hover:bg-[rgba(173,255,47,0.12)] hover:border-[rgba(173,255,47,0.4)] transition-all flex items-center justify-center flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-lethe-accent-bg border border-lethe-accent-border rounded-full px-7 h-[34px] font-sans text-[length:var(--lethe-text-xs)] tracking-[1.98px] uppercase text-lethe-accent-text hover:bg-lethe-accent/12 hover:border-lethe-accent/40 transition-all flex items-center justify-center flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Match
                 </button>
@@ -364,8 +364,8 @@ export function ConnectContent({ activeTab }: ConnectContentProps) {
             </>
           ) : (
             <div className="flex-1 flex flex-col items-center justify-center gap-3 px-10 py-[60px] text-center">
-              <p className="font-['Libre_Baskerville'] text-[24px] italic text-white/[0.88]">You're all caught up.</p>
-              <p className="text-[15px] font-light text-white/[0.52] leading-[1.7] max-w-[280px]">
+              <p className="font-serif text-[length:var(--lethe-text-2xl)] italic text-white/[0.88]">You're all caught up.</p>
+              <p className="text-[length:var(--lethe-text-md)] font-light text-white/[0.52] leading-[var(--lethe-leading-loose)] max-w-[280px]">
                 New suggestions arrive each Monday.
               </p>
             </div>
@@ -375,7 +375,7 @@ export function ConnectContent({ activeTab }: ConnectContentProps) {
         {/* Right card */}
         {!isComplete && (
           <div className="w-[420px] min-w-[400px] flex-shrink-0">
-            <div className="bg-[#0b0e0b] border border-white/[0.07] rounded-2xl overflow-hidden flex flex-col">
+            <div className="bg-lethe-overlay border border-lethe-line rounded-2xl overflow-hidden flex flex-col">
               {/* Lethe summary */}
               <div className={`rounded-none bg-[rgba(173,255,47,0.03)] border-none border-b-0 overflow-hidden transition-opacity duration-[220ms] ${profileFade ? 'opacity-0' : 'opacity-100'}`}>
                 <div className="flex items-center gap-[10px] px-4 pt-[15px] pb-[12px]">
@@ -383,8 +383,8 @@ export function ConnectContent({ activeTab }: ConnectContentProps) {
                     <Zap size={14} strokeWidth={1.5} />
                   </div>
                   <div>
-                    <div className="text-[13px] font-semibold tracking-[0.12em] uppercase text-[rgba(173,255,47,0.65)]">Lethe summary</div>
-                    <div className="text-[13px] font-light text-white/[0.25] mt-[2px]">
+                    <div className="text-[length:var(--lethe-text-sm)] font-semibold tracking-[length:var(--lethe-tracking-caps)] uppercase text-[rgba(173,255,47,0.65)]">Lethe summary</div>
+                    <div className="text-[length:var(--lethe-text-sm)] font-light text-lethe-ghost mt-[2px]">
                       What you and {currentSuggestion.name.split(' ')[0]} have in common
                     </div>
                   </div>
@@ -393,7 +393,7 @@ export function ConnectContent({ activeTab }: ConnectContentProps) {
                   {currentSuggestion.insights.slice(0, 2).map((insight, idx) => (
                     <div key={idx} className="flex items-start gap-[10px]">
                       <div className="w-[5px] h-[5px] rounded-full bg-[rgba(173,255,47,0.35)] flex-shrink-0 mt-[7px]" />
-                      <div className="text-[14px] font-light leading-[1.65] text-white/[0.5]" dangerouslySetInnerHTML={{ __html: insight }} />
+                      <div className="text-[14px] font-light leading-[var(--lethe-leading-relaxed)] text-white/[0.5]" dangerouslySetInnerHTML={{ __html: insight }} />
                     </div>
                   ))}
                 </div>
@@ -402,50 +402,50 @@ export function ConnectContent({ activeTab }: ConnectContentProps) {
               <div className="h-px bg-white/[0.07]" />
 
               {/* Your availability */}
-              <div className="text-[13px] font-semibold tracking-[0.16em] uppercase text-white/[0.25] mb-[10px] px-4 pt-4">Your availability</div>
+              <div className="text-[length:var(--lethe-text-sm)] font-semibold tracking-[0.16em] uppercase text-lethe-ghost mb-[10px] px-4 pt-4">Your availability</div>
               <div className="grid grid-cols-2 gap-[6px] mb-[10px] px-4">
                 <div className="px-3 py-[11px] rounded-[10px] bg-[#050705] border border-white/[0.07]">
-                  <div className="text-[13px] font-semibold tracking-[0.12em] uppercase text-white/[0.25] mb-[6px]">Mon</div>
+                  <div className="text-[length:var(--lethe-text-sm)] font-semibold tracking-[length:var(--lethe-tracking-caps)] uppercase text-lethe-ghost mb-[6px]">Mon</div>
                   <div className="flex flex-col gap-[4px]">
-                    <div className="text-[13px] text-white/[0.52] flex items-center gap-[6px]">
+                    <div className="text-[length:var(--lethe-text-sm)] text-white/[0.52] flex items-center gap-[6px]">
                       <div className="w-[4px] h-[4px] rounded-full bg-[rgba(173,255,47,0.3)] flex-shrink-0" />
                       7:00 AM
                     </div>
                   </div>
                 </div>
                 <div className="px-3 py-[11px] rounded-[10px] bg-[#050705] border border-white/[0.07]">
-                  <div className="text-[13px] font-semibold tracking-[0.12em] uppercase text-white/[0.25] mb-[6px]">Tue</div>
+                  <div className="text-[length:var(--lethe-text-sm)] font-semibold tracking-[length:var(--lethe-tracking-caps)] uppercase text-lethe-ghost mb-[6px]">Tue</div>
                   <div className="flex flex-col gap-[4px]">
-                    <div className="text-[13px] text-white/[0.52] flex items-center gap-[6px]">
+                    <div className="text-[length:var(--lethe-text-sm)] text-white/[0.52] flex items-center gap-[6px]">
                       <div className="w-[4px] h-[4px] rounded-full bg-[rgba(173,255,47,0.3)] flex-shrink-0" />
                       7:00 AM
                     </div>
                   </div>
                 </div>
                 <div className="px-3 py-[11px] rounded-[10px] bg-[#050705] border border-white/[0.07]">
-                  <div className="text-[13px] font-semibold tracking-[0.12em] uppercase text-white/[0.25] mb-[6px]">Thu</div>
+                  <div className="text-[length:var(--lethe-text-sm)] font-semibold tracking-[length:var(--lethe-tracking-caps)] uppercase text-lethe-ghost mb-[6px]">Thu</div>
                   <div className="flex flex-col gap-[4px]">
-                    <div className="text-[13px] text-white/[0.52] flex items-center gap-[6px]">
+                    <div className="text-[length:var(--lethe-text-sm)] text-white/[0.52] flex items-center gap-[6px]">
                       <div className="w-[4px] h-[4px] rounded-full bg-[rgba(173,255,47,0.3)] flex-shrink-0" />
                       6:00 PM
                     </div>
                   </div>
                 </div>
                 <div className="px-3 py-[11px] rounded-[10px] bg-[#050705] border border-white/[0.07]">
-                  <div className="text-[13px] font-semibold tracking-[0.12em] uppercase text-white/[0.25] mb-[6px]">Sat</div>
+                  <div className="text-[length:var(--lethe-text-sm)] font-semibold tracking-[length:var(--lethe-tracking-caps)] uppercase text-lethe-ghost mb-[6px]">Sat</div>
                   <div className="flex flex-col gap-[4px]">
-                    <div className="text-[13px] text-white/[0.52] flex items-center gap-[6px]">
+                    <div className="text-[length:var(--lethe-text-sm)] text-white/[0.52] flex items-center gap-[6px]">
                       <div className="w-[4px] h-[4px] rounded-full bg-[rgba(173,255,47,0.3)] flex-shrink-0" />
                       10:00 AM
                     </div>
-                    <div className="text-[13px] text-white/[0.52] flex items-center gap-[6px]">
+                    <div className="text-[length:var(--lethe-text-sm)] text-white/[0.52] flex items-center gap-[6px]">
                       <div className="w-[4px] h-[4px] rounded-full bg-[rgba(173,255,47,0.3)] flex-shrink-0" />
                       11:00 AM
                     </div>
                   </div>
                 </div>
               </div>
-              <div className="text-[13px] font-light text-white/[0.25] leading-[1.6] px-4 pb-4">
+              <div className="text-[length:var(--lethe-text-sm)] font-light text-lethe-ghost leading-[1.6] px-4 pb-4">
                 You can change your availability in your profile settings.
               </div>
             </div>
@@ -466,8 +466,8 @@ export function ConnectContent({ activeTab }: ConnectContentProps) {
             <Check size={13} className="text-white/80" strokeWidth={2.5} />
           </div>
         </div>
-        <div className="font-['Libre_Baskerville'] text-[24px] italic text-white/[0.88]">Match set.</div>
-        <div className="text-[15px] font-light text-white/[0.52] text-center max-w-[280px] leading-[1.65]">
+        <div className="font-serif text-[length:var(--lethe-text-2xl)] italic text-white/[0.88]">Match set.</div>
+        <div className="text-[length:var(--lethe-text-md)] font-light text-white/[0.52] text-center max-w-[280px] leading-[var(--lethe-leading-relaxed)]">
           Lethe will handle the introduction when the time is right.
         </div>
       </div>

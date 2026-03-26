@@ -1,6 +1,5 @@
 import { ImageWithFallback } from "./figma/ImageWithFallback";
-import { MessageCircle, Share, X, MoreVertical } from "lucide-react";
-import { useTheme } from "../context/ThemeContext";
+import { MessageCircle, Share, MoreVertical } from "lucide-react";
 import { Tooltip } from "./Tooltip";
 import ArcticonsTetherfi from "../../imports/ArcticonsTetherfi";
 import { PostOptionsMenu } from "./PostOptionsMenu";
@@ -17,126 +16,71 @@ interface PostCardProps {
   status: "flowing" | "fading" | "faded";
   isFollowing?: boolean;
   fadingIn?: string; // e.g., "6mins"
-  onFadedClick?: () => void; // Optional click handler for faded posts
+  onFadedClick?: () => void;
 }
 
-// Circular progress indicator component
-// function HalfLifeIndicator({ progress, status }: { progress: number; status: string }) {
-//   const bars = 12; // Number of bars in the spinner
-//   const activeBars = Math.round((progress / 100) * bars);
-//   const isFossil = status === 'faded';
-  
-//   return (
-//     <div 
-//       className="relative w-[18px] h-[18px] flex items-center justify-center"
-//       title={`${progress}% fresh`}
-//     >
-//       <svg width="18" height="18" viewBox="0 0 18 18">
-//         {Array.from({ length: bars }).map((_, index) => {
-//           const angle = (index * 360) / bars;
-//           const isActive = index < activeBars;
-//           // No green bars for fossil posts
-//           const strokeColor = (isActive && !isFossil) ? "rgb(127, 255, 0)" : "rgb(58, 58, 58)";
-//           const opacity = (isActive && !isFossil) ? 0.9 : 0.25;
-          
-//           return (
-//             <line
-//               key={index}
-//               x1="9"
-//               y1="2.5"
-//               x2="9"
-//               y2="5"
-//               stroke={strokeColor}
-//               strokeWidth="1.5"
-//               strokeLinecap="round"
-//               opacity={opacity}
-//               transform={`rotate(${angle} 9 9)`}
-//             />
-//           );
-//         })}
-//       </svg>
-//     </div>
-//   );
-// }
-
-export function PostCard({ 
-  avatar, 
-  username, 
-  timestamp, 
-  text, 
+export function PostCard({
+  avatar,
+  username,
+  timestamp,
+  text,
   image,
   halfLifeProgress,
   status,
   isFollowing = false,
   fadingIn,
-  onFadedClick
+  onFadedClick,
 }: PostCardProps) {
-  const { theme } = useTheme();
-  
-  const bg = theme === "dark" ? "bg-[#0a0a0a]" : "bg-[#F8F8F8]";
-  const border = theme === "dark" ? "border-[#1a1a1a]" : "border-[#E5E5E5]";
-  const badgeBg = theme === "dark" ? "bg-[#0a0a0a]" : "bg-[#EFEFEF]";
-  const badgeBorder = theme === "dark" ? "border-[#1a1a1a]" : "border-[#D0D0D0]";
-  const textPrimary = theme === "dark" ? "text-white" : "text-black";
-  const textSecondary = theme === "dark" ? "text-[#d4d4d4]" : "text-[#3A3A3A]";
-  const shadowColor = theme === "dark" ? "shadow-black/60" : "shadow-black/10";
-  const accentColor = theme === "dark" ? "#7FFF00" : "#5D9F00";
+  const isFossil = status === "faded";
+  const isFading = status === "fading";
 
-  // Determine status badge styling
   const getStatusBadge = () => {
     if (status === "faded") {
       return (
-        <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full ${badgeBg} border ${badgeBorder} transition-colors duration-300`}>
-          <div className="w-1 h-1 rounded-full bg-[#6B6B6B]" />
-          <span className="text-[#6B6B6B] text-[9px] tracking-[0.2em] uppercase font-light">FADED</span>
+        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-lethe-surface border border-lethe-line-dim transition-colors duration-300">
+          <div className="w-1 h-1 rounded-full bg-lethe-status-faded" />
+          <span className="text-lethe-status-faded text-[length:var(--lethe-text-2xs)] tracking-[length:var(--lethe-tracking-ui)] uppercase font-light">
+            FADED
+          </span>
         </div>
       );
     }
     if (status === "fading" && fadingIn) {
       return (
-        <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full ${badgeBg} border ${badgeBorder} transition-colors duration-300`}>
-          <div className="w-1 h-1 rounded-full bg-[#CC9933]" />
-          <span className="text-[#CC9933] text-[9px] tracking-[0.2em] uppercase font-light">FADING IN {fadingIn}</span>
+        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-lethe-surface border border-lethe-line-dim transition-colors duration-300">
+          <div className="w-1 h-1 rounded-full bg-lethe-status-fading" />
+          <span className="text-lethe-status-fading text-[length:var(--lethe-text-2xs)] tracking-[length:var(--lethe-tracking-ui)] uppercase font-light">
+            FADING IN {fadingIn}
+          </span>
         </div>
       );
     }
     return null;
   };
 
-  // Apply visual effects based on status
-  const getTextOpacity = () => {
-    if (status === "fading") return "opacity-75";
-    if (status === "faded") return "opacity-50 blur-[0.3px]";
-    return "";
-  };
-
-  const isFossil = status === "faded";
-  const isFading = status === "fading";
-  const actionButtonColor = isFossil ? "text-[#3A3A3A]" : "text-[#6B6B6B]";
-  const actionButtonHoverColor = isFossil ? "" : "hover:text-white";
+  const actionColor = isFossil
+    ? "text-lethe-line-dim"
+    : "text-lethe-muted hover:text-lethe-fg";
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
 
-  const handleMenuClick = (e: React.MouseEvent) => {
+  const handleMenuClick = (e: MouseEvent) => {
     e.stopPropagation();
-    if (buttonRef.current) {
-      const rect = buttonRef.current.getBoundingClientRect();
-      setIsMenuOpen(!isMenuOpen);
-    }
+    setIsMenuOpen(!isMenuOpen);
   };
 
   const navigate = useNavigate();
 
   return (
-    <article 
-      className={`relative ${bg} rounded-2xl border ${border} shadow-2xl ${shadowColor} overflow-hidden group transition-colors duration-300 ${isFossil && onFadedClick ? 'cursor-pointer' : ''}`} 
+    <article
+      className={`relative bg-lethe-surface rounded-2xl border border-lethe-line shadow-2xl overflow-hidden group transition-colors duration-300 ${
+        isFossil && onFadedClick ? "cursor-pointer" : ""
+      }`}
       data-status={status}
       onClick={() => {
-        if (isFossil && onFadedClick) {
-          onFadedClick();
-        }
+        if (isFossil && onFadedClick) onFadedClick();
       }}
     >
       {/* Optional image at top */}
@@ -152,10 +96,10 @@ export function PostCard({
 
       {/* Content */}
       <div className="relative p-5" ref={menuRef}>
-        {/* Header with Avatar, Username, and Top-Right Actions */}
+        {/* Header */}
         <div className="flex gap-3 mb-4">
           {/* Avatar */}
-          <div 
+          <div
             className="flex-shrink-0 cursor-pointer"
             onClick={(e) => {
               e.stopPropagation();
@@ -165,7 +109,7 @@ export function PostCard({
             <ImageWithFallback
               src={avatar}
               alt={username}
-              className="w-10 h-10 rounded-full object-cover bg-[#1a1a1a] ring-1 ring-[#2a2a2a] hover:ring-[#7FFF00]/40 transition-all"
+              className="w-10 h-10 rounded-full object-cover bg-lethe-raised ring-1 ring-lethe-line-subtle hover:ring-lethe-accent/40 transition-all"
             />
           </div>
 
@@ -173,8 +117,8 @@ export function PostCard({
           <div className="flex-1 min-w-0 flex flex-col justify-between">
             <div className="flex flex-col gap-0.5">
               <div className="flex items-baseline gap-2.5">
-                <span 
-                  className="text-white text-[15px] font-light font-sans tracking-wide cursor-pointer hover:text-[#7FFF00] transition-colors"
+                <span
+                  className="text-lethe-fg text-[length:var(--lethe-text-md)] font-light font-sans tracking-wide cursor-pointer hover:text-lethe-accent transition-colors"
                   onClick={(e) => {
                     e.stopPropagation();
                     navigate(`/user/${username}`);
@@ -182,26 +126,30 @@ export function PostCard({
                 >
                   {username}
                 </span>
-                <span className="text-[#6B6B6B] text-[13px] tracking-wider font-light font-sans">
+                <span className="text-lethe-muted text-[length:var(--lethe-text-sm)] tracking-wider font-light font-sans">
                   {timestamp}
                 </span>
               </div>
-              <button className={`text-[13px] tracking-wide font-light transition-colors text-left font-sans ${
-                isFollowing ? 'text-[#6B6B6B] hover:text-[#9B9B9B]' : 'text-white hover:text-[#7FFF00]'
-              }`}>
-                {isFollowing ? 'Following' : 'Follow'}
+              <button
+                className={`text-[length:var(--lethe-text-sm)] tracking-wide font-light transition-colors text-left font-sans ${
+                  isFollowing
+                    ? "text-lethe-muted hover:text-lethe-ghost"
+                    : "text-lethe-fg hover:text-lethe-accent"
+                }`}
+              >
+                {isFollowing ? "Following" : "Follow"}
               </button>
             </div>
           </div>
 
-          {/* Top-right actions: three dots only */}
+          {/* Three-dot menu */}
           <div className="flex-shrink-0 self-start flex items-center gap-3">
-            <button 
+            <button
               ref={buttonRef}
               onClick={handleMenuClick}
-              className="text-[#3A3A3A] hover:text-[#6B6B6B] transition-colors"
+              className="text-lethe-line-dim hover:text-lethe-muted transition-colors"
             >
-              <MoreVertical className="w-4 h-4" strokeWidth={1.5} />
+              <MoreVertical className="w-[var(--lethe-icon-md)] h-[var(--lethe-icon-md)]" strokeWidth={1.5} />
             </button>
           </div>
         </div>
@@ -220,19 +168,22 @@ export function PostCard({
         )}
 
         {/* Status Badge */}
-        <div className="mb-3">
-          {getStatusBadge()}
-        </div>
+        <div className="mb-3">{getStatusBadge()}</div>
 
         {/* Post text */}
         <div className="relative mb-5">
-          <p className={`leading-[1.7] tracking-wide text-[14px] font-light font-serif ${
-            status === 'faded' ? 'text-[#6B6B6B] blur-[3px] select-none' : 
-            status === 'fading' ? 'text-[#8B8B8B]' : 'text-[#d4d4d4]'
-          }`}>
+          <p
+            className={`leading-[var(--lethe-leading-loose)] tracking-[var(--lethe-tracking-body)] text-[length:var(--lethe-text-sm)] font-light font-serif ${
+              status === "faded"
+                ? "text-lethe-muted blur-[3px] select-none"
+                : status === "fading"
+                ? "text-lethe-muted"
+                : "text-lethe-dim"
+            }`}
+          >
             {text}
           </p>
-          {status === 'faded' && (
+          {status === "faded" && (
             <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/20 backdrop-blur-[0.5px] pointer-events-none" />
           )}
         </div>
@@ -240,35 +191,40 @@ export function PostCard({
         {/* Action buttons */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-5">
-            <button 
+            <button
               disabled={isFossil}
-              className={`flex items-center gap-2 ${actionButtonColor} ${actionButtonHoverColor} transition-colors group/btn ${isFossil ? 'cursor-not-allowed' : ''}`}
+              className={`flex items-center gap-2 ${actionColor} transition-colors group/btn ${isFossil ? "cursor-not-allowed" : ""}`}
             >
-              <MessageCircle className={`w-[18px] h-[18px] ${isFossil ? '' : 'group-hover/btn:scale-110'} transition-transform`} strokeWidth={1.5} />
+              <MessageCircle
+                className={`w-[var(--lethe-icon-md)] h-[var(--lethe-icon-md)] ${isFossil ? "" : "group-hover/btn:scale-110"} transition-transform`}
+                strokeWidth={1.5}
+              />
             </button>
-            
+
             <Tooltip text="echo this post">
-              <button 
+              <button
                 disabled={isFossil}
-                className={`flex items-center gap-2 ${actionButtonColor} ${actionButtonHoverColor} transition-colors group/btn ${isFossil ? 'cursor-not-allowed' : ''}`}
+                className={`flex items-center gap-2 ${actionColor} transition-colors group/btn ${isFossil ? "cursor-not-allowed" : ""}`}
               >
-                <div className={`w-[18px] h-[18px] ${isFossil ? '' : 'group-hover/btn:scale-110'} transition-transform`} style={{ color: 'currentColor' }}>
+                <div
+                  className={`w-[var(--lethe-icon-md)] h-[var(--lethe-icon-md)] ${isFossil ? "" : "group-hover/btn:scale-110"} transition-transform`}
+                  style={{ color: "currentColor" }}
+                >
                   <ArcticonsTetherfi />
                 </div>
               </button>
             </Tooltip>
           </div>
-          
+
           <div className="flex items-center gap-4">
-            {/* <div className="flex items-center">
-              <HalfLifeIndicator progress={halfLifeProgress} status={status} />
-            </div> */}
-            
-            <button 
+            <button
               disabled={isFossil}
-              className={`flex items-center gap-2 ${actionButtonColor} ${actionButtonHoverColor} transition-colors group/btn ${isFossil ? 'cursor-not-allowed' : ''}`}
+              className={`flex items-center gap-2 ${actionColor} transition-colors group/btn ${isFossil ? "cursor-not-allowed" : ""}`}
             >
-              <Share className={`w-[18px] h-[18px] ${isFossil ? '' : 'group-hover/btn:scale-110'} transition-transform`} strokeWidth={1.5} />
+              <Share
+                className={`w-[var(--lethe-icon-md)] h-[var(--lethe-icon-md)] ${isFossil ? "" : "group-hover/btn:scale-110"} transition-transform`}
+                strokeWidth={1.5}
+              />
             </button>
           </div>
         </div>

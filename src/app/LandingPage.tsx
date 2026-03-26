@@ -144,6 +144,7 @@ export default function LandingPage() {
     window.addEventListener("mousemove", handleMouseMove);
 
     function loop() {
+      if (!ctx) return;
       ctx.clearRect(0, 0, W, H);
       const bg = ctx.createLinearGradient(0, 0, 0, H);
       bg.addColorStop(0, "#040604");
@@ -201,6 +202,7 @@ export default function LandingPage() {
     };
 
     function lerpRing() {
+      if (!ring) return;
       lx += (tdx - lx) * 0.11;
       ly += (tdy - ly) * 0.11;
       ring.style.left = lx + "px";
@@ -1032,7 +1034,7 @@ export default function LandingPage() {
               e.currentTarget.style.color = '#7FFF00';
             }}
           >
-            GET EARLY ACCESS
+            GET AN EARLY TASTE
           </button>
         </div>
       </nav>
@@ -1040,13 +1042,10 @@ export default function LandingPage() {
       {/* HERO */}
       <section id="lethe-hero">
         <p className="lethe-hero-eyebrow">Private beta — limited access</p>
-        <h1 className="lethe-hero-h1">Post freely.</h1>
-        <h2 className="lethe-hero-h2">Connect naturally.</h2>
+        <h1 className="lethe-hero-h1">Networking without</h1>
+        <h2 className="lethe-hero-h2">the performance.</h2>
         <p className="lethe-hero-sub">
-          Your old posts might haunt you on other socials.
-          <br />
-          <em>Not on Lethe.</em> We live and Lethe live here —<br />
-          and connect you with people worth knowing.
+          One introduction a week, matched to who you actually are. A daily feed that ends. A network that compounds the longer you show up.
         </p>
         {!showHeroSuccess ? (
           <form className="lethe-hero-form" onSubmit={handleHeroSubmit}>
@@ -1059,7 +1058,7 @@ export default function LandingPage() {
               onChange={(e) => setEmail1(e.target.value)}
             />
             <button type="submit" className="group">
-              <span>Get early access</span>
+              <span>Get an early taste</span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" strokeWidth={1.5} />
             </button>
           </form>
@@ -1093,21 +1092,16 @@ export default function LandingPage() {
         <div className="lethe-steps">
           <div className="lethe-step lethe-reveal lethe-reveal-d1">
             <span className="lethe-step-num">01</span>
-            <h3 className="lethe-step-title">Post freely</h3>
+            <h3 className="lethe-step-title">Connect first</h3>
             <p className="lethe-step-body">
-              Lethe acts like your personal journal. Post without the weight of
-              permanence. <strong>You own your timeline</strong> — including the
-              ability to revive anything you choose. No old post can haunt you here.
+              Lethe is built around one mechanic: a weekly introduction matched to who you actually are. <strong>The feed exists to give context.</strong> The journal exists to give signal. The match is the point.
             </p>
           </div>
           <div className="lethe-step lethe-reveal lethe-reveal-d2">
             <span className="lethe-step-num">02</span>
-            <h3 className="lethe-step-title">Connect deeply</h3>
+            <h3 className="lethe-step-title">Post without pressure</h3>
             <p className="lethe-step-body">
-              Lethe's AI superconnector{" "}
-              <strong>matches you with people worth meeting.</strong> Weekly
-              introductions, real conversations, no cold outreach. The feed gives you
-              context on who they are before you ever sit down.
+              Write like it is a journal. Choose what is public. Your posts have a natural lifespan and age out quietly after 21 days. <strong>No old post can haunt you here.</strong> What you put out today is what matters now.
             </p>
           </div>
           <div className="lethe-step lethe-reveal lethe-reveal-d3">
@@ -1172,9 +1166,9 @@ export default function LandingPage() {
       <section id="lethe-see">
         <div className="lethe-see-header lethe-reveal">
           <h2 className="lethe-see-title">
-            A different
+            Meet people who
             <br />
-            kind of <em>feed.</em>
+            update your <em>priors.</em>
           </h2>
           <p className="lethe-scroll-hint-h">Drag to explore</p>
         </div>
@@ -1243,9 +1237,9 @@ export default function LandingPage() {
               </div>
             </div>
             <div className="lethe-card-label">
-              <span className="lethe-card-tag">Content aging</span>
+              <span className="lethe-card-tag">The daily edition</span>
               <p className="lethe-card-title">
-                Three states. No deletion. Just time doing what it does
+                60 posts. A quiet end. Back to your own life.
               </p>
             </div>
           </div>
@@ -1266,7 +1260,7 @@ export default function LandingPage() {
             <div className="lethe-card-label">
               <span className="lethe-card-tag">The depth zone</span>
               <p className="lethe-card-title">
-                Scroll too deep and the app notices. The message changes every visit
+                You have seen everything worth seeing today. The feed closes. That is the point.
               </p>
             </div>
           </div>
@@ -1303,9 +1297,9 @@ export default function LandingPage() {
               </div>
             </div>
             <div className="lethe-card-label">
-              <span className="lethe-card-tag">Connect</span>
+              <span className="lethe-card-tag">Your weekly match</span>
               <p className="lethe-card-title">
-                Match with people worth meeting. The feed gives you context first
+                One person a week, selected based on your behavioral signal. You choose who makes the cut.
               </p>
             </div>
           </div>
@@ -1404,10 +1398,9 @@ export default function LandingPage() {
       {/* SIGNUP */}
       <section id="lethe-signup">
         <p className="lethe-signup-pre lethe-reveal">Private beta</p>
-        <h2 className="lethe-signup-h lethe-reveal">Post differently.</h2>
+        <h2 className="lethe-signup-h lethe-reveal">Connect differently.</h2>
         <p className="lethe-signup-sub lethe-reveal">
-          Lethe is in private beta. Be among the first to use a feed that respects
-          your right to evolve — and connects you with people worth knowing.
+          Lethe is in private beta. Be among the first to meet people who actually move the needle on how you think, work, and live.
         </p>
         {!showSignupSuccess ? (
           <form className="lethe-signup-form lethe-reveal" onSubmit={handleSignupSubmit}>
@@ -1420,7 +1413,7 @@ export default function LandingPage() {
               onChange={(e) => setEmail2(e.target.value)}
             />
             <button type="submit" className="group">
-              <span>Get early access</span>
+              <span>Get an early taste</span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" strokeWidth={1.5} />
             </button>
           </form>
@@ -1436,7 +1429,7 @@ export default function LandingPage() {
       <footer className="lethe-footer">
         <span className="lethe-footer-logo">Lethe</span>
         <span className="lethe-footer-tag">
-          The internet forgets nothing. Until now.
+          Networking without the performance.
         </span>
         <a href="#" className="lethe-footer-link">
           LinkedIn ↗
