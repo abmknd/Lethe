@@ -1086,26 +1086,23 @@ export default function LandingPage() {
         <div className="lethe-steps">
           <div className="lethe-step lethe-reveal lethe-reveal-d1">
             <span className="lethe-step-num">01</span>
-            <h3 className="lethe-step-title">Connect first</h3>
+            <h3 className="lethe-step-title">Get introduced</h3>
             <p className="lethe-step-body">
-              Lethe is built around one mechanic: a weekly introduction matched to who you actually are. <strong>The feed exists to give context.</strong> The journal exists to give signal. The match is the point.
+              Lethe matches you with up to five people a week based on who you actually are, not who you perform to be. <strong>The feed gives you context.</strong> The match is the point.
             </p>
           </div>
           <div className="lethe-step lethe-reveal lethe-reveal-d2">
             <span className="lethe-step-num">02</span>
-            <h3 className="lethe-step-title">Post without pressure</h3>
+            <h3 className="lethe-step-title">Meet on your terms</h3>
             <p className="lethe-step-body">
-              Write like it is a journal. Choose what is public. Your posts have a natural lifespan and age out quietly after 21 days. <strong>No old post can haunt you here.</strong> What you put out today is what matters now.
+              Set your availability, your frequency, your boundaries. Every introduction is a deliberate choice. <strong>You scan your weekly matches and choose who makes the cut.</strong>
             </p>
           </div>
           <div className="lethe-step lethe-reveal lethe-reveal-d3">
             <span className="lethe-step-num">03</span>
-            <h3 className="lethe-step-title">Never doomscroll again</h3>
+            <h3 className="lethe-step-title">Stay in the signal</h3>
             <p className="lethe-step-body">
-              Posts age and fade over time. Scroll too deep into old content and{" "}
-              <strong>Lethe stops you.</strong> A message appears — and gets more
-              direct every time you return. A feed built to send you back to your
-              life.
+              A daily edition of selected posts. Short-form, intentional, finite. It ends. <strong>That is the point.</strong> The feed exists so you show up knowing who you are meeting and why.
             </p>
           </div>
         </div>
@@ -1169,33 +1166,40 @@ export default function LandingPage() {
         <div className="lethe-cards-track" ref={cardsTrackRef}>
           {/* Card 1: Connect */}
           <div className="lethe-product-card">
-            <div className="lethe-card-screen lethe-screen-connect">
-              <div style={{ marginBottom: "10px" }}>
-                <div className="lethe-mock-line short" style={{ marginBottom: "6px" }}></div>
+            <div className="lethe-card-screen" style={{ background: "linear-gradient(180deg,#080d08,#050705)", display: "flex", flexDirection: "column", padding: "16px", gap: "10px" }}>
+              <div style={{ fontSize: "9px", letterSpacing: "0.12em", color: "rgba(127,255,0,0.6)", fontFamily: "monospace" }}>YOUR UPCOMING MATCHES</div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "7px" }}>
+                {([
+                  { day: "WED", date: "APR. 16", time: "5:00 pm BST" },
+                  { day: "THU", date: "APR. 17", time: "12:00 pm BST" },
+                  { day: "FRI", date: "APR. 18", time: "9:00 am BST" },
+                  { day: "MON", date: "APR. 21", time: "6:00 pm BST" },
+                ] as { day: string; date: string; time: string }[]).map(({ day, date, time }) => (
+                  <div key={`${day}-${date}`} style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "10px", padding: "9px 10px", display: "flex", flexDirection: "column", gap: "5px" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                      <span style={{ fontSize: "8px", letterSpacing: "0.1em", color: "rgba(127,255,0,0.75)", fontFamily: "monospace" }}>{day} {date}</span>
+                      <div style={{ width: "14px", height: "14px", borderRadius: "50%", background: "rgba(127,255,0,0.15)", border: "1px solid rgba(127,255,0,0.3)" }}></div>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+                      <div style={{ width: "5px", height: "5px", borderRadius: "50%", background: "rgba(127,255,0,0.8)", flexShrink: 0 }}></div>
+                      <span style={{ fontSize: "9px", color: "rgba(255,255,255,0.85)", fontFamily: "monospace" }}>{time}</span>
+                    </div>
+                    <div style={{ fontSize: "9px", color: "rgba(255,255,255,0.7)", fontWeight: 600 }}>Upcoming Match</div>
+                    <div style={{ fontSize: "8px", color: "rgba(255,255,255,0.28)", fontFamily: "monospace" }}>You have 5 meetings this week</div>
+                  </div>
+                ))}
               </div>
-              <div className="lethe-connect-cards">
-                <div className="lethe-connect-card">
-                  <div className="lethe-connect-img"></div>
-                  <div className="lethe-connect-info">
-                    <div className="lethe-connect-name"></div>
-                    <div className="lethe-connect-tag"></div>
-                  </div>
-                  <div className="lethe-connect-actions">
-                    <div className="lethe-connect-match"></div>
-                    <div className="lethe-connect-pass"></div>
-                  </div>
+              <div style={{ width: "50%", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "10px", padding: "9px 10px", display: "flex", flexDirection: "column", gap: "5px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                  <span style={{ fontSize: "8px", letterSpacing: "0.1em", color: "rgba(127,255,0,0.75)", fontFamily: "monospace" }}>TUE APR. 22</span>
+                  <div style={{ width: "14px", height: "14px", borderRadius: "50%", background: "rgba(127,255,0,0.15)", border: "1px solid rgba(127,255,0,0.3)" }}></div>
                 </div>
-                <div className="lethe-connect-card">
-                  <div className="lethe-connect-img"></div>
-                  <div className="lethe-connect-info">
-                    <div className="lethe-connect-name"></div>
-                    <div className="lethe-connect-tag"></div>
-                  </div>
-                  <div className="lethe-connect-actions">
-                    <div className="lethe-connect-match"></div>
-                    <div className="lethe-connect-pass"></div>
-                  </div>
+                <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+                  <div style={{ width: "5px", height: "5px", borderRadius: "50%", background: "rgba(127,255,0,0.8)", flexShrink: 0 }}></div>
+                  <span style={{ fontSize: "9px", color: "rgba(255,255,255,0.85)", fontFamily: "monospace" }}>2:00 pm BST</span>
                 </div>
+                <div style={{ fontSize: "9px", color: "rgba(255,255,255,0.7)", fontWeight: 600 }}>Upcoming Match</div>
+                <div style={{ fontSize: "8px", color: "rgba(255,255,255,0.28)", fontFamily: "monospace" }}>You have 5 meetings this week</div>
               </div>
             </div>
             <div className="lethe-card-label">
@@ -1285,22 +1289,83 @@ export default function LandingPage() {
 
           {/* Card 4: Daily edition */}
           <div className="lethe-product-card">
-            <div className="lethe-card-screen lethe-screen-fading">
-              <div className="lethe-fading-post">
-                <div className="lethe-fading-badge">Flowing</div>
-                <div className="lethe-mock-line"></div>
-                <div className="lethe-mock-line short"></div>
+            <div className="lethe-card-screen" style={{ background: "linear-gradient(180deg,#080d08,#050705)", display: "flex", flexDirection: "column", padding: "14px", gap: "10px" }}>
+              <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
+                <div style={{ background: "rgba(255,255,255,0.9)", borderRadius: "10px", padding: "3px 10px", fontSize: "9px", fontFamily: "monospace", letterSpacing: "0.08em", color: "#050705", fontWeight: 600 }}>ALL</div>
+                <div style={{ background: "transparent", borderRadius: "10px", padding: "3px 10px", fontSize: "9px", fontFamily: "monospace", letterSpacing: "0.08em", color: "rgba(255,255,255,0.35)" }}>FOLLOWING</div>
+                <div style={{ background: "transparent", borderRadius: "10px", padding: "3px 10px", fontSize: "9px", fontFamily: "monospace", letterSpacing: "0.08em", color: "rgba(255,255,255,0.35)" }}>ECHOES</div>
+                <div style={{ marginLeft: "auto", background: "rgba(127,255,0,0.15)", border: "1px solid rgba(127,255,0,0.3)", borderRadius: "10px", padding: "3px 10px", fontSize: "9px", fontFamily: "monospace", letterSpacing: "0.08em", color: "rgba(127,255,0,0.85)" }}>CREATE</div>
               </div>
-              <div className="lethe-fading-post">
-                <div className="lethe-fading-badge">Fading in 12 mins</div>
-                <div className="lethe-mock-line" style={{ opacity: 0.6 }}></div>
-                <div className="lethe-mock-line short" style={{ opacity: 0.6 }}></div>
-              </div>
-              <div className="lethe-fading-post blur">
-                <div className="lethe-fading-badge faded">Faded</div>
-                <div className="lethe-mock-line"></div>
-                <div className="lethe-mock-line short"></div>
-                <div className="lethe-mock-line accent"></div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "6px", alignItems: "start" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                  <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "8px", padding: "8px", display: "flex", flexDirection: "column", gap: "4px" }}>
+                    <div style={{ height: "36px", background: "rgba(255,255,255,0.06)", borderRadius: "5px", marginBottom: "4px" }}></div>
+                    <div style={{ display: "flex", alignItems: "center", gap: "5px", marginBottom: "2px" }}>
+                      <div style={{ width: "14px", height: "14px", borderRadius: "50%", background: "rgba(127,255,0,0.3)", flexShrink: 0 }}></div>
+                      <span style={{ fontSize: "8px", color: "rgba(127,255,0,0.85)", fontFamily: "monospace" }}>@elan</span>
+                      <span style={{ fontSize: "7px", color: "rgba(255,255,255,0.25)", fontFamily: "monospace", marginLeft: "auto" }}>2h</span>
+                    </div>
+                    <div style={{ fontSize: "8px", fontStyle: "italic", color: "rgba(255,255,255,0.75)", lineHeight: 1.4 }}>Building in public takes courage.</div>
+                    <div style={{ display: "flex", gap: "6px", marginTop: "2px" }}>
+                      <span style={{ fontSize: "7px", color: "rgba(255,255,255,0.25)" }}>♡ 8</span>
+                      <span style={{ fontSize: "7px", color: "rgba(255,255,255,0.25)" }}>◯ 2</span>
+                    </div>
+                  </div>
+                  <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "8px", padding: "8px", display: "flex", flexDirection: "column", gap: "4px" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "5px", marginBottom: "2px" }}>
+                      <div style={{ width: "14px", height: "14px", borderRadius: "50%", background: "rgba(127,255,0,0.2)", flexShrink: 0 }}></div>
+                      <span style={{ fontSize: "8px", color: "rgba(127,255,0,0.85)", fontFamily: "monospace" }}>@sira</span>
+                      <span style={{ fontSize: "7px", color: "rgba(255,255,255,0.25)", fontFamily: "monospace", marginLeft: "auto" }}>4h</span>
+                    </div>
+                    <div style={{ fontSize: "8px", fontStyle: "italic", color: "rgba(255,255,255,0.75)", lineHeight: 1.4 }}>Most feedback is noise. The rest changes you.</div>
+                    <div style={{ display: "flex", gap: "6px", marginTop: "2px" }}>
+                      <span style={{ fontSize: "7px", color: "rgba(255,255,255,0.25)" }}>♡ 14</span>
+                      <span style={{ fontSize: "7px", color: "rgba(255,255,255,0.25)" }}>◯ 5</span>
+                    </div>
+                  </div>
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                  <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "8px", padding: "8px", display: "flex", flexDirection: "column", gap: "4px" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "5px", marginBottom: "2px" }}>
+                      <div style={{ width: "14px", height: "14px", borderRadius: "50%", background: "rgba(127,255,0,0.25)", flexShrink: 0 }}></div>
+                      <span style={{ fontSize: "8px", color: "rgba(127,255,0,0.85)", fontFamily: "monospace" }}>@nuri</span>
+                      <span style={{ fontSize: "7px", color: "rgba(255,255,255,0.25)", fontFamily: "monospace", marginLeft: "auto" }}>1h</span>
+                    </div>
+                    <div style={{ fontSize: "8px", fontStyle: "italic", color: "rgba(255,255,255,0.75)", lineHeight: 1.4 }}>Attention is the only currency that matters.</div>
+                    <div style={{ display: "flex", gap: "6px", marginTop: "2px" }}>
+                      <span style={{ fontSize: "7px", color: "rgba(255,255,255,0.25)" }}>♡ 21</span>
+                      <span style={{ fontSize: "7px", color: "rgba(255,255,255,0.25)" }}>◯ 7</span>
+                    </div>
+                  </div>
+                  <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "8px", padding: "8px", display: "flex", flexDirection: "column", gap: "4px" }}>
+                    <div style={{ height: "28px", background: "rgba(255,255,255,0.06)", borderRadius: "5px", marginBottom: "4px" }}></div>
+                    <div style={{ display: "flex", alignItems: "center", gap: "5px", marginBottom: "2px" }}>
+                      <div style={{ width: "14px", height: "14px", borderRadius: "50%", background: "rgba(127,255,0,0.18)", flexShrink: 0 }}></div>
+                      <span style={{ fontSize: "8px", color: "rgba(127,255,0,0.85)", fontFamily: "monospace" }}>@mia</span>
+                      <span style={{ fontSize: "7px", color: "rgba(255,255,255,0.25)", fontFamily: "monospace", marginLeft: "auto" }}>6h</span>
+                    </div>
+                    <div style={{ fontSize: "8px", fontStyle: "italic", color: "rgba(255,255,255,0.75)", lineHeight: 1.4 }}>Rest is not the opposite of work.</div>
+                    <div style={{ display: "flex", gap: "6px", marginTop: "2px" }}>
+                      <span style={{ fontSize: "7px", color: "rgba(255,255,255,0.25)" }}>♡ 6</span>
+                      <span style={{ fontSize: "7px", color: "rgba(255,255,255,0.25)" }}>◯ 1</span>
+                    </div>
+                  </div>
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                  <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "8px", padding: "8px", display: "flex", flexDirection: "column", gap: "4px" }}>
+                    <div style={{ height: "50px", background: "rgba(255,255,255,0.06)", borderRadius: "5px", marginBottom: "4px" }}></div>
+                    <div style={{ display: "flex", alignItems: "center", gap: "5px", marginBottom: "2px" }}>
+                      <div style={{ width: "14px", height: "14px", borderRadius: "50%", background: "rgba(127,255,0,0.22)", flexShrink: 0 }}></div>
+                      <span style={{ fontSize: "8px", color: "rgba(127,255,0,0.85)", fontFamily: "monospace" }}>@haru</span>
+                      <span style={{ fontSize: "7px", color: "rgba(255,255,255,0.25)", fontFamily: "monospace", marginLeft: "auto" }}>3h</span>
+                    </div>
+                    <div style={{ fontSize: "8px", fontStyle: "italic", color: "rgba(255,255,255,0.75)", lineHeight: 1.4 }}>Clarity is earned, not inherited.</div>
+                    <div style={{ display: "flex", gap: "6px", marginTop: "2px" }}>
+                      <span style={{ fontSize: "7px", color: "rgba(255,255,255,0.25)" }}>♡ 11</span>
+                      <span style={{ fontSize: "7px", color: "rgba(255,255,255,0.25)" }}>◯ 3</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
             <div className="lethe-card-label">
@@ -1327,7 +1392,7 @@ export default function LandingPage() {
             <div className="lethe-card-label">
               <span className="lethe-card-tag">Intentional scrolling</span>
               <p className="lethe-card-title">
-                The feed has a shape. You reach the end. The app notices.
+                The feed has a shape. Limited daily editions of selected posts. No doomscrolling.
               </p>
             </div>
           </div>
@@ -1389,42 +1454,57 @@ export default function LandingPage() {
 
           {/* Card 7: Profile */}
           <div className="lethe-product-card">
-            <div className="lethe-card-screen lethe-screen-profile">
-              <div className="lethe-profile-head">
-                <div className="lethe-profile-ava"></div>
-                <div>
-                  <div className="lethe-profile-name-mock"></div>
-                  <div className="lethe-profile-handle"></div>
+            <div className="lethe-card-screen" style={{ background: "linear-gradient(180deg,#080d08,#050705)", display: "flex", flexDirection: "column", padding: "16px", gap: "12px", overflowY: "hidden" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <div style={{ width: "36px", height: "36px", borderRadius: "50%", background: "rgba(255,255,255,0.1)", border: "2px solid rgba(127,255,0,0.5)", flexShrink: 0 }}></div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.88)", fontWeight: 600, marginBottom: "2px" }}>maren k.</div>
+                  <div style={{ fontSize: "9px", color: "rgba(127,255,0,0.65)", fontFamily: "monospace" }}>@maren</div>
+                </div>
+                <div style={{ border: "1px solid rgba(127,255,0,0.4)", borderRadius: "12px", padding: "4px 10px", fontSize: "8px", color: "rgba(127,255,0,0.8)", fontFamily: "monospace", letterSpacing: "0.08em" }}>EDIT PROFILE</div>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
+                <div style={{ fontSize: "9px", color: "rgba(255,255,255,0.5)", lineHeight: 1.5 }}>Product designer. Building things that earn attention.</div>
+                <div style={{ display: "flex", gap: "12px" }}>
+                  <span style={{ fontSize: "8px", color: "rgba(255,255,255,0.3)", fontFamily: "monospace" }}>&#x25BE; London, UK</span>
+                  <span style={{ fontSize: "8px", color: "rgba(255,255,255,0.3)", fontFamily: "monospace" }}>&#x25BE; she/her</span>
                 </div>
               </div>
-              <div className="lethe-profile-tabs">
-                <div className="lethe-ptab active">
-                  <div className="lethe-ptab-label"></div>
-                </div>
-                <div className="lethe-ptab">
-                  <div className="lethe-ptab-label"></div>
-                </div>
+              <div style={{ display: "flex", gap: "14px", paddingBottom: "8px", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+                <span style={{ fontSize: "9px", color: "rgba(255,255,255,0.85)", fontFamily: "monospace", fontWeight: 600 }}>ALL POSTS 35</span>
+                <span style={{ fontSize: "9px", color: "rgba(255,255,255,0.3)", fontFamily: "monospace" }}>FADED 2</span>
+                <span style={{ fontSize: "9px", color: "rgba(255,255,255,0.3)", fontFamily: "monospace" }}>ECHOES 2</span>
               </div>
-              <div className="lethe-profile-posts">
-                <div className="lethe-profile-post">
-                  <div style={{ flex: 1 }}>
-                    <div className="lethe-mock-line short"></div>
-                    <div className="lethe-mock-line" style={{ width: "90%" }}></div>
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "8px", overflow: "hidden" }}>
+                  <div style={{ height: "40px", background: "rgba(255,255,255,0.06)" }}></div>
+                  <div style={{ padding: "8px" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "5px" }}>
+                      <div style={{ width: "16px", height: "16px", borderRadius: "50%", background: "rgba(127,255,0,0.25)", flexShrink: 0 }}></div>
+                      <span style={{ fontSize: "9px", color: "rgba(127,255,0,0.85)", fontFamily: "monospace", fontWeight: 600 }}>maren k.</span>
+                      <span style={{ fontSize: "8px", color: "rgba(255,255,255,0.25)", fontFamily: "monospace", marginLeft: "auto" }}>1h</span>
+                    </div>
+                    <div style={{ fontSize: "8px", fontStyle: "italic", color: "rgba(255,255,255,0.75)", lineHeight: 1.45, marginBottom: "6px" }}>Some decisions age well. This one did.</div>
+                    <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px" }}>
+                      <span style={{ fontSize: "7px", color: "rgba(255,255,255,0.25)" }}>♡ 9</span>
+                      <span style={{ fontSize: "7px", color: "rgba(255,255,255,0.25)" }}>◯ 2</span>
+                    </div>
                   </div>
                 </div>
-                <div className="lethe-profile-post faded-post">
-                  <div style={{ flex: 1 }}>
-                    <div className="lethe-mock-line short"></div>
-                    <div className="lethe-mock-line"></div>
+                <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "8px", overflow: "hidden" }}>
+                  <div style={{ height: "32px", background: "rgba(255,255,255,0.05)" }}></div>
+                  <div style={{ padding: "8px" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "5px" }}>
+                      <div style={{ width: "16px", height: "16px", borderRadius: "50%", background: "rgba(127,255,0,0.2)", flexShrink: 0 }}></div>
+                      <span style={{ fontSize: "9px", color: "rgba(127,255,0,0.85)", fontFamily: "monospace", fontWeight: 600 }}>maren k.</span>
+                      <span style={{ fontSize: "8px", color: "rgba(255,255,255,0.25)", fontFamily: "monospace", marginLeft: "auto" }}>3h</span>
+                    </div>
+                    <div style={{ fontSize: "8px", fontStyle: "italic", color: "rgba(255,255,255,0.75)", lineHeight: 1.45, marginBottom: "6px" }}>The quieter the room, the better the work.</div>
+                    <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px" }}>
+                      <span style={{ fontSize: "7px", color: "rgba(255,255,255,0.25)" }}>♡ 17</span>
+                      <span style={{ fontSize: "7px", color: "rgba(255,255,255,0.25)" }}>◯ 4</span>
+                    </div>
                   </div>
-                  <div className="lethe-revive-btn">Revive</div>
-                </div>
-                <div className="lethe-profile-post faded-post">
-                  <div style={{ flex: 1 }}>
-                    <div className="lethe-mock-line"></div>
-                    <div className="lethe-mock-line short"></div>
-                  </div>
-                  <div className="lethe-revive-btn">Revive</div>
                 </div>
               </div>
             </div>
