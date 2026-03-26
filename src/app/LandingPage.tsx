@@ -270,33 +270,27 @@ export default function LandingPage() {
   useEffect(() => {
     const stories = [
       {
-        l1: "The internet remembers everything.",
-        l2: "And forgives nothing.",
-        l3: null,
-        l4: "Lethe was built on a different belief.",
-      },
-      {
-        l1: "You are not",
-        l2: "who you were.",
-        l3: null,
-        l4: "The person who posted three years ago is a stranger to who you are today.",
-      },
-      {
         l1: "Most platforms are built",
         l2: "to keep you scrolling.",
         l3: "Lethe is built to send you home.",
         l4: null,
       },
       {
-        l1: "Post without fear.",
-        l2: "Connect without noise.",
+        l1: "The people you need",
+        l2: "are already out there.",
         l3: null,
-        l4: "A feed that respects your right to evolve.",
+        l4: "Up to five introductions a week, matched to who you actually are.",
       },
       {
-        l1: "Your past posts haunt you",
-        l2: "on every other social platform.",
-        l3: "Not here.",
+        l1: "The feed ends.",
+        l2: "That is the point.",
+        l3: null,
+        l4: "Sixty posts. A quiet sign-off. Then back to your own life.",
+      },
+      {
+        l1: "Networking without",
+        l2: "the performance.",
+        l3: null,
         l4: "We live and Lethe live.",
       },
     ];
@@ -1045,7 +1039,7 @@ export default function LandingPage() {
         <h1 className="lethe-hero-h1">Networking without</h1>
         <h2 className="lethe-hero-h2">the performance.</h2>
         <p className="lethe-hero-sub">
-          One introduction a week, matched to who you actually are. A daily feed that ends. A network that compounds the longer you show up.
+          Up to five introductions a week, matched to who you actually are. A daily feed that ends. A network that compounds the longer you show up.
         </p>
         {!showHeroSuccess ? (
           <form className="lethe-hero-form" onSubmit={handleHeroSubmit}>
@@ -1173,99 +1167,7 @@ export default function LandingPage() {
           <p className="lethe-scroll-hint-h">Drag to explore</p>
         </div>
         <div className="lethe-cards-track" ref={cardsTrackRef}>
-          {/* Card 1: Feed */}
-          <div className="lethe-product-card">
-            <div className="lethe-card-screen lethe-screen-feed">
-              <div className="lethe-mock-nav">
-                <div className="lethe-mock-logo"></div>
-                <div className="lethe-mock-search"></div>
-                <div className="lethe-mock-btn"></div>
-              </div>
-              <div className="lethe-mock-masonry">
-                <div className="lethe-mock-post tall">
-                  <div className="lethe-mock-line"></div>
-                  <div className="lethe-mock-line short"></div>
-                  <div className="lethe-mock-line"></div>
-                  <div className="lethe-mock-arc"></div>
-                </div>
-                <div className="lethe-mock-post">
-                  <div className="lethe-mock-line short"></div>
-                  <div className="lethe-mock-line"></div>
-                  <div className="lethe-mock-line accent"></div>
-                </div>
-                <div className="lethe-mock-post">
-                  <div className="lethe-mock-line"></div>
-                  <div className="lethe-mock-line short"></div>
-                  <div className="lethe-mock-arc"></div>
-                </div>
-                <div className="lethe-mock-post">
-                  <div className="lethe-mock-line"></div>
-                  <div className="lethe-mock-line"></div>
-                </div>
-                <div className="lethe-mock-post">
-                  <div className="lethe-mock-line short"></div>
-                  <div className="lethe-mock-line accent"></div>
-                </div>
-              </div>
-            </div>
-            <div className="lethe-card-label">
-              <span className="lethe-card-tag">The feed</span>
-              <p className="lethe-card-title">
-                Masonry layout with half-life arc indicators on every post
-              </p>
-            </div>
-          </div>
-
-          {/* Card 2: Fading */}
-          <div className="lethe-product-card">
-            <div className="lethe-card-screen lethe-screen-fading">
-              <div className="lethe-fading-post">
-                <div className="lethe-fading-badge">Flowing</div>
-                <div className="lethe-mock-line"></div>
-                <div className="lethe-mock-line short"></div>
-              </div>
-              <div className="lethe-fading-post">
-                <div className="lethe-fading-badge">Fading in 12 mins</div>
-                <div className="lethe-mock-line" style={{ opacity: 0.6 }}></div>
-                <div className="lethe-mock-line short" style={{ opacity: 0.6 }}></div>
-              </div>
-              <div className="lethe-fading-post blur">
-                <div className="lethe-fading-badge faded">Faded</div>
-                <div className="lethe-mock-line"></div>
-                <div className="lethe-mock-line short"></div>
-                <div className="lethe-mock-line accent"></div>
-              </div>
-            </div>
-            <div className="lethe-card-label">
-              <span className="lethe-card-tag">The daily edition</span>
-              <p className="lethe-card-title">
-                60 posts. A quiet end. Back to your own life.
-              </p>
-            </div>
-          </div>
-
-          {/* Card 3: Depth */}
-          <div className="lethe-product-card">
-            <div className="lethe-card-screen lethe-screen-depth">
-              <div className="lethe-depth-ripple">
-                <div className="lethe-depth-dot"></div>
-              </div>
-              <p className="lethe-depth-text">
-                You've reached
-                <br />
-                the softened hours.
-              </p>
-              <div className="lethe-depth-btn-mock">Return to the present</div>
-            </div>
-            <div className="lethe-card-label">
-              <span className="lethe-card-tag">The depth zone</span>
-              <p className="lethe-card-title">
-                You have seen everything worth seeing today. The feed closes. That is the point.
-              </p>
-            </div>
-          </div>
-
-          {/* Card 4: Connect */}
+          {/* Card 1: Connect */}
           <div className="lethe-product-card">
             <div className="lethe-card-screen lethe-screen-connect">
               <div style={{ marginBottom: "10px" }}>
@@ -1299,12 +1201,193 @@ export default function LandingPage() {
             <div className="lethe-card-label">
               <span className="lethe-card-tag">Your weekly match</span>
               <p className="lethe-card-title">
-                One person a week, selected based on your behavioral signal. You choose who makes the cut.
+                Up to five introductions a week, selected based on your behavioral signal. You choose who makes the cut.
               </p>
             </div>
           </div>
 
-          {/* Card 5: Profile */}
+          {/* Card 2: Hyper-personalized matching */}
+          <div className="lethe-product-card">
+            <div className="lethe-card-screen" style={{ background: "#0a0f0a", display: "flex", flexDirection: "column", padding: "20px", gap: "14px" }}>
+              <div style={{ fontSize: "10px", letterSpacing: "0.12em", color: "rgba(127,255,0,0.8)", fontFamily: "monospace", fontWeight: 500 }}>YOUR MATCH</div>
+              <div style={{ fontFamily: "Georgia, serif", fontStyle: "italic", fontSize: "15px", lineHeight: 1.45, color: "rgba(255,255,255,0.88)", fontWeight: 300 }}>
+                I want to meet people<br />
+                <span style={{ color: "rgba(127,255,0,0.85)" }}>who...</span>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginTop: "4px" }}>
+                <div style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px", padding: "8px 12px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.5)", fontFamily: "monospace" }}>Who they are</span>
+                  <span style={{ fontSize: "10px", color: "rgba(255,255,255,0.3)" }}>▾</span>
+                </div>
+                <div style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px", padding: "8px 12px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.5)", fontFamily: "monospace" }}>Where they are based</span>
+                  <span style={{ fontSize: "10px", color: "rgba(255,255,255,0.3)" }}>▾</span>
+                </div>
+              </div>
+              <div style={{ display: "flex", gap: "8px", marginTop: "4px" }}>
+                <div style={{ flex: 1, background: "rgba(127,255,0,0.85)", borderRadius: "20px", padding: "7px 0", textAlign: "center", fontSize: "10px", letterSpacing: "0.1em", color: "#050705", fontFamily: "monospace", fontWeight: 600 }}>CONTINUE</div>
+                <div style={{ flex: 1, background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "20px", padding: "7px 0", textAlign: "center", fontSize: "10px", letterSpacing: "0.1em", color: "rgba(255,255,255,0.4)", fontFamily: "monospace" }}>LATER</div>
+              </div>
+            </div>
+            <div className="lethe-card-label">
+              <span className="lethe-card-tag">Your criteria</span>
+              <p className="lethe-card-title">
+                You choose who you meet. The more honest you are, the better the match.
+              </p>
+            </div>
+          </div>
+
+          {/* Card 3: Availability */}
+          <div className="lethe-product-card">
+            <div className="lethe-card-screen" style={{ background: "#0a0f0a", display: "flex", flexDirection: "column", padding: "18px", gap: "11px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span style={{ fontSize: "9px", letterSpacing: "0.12em", color: "rgba(255,255,255,0.5)", fontFamily: "monospace" }}>MEETING TIMES</span>
+                <span style={{ fontSize: "9px", color: "rgba(127,255,0,0.7)", fontFamily: "monospace" }}>3 of 5 slots used</span>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "6px" }}>
+                {([{ day: "MON", time: "7:00 AM", active: true }, { day: "TUE", time: null, active: false }, { day: "WED", time: "8:00 PM", active: true }, { day: "THU", time: null, active: false }] as { day: string; time: string | null; active: boolean }[]).map(({ day, time, active }) => (
+                  <div key={day} style={{ background: active ? "rgba(127,255,0,0.1)" : "rgba(255,255,255,0.04)", border: `1px solid ${active ? "rgba(127,255,0,0.35)" : "rgba(255,255,255,0.08)"}`, borderRadius: "8px", padding: "8px 4px", textAlign: "center", display: "flex", flexDirection: "column", gap: "4px" }}>
+                    <span style={{ fontSize: "8px", letterSpacing: "0.1em", color: active ? "rgba(127,255,0,0.9)" : "rgba(255,255,255,0.35)", fontFamily: "monospace" }}>{day}</span>
+                    {time && <span style={{ fontSize: "8px", color: "rgba(127,255,0,0.85)", fontFamily: "monospace" }}>{time}</span>}
+                  </div>
+                ))}
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "6px" }}>
+                {([{ day: "FRI", time: null, active: false }, { day: "SAT", time: "10:00 AM", active: true }, { day: "SUN", time: null, active: false }] as { day: string; time: string | null; active: boolean }[]).map(({ day, time, active }) => (
+                  <div key={day} style={{ background: active ? "rgba(127,255,0,0.1)" : "rgba(255,255,255,0.04)", border: `1px solid ${active ? "rgba(127,255,0,0.35)" : "rgba(255,255,255,0.08)"}`, borderRadius: "8px", padding: "8px 4px", textAlign: "center", display: "flex", flexDirection: "column", gap: "4px" }}>
+                    <span style={{ fontSize: "8px", letterSpacing: "0.1em", color: active ? "rgba(127,255,0,0.9)" : "rgba(255,255,255,0.35)", fontFamily: "monospace" }}>{day}</span>
+                    {time && <span style={{ fontSize: "8px", color: "rgba(127,255,0,0.85)", fontFamily: "monospace" }}>{time}</span>}
+                  </div>
+                ))}
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+                <span style={{ fontSize: "9px", letterSpacing: "0.1em", color: "rgba(255,255,255,0.45)", fontFamily: "monospace" }}>MEETING FREQUENCY</span>
+                <div style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "6px", padding: "4px 10px", fontSize: "9px", color: "rgba(255,255,255,0.6)", fontFamily: "monospace" }}>Every week ▾</div>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                {(["Meet local matches only", "Pause meetings"] as string[]).map((label) => (
+                  <div key={label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span style={{ fontSize: "9px", color: "rgba(255,255,255,0.4)", fontFamily: "monospace" }}>{label}</span>
+                    <div style={{ width: "26px", height: "14px", borderRadius: "7px", background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.15)", position: "relative" }}>
+                      <div style={{ width: "10px", height: "10px", borderRadius: "50%", background: "rgba(255,255,255,0.3)", position: "absolute", top: "1px", left: "2px" }}></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="lethe-card-label">
+              <span className="lethe-card-tag">Your availability</span>
+              <p className="lethe-card-title">
+                Set when you show up. Pause anytime. Your meetings, your terms.
+              </p>
+            </div>
+          </div>
+
+          {/* Card 4: Daily edition */}
+          <div className="lethe-product-card">
+            <div className="lethe-card-screen lethe-screen-fading">
+              <div className="lethe-fading-post">
+                <div className="lethe-fading-badge">Flowing</div>
+                <div className="lethe-mock-line"></div>
+                <div className="lethe-mock-line short"></div>
+              </div>
+              <div className="lethe-fading-post">
+                <div className="lethe-fading-badge">Fading in 12 mins</div>
+                <div className="lethe-mock-line" style={{ opacity: 0.6 }}></div>
+                <div className="lethe-mock-line short" style={{ opacity: 0.6 }}></div>
+              </div>
+              <div className="lethe-fading-post blur">
+                <div className="lethe-fading-badge faded">Faded</div>
+                <div className="lethe-mock-line"></div>
+                <div className="lethe-mock-line short"></div>
+                <div className="lethe-mock-line accent"></div>
+              </div>
+            </div>
+            <div className="lethe-card-label">
+              <span className="lethe-card-tag">The daily edition</span>
+              <p className="lethe-card-title">
+                60 posts. A quiet end. Back to your own life.
+              </p>
+            </div>
+          </div>
+
+          {/* Card 5: Intentional scrolling */}
+          <div className="lethe-product-card">
+            <div className="lethe-card-screen lethe-screen-depth">
+              <div className="lethe-depth-ripple">
+                <div className="lethe-depth-dot"></div>
+              </div>
+              <p className="lethe-depth-text">
+                You've reached
+                <br />
+                the softened hours.
+              </p>
+              <div className="lethe-depth-btn-mock">Return to the present</div>
+            </div>
+            <div className="lethe-card-label">
+              <span className="lethe-card-tag">Intentional scrolling</span>
+              <p className="lethe-card-title">
+                The feed has a shape. You reach the end. The app notices.
+              </p>
+            </div>
+          </div>
+
+          {/* Card 6: Communities */}
+          <div className="lethe-product-card">
+            <div className="lethe-card-screen" style={{ background: "#0a0f0a", display: "flex", flexDirection: "column", overflow: "hidden", padding: 0 }}>
+              <div style={{ height: "48px", background: "linear-gradient(135deg, rgba(127,255,0,0.12) 0%, rgba(0,0,0,0) 100%)", borderBottom: "1px solid rgba(255,255,255,0.06)", flexShrink: 0 }}></div>
+              <div style={{ padding: "12px 14px", display: "flex", flexDirection: "column", gap: "10px", flex: 1 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                  <div>
+                    <div style={{ fontSize: "13px", color: "rgba(255,255,255,0.88)", fontWeight: 600, letterSpacing: "0.01em", marginBottom: "3px" }}>Deep Work Guild</div>
+                    <div style={{ fontSize: "10px", color: "rgba(255,255,255,0.35)", fontFamily: "monospace" }}>342 members · created by @nadia</div>
+                  </div>
+                  <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
+                    <div style={{ background: "rgba(127,255,0,0.15)", border: "1px solid rgba(127,255,0,0.3)", borderRadius: "12px", padding: "4px 10px", fontSize: "9px", color: "rgba(127,255,0,0.9)", fontFamily: "monospace", letterSpacing: "0.08em" }}>INVITE</div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "2px", alignItems: "center" }}>
+                      {([0, 1, 2] as number[]).map((i) => <div key={i} style={{ width: "3px", height: "3px", borderRadius: "50%", background: "rgba(255,255,255,0.35)" }}></div>)}
+                    </div>
+                  </div>
+                </div>
+                <div style={{ display: "flex", gap: "8px", alignItems: "center", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "10px", padding: "8px 10px" }}>
+                  <div style={{ width: "22px", height: "22px", borderRadius: "50%", background: "rgba(255,255,255,0.1)", flexShrink: 0 }}></div>
+                  <span style={{ flex: 1, fontSize: "10px", color: "rgba(255,255,255,0.25)", fontStyle: "italic" }}>Share something with the guild...</span>
+                  <div style={{ background: "rgba(127,255,0,0.85)", borderRadius: "6px", padding: "4px 8px", fontSize: "9px", color: "#050705", fontFamily: "monospace", fontWeight: 600 }}>POST</div>
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: "6px", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "10px", padding: "10px" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                    <div style={{ display: "flex", gap: "7px", alignItems: "center" }}>
+                      <div style={{ width: "20px", height: "20px", borderRadius: "50%", background: "rgba(255,255,255,0.1)", flexShrink: 0 }}></div>
+                      <div>
+                        <div style={{ display: "flex", gap: "5px", alignItems: "center", marginBottom: "2px" }}>
+                          <span style={{ fontSize: "10px", color: "rgba(255,255,255,0.8)", fontWeight: 500 }}>maren</span>
+                          <span style={{ fontSize: "8px", background: "rgba(127,255,0,0.15)", color: "rgba(127,255,0,0.85)", border: "1px solid rgba(127,255,0,0.25)", borderRadius: "4px", padding: "1px 5px", fontFamily: "monospace", letterSpacing: "0.06em" }}>Admin</span>
+                        </div>
+                        <span style={{ fontSize: "9px", color: "rgba(255,255,255,0.25)", fontFamily: "monospace" }}>2h ago</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="lethe-mock-line" style={{ width: "90%" }}></div>
+                  <div className="lethe-mock-line short"></div>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <div style={{ display: "flex", gap: "10px" }}>
+                      <span style={{ fontSize: "9px", color: "rgba(255,255,255,0.3)", fontFamily: "monospace" }}>♡ 12</span>
+                      <span style={{ fontSize: "9px", color: "rgba(255,255,255,0.3)", fontFamily: "monospace" }}>◯ 4</span>
+                    </div>
+                    <span style={{ fontSize: "8px", color: "rgba(127,255,0,0.6)", fontFamily: "monospace", letterSpacing: "0.08em" }}>PINNED</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="lethe-card-label">
+              <span className="lethe-card-tag">Your communities</span>
+              <p className="lethe-card-title">
+                Find your guild. Post to people who already get it.
+              </p>
+            </div>
+          </div>
+
+          {/* Card 7: Profile */}
           <div className="lethe-product-card">
             <div className="lethe-card-screen lethe-screen-profile">
               <div className="lethe-profile-head">
@@ -1349,46 +1432,6 @@ export default function LandingPage() {
               <span className="lethe-card-tag">Your profile</span>
               <p className="lethe-card-title">
                 See your full timeline. Revive anything. Your posts, your choice
-              </p>
-            </div>
-          </div>
-
-          {/* Card 6: Matches */}
-          <div className="lethe-product-card">
-            <div className="lethe-card-screen lethe-screen-matches">
-              <div className="lethe-matches-head">
-                <div className="lethe-matches-title-mock"></div>
-                <div className="lethe-matches-toggle"></div>
-              </div>
-              <div className="lethe-match-row">
-                <div className="lethe-match-ava"></div>
-                <div className="lethe-match-info">
-                  <div className="lethe-match-name"></div>
-                  <div className="lethe-match-date"></div>
-                </div>
-                <div className="lethe-match-status upcoming">upcoming</div>
-              </div>
-              <div className="lethe-match-row">
-                <div className="lethe-match-ava"></div>
-                <div className="lethe-match-info">
-                  <div className="lethe-match-name"></div>
-                  <div className="lethe-match-date"></div>
-                </div>
-                <div className="lethe-match-status met">met</div>
-              </div>
-              <div className="lethe-match-row">
-                <div className="lethe-match-ava"></div>
-                <div className="lethe-match-info">
-                  <div className="lethe-match-name"></div>
-                  <div className="lethe-match-date"></div>
-                </div>
-                <div className="lethe-match-status upcoming">upcoming</div>
-              </div>
-            </div>
-            <div className="lethe-card-label">
-              <span className="lethe-card-tag">Your matches</span>
-              <p className="lethe-card-title">
-                Recent connections, meeting status, and upcoming schedules
               </p>
             </div>
           </div>
