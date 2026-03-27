@@ -816,25 +816,19 @@ export default function LandingPage() {
         }
 
         .lethe-demo-overlay {
-          position: fixed; inset: 0; z-index: 9999;
-          background: #0a0a0a;
+          position: fixed; inset: 0; z-index: 10000;
+          background: #0a0a0a; opacity: 1; backdrop-filter: none;
           display: flex; flex-direction: column;
           align-items: center; justify-content: center;
           padding: 40px 24px;
         }
-        .lethe-demo-overlay-close {
-          position: absolute; top: 28px; right: 32px;
-          font-family: var(--mono); font-size: 18px; line-height: 1;
+        .lethe-demo-overlay-back {
+          position: absolute; top: 24px; left: 32px;
+          font-family: var(--mono); font-size: 11px; letter-spacing: .12em;
           color: rgba(255,255,255,0.35); background: transparent; border: none;
-          cursor: none; transition: color .2s; padding: 8px;
+          cursor: none; transition: color .2s; padding: 0;
         }
-        .lethe-demo-overlay-close:hover { color: rgba(255,255,255,0.75); }
-        .lethe-demo-overlay-logo {
-          display: flex; align-items: center; gap: 8px;
-          font-family: var(--serif); font-size: 13px; font-weight: 300;
-          letter-spacing: .3em; text-transform: uppercase;
-          color: rgba(255,255,255,0.6); margin-bottom: 52px;
-        }
+        .lethe-demo-overlay-back:hover { color: rgba(255,255,255,0.7); }
         .lethe-demo-overlay-glow {
           position: absolute; width: 480px; height: 480px;
           border-radius: 50%;
@@ -1282,18 +1276,11 @@ export default function LandingPage() {
           <div className="lethe-demo-overlay">
             <div className="lethe-demo-overlay-glow" />
             <button
-              className="lethe-demo-overlay-close"
+              className="lethe-demo-overlay-back"
               onClick={() => { setShowDemoOverlay(false); setDemoCode(""); setDemoCodeError(false); }}
-              aria-label="Close"
             >
-              ×
+              ← Back
             </button>
-            <div className="lethe-demo-overlay-logo">
-              <div style={{ width: "18px", height: "18px" }}>
-                <LetheLogo />
-              </div>
-              LETHE
-            </div>
             <div className="lethe-demo-overlay-inner">
               <h2 className="lethe-demo-overlay-h">This is a preview.</h2>
               <p className="lethe-demo-overlay-sub">Enter the access code to continue.</p>
