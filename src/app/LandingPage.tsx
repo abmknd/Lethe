@@ -1273,12 +1273,11 @@ export default function LandingPage() {
           View full demo
         </button>
         {showDemoOverlay && (
-          <div className="lethe-demo-overlay">
+          <div style={{ position: 'fixed', inset: 0, top: 0, left: 0, right: 0, bottom: 0, width: '100vw', height: '100vh', background: '#0a0a0a', zIndex: 99999, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
             <div className="lethe-demo-overlay-glow" />
             <button
-              className="lethe-demo-overlay-close"
-              onClick={() => { setShowDemoOverlay(false); setDemoCode(""); setDemoCodeError(false); window.scrollTo(0, 0); }}
-              aria-label="Close"
+              onClick={() => { setShowDemoOverlay(false); window.scrollTo(0, 0); }}
+              style={{ position: 'absolute', top: '24px', right: '32px', background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', fontSize: '24px', cursor: 'pointer' }}
             >
               ×
             </button>
