@@ -785,17 +785,17 @@ Please change the parent <Route path="${T}"> to <Route path="${T==="/"?"*":`${T}
         }
 
         .lethe-view-demo-btn {
-          margin-top: 28px; display: flex; align-items: center; gap: 8px;
+          display: inline-block; margin-top: 24px;
           font-family: var(--mono); font-size: 11px; letter-spacing: .2em;
-          text-transform: uppercase; color: rgba(173,255,47,0.65);
+          text-transform: uppercase; color: rgba(173,255,47,0.4);
           background: transparent; border: 1px solid rgba(173,255,47,0.25);
-          border-radius: 22px; padding: 10px 24px; cursor: none;
-          transition: all .3s; align-self: center;
+          border-radius: 22px; padding: 12px 28px; cursor: none;
+          transition: color .25s, border-color .25s, background .25s;
         }
         .lethe-view-demo-btn:hover {
-          color: rgba(173,255,47,0.9);
-          border-color: rgba(173,255,47,0.5);
-          background: rgba(173,255,47,0.06);
+          color: rgba(173,255,47,1);
+          border-color: rgba(173,255,47,0.8);
+          background: rgba(173,255,47,0.08);
         }
 
         .lethe-demo-overlay {
@@ -1017,17 +1017,17 @@ Please change the parent <Route path="${T}"> to <Route path="${T==="/"?"*":`${T}
         .lethe-signup-form button { font-family:var(--mono); font-size:11px; letter-spacing:.3em; text-transform:uppercase; color:#6B6B6B; background:transparent; border:none; border-radius:22px; padding:12px 24px; cursor:none; transition:all .3s; white-space:nowrap; display: flex; align-items: center; gap: 8px; }
         .lethe-signup-form button:hover { color:var(--ch); }
         .lethe-signup-note { margin-top:18px; font-family:var(--mono); font-size:11px; letter-spacing:.12em; color:var(--ghost); position:relative; z-index:1; }
-        .lethe-form-success { padding: 16px 0; }
+        .lethe-form-success { padding: 16px 0; display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; }
         .lethe-form-success-title {
           font-family: var(--serif); font-size: 18px; font-style: italic;
-          font-weight: 300; color: rgba(173,255,47,0.9); margin-bottom: 4px;
-          display: flex; align-items: center; gap: 10px;
+          font-weight: 300; color: rgba(173,255,47,0.9); margin-bottom: 0;
+          display: flex; align-items: center; justify-content: center; gap: 0; position: relative;
         }
         .lethe-form-success-sub {
           font-family: var(--mono); font-size: 12px; letter-spacing: .06em;
           color: var(--dim);
         }
-        .lethe-confetti { position: relative; width: 20px; height: 20px; flex-shrink: 0; }
+        .lethe-confetti { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 0; height: 0; pointer-events: none; }
         .lethe-confetti span {
           position: absolute; width: 4px; height: 4px; border-radius: 1px;
           top: 50%; left: 50%; margin: -2px;
