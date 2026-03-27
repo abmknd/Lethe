@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, FormEvent } from "react";
+import { useNavigate } from "react-router";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ArrowRight } from "lucide-react";
@@ -14,6 +15,9 @@ export default function LandingPage() {
   const [showSignupSuccess, setShowSignupSuccess] = useState(false);
   const [isSubmitting1, setIsSubmitting1] = useState(false);
   const [isSubmitting2, setIsSubmitting2] = useState(false);
+  const [showDemoOverlay, setShowDemoOverlay] = useState(false);
+  const [demoCode, setDemoCode] = useState("");
+  const [demoCodeError, setDemoCodeError] = useState(false);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const cursorDotRef = useRef<HTMLDivElement>(null);
@@ -29,6 +33,8 @@ export default function LandingPage() {
   const ls2Ref = useRef<HTMLSpanElement>(null);
   const ls3Ref = useRef<HTMLSpanElement>(null);
   const ls4Ref = useRef<HTMLSpanElement>(null);
+
+  const navigate = useNavigate();
 
   const MC_URL = "https://gmail.us22.list-manage.com/subscribe/post?u=c4d6d5b0d24bc275d3ce10296&id=e6473f0143&f_id=00b2c2e1f0";
 
@@ -795,6 +801,87 @@ export default function LandingPage() {
           display: none; width: 100%; aspect-ratio: 16/9;
         }
 
+        .lethe-view-demo-btn {
+          margin-top: 28px; display: flex; align-items: center; gap: 8px;
+          font-family: var(--mono); font-size: 11px; letter-spacing: .2em;
+          text-transform: uppercase; color: rgba(173,255,47,0.65);
+          background: transparent; border: 1px solid rgba(173,255,47,0.25);
+          border-radius: 22px; padding: 10px 24px; cursor: none;
+          transition: all .3s; align-self: center;
+        }
+        .lethe-view-demo-btn:hover {
+          color: rgba(173,255,47,0.9);
+          border-color: rgba(173,255,47,0.5);
+          background: rgba(173,255,47,0.06);
+        }
+
+        .lethe-demo-overlay {
+          position: fixed; inset: 0; z-index: 9999;
+          background: #0a0a0a;
+          display: flex; flex-direction: column;
+          align-items: center; justify-content: center;
+          padding: 40px 24px;
+        }
+        .lethe-demo-overlay-close {
+          position: absolute; top: 28px; right: 32px;
+          font-family: var(--mono); font-size: 18px; line-height: 1;
+          color: rgba(255,255,255,0.35); background: transparent; border: none;
+          cursor: none; transition: color .2s; padding: 8px;
+        }
+        .lethe-demo-overlay-close:hover { color: rgba(255,255,255,0.75); }
+        .lethe-demo-overlay-logo {
+          display: flex; align-items: center; gap: 8px;
+          font-family: var(--serif); font-size: 13px; font-weight: 300;
+          letter-spacing: .3em; text-transform: uppercase;
+          color: rgba(255,255,255,0.6); margin-bottom: 52px;
+        }
+        .lethe-demo-overlay-glow {
+          position: absolute; width: 480px; height: 480px;
+          border-radius: 50%;
+          background: radial-gradient(circle, rgba(173,255,47,0.07) 0%, transparent 70%);
+          pointer-events: none;
+        }
+        .lethe-demo-overlay-inner {
+          position: relative; z-index: 1;
+          display: flex; flex-direction: column; align-items: center; gap: 0;
+          max-width: 400px; width: 100%; text-align: center;
+        }
+        .lethe-demo-overlay-h {
+          font-family: var(--serif); font-size: clamp(28px,4vw,42px);
+          font-weight: 300; font-style: italic; line-height: 1.1;
+          color: var(--text); margin-bottom: 14px;
+        }
+        .lethe-demo-overlay-sub {
+          font-family: var(--mono); font-size: 12px; letter-spacing: .08em;
+          color: var(--dim); margin-bottom: 36px;
+        }
+        .lethe-demo-overlay-form {
+          display: flex; gap: 10px; width: 100%; max-width: 360px;
+          margin-bottom: 14px;
+        }
+        .lethe-demo-overlay-form input {
+          flex: 1; background: rgba(255,255,255,0.04);
+          border: 1px solid rgba(255,255,255,0.12);
+          border-radius: 22px; padding: 12px 20px;
+          font-family: var(--mono); font-size: 12px; letter-spacing: .06em;
+          color: var(--text); outline: none;
+          transition: border-color .2s;
+        }
+        .lethe-demo-overlay-form input::placeholder { color: var(--ghost); }
+        .lethe-demo-overlay-form input:focus { border-color: rgba(173,255,47,0.35); }
+        .lethe-demo-overlay-form button {
+          font-family: var(--mono); font-size: 11px; letter-spacing: .2em;
+          text-transform: uppercase; color: #050705;
+          background: rgba(173,255,47,0.85); border: none;
+          border-radius: 22px; padding: 12px 22px;
+          cursor: none; transition: background .2s; white-space: nowrap;
+        }
+        .lethe-demo-overlay-form button:hover { background: rgba(173,255,47,1); }
+        .lethe-demo-overlay-error {
+          font-family: var(--mono); font-size: 11px; letter-spacing: .06em;
+          color: rgba(220,80,80,0.75); min-height: 16px;
+        }
+
         /* ── SEE IT ── */
         #lethe-see {
           padding: 120px 0;
@@ -1185,6 +1272,59 @@ export default function LandingPage() {
             </video>
           </div>
         </div>
+        <button
+          className="lethe-view-demo-btn"
+          onClick={() => setShowDemoOverlay(true)}
+        >
+          View full demo
+        </button>
+        {showDemoOverlay && (
+          <div className="lethe-demo-overlay">
+            <div className="lethe-demo-overlay-glow" />
+            <button
+              className="lethe-demo-overlay-close"
+              onClick={() => { setShowDemoOverlay(false); setDemoCode(""); setDemoCodeError(false); }}
+              aria-label="Close"
+            >
+              ×
+            </button>
+            <div className="lethe-demo-overlay-logo">
+              <div style={{ width: "18px", height: "18px" }}>
+                <LetheLogo />
+              </div>
+              LETHE
+            </div>
+            <div className="lethe-demo-overlay-inner">
+              <h2 className="lethe-demo-overlay-h">This is a preview.</h2>
+              <p className="lethe-demo-overlay-sub">Enter the access code to continue.</p>
+              <form
+                className="lethe-demo-overlay-form"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (demoCode.trim().toLowerCase() === "lethelive") {
+                    setShowDemoOverlay(false);
+                    setDemoCode("");
+                    setDemoCodeError(false);
+                    navigate("/feed");
+                  } else {
+                    setDemoCodeError(true);
+                  }
+                }}
+              >
+                <input
+                  type="text"
+                  placeholder="Access code"
+                  value={demoCode}
+                  autoComplete="off"
+                  autoFocus
+                  onChange={(e) => { setDemoCode(e.target.value); setDemoCodeError(false); }}
+                />
+                <button type="submit">Enter</button>
+              </form>
+              <p className="lethe-demo-overlay-error">{demoCodeError ? "That's not it." : ""}</p>
+            </div>
+          </div>
+        )}
       </section>
 
       {/* SEE IT */}
