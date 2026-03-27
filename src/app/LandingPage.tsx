@@ -822,13 +822,13 @@ export default function LandingPage() {
           align-items: center; justify-content: center;
           padding: 40px 24px;
         }
-        .lethe-demo-overlay-back {
-          position: absolute; top: 24px; left: 32px;
-          font-family: var(--mono); font-size: 11px; letter-spacing: .12em;
+        .lethe-demo-overlay-close {
+          position: absolute; top: 24px; right: 32px;
+          font-family: var(--mono); font-size: 20px; line-height: 1;
           color: rgba(255,255,255,0.35); background: transparent; border: none;
-          cursor: none; transition: color .2s; padding: 0;
+          cursor: none; transition: color .2s; padding: 8px;
         }
-        .lethe-demo-overlay-back:hover { color: rgba(255,255,255,0.7); }
+        .lethe-demo-overlay-close:hover { color: rgba(255,255,255,0.75); }
         .lethe-demo-overlay-glow {
           position: absolute; width: 480px; height: 480px;
           border-radius: 50%;
@@ -1276,13 +1276,14 @@ export default function LandingPage() {
           <div className="lethe-demo-overlay">
             <div className="lethe-demo-overlay-glow" />
             <button
-              className="lethe-demo-overlay-back"
-              onClick={() => { setShowDemoOverlay(false); setDemoCode(""); setDemoCodeError(false); }}
+              className="lethe-demo-overlay-close"
+              onClick={() => { setShowDemoOverlay(false); setDemoCode(""); setDemoCodeError(false); window.scrollTo(0, 0); }}
+              aria-label="Close"
             >
-              ← Back
+              ×
             </button>
             <div className="lethe-demo-overlay-inner">
-              <h2 className="lethe-demo-overlay-h">This is a preview.</h2>
+              <h2 className="lethe-demo-overlay-h">Restricted to Admin.</h2>
               <p className="lethe-demo-overlay-sub">Enter the access code to continue.</p>
               <form
                 className="lethe-demo-overlay-form"
