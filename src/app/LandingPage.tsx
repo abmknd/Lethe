@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef, FormEvent } from "react";
-import { useNavigate } from "react-router";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ArrowRight } from "lucide-react";
@@ -9,16 +8,13 @@ import LetheLogo from "../imports/LetheLogo";
 gsap.registerPlugin(ScrollTrigger);
 
 export default function LandingPage() {
-  const navigate = useNavigate();
   const [email1, setEmail1] = useState("");
   const [email2, setEmail2] = useState("");
   const [showHeroSuccess, setShowHeroSuccess] = useState(false);
   const [showSignupSuccess, setShowSignupSuccess] = useState(false);
-  const [waitlistCount, setWaitlistCount] = useState(0);
-  const [showDemoOverlay, setShowDemoOverlay] = useState(false);
-  const [demoCode, setDemoCode] = useState("");
-  const [demoError, setDemoError] = useState(false);
-  
+  const [isSubmitting1, setIsSubmitting1] = useState(false);
+  const [isSubmitting2, setIsSubmitting2] = useState(false);
+
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const cursorDotRef = useRef<HTMLDivElement>(null);
   const cursorRingRef = useRef<HTMLDivElement>(null);
@@ -34,22 +30,36 @@ export default function LandingPage() {
   const ls3Ref = useRef<HTMLSpanElement>(null);
   const ls4Ref = useRef<HTMLSpanElement>(null);
 
-  const handleHeroSubmit = (e: FormEvent) => {
+  const MC_URL = "https://gmail.us22.list-manage.com/subscribe/post?u=c4d6d5b0d24bc275d3ce10296&id=e6473f0143&f_id=00b2c2e1f0";
+
+  const handleHeroSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (email1) {
-      sessionStorage.setItem("lethe_signup_email", email1);
-      setShowHeroSuccess(true);
-      setTimeout(() => navigate("/onboarding"), 800);
+    if (!email1) return;
+    setIsSubmitting1(true);
+    const fd = new FormData();
+    fd.append("EMAIL", email1);
+    fd.append("b_c4d6d5b0d24bc275d3ce10296_e6473f0143", "");
+    try {
+      await fetch(MC_URL, { method: "POST", mode: "no-cors", body: fd });
+    } catch (_) {
+      // no-cors opaque response — treat as success
     }
+    setShowHeroSuccess(true);
   };
 
-  const handleSignupSubmit = (e: FormEvent) => {
+  const handleSignupSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (email2) {
-      sessionStorage.setItem("lethe_signup_email", email2);
-      setShowSignupSuccess(true);
-      setTimeout(() => navigate("/onboarding"), 800);
+    if (!email2) return;
+    setIsSubmitting2(true);
+    const fd = new FormData();
+    fd.append("EMAIL", email2);
+    fd.append("b_c4d6d5b0d24bc275d3ce10296_e6473f0143", "");
+    try {
+      await fetch(MC_URL, { method: "POST", mode: "no-cors", body: fd });
+    } catch (_) {
+      // no-cors opaque response — treat as success
     }
+    setShowSignupSuccess(true);
   };
 
   const handlePlayDemo = () => {
@@ -253,21 +263,6 @@ export default function LandingPage() {
     gsap.to(".lethe-hero-meta", { opacity: 1, y: 0, duration: 0.9, delay: 0.95 });
   }, []);
 
-  // Waitlist count animation
-  useEffect(() => {
-    const target = 47;
-    let c = 0;
-    function tick() {
-      c += Math.ceil((target - c) / 8);
-      if (c >= target) {
-        setWaitlistCount(target);
-        return;
-      }
-      setWaitlistCount(c);
-      setTimeout(tick, 60);
-    }
-    setTimeout(tick, 1400);
-  }, []);
 
   // Typewriter story
   useEffect(() => {
@@ -952,78 +947,25 @@ export default function LandingPage() {
         .lethe-signup-form button { font-family:var(--mono); font-size:11px; letter-spacing:.3em; text-transform:uppercase; color:#6B6B6B; background:transparent; border:none; border-radius:22px; padding:12px 24px; cursor:none; transition:all .3s; white-space:nowrap; display: flex; align-items: center; gap: 8px; }
         .lethe-signup-form button:hover { color:var(--ch); }
         .lethe-signup-note { margin-top:18px; font-family:var(--mono); font-size:11px; letter-spacing:.12em; color:var(--ghost); position:relative; z-index:1; }
-        .lethe-form-success { font-family:var(--serif); font-size:15px; font-style:italic; font-weight:300; color:rgba(173,255,47,0.8); padding:16px 0; }
-
-        /* ── DEMO OVERLAY ── */
-        .lethe-view-demo-btn {
-          display: block; margin: 28px auto 0;
-          font-family: var(--mono); font-size: 11px; letter-spacing: .2em;
-          text-transform: uppercase; color: var(--dim);
-          background: transparent; border: 1px solid var(--border);
-          border-radius: 20px; padding: 10px 28px;
-          cursor: pointer; transition: color .25s, border-color .25s;
-        }
-        .lethe-view-demo-btn:hover { color: var(--text); border-color: rgba(255,255,255,0.18); }
-        .lethe-demo-overlay {
-          position: fixed; inset: 0; z-index: 9999;
-          background: #0a0a0a;
-          display: flex; flex-direction: column;
-          align-items: center; justify-content: center;
-          padding: 40px 24px;
-        }
-        .lethe-demo-overlay-close {
-          position: absolute; top: 28px; right: 32px;
-          font-family: var(--mono); font-size: 18px; line-height: 1;
-          color: var(--ghost); background: transparent; border: none;
-          cursor: pointer; transition: color .2s; padding: 4px 8px;
-        }
-        .lethe-demo-overlay-close:hover { color: var(--dim); }
-        .lethe-demo-overlay-glow {
-          position: absolute; width: 520px; height: 520px; border-radius: 50%;
-          background: radial-gradient(circle, rgba(173,255,47,0.06) 0%, transparent 70%);
-          pointer-events: none;
-        }
-        .lethe-demo-overlay-logo {
-          margin-bottom: 40px; position: relative; z-index: 1;
-          font-family: var(--serif); font-size: 13px; font-weight: 300;
-          letter-spacing: .38em; text-transform: uppercase; color: var(--dim);
+        .lethe-form-success { padding: 16px 0; }
+        .lethe-form-success-title {
+          font-family: var(--serif); font-size: 18px; font-style: italic;
+          font-weight: 300; color: rgba(173,255,47,0.9); margin-bottom: 4px;
           display: flex; align-items: center; gap: 10px;
         }
-        .lethe-demo-overlay-heading {
-          font-family: var(--serif); font-size: clamp(28px, 4vw, 42px);
-          font-weight: 300; font-style: italic; color: var(--text);
-          margin-bottom: 12px; text-align: center; position: relative; z-index: 1;
+        .lethe-form-success-sub {
+          font-family: var(--mono); font-size: 12px; letter-spacing: .06em;
+          color: var(--dim);
         }
-        .lethe-demo-overlay-sub {
-          font-family: var(--mono); font-size: 13px; letter-spacing: .04em;
-          color: var(--dim); margin-bottom: 40px; text-align: center;
-          position: relative; z-index: 1;
+        .lethe-confetti { position: relative; width: 20px; height: 20px; flex-shrink: 0; }
+        .lethe-confetti span {
+          position: absolute; width: 4px; height: 4px; border-radius: 1px;
+          top: 50%; left: 50%; margin: -2px;
+          animation: letheConfetti var(--dur, .65s) ease-out var(--delay, 0s) both;
         }
-        .lethe-demo-overlay-form {
-          display: flex; max-width: 400px; width: 100%;
-          background: rgba(255,255,255,0.04);
-          border: 1px solid var(--border); border-radius: 40px;
-          overflow: hidden; padding: 5px;
-          position: relative; z-index: 1;
-        }
-        .lethe-demo-overlay-form input {
-          flex: 1; background: transparent; border: none; outline: none;
-          font-family: var(--mono); font-size: 13px; letter-spacing: .04em;
-          color: var(--text); padding: 12px 18px;
-        }
-        .lethe-demo-overlay-form input::placeholder { color: var(--ghost); }
-        .lethe-demo-overlay-form button {
-          font-family: var(--mono); font-size: 11px; letter-spacing: .3em;
-          text-transform: uppercase; color: #6B6B6B;
-          background: rgba(255,255,255,0.06); border: none;
-          border-radius: 32px; padding: 10px 22px; cursor: pointer;
-          transition: color .25s;
-        }
-        .lethe-demo-overlay-form button:hover { color: var(--ch); }
-        .lethe-demo-overlay-error {
-          margin-top: 14px; font-family: var(--mono); font-size: 12px;
-          letter-spacing: .04em; color: rgba(220, 80, 80, 0.7);
-          position: relative; z-index: 1;
+        @keyframes letheConfetti {
+          0%   { transform: translate(0,0) rotate(0deg); opacity: 1; }
+          100% { transform: translate(var(--tx,0px), var(--ty,-30px)) rotate(var(--rot,180deg)); opacity: 0; }
         }
 
         /* ── FOOTER ── */
@@ -1126,17 +1068,34 @@ export default function LandingPage() {
               value={email1}
               onChange={(e) => setEmail1(e.target.value)}
             />
-            <button type="submit" className="group">
-              <span>Get an early taste</span>
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" strokeWidth={1.5} />
+            <button type="submit" className="group" disabled={isSubmitting1}>
+              <span>{isSubmitting1 ? "Joining..." : "Get an early taste"}</span>
+              {!isSubmitting1 && <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" strokeWidth={1.5} />}
             </button>
           </form>
         ) : (
-          <p className="lethe-form-success">You're on the list. We'll be in touch.</p>
+          <div className="lethe-form-success">
+            <p className="lethe-form-success-title">
+              <span className="lethe-confetti" aria-hidden="true">
+                {([
+                  { tx: "-8px", ty: "-28px", rot: "160deg", color: "#7FFF00", delay: "0s",    dur: ".6s"  },
+                  { tx: "8px",  ty: "-30px", rot: "-140deg", color: "#ADFF2F", delay: ".05s",  dur: ".65s" },
+                  { tx: "-14px",ty: "-18px", rot: "200deg",  color: "#DFFF00", delay: ".1s",   dur: ".55s" },
+                  { tx: "14px", ty: "-20px", rot: "-180deg", color: "#7FFF00", delay: ".08s",  dur: ".7s"  },
+                  { tx: "0px",  ty: "-32px", rot: "90deg",   color: "#ADFF2F", delay: ".12s",  dur: ".6s"  },
+                  { tx: "-6px", ty: "-24px", rot: "-90deg",  color: "#DFFF00", delay: ".03s",  dur: ".68s" },
+                ] as { tx: string; ty: string; rot: string; color: string; delay: string; dur: string }[]).map((p, i) => (
+                  <span key={i} style={{ background: p.color, "--tx": p.tx, "--ty": p.ty, "--rot": p.rot, "--delay": p.delay, "--dur": p.dur } as React.CSSProperties} />
+                ))}
+              </span>
+              {"You're now on the list."}
+            </p>
+            <p className="lethe-form-success-sub">We'll be in touch when the first batch opens.</p>
+          </div>
         )}
         <div className="lethe-hero-meta">
           <p className="lethe-waitlist">
-            Join <span>{waitlistCount || "—"}</span> people already waiting
+            Limited spots. Post-beta is invite only.
           </p>
           <div className="lethe-scroll-hint">
             <span>Scroll</span>
@@ -1226,12 +1185,6 @@ export default function LandingPage() {
             </video>
           </div>
         </div>
-        <button
-          className="lethe-view-demo-btn"
-          onClick={() => { setShowDemoOverlay(true); setDemoCode(""); setDemoError(false); }}
-        >
-          View full demo
-        </button>
       </section>
 
       {/* SEE IT */}
@@ -1616,13 +1569,30 @@ export default function LandingPage() {
               value={email2}
               onChange={(e) => setEmail2(e.target.value)}
             />
-            <button type="submit" className="group">
-              <span>Get an early taste</span>
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" strokeWidth={1.5} />
+            <button type="submit" className="group" disabled={isSubmitting2}>
+              <span>{isSubmitting2 ? "Joining..." : "Get an early taste"}</span>
+              {!isSubmitting2 && <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" strokeWidth={1.5} />}
             </button>
           </form>
         ) : (
-          <p className="lethe-form-success">You're on the list. We'll be in touch.</p>
+          <div className="lethe-form-success">
+            <p className="lethe-form-success-title">
+              <span className="lethe-confetti" aria-hidden="true">
+                {([
+                  { tx: "-8px", ty: "-28px", rot: "160deg",  color: "#7FFF00", delay: "0s",   dur: ".6s"  },
+                  { tx: "8px",  ty: "-30px", rot: "-140deg", color: "#ADFF2F", delay: ".05s", dur: ".65s" },
+                  { tx: "-14px",ty: "-18px", rot: "200deg",  color: "#DFFF00", delay: ".1s",  dur: ".55s" },
+                  { tx: "14px", ty: "-20px", rot: "-180deg", color: "#7FFF00", delay: ".08s", dur: ".7s"  },
+                  { tx: "0px",  ty: "-32px", rot: "90deg",   color: "#ADFF2F", delay: ".12s", dur: ".6s"  },
+                  { tx: "-6px", ty: "-24px", rot: "-90deg",  color: "#DFFF00", delay: ".03s", dur: ".68s" },
+                ] as { tx: string; ty: string; rot: string; color: string; delay: string; dur: string }[]).map((p, i) => (
+                  <span key={i} style={{ background: p.color, "--tx": p.tx, "--ty": p.ty, "--rot": p.rot, "--delay": p.delay, "--dur": p.dur } as React.CSSProperties} />
+                ))}
+              </span>
+              {"You're now on the list."}
+            </p>
+            <p className="lethe-form-success-sub">We'll be in touch when the first batch opens.</p>
+          </div>
         )}
         <p className="lethe-signup-note lethe-reveal">
           No spam. No noise. Just a note when we're ready.
@@ -1639,53 +1609,6 @@ export default function LandingPage() {
           LinkedIn ↗
         </a>
       </footer>
-
-      {/* DEMO ACCESS OVERLAY */}
-      {showDemoOverlay && (
-        <div className="lethe-demo-overlay">
-          <div className="lethe-demo-overlay-glow" />
-          <button
-            className="lethe-demo-overlay-close"
-            onClick={() => setShowDemoOverlay(false)}
-            aria-label="Close"
-          >
-            ×
-          </button>
-          <div className="lethe-demo-overlay-logo">
-            <div style={{ width: 20, height: 20 }}>
-              <LetheLogo />
-            </div>
-            Lethe
-          </div>
-          <h2 className="lethe-demo-overlay-heading">This is a preview.</h2>
-          <p className="lethe-demo-overlay-sub">Enter the access code to continue.</p>
-          <form
-            className="lethe-demo-overlay-form"
-            onSubmit={(e) => {
-              e.preventDefault();
-              if (demoCode.trim().toLowerCase() === "lethelive") {
-                setShowDemoOverlay(false);
-                navigate("/feed");
-              } else {
-                setDemoError(true);
-              }
-            }}
-          >
-            <input
-              type="text"
-              placeholder="Access code"
-              autoComplete="off"
-              autoFocus
-              value={demoCode}
-              onChange={(e) => { setDemoCode(e.target.value); setDemoError(false); }}
-            />
-            <button type="submit">Enter</button>
-          </form>
-          {demoError && (
-            <p className="lethe-demo-overlay-error">{"That's not it."}</p>
-          )}
-        </div>
-      )}
     </>
   );
 }
