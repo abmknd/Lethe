@@ -15,6 +15,9 @@ export default function LandingPage() {
   const [showHeroSuccess, setShowHeroSuccess] = useState(false);
   const [showSignupSuccess, setShowSignupSuccess] = useState(false);
   const [waitlistCount, setWaitlistCount] = useState(0);
+  const [showDemoOverlay, setShowDemoOverlay] = useState(false);
+  const [demoCode, setDemoCode] = useState("");
+  const [demoError, setDemoError] = useState(false);
   
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const cursorDotRef = useRef<HTMLDivElement>(null);
@@ -951,6 +954,78 @@ export default function LandingPage() {
         .lethe-signup-note { margin-top:18px; font-family:var(--mono); font-size:11px; letter-spacing:.12em; color:var(--ghost); position:relative; z-index:1; }
         .lethe-form-success { font-family:var(--serif); font-size:15px; font-style:italic; font-weight:300; color:rgba(173,255,47,0.8); padding:16px 0; }
 
+        /* ── DEMO OVERLAY ── */
+        .lethe-view-demo-btn {
+          display: block; margin: 28px auto 0;
+          font-family: var(--mono); font-size: 11px; letter-spacing: .2em;
+          text-transform: uppercase; color: var(--dim);
+          background: transparent; border: 1px solid var(--border);
+          border-radius: 20px; padding: 10px 28px;
+          cursor: pointer; transition: color .25s, border-color .25s;
+        }
+        .lethe-view-demo-btn:hover { color: var(--text); border-color: rgba(255,255,255,0.18); }
+        .lethe-demo-overlay {
+          position: fixed; inset: 0; z-index: 9999;
+          background: #0a0a0a;
+          display: flex; flex-direction: column;
+          align-items: center; justify-content: center;
+          padding: 40px 24px;
+        }
+        .lethe-demo-overlay-close {
+          position: absolute; top: 28px; right: 32px;
+          font-family: var(--mono); font-size: 18px; line-height: 1;
+          color: var(--ghost); background: transparent; border: none;
+          cursor: pointer; transition: color .2s; padding: 4px 8px;
+        }
+        .lethe-demo-overlay-close:hover { color: var(--dim); }
+        .lethe-demo-overlay-glow {
+          position: absolute; width: 520px; height: 520px; border-radius: 50%;
+          background: radial-gradient(circle, rgba(173,255,47,0.06) 0%, transparent 70%);
+          pointer-events: none;
+        }
+        .lethe-demo-overlay-logo {
+          margin-bottom: 40px; position: relative; z-index: 1;
+          font-family: var(--serif); font-size: 13px; font-weight: 300;
+          letter-spacing: .38em; text-transform: uppercase; color: var(--dim);
+          display: flex; align-items: center; gap: 10px;
+        }
+        .lethe-demo-overlay-heading {
+          font-family: var(--serif); font-size: clamp(28px, 4vw, 42px);
+          font-weight: 300; font-style: italic; color: var(--text);
+          margin-bottom: 12px; text-align: center; position: relative; z-index: 1;
+        }
+        .lethe-demo-overlay-sub {
+          font-family: var(--mono); font-size: 13px; letter-spacing: .04em;
+          color: var(--dim); margin-bottom: 40px; text-align: center;
+          position: relative; z-index: 1;
+        }
+        .lethe-demo-overlay-form {
+          display: flex; max-width: 400px; width: 100%;
+          background: rgba(255,255,255,0.04);
+          border: 1px solid var(--border); border-radius: 40px;
+          overflow: hidden; padding: 5px;
+          position: relative; z-index: 1;
+        }
+        .lethe-demo-overlay-form input {
+          flex: 1; background: transparent; border: none; outline: none;
+          font-family: var(--mono); font-size: 13px; letter-spacing: .04em;
+          color: var(--text); padding: 12px 18px;
+        }
+        .lethe-demo-overlay-form input::placeholder { color: var(--ghost); }
+        .lethe-demo-overlay-form button {
+          font-family: var(--mono); font-size: 11px; letter-spacing: .3em;
+          text-transform: uppercase; color: #6B6B6B;
+          background: rgba(255,255,255,0.06); border: none;
+          border-radius: 32px; padding: 10px 22px; cursor: pointer;
+          transition: color .25s;
+        }
+        .lethe-demo-overlay-form button:hover { color: var(--ch); }
+        .lethe-demo-overlay-error {
+          margin-top: 14px; font-family: var(--mono); font-size: 12px;
+          letter-spacing: .04em; color: rgba(220, 80, 80, 0.7);
+          position: relative; z-index: 1;
+        }
+
         /* ── FOOTER ── */
         .lethe-footer {
           padding: 48px;
@@ -1151,6 +1226,12 @@ export default function LandingPage() {
             </video>
           </div>
         </div>
+        <button
+          className="lethe-view-demo-btn"
+          onClick={() => { setShowDemoOverlay(true); setDemoCode(""); setDemoError(false); }}
+        >
+          View full demo
+        </button>
       </section>
 
       {/* SEE IT */}
@@ -1558,6 +1639,53 @@ export default function LandingPage() {
           LinkedIn ↗
         </a>
       </footer>
+
+      {/* DEMO ACCESS OVERLAY */}
+      {showDemoOverlay && (
+        <div className="lethe-demo-overlay">
+          <div className="lethe-demo-overlay-glow" />
+          <button
+            className="lethe-demo-overlay-close"
+            onClick={() => setShowDemoOverlay(false)}
+            aria-label="Close"
+          >
+            ×
+          </button>
+          <div className="lethe-demo-overlay-logo">
+            <div style={{ width: 20, height: 20 }}>
+              <LetheLogo />
+            </div>
+            Lethe
+          </div>
+          <h2 className="lethe-demo-overlay-heading">This is a preview.</h2>
+          <p className="lethe-demo-overlay-sub">Enter the access code to continue.</p>
+          <form
+            className="lethe-demo-overlay-form"
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (demoCode.trim().toLowerCase() === "lethelive") {
+                setShowDemoOverlay(false);
+                navigate("/feed");
+              } else {
+                setDemoError(true);
+              }
+            }}
+          >
+            <input
+              type="text"
+              placeholder="Access code"
+              autoComplete="off"
+              autoFocus
+              value={demoCode}
+              onChange={(e) => { setDemoCode(e.target.value); setDemoError(false); }}
+            />
+            <button type="submit">Enter</button>
+          </form>
+          {demoError && (
+            <p className="lethe-demo-overlay-error">{"That's not it."}</p>
+          )}
+        </div>
+      )}
     </>
   );
 }
