@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, FormEvent } from "react";
 import { useNavigate } from "react-router";
+import { createPortal } from "react-dom";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ArrowRight } from "lucide-react";
@@ -1272,7 +1273,7 @@ export default function LandingPage() {
         >
           View full demo
         </button>
-        {showDemoOverlay && (
+        {showDemoOverlay && createPortal(
           <div style={{
             position: 'fixed',
             top: 0,
@@ -1329,7 +1330,8 @@ export default function LandingPage() {
               </form>
               <p className="lethe-demo-overlay-error">{demoCodeError ? "That's not it." : ""}</p>
             </div>
-          </div>
+          </div>,
+          document.body
         )}
       </section>
 
