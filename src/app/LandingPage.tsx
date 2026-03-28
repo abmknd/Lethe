@@ -1294,11 +1294,17 @@ export default function LandingPage() {
                 position: 'absolute',
                 top: '24px',
                 right: '32px',
-                background: 'none',
-                border: 'none',
-                color: 'rgba(255,255,255,0.5)',
-                fontSize: '24px',
+                width: '48px',
+                height: '48px',
+                borderRadius: '50%',
+                background: 'transparent',
+                border: '1.5px solid #ADFF2F',
+                color: '#ADFF2F',
+                fontSize: '20px',
                 cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
               }}
             >×</button>
             <div className="lethe-demo-overlay-inner">
