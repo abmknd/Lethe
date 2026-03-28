@@ -1273,14 +1273,33 @@ export default function LandingPage() {
           View full demo
         </button>
         {showDemoOverlay && (
-          <div style={{ position: 'fixed', inset: 0, top: 0, left: 0, right: 0, bottom: 0, width: '100vw', height: '100vh', background: '#0a0a0a', zIndex: 99999, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-            <div className="lethe-demo-overlay-glow" />
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            backgroundColor: '#0a0a0a',
+            zIndex: 99999,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            overflow: 'hidden',
+          }}>
             <button
               onClick={() => { setShowDemoOverlay(false); window.scrollTo(0, 0); }}
-              style={{ position: 'absolute', top: '24px', right: '32px', background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', fontSize: '24px', cursor: 'pointer' }}
-            >
-              ×
-            </button>
+              style={{
+                position: 'absolute',
+                top: '24px',
+                right: '32px',
+                background: 'none',
+                border: 'none',
+                color: 'rgba(255,255,255,0.5)',
+                fontSize: '24px',
+                cursor: 'pointer',
+              }}
+            >×</button>
             <div className="lethe-demo-overlay-inner">
               <h2 className="lethe-demo-overlay-h">Restricted to Admin.</h2>
               <p className="lethe-demo-overlay-sub">Enter the access code to continue.</p>
