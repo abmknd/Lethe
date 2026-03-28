@@ -511,14 +511,14 @@ export default function LandingPage() {
         #lethe-cur-dot {
           position: fixed; width: 5px; height: 5px;
           background: rgba(173,255,47,0.85); border-radius: 50%;
-          pointer-events: none; z-index: 9999;
+          pointer-events: none; z-index: 100001;
           transform: translate(-50%,-50%);
           mix-blend-mode: screen; transition: width .22s, height .22s;
         }
         #lethe-cur-ring {
           position: fixed; width: 32px; height: 32px;
           border: 1px solid rgba(173,255,47,0.2); border-radius: 50%;
-          pointer-events: none; z-index: 9998;
+          pointer-events: none; z-index: 100000;
           transform: translate(-50%,-50%);
           transition: width .3s, height .3s, border-color .3s;
         }
@@ -1287,6 +1287,7 @@ export default function LandingPage() {
             alignItems: 'center',
             justifyContent: 'center',
             overflow: 'hidden',
+            cursor: 'none',
           }}>
             <button
               onClick={() => { setShowDemoOverlay(false); window.scrollTo(0, 0); }}
