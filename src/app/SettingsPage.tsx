@@ -270,7 +270,18 @@ export default function SettingsPage() {
     const handleClick = () => setShowTimePicker(null);
     if (showTimePicker) {
       document.addEventListener('click', handleClick);
-      return () => document.removeEventListener('click', handleClick);
+      // CEP state
+  const [isPaidUser, setIsPaidUser] = useState(false);
+  const [cepMessages, setCepMessages] = useState<{role: 'ai' | 'user', text: string}[]>([
+    { role: 'ai', text: "Tell me about the kinds of people you'd like to meet. If you're not sure, type /guide me and I'll walk you through it." }
+  ]);
+  const [cepInput, setCepInput] = useState('');
+  const [cepDone, setCepDone] = useState(false);
+  const [cepPills, setCepPills] = useState<string[]>([]);
+  const [weeklyNudge] = useState('What are you focused on this week?');
+  const [nudgeAnswered, setNudgeAnswered] = useState(false);
+
+  return () => document.removeEventListener('click', handleClick);
     }
   }, [showTimePicker]);
 
@@ -706,6 +717,118 @@ export default function SettingsPage() {
                     Help Lethe understand what you're looking for. This is never shared publicly.
                   </p>
                 </div>
+
+                {/* CEP Block */}
+                <div className="px-7 py-[22px] border-b border-white/[0.07]">
+                  <div className="flex items-start justify-between mb-[6px]">
+                    <div>
+                      <div className="text-[13px] font-medium text-white/88">Chat with Lethe AI</div>
+                      <div className="text-[12px] font-light text-white/[0.25] mt-[2px]">Fine-tune your matches</div>
+                    </div>
+                    {isPaidUser && cepPills.length > 0 && (
+                      <button className="text-[11px] font-medium tracking-[0.1em] uppercase text-[#7FFF00]/60 hover:text-[#7FFF00] transition-colors">
+                        Your matching preferences &rarr;
+                      </button>
+                    )}
+                  </div>
+
+                  {!isPaidUser ? (
+                    <div className="mt-3 rounded-xl bg-[#7FFF00]/[0.04] border border-[#7FFF00]/[0.12] px-5 py-4 flex items-start gap-4">
+                      <div className="flex-1">
+                        <div className="text-[13px] font-medium text-white/88 mb-[6px]">Unlock hyper-personalised matching</div>
+                        <ul className="space-y-[5px]">
+                          {['Chat with Lethe AI to fine-tune who you meet', 'Access all signals driving your match decisions', 'Get matched within your network and goals'].map((benefit, i) => (
+                            <li key={i} className="flex items-center gap-2 text-[12px] font-light text-white/[0.25]">
+                              <div className="w-[3px] h-[3px] rounded-full bg-[#7FFF00]/40 flex-shrink-0" />
+                              {benefit}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      <button
+                        onClick={() => setIsPaidUser(true)}
+                        className="flex-shrink-0 px-4 py-2 rounded-lg bg-[#7FFF00]/[0.08] border border-[#7FFF00]/20 text-[12px] font-semibold tracking-[0.08em] uppercase text-[#7FFF00]/80 hover:bg-[#7FFF00]/[0.14] hover:text-[#7FFF00] transition-all whitespace-nowrap"
+                      >
+                        Go premium
+                      </button>
+                    </div>
+                  ) : cepDone ? (
+                    <div className="mt-3">
+                      <div className="flex flex-wrap gap-[6px] mb-3">
+                        {cepPills.map((pill, i) => (
+                          <div key={i} className="flex items-center gap-[5px] px-[10px] py-1 rounded-full bg-[#7FFF00]/[0.08] border border-[#7FFF00]/20 text-[12px] text-[#7FFF00]/70">
+                            {pill}
+                          </div>
+                        ))}
+                      </div>
+                      <div className="text-[12px] font-light text-white/[0.25] italic">Come back tomorrow to fine-tune further.</div>
+                    </div>
+                  ) : (
+                    <div className="mt-3 rounded-xl bg-black border border-white/[0.07] overflow-hidden">
+                      {!nudgeAnswered && (
+                        <div className="px-4 py-3 border-b border-white/[0.07] flex items-center justify-between gap-3">
+                          <span className="text-[12px] font-light text-white/52 italic">{weeklyNudge}</span>
+                          <div className="flex gap-2">
+                            {['Building a product', 'Seeking collaborators', 'Exploring new ideas'].map((opt, i) => (
+                              <button
+                                key={i}
+                                onClick={() => setNudgeAnswered(true)}
+                                className="px-3 py-1 rounded-full bg-white/[0.07] border border-white/[0.12] text-[11px] text-white/52 hover:border-[#7FFF00]/30 hover:text-white/88 transition-all"
+                              >
+                                {opt}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      <div className="px-4 py-3 max-h-[200px] overflow-y-auto flex flex-col gap-3" style={{ scrollbarWidth: 'none' }}>
+                        {cepMessages.map((msg, i) => (
+                          <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                            <div className={`max-w-[80%] px-3 py-2 rounded-xl text-[12px] font-light leading-[1.6] ${
+                              msg.role === 'ai'
+                                ? 'bg-white/[0.05] text-white/70 rounded-tl-none'
+                                : 'bg-[#7FFF00]/[0.08] border border-[#7FFF00]/20 text-white/88 rounded-tr-none'
+                            }`}>
+                              {msg.text}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="px-4 py-3 border-t border-white/[0.07] flex items-center gap-2">
+                        <input
+                          type="text"
+                          value={cepInput}
+                          onChange={(e) => setCepInput(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' && cepInput.trim()) {
+                              setCepMessages(prev => [...prev, { role: 'user', text: cepInput.trim() }]);
+                              setCepInput('');
+                              setTimeout(() => {
+                                setCepMessages(prev => [...prev, { role: 'ai', text: "Got it. I've updated your matching preferences." }]);
+                                setCepPills(['Builders & founders', 'AI & systems thinking', 'Open to mentorship', 'Remote-first']);
+                                setCepDone(true);
+                              }, 800);
+                            }
+                          }}
+                          placeholder="Type your answer or /guide me..."
+                          className="flex-1 bg-transparent border-none outline-none text-[12px] font-light text-white/88 placeholder:text-white/[0.25]"
+                        />
+                        <button
+                          onClick={() => {
+                            if (cepInput.trim()) {
+                              setCepMessages(prev => [...prev, { role: 'user', text: cepInput.trim() }]);
+                              setCepInput('');
+                            }
+                          }}
+                          className="text-[#7FFF00]/40 hover:text-[#7FFF00] transition-colors text-[18px] leading-none"
+                        >
+                          ↑
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
 
                 <div className="px-7 py-[22px] border-b border-white/[0.07]">
                   <label className="block text-[12px] font-semibold tracking-[0.18em] uppercase text-white/[0.25] mb-[7px]">
