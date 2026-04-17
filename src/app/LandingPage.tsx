@@ -43,7 +43,7 @@ export default function LandingPage() {
     e.preventDefault();
     if (!email1) return;
     setIsSubmitting1(true);
-    const fd = new FormData();
+    const fd = new URLSearchParams();
     fd.append("EMAIL", email1);
     fd.append("b_c4d6d5b0d24bc275d3ce10296_e6473f0143", "");
     try {
@@ -58,7 +58,7 @@ export default function LandingPage() {
     e.preventDefault();
     if (!email2) return;
     setIsSubmitting2(true);
-    const fd = new FormData();
+    const fd = new URLSearchParams();
     fd.append("EMAIL", email2);
     fd.append("b_c4d6d5b0d24bc275d3ce10296_e6473f0143", "");
     try {
