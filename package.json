@@ -4,6 +4,11 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
+    "dev": "vite",
+    "trial:api": "node scripts/trial-api-server.mjs",
+    "trial:init": "node scripts/init-trial-data.mjs",
+    "trial:init:reset": "node scripts/init-trial-data.mjs --reset",
+    "trial:run-weekly": "node scripts/run-weekly-matching.mjs",
     "build": "vite build"
   },
   "dependencies": {

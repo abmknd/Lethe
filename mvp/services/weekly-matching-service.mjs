@@ -1,0 +1,91 @@
+import { randomUUID } from 'node:crypto';
+import { EVENT_TYPES } from '../domain/events.mjs';
+import { RECOMMENDATION_STATUSES, nowIso } from '../domain/models.mjs';
+
+export class WeeklyMatchingService {
+  constructor({ repository, matcher }) {
+    this.repository = repository;
+    this.matcher = matcher;
+  }
+
+  runWeeklyMatching({ maxRecommendationsPerUser = 5 } = {}) {
+    const runId = `run_${randomUUID()}`;
+    const startedAt = nowIso();
+
+    this.repository.createRecommendationRun({
+      id: runId,
+      runType: 'weekly',
+      status: 'running',
+      startedAt,
+    });
+
+    try {
+      const profiles = this.repository.listUsersForMatching();
+      const pairHistory = this.repository.listPairHistory({ sinceDays: 90 });
+      const candidateMap = this.matcher.matchUsers(profiles, pairHistory);
+
+      const recommendations = [];
+      for (const [userId, recs] of candidateMap.entries()) {
+        for (const recommendation of recs.slice(0, maxRecommendationsPerUser)) {
+          recommendations.push({
+            id: `rec_${randomUUID()}`,
+            userId,
+            candidateUserId: recommendation.candidateUserId,
+            rank: recommendation.rank,
+            score: recommendation.score,
+            status: RECOMMENDATION_STATUSES.PENDING_REVIEW,
+            whyMatched: recommendation.whyMatched,
+          });
+        }
+      }
+
+      this.repository.replacePendingRecommendationsForRun(runId, recommendations);
+
+      this.repository.appendEvents(
+        recommendations.map((recommendation) => ({
+          id: `evt_${randomUUID()}`,
+          eventType: EVENT_TYPES.RECOMMENDATION_GENERATED,
+          actorUserId: null,
+          targetUserId: recommendation.userId,
+          recommendationId: recommendation.id,
+          runId,
+          payload: {
+            candidateUserId: recommendation.candidateUserId,
+            score: recommendation.score,
+            rank: recommendation.rank,
+            whyMatched: recommendation.whyMatched,
+          },
+          createdAt: nowIso(),
+        })),
+      );
+
+      const summary = {
+        usersEvaluated: profiles.length,
+        recommendationsGenerated: recommendations.length,
+        maxRecommendationsPerUser,
+      };
+
+      this.repository.completeRecommendationRun(runId, {
+        status: 'completed',
+        completedAt: nowIso(),
+        summary,
+      });
+
+      return {
+        runId,
+        startedAt,
+        completedAt: nowIso(),
+        summary,
+      };
+    } catch (error) {
+      this.repository.completeRecommendationRun(runId, {
+        status: 'failed',
+        completedAt: nowIso(),
+        summary: {
+          error: error instanceof Error ? error.message : 'Unknown error',
+        },
+      });
+      throw error;
+    }
+  }
+}
