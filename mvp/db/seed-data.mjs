@@ -12,6 +12,9 @@ export const SEEDED_USERS = [
     },
     preferences: {
       matchIntent: ['brainstorming', 'collaboration', 'career advice'],
+      offers: ['design feedback', 'product thinking', 'ux critique'],
+      asks: ['investor intros', 'go-to-market advice', 'founder mentoring'],
+      preferredUserTypes: ['operator', 'investor', 'founder'],
       interests: ['design ethics', 'ai product design', 'systems thinking', 'effective altruism'],
       introText:
         'Product designer exploring AI and human communication. Looking for thoughtful builders and research-minded operators.',
@@ -39,6 +42,9 @@ export const SEEDED_USERS = [
     },
     preferences: {
       matchIntent: ['collaboration', 'mentorship', 'brainstorming'],
+      offers: ['design systems mentorship', 'hiring advice', 'portfolio reviews'],
+      asks: ['startup operators', 'b2b founder peers', 'distribution help'],
+      preferredUserTypes: ['founder', 'operator', 'researcher'],
       interests: ['design ethics', 'systems thinking', 'architecture', 'ai product design'],
       introText:
         'Independent product designer focused on ethical design frameworks for emerging technology.',
@@ -66,6 +72,9 @@ export const SEEDED_USERS = [
     },
     preferences: {
       matchIntent: ['business development', 'brainstorming', 'collaboration'],
+      offers: ['investor intros', 'partnership strategy', 'africa market insight'],
+      asks: ['product design support', 'ux research help', 'design leadership coaching'],
+      preferredUserTypes: ['designer', 'operator', 'researcher'],
       interests: ['b2b saas', 'african tech ecosystem', 'calm companies', 'product design'],
       introText: 'SaaS founder building for African businesses and looking for design-thinking collaborators.',
       meetingFormat: 'video',
@@ -92,6 +101,9 @@ export const SEEDED_USERS = [
     },
     preferences: {
       matchIntent: ['research exchange', 'collaboration', 'brainstorming'],
+      offers: ['research methods', 'experiment design', 'memory studies insight'],
+      asks: ['startup data access', 'product collaboration', 'operator context'],
+      preferredUserTypes: ['founder', 'operator', 'designer'],
       interests: ['ai research', 'cognitive science', 'memory studies', 'ethics'],
       introText: 'Research scientist studying memory and decision-making in AI-mediated environments.',
       meetingFormat: 'video',
@@ -118,6 +130,9 @@ export const SEEDED_USERS = [
     },
     preferences: {
       matchIntent: ['brainstorming', 'knowledge sharing', 'research exchange'],
+      offers: ['ux research', 'community building', 'open-source tooling'],
+      asks: ['creative technologists', 'design collaborators', 'research partners'],
+      preferredUserTypes: ['designer', 'researcher', 'engineer'],
       interests: ['ux research', 'complexity theory', 'design systems', 'open source'],
       introText: 'UX researcher curious about complex systems and where design meets research.',
       meetingFormat: 'voice',
@@ -144,6 +159,9 @@ export const SEEDED_USERS = [
     },
     preferences: {
       matchIntent: ['collaboration', 'brainstorming', 'mentorship'],
+      offers: ['climate operations insight', 'founder mentorship', 'partnership intros'],
+      asks: ['design systems support', 'research rigor', 'fundraising intros'],
+      preferredUserTypes: ['designer', 'researcher', 'investor'],
       interests: ['climate tech', 'infrastructure', 'thoughtful design', 'long-form reading'],
       introText: 'Climate tech founder building resilience infrastructure and seeking design-heavy thinkers.',
       meetingFormat: 'video',
@@ -170,6 +188,9 @@ export const SEEDED_USERS = [
     },
     preferences: {
       matchIntent: ['mentorship', 'career advice', 'collaboration'],
+      offers: ['career mentorship', 'leadership coaching', 'operator hiring intros'],
+      asks: ['research collaboration', 'ai product peers', 'climate founders'],
+      preferredUserTypes: ['researcher', 'founder', 'operator'],
       interests: ['design leadership', 'design systems', 'mentoring', 'team building'],
       introText: 'Design leader mentoring one builder this quarter and focused on long-term team quality.',
       meetingFormat: 'video',
@@ -196,6 +217,9 @@ export const SEEDED_USERS = [
     },
     preferences: {
       matchIntent: ['collaboration', 'brainstorming', 'knowledge sharing'],
+      offers: ['creative coding support', 'prototype feedback', 'maker community intros'],
+      asks: ['product strategy mentors', 'distribution operators', 'founder peers'],
+      preferredUserTypes: ['founder', 'operator', 'designer'],
       interests: ['creative coding', 'generative art', 'tools for creators', 'design systems'],
       introText: 'Creative technologist building generative tools for artists and searching for design collaborators.',
       meetingFormat: 'voice',

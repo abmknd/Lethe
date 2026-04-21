@@ -1,5 +1,3 @@
-import { hasHourOverlap } from '../domain/models.mjs';
-
 function normalizeToken(value) {
   return String(value).trim().toLowerCase();
 }
@@ -54,17 +52,90 @@ function getCountry(location) {
   return chunks.length ? chunks[chunks.length - 1].toLowerCase() : '';
 }
 
-function availabilityOverlap(slotsA, slotsB) {
+function segmentOverlapHours(startA, endA, startB, endB) {
+  return Math.max(0, Math.min(endA, endB) - Math.max(startA, startB));
+}
+
+function getTimezoneOffsetHours(timezone) {
+  try {
+    const now = new Date();
+    const formatter = new Intl.DateTimeFormat('en-US', {
+      timeZone: timezone,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,
+    });
+    const parts = formatter.formatToParts(now);
+    const map = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+    const asUtc = Date.UTC(
+      Number(map.year),
+      Number(map.month) - 1,
+      Number(map.day),
+      Number(map.hour),
+      Number(map.minute),
+      Number(map.second),
+    );
+    return (asUtc - now.getTime()) / 3_600_000;
+  } catch {
+    return 0;
+  }
+}
+
+function normalizeWeeklyRange(start, end) {
+  const weekHours = 24 * 7;
+  let normalizedStart = start;
+  let normalizedEnd = end;
+
+  while (normalizedStart < 0) {
+    normalizedStart += weekHours;
+    normalizedEnd += weekHours;
+  }
+  while (normalizedStart >= weekHours) {
+    normalizedStart -= weekHours;
+    normalizedEnd -= weekHours;
+  }
+
+  if (normalizedEnd <= weekHours) {
+    return [[normalizedStart, normalizedEnd]];
+  }
+
+  return [
+    [normalizedStart, weekHours],
+    [0, normalizedEnd - weekHours],
+  ];
+}
+
+function toUtcSegments(slot, fallbackTimezone) {
+  const timezone = slot.timezone || fallbackTimezone || 'UTC';
+  const offsetHours = getTimezoneOffsetHours(timezone);
+  const start = slot.dayOfWeek * 24 + slot.startHour - offsetHours;
+  const end = slot.dayOfWeek * 24 + slot.endHour - offsetHours;
+  return normalizeWeeklyRange(start, end);
+}
+
+function availabilityOverlap(slotsA, slotsB, timezoneA = 'UTC', timezoneB = 'UTC') {
   let overlapHours = 0;
   let overlapSegments = 0;
 
   for (const slotA of slotsA) {
     for (const slotB of slotsB) {
-      if (!hasHourOverlap(slotA, slotB)) {
-        continue;
+      const segmentsA = toUtcSegments(slotA, timezoneA);
+      const segmentsB = toUtcSegments(slotB, timezoneB);
+
+      for (const [startA, endA] of segmentsA) {
+        for (const [startB, endB] of segmentsB) {
+          const overlap = segmentOverlapHours(startA, endA, startB, endB);
+          if (overlap <= 0) {
+            continue;
+          }
+          overlapSegments += 1;
+          overlapHours += overlap;
+        }
       }
-      overlapSegments += 1;
-      overlapHours += Math.max(0, Math.min(slotA.endHour, slotB.endHour) - Math.max(slotA.startHour, slotB.startHour));
     }
   }
 
@@ -130,14 +201,22 @@ export function createDeterministicMatcher({ topN = 5, recentIntroDays = 45 } = 
             continue;
           }
 
-          const overlap = availabilityOverlap(profile.availability, candidate.availability);
+          const overlap = availabilityOverlap(
+            profile.availability,
+            candidate.availability,
+            profile.user.timezone,
+            candidate.user.timezone,
+          );
           if (!overlap.hasOverlap) {
             continue;
           }
 
           const intentRatio = overlapRatio(profile.preferences.matchIntent, candidate.preferences.matchIntent);
           const interestRatio = overlapRatio(profile.preferences.interests, candidate.preferences.interests);
-          if (intentRatio === 0 && interestRatio < 0.15) {
+          const complementarityRatio = overlapRatio(profile.preferences.asks, candidate.preferences.offers);
+          const reciprocalComplementarity = overlapRatio(candidate.preferences.asks, profile.preferences.offers);
+          const roleFitRatio = overlapRatio(profile.preferences.preferredUserTypes, candidate.preferences.preferredUserTypes);
+          if (intentRatio === 0 && interestRatio < 0.15 && complementarityRatio === 0) {
             continue;
           }
 
@@ -152,21 +231,16 @@ export function createDeterministicMatcher({ topN = 5, recentIntroDays = 45 } = 
           }
 
           const introScore = jaccardScore(toTokenSet(profile.preferences.introText), toTokenSet(candidate.preferences.introText));
-          const timezoneScore =
-            profile.user.timezone === candidate.user.timezone
-              ? 1
-              : profile.user.timezone.split('/')[0] === candidate.user.timezone.split('/')[0]
-                ? 0.65
-                : 0.35;
           const availabilityScore = Math.min(1, overlap.overlapHours / 3);
           const historicalPenalty = Math.min(20, historyRows.length * 4);
 
           const baseScore =
-            intentRatio * 0.3 +
-            interestRatio * 0.3 +
-            introScore * 0.2 +
-            availabilityScore * 0.15 +
-            timezoneScore * 0.05;
+            complementarityRatio * 0.3 +
+            roleFitRatio * 0.15 +
+            intentRatio * 0.2 +
+            interestRatio * 0.15 +
+            introScore * 0.1 +
+            availabilityScore * 0.1;
 
           const score = Math.max(0, Math.round(baseScore * 100 - historicalPenalty));
 
@@ -175,9 +249,12 @@ export function createDeterministicMatcher({ topN = 5, recentIntroDays = 45 } = 
             candidateLocationCountry: getCountry(candidate.user.location),
             score,
             whyMatched: [
+              `Ask-offer fit ${(complementarityRatio * 100).toFixed(0)}%`,
+              `Mutual ask-offer bonus ${(reciprocalComplementarity * 100).toFixed(0)}%`,
+              `Role/domain fit ${(roleFitRatio * 100).toFixed(0)}%`,
               `Intent overlap ${(intentRatio * 100).toFixed(0)}%`,
               `Interest overlap ${(interestRatio * 100).toFixed(0)}%`,
-              `Availability overlap ${overlap.overlapHours}h this week`,
+              `Availability overlap ${overlap.overlapHours.toFixed(1)}h (timezone-normalized)`,
               `Intro similarity ${(introScore * 100).toFixed(0)}%`,
             ],
           });

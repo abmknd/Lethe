@@ -19,6 +19,8 @@ CREATE TABLE IF NOT EXISTS preferences (
   id TEXT PRIMARY KEY,
   user_id TEXT NOT NULL UNIQUE,
   match_intent TEXT NOT NULL,
+  offers TEXT NOT NULL DEFAULT '[]',
+  asks TEXT NOT NULL DEFAULT '[]',
   preferred_locations TEXT NOT NULL,
   preferred_user_types TEXT NOT NULL,
   interests TEXT NOT NULL,

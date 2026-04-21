@@ -23,6 +23,8 @@ export function seedTrialData(repository) {
         ...seed,
         preferences: {
           ...seed.preferences,
+          offers: seed.preferences.offers ?? [],
+          asks: seed.preferences.asks ?? [],
           preferredLocations: seed.preferences.preferredLocations ?? [seed.user.location],
           preferredUserTypes: seed.preferences.preferredUserTypes ?? ['builder', 'operator', 'researcher'],
           objectives: seed.preferences.objectives ?? seed.preferences.matchIntent ?? [],
@@ -68,6 +70,15 @@ function validateSeedDataset(seeds) {
     }
     if (!seed.preferences?.interests?.length) {
       throw new Error(`Seed user ${seed.user.id} is missing interests.`);
+    }
+    if (!seed.preferences?.offers?.length) {
+      throw new Error(`Seed user ${seed.user.id} is missing offers.`);
+    }
+    if (!seed.preferences?.asks?.length) {
+      throw new Error(`Seed user ${seed.user.id} is missing asks.`);
+    }
+    if (!seed.preferences?.preferredUserTypes?.length) {
+      throw new Error(`Seed user ${seed.user.id} is missing preferredUserTypes.`);
     }
     if (!seed.availability?.length) {
       throw new Error(`Seed user ${seed.user.id} is missing availability slots.`);

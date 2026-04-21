@@ -90,6 +90,8 @@ export function normalizePreferences(input = {}) {
 
   return {
     matchIntent: normalizeMatchIntent(input.matchIntent),
+    offers: normalizeStringList(input.offers),
+    asks: normalizeStringList(input.asks),
     preferredLocations,
     preferredUserTypes,
     interests: normalizeStringList(input.interests),

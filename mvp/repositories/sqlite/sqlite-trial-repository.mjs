@@ -179,7 +179,7 @@ export class SqliteTrialRepository extends UserRepository {
     const row = this.db
       .prepare(
         `
-        SELECT id, user_id, match_intent, preferred_locations, preferred_user_types, interests, objectives,
+        SELECT id, user_id, match_intent, offers, asks, preferred_locations, preferred_user_types, interests, objectives,
                intro_text, meeting_format, local_only, blocked_user_ids, created_at, updated_at
         FROM preferences
         WHERE user_id = :userId
@@ -195,6 +195,8 @@ export class SqliteTrialRepository extends UserRepository {
       id: row.id,
       userId: row.user_id,
       matchIntent: parseJson(row.match_intent, []),
+      offers: parseJson(row.offers, []),
+      asks: parseJson(row.asks, []),
       preferredLocations: parseJson(row.preferred_locations, []),
       preferredUserTypes: parseJson(row.preferred_user_types, []),
       interests: parseJson(row.interests, []),
@@ -219,6 +221,8 @@ export class SqliteTrialRepository extends UserRepository {
           id,
           user_id,
           match_intent,
+          offers,
+          asks,
           preferred_locations,
           preferred_user_types,
           interests,
@@ -234,6 +238,8 @@ export class SqliteTrialRepository extends UserRepository {
           :id,
           :userId,
           :matchIntent,
+          :offers,
+          :asks,
           :preferredLocations,
           :preferredUserTypes,
           :interests,
@@ -247,6 +253,8 @@ export class SqliteTrialRepository extends UserRepository {
         )
         ON CONFLICT(user_id) DO UPDATE SET
           match_intent = excluded.match_intent,
+          offers = excluded.offers,
+          asks = excluded.asks,
           preferred_locations = excluded.preferred_locations,
           preferred_user_types = excluded.preferred_user_types,
           interests = excluded.interests,
@@ -262,6 +270,8 @@ export class SqliteTrialRepository extends UserRepository {
         id,
         userId: preferences.userId,
         matchIntent: JSON.stringify(preferences.matchIntent ?? []),
+        offers: JSON.stringify(preferences.offers ?? []),
+        asks: JSON.stringify(preferences.asks ?? []),
         preferredLocations: JSON.stringify(preferences.preferredLocations ?? []),
         preferredUserTypes: JSON.stringify(preferences.preferredUserTypes ?? []),
         interests: JSON.stringify(preferences.interests ?? []),
@@ -346,6 +356,8 @@ export class SqliteTrialRepository extends UserRepository {
     const preferences = this.getPreferencesByUserId(userId) ?? {
       userId,
       matchIntent: [],
+      offers: [],
+      asks: [],
       preferredLocations: [],
       preferredUserTypes: [],
       interests: [],
@@ -373,6 +385,8 @@ export class SqliteTrialRepository extends UserRepository {
       },
       preferences: {
         matchIntent: preferences.matchIntent,
+        offers: preferences.offers,
+        asks: preferences.asks,
         preferredLocations: preferences.preferredLocations,
         preferredUserTypes: preferences.preferredUserTypes,
         interests: preferences.interests,
@@ -405,6 +419,8 @@ export class SqliteTrialRepository extends UserRepository {
       this.upsertPreferences({
         userId: user.id,
         matchIntent: preferences.matchIntent,
+        offers: preferences.offers,
+        asks: preferences.asks,
         preferredLocations: preferences.preferredLocations,
         preferredUserTypes: preferences.preferredUserTypes,
         interests: preferences.interests,
