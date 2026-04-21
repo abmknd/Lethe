@@ -183,13 +183,23 @@ export default function TrialConnectPage() {
 
           {recommendations.length === 0 && (
             <p className="text-sm text-white/60">
-              No recommendations yet. Run weekly matcher after seeding users and saving onboarding data.
+              No recommendations yet. Demo path: save onboarding data for at least one user {'->'} run weekly matcher {'->'} review in Admin.
             </p>
           )}
         </div>
       </section>
 
-      {message && <p className="text-sm text-white/75">{message}</p>}
+      {message && (
+        <p
+          className={`text-sm px-3 py-2 rounded border ${
+            message.toLowerCase().includes('failed')
+              ? 'text-[#ffc5c5] border-[#ff6b6b]/35 bg-[#ff6b6b]/10'
+              : 'text-[#9fe4ff] border-[#4dc7ff]/30 bg-[#4dc7ff]/10'
+          }`}
+        >
+          {message}
+        </p>
+      )}
     </div>
   );
 }

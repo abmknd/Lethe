@@ -23,7 +23,12 @@ function emptyProfile(userId: string): TrialUserProfile {
     },
     preferences: {
       matchIntent: [],
+      offers: [],
+      asks: [],
+      preferredLocations: [],
+      preferredUserTypes: [],
       interests: [],
+      objectives: [],
       introText: '',
       meetingFormat: 'video',
       localOnly: false,
@@ -34,11 +39,75 @@ function emptyProfile(userId: string): TrialUserProfile {
   };
 }
 
+function normalizeProfileForUi(profile: TrialUserProfile): TrialUserProfile {
+  return {
+    ...profile,
+    preferences: {
+      ...profile.preferences,
+      matchIntent: profile.preferences.matchIntent ?? [],
+      offers: profile.preferences.offers ?? [],
+      asks: profile.preferences.asks ?? [],
+      preferredLocations: profile.preferences.preferredLocations ?? [],
+      preferredUserTypes: profile.preferences.preferredUserTypes ?? [],
+      interests: profile.preferences.interests ?? [],
+      objectives: profile.preferences.objectives ?? [],
+      blockedUserIds: profile.preferences.blockedUserIds ?? [],
+    },
+    availability: profile.availability ?? [],
+  };
+}
+
 function parseCsv(value: string) {
   return value
     .split(',')
     .map((item) => item.trim())
     .filter(Boolean);
+}
+
+function validateProfile(profile: TrialUserProfile) {
+  if (!profile.user.displayName.trim()) {
+    return 'Display name is required.';
+  }
+  if (!profile.user.timezone.trim()) {
+    return 'Timezone is required.';
+  }
+  if (!profile.user.location.trim()) {
+    return 'Location is required.';
+  }
+  if (!profile.preferences.matchIntent.length) {
+    return 'At least one match intent is required.';
+  }
+  if (!profile.preferences.offers.length) {
+    return 'Add at least one offer (what you can provide).';
+  }
+  if (!profile.preferences.asks.length) {
+    return 'Add at least one ask (what you need).';
+  }
+  if (!(profile.preferences.preferredUserTypes ?? []).length) {
+    return 'Add at least one preferred user type (meet_who).';
+  }
+  if (!profile.preferences.interests.length) {
+    return 'Add at least one interest.';
+  }
+  if (!profile.availability.length) {
+    return 'Add at least one availability slot.';
+  }
+  for (const slot of profile.availability) {
+    if (!Number.isInteger(slot.dayOfWeek) || slot.dayOfWeek < 0 || slot.dayOfWeek > 6) {
+      return 'Availability day must be between 0 and 6.';
+    }
+    if (!Number.isInteger(slot.startHour) || !Number.isInteger(slot.endHour)) {
+      return 'Availability start/end must be whole hours.';
+    }
+    if (slot.startHour < 0 || slot.startHour > 23 || slot.endHour < 1 || slot.endHour > 24) {
+      return 'Availability hours must be within 0-24.';
+    }
+    if (slot.endHour <= slot.startHour) {
+      return 'Availability end hour must be after start hour.';
+    }
+  }
+
+  return null;
 }
 
 export default function TrialOnboardingPage() {
@@ -69,16 +138,21 @@ export default function TrialOnboardingPage() {
 
     getTrialUserProfile(selectedUserId)
       .then((nextProfile) => {
-        setProfile(nextProfile);
+        setProfile(normalizeProfileForUi(nextProfile));
       })
       .catch(() => {
         setProfile(emptyProfile(selectedUserId));
       });
   }, [selectedUserId]);
 
-  const intentCsv = useMemo(() => profile?.preferences.matchIntent.join(', ') ?? '', [profile]);
-  const interestsCsv = useMemo(() => profile?.preferences.interests.join(', ') ?? '', [profile]);
-  const blockedCsv = useMemo(() => profile?.preferences.blockedUserIds.join(', ') ?? '', [profile]);
+  const intentCsv = useMemo(() => (profile?.preferences.matchIntent ?? []).join(', '), [profile]);
+  const offersCsv = useMemo(() => (profile?.preferences.offers ?? []).join(', '), [profile]);
+  const asksCsv = useMemo(() => (profile?.preferences.asks ?? []).join(', '), [profile]);
+  const preferredLocationsCsv = useMemo(() => (profile?.preferences.preferredLocations ?? []).join(', '), [profile]);
+  const preferredUserTypesCsv = useMemo(() => (profile?.preferences.preferredUserTypes ?? []).join(', '), [profile]);
+  const interestsCsv = useMemo(() => (profile?.preferences.interests ?? []).join(', '), [profile]);
+  const objectivesCsv = useMemo(() => (profile?.preferences.objectives ?? []).join(', '), [profile]);
+  const blockedCsv = useMemo(() => (profile?.preferences.blockedUserIds ?? []).join(', '), [profile]);
 
   function updateProfile(mutator: (current: TrialUserProfile) => TrialUserProfile) {
     setProfile((current) => {
@@ -97,7 +171,13 @@ export default function TrialOnboardingPage() {
 
     updateProfile((current) => ({
       ...current,
-      availability: [...current.availability, newSlot],
+      availability: [
+        ...current.availability,
+        {
+          ...newSlot,
+          timezone: current.user.timezone || 'UTC',
+        },
+      ],
     }));
     setMessage('');
   }
@@ -109,9 +189,16 @@ export default function TrialOnboardingPage() {
 
     setIsSaving(true);
     setMessage('');
+    const validationError = validateProfile(profile);
+    if (validationError) {
+      setMessage(validationError);
+      setIsSaving(false);
+      return;
+    }
+
     try {
       const saved = await saveTrialUserProfile(profile.user.id, profile);
-      setProfile(saved);
+      setProfile(normalizeProfileForUi(saved));
       setMessage('Onboarding/settings data saved to SQLite.');
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'Failed to save profile');
@@ -241,6 +328,54 @@ export default function TrialOnboardingPage() {
               />
             </label>
             <label className="text-sm text-white/70">
+              Offers (comma-separated)
+              <input
+                className="mt-1 w-full bg-black/30 border border-white/15 rounded px-3 py-2"
+                value={offersCsv}
+                onChange={(event) =>
+                  updateProfile((current) => ({
+                    ...current,
+                    preferences: {
+                      ...current.preferences,
+                      offers: parseCsv(event.target.value),
+                    },
+                  }))
+                }
+              />
+            </label>
+            <label className="text-sm text-white/70">
+              Asks (comma-separated)
+              <input
+                className="mt-1 w-full bg-black/30 border border-white/15 rounded px-3 py-2"
+                value={asksCsv}
+                onChange={(event) =>
+                  updateProfile((current) => ({
+                    ...current,
+                    preferences: {
+                      ...current.preferences,
+                      asks: parseCsv(event.target.value),
+                    },
+                  }))
+                }
+              />
+            </label>
+            <label className="text-sm text-white/70">
+              Preferred user types / meet_who (comma-separated)
+              <input
+                className="mt-1 w-full bg-black/30 border border-white/15 rounded px-3 py-2"
+                value={preferredUserTypesCsv}
+                onChange={(event) =>
+                  updateProfile((current) => ({
+                    ...current,
+                    preferences: {
+                      ...current.preferences,
+                      preferredUserTypes: parseCsv(event.target.value),
+                    },
+                  }))
+                }
+              />
+            </label>
+            <label className="text-sm text-white/70">
               Interests (comma-separated)
               <input
                 className="mt-1 w-full bg-black/30 border border-white/15 rounded px-3 py-2"
@@ -251,6 +386,38 @@ export default function TrialOnboardingPage() {
                     preferences: {
                       ...current.preferences,
                       interests: parseCsv(event.target.value),
+                    },
+                  }))
+                }
+              />
+            </label>
+            <label className="text-sm text-white/70">
+              Preferred locations (comma-separated)
+              <input
+                className="mt-1 w-full bg-black/30 border border-white/15 rounded px-3 py-2"
+                value={preferredLocationsCsv}
+                onChange={(event) =>
+                  updateProfile((current) => ({
+                    ...current,
+                    preferences: {
+                      ...current.preferences,
+                      preferredLocations: parseCsv(event.target.value),
+                    },
+                  }))
+                }
+              />
+            </label>
+            <label className="text-sm text-white/70 md:col-span-2">
+              Objectives (comma-separated)
+              <input
+                className="mt-1 w-full bg-black/30 border border-white/15 rounded px-3 py-2"
+                value={objectivesCsv}
+                onChange={(event) =>
+                  updateProfile((current) => ({
+                    ...current,
+                    preferences: {
+                      ...current.preferences,
+                      objectives: parseCsv(event.target.value),
                     },
                   }))
                 }

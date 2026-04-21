@@ -20,6 +20,8 @@ export interface TrialAvailabilitySlot {
 
 export interface TrialPreferences {
   matchIntent: string[];
+  offers: string[];
+  asks: string[];
   preferredLocations?: string[];
   preferredUserTypes?: string[];
   interests: string[];

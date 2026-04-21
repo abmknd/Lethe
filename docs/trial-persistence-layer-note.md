@@ -43,11 +43,13 @@ Interface source:
 ## Seed dataset
 
 - Seed users: 8 (varied intents, interests, locations, availability)
+- Seed profiles include `offers`, `asks`, and `preferred_user_types` for deterministic matching realism.
 - Seed source:
   - `mvp/db/seed-data.mjs`
 - Lightweight validation:
   - unique user ids
   - required match intents/interests/availability
+  - required offers/asks/preferred user types
 
 ## Init / reset commands
 
@@ -57,6 +59,8 @@ Interface source:
   - `npm run trial:init:reset`
 - Run weekly batch (manual):
   - `npm run trial:run-weekly`
+- Run deterministic trial smoke checks:
+  - `npm run trial:smoke`
 
 ## What is foundational vs temporary
 

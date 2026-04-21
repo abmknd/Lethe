@@ -36,6 +36,13 @@ function getPath(url) {
   return url.pathname.replace(/\/+$/, '') || '/';
 }
 
+function statusCodeFromError(error) {
+  if (error && typeof error === 'object' && typeof error.statusCode === 'number') {
+    return error.statusCode;
+  }
+  return 400;
+}
+
 export function createTrialApiServer({ services, dbPath }) {
   const server = http.createServer(async (req, res) => {
     if (!req.url) {
@@ -194,11 +201,13 @@ export function createTrialApiServer({ services, dbPath }) {
         const limit = Number(url.searchParams.get('limit') ?? 200);
         const userId = url.searchParams.get('userId') ?? undefined;
         const eventType = url.searchParams.get('eventType') ?? undefined;
+        const recommendationId = url.searchParams.get('recommendationId') ?? undefined;
 
         const events = services.recommendations.listEvents({
           limit: Number.isFinite(limit) ? Math.max(1, Math.min(1000, limit)) : 200,
           userId,
           eventType,
+          recommendationId,
         });
 
         sendJson(res, 200, { events });
@@ -208,7 +217,7 @@ export function createTrialApiServer({ services, dbPath }) {
       sendJson(res, 404, { error: 'Route not found.' });
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unexpected error';
-      sendJson(res, 400, { error: message });
+      sendJson(res, statusCodeFromError(error), { error: message });
     }
   });
 

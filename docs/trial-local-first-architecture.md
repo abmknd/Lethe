@@ -48,11 +48,13 @@ This implementation keeps the MVP demo local while isolating business logic so s
    - `npm run trial:init`
 3. Run a matching batch manually:
    - `npm run trial:run-weekly`
-4. Start API server:
+4. Run deterministic smoke validation:
+   - `npm run trial:smoke`
+5. Start API server:
    - `npm run trial:api`
-5. In another terminal, start UI:
+6. In another terminal, start UI:
    - `npm run dev`
-6. Open trial pages:
+7. Open trial pages:
    - `/lethe/trial`
    - `/lethe/trial/onboarding`
    - `/lethe/trial/connect`
@@ -63,3 +65,6 @@ This implementation keeps the MVP demo local while isolating business logic so s
 
 - The production-portable design is in service/repository separation, not in infrastructure scale.
 - No bespoke ML or synthetic-data training is used in this slice.
+- Demo operator guides live in:
+  - `docs/trial-demo-runbook.md`
+  - `docs/trial-learnings-memo-template.md`

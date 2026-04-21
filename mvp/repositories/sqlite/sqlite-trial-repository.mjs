@@ -755,6 +755,22 @@ export class SqliteTrialRepository extends UserRepository {
       .run({ recommendationId, status, updatedAt });
   }
 
+  updateRecommendationStatusIfPending(recommendationId, status, updatedAt = nowIso()) {
+    const result = this.db
+      .prepare(
+        `
+        UPDATE recommendations
+        SET status = :status,
+            updated_at = :updatedAt
+        WHERE id = :recommendationId
+          AND status = 'pending_review'
+      `,
+      )
+      .run({ recommendationId, status, updatedAt });
+
+    return (result?.changes ?? 0) > 0;
+  }
+
   listPairHistory({ sinceDays = 90 } = {}) {
     const sinceDate = new Date();
     sinceDate.setUTCDate(sinceDate.getUTCDate() - sinceDays);
@@ -823,11 +839,12 @@ export class SqliteTrialRepository extends UserRepository {
     }
   }
 
-  listEvents({ limit = 200, userId, eventType } = {}) {
+  listEvents({ limit = 200, userId, eventType, recommendationId } = {}) {
     const params = {
       limit,
       userId: userId ?? null,
       eventType: eventType ?? null,
+      recommendationId: recommendationId ?? null,
     };
 
     const rows = this.db
@@ -837,6 +854,7 @@ export class SqliteTrialRepository extends UserRepository {
         FROM events
         WHERE (:userId IS NULL OR user_id = :userId)
           AND (:eventType IS NULL OR event_type = :eventType)
+          AND (:recommendationId IS NULL OR recommendation_id = :recommendationId)
         ORDER BY created_at DESC
         LIMIT :limit
       `,

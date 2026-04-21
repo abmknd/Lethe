@@ -25,8 +25,20 @@ export default function MatchesPage() {
           Your Matches
         </h1>
         <p className={`${theme === "dark" ? "text-white/45" : "text-black/60"}`}>
-          Matches feature coming soon.
+          This screen is still placeholder-only for the legacy app shell.
         </p>
+        <div className="mt-5">
+          <button
+            onClick={() => navigate("/trial/connect")}
+            className={`px-4 py-2 text-sm rounded border ${
+              theme === "dark"
+                ? "border-[#4dc7ff]/35 text-[#9fe4ff] bg-[#4dc7ff]/10"
+                : "border-[#0d6ea3]/35 text-[#0d6ea3] bg-[#0d6ea3]/10"
+            }`}
+          >
+            Open trial recommendations (real data)
+          </button>
+        </div>
       </div>
     </div>
   );

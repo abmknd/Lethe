@@ -90,7 +90,7 @@ export async function submitAdminDecision(params: {
   recommendationId: string;
   adminId: string;
   decision: 'approve' | 'reject';
-  rationale?: string;
+  rationale: string;
 }) {
   return request<{ ok: boolean }>(
     `/api/trial/admin/recommendations/${encodeURIComponent(params.recommendationId)}/decision`,
@@ -135,13 +135,16 @@ export async function updateFollowThrough(params: {
   });
 }
 
-export async function listTrialEvents(filters?: { userId?: string; eventType?: string; limit?: number }) {
+export async function listTrialEvents(filters?: { userId?: string; eventType?: string; recommendationId?: string; limit?: number }) {
   const params = new URLSearchParams();
   if (filters?.userId) {
     params.set('userId', filters.userId);
   }
   if (filters?.eventType) {
     params.set('eventType', filters.eventType);
+  }
+  if (filters?.recommendationId) {
+    params.set('recommendationId', filters.recommendationId);
   }
   if (filters?.limit) {
     params.set('limit', String(filters.limit));

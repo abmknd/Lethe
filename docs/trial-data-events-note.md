@@ -24,6 +24,7 @@ Event logging rules:
 - Recommendation events must link back to recommendation run and user.
 - Admin decisions must persist rationale/notes.
 - Outcome updates must be traceable through event history.
+- Event history must support filtering by `recommendationId` for row-level traceability from admin/recommendations views.
 
 Feedback and outcomes:
 - Accept/pass actions must persist.
@@ -33,3 +34,4 @@ Feedback and outcomes:
 Definition of done for data/events:
 - End-to-end flow produces coherent local records from onboarding to recommendation to admin decision to user feedback/outcome.
 - Reload/restart does not lose trial-critical state.
+- Admin decision conflicts and rationale validation return deterministic error messages for predictable UI handling.

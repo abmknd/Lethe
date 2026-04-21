@@ -81,7 +81,28 @@ export default function TrialHomePage() {
           </button>
         </div>
 
-        {message && <p className="mt-4 text-sm text-white/75">{message}</p>}
+        {message && (
+          <p
+            className={`mt-4 text-sm px-3 py-2 rounded border ${
+              message.toLowerCase().includes('failed')
+                ? 'text-[#ffc5c5] border-[#ff6b6b]/35 bg-[#ff6b6b]/10'
+                : 'text-[#c9ff87] border-[#7FFF00]/30 bg-[#7FFF00]/10'
+            }`}
+          >
+            {message}
+          </p>
+        )}
+      </section>
+
+      <section className="bg-[#0d140d] border border-white/10 rounded-xl p-5">
+        <h2 className="text-base font-semibold mb-3">Demo checklist</h2>
+        <ol className="text-sm text-white/70 space-y-1 list-decimal pl-5">
+          <li>Save one user in Onboarding with intent/offers/asks/availability.</li>
+          <li>Run weekly matching from Home or Recommendations.</li>
+          <li>Approve and reject in Admin (both require rationale).</li>
+          <li>Verify event history in Events (filter by recommendation id).</li>
+          <li>Show accept/pass and follow-through in Recommendations.</li>
+        </ol>
       </section>
 
       <section className="bg-[#0d140d] border border-white/10 rounded-xl p-5">
