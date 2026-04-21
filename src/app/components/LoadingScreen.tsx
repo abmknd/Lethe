@@ -25,7 +25,7 @@ export function LoadingScreen({ userName }: { userName: string }) {
       <div className="relative z-20 flex flex-col items-center justify-between min-h-screen px-8 py-16">
         {/* Wordmark */}
         <div className="pt-4">
-          <h1 className="text-[#6B6B6B] text-[11px] tracking-[0.35em] uppercase font-light font-serif">
+          <h1 className="text-[#6B6B6B] text-[11px] tracking-[0.35em] uppercase font-light font-display">
             LETHE
           </h1>
         </div>
@@ -33,11 +33,11 @@ export function LoadingScreen({ userName }: { userName: string }) {
         {/* Center Content */}
         <div className="max-w-xl w-full text-center space-y-6">
           <div className="space-y-6">
-            <h2 className="font-serif text-white text-[2.5rem] md:text-[3rem] leading-[1.15] font-normal italic">
+            <h2 className="font-display text-white text-[2.5rem] md:text-[3rem] leading-[1.15] font-normal italic">
               Welcome, {userName}.
             </h2>
             
-            <div className="text-[#6B6B6B] text-[15px] italic font-serif space-y-1">
+            <div className="text-[#6B6B6B] text-[15px] italic font-display space-y-1">
               <p>The river remembers nothing.</p>
               <p>And that is its gift.</p>
             </div>

@@ -28,7 +28,7 @@ export function NavLogo({ children, onClick }: NavLogoProps) {
   return (
     <button
       onClick={onClick}
-      className="text-white text-sm tracking-[0.3em] uppercase font-light font-serif transition-opacity duration-300 hover:opacity-70"
+      className="text-white text-sm tracking-[0.3em] uppercase font-light font-display transition-opacity duration-300 hover:opacity-70"
     >
       {children}
     </button>

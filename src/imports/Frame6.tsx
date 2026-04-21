@@ -1,7 +1,7 @@
 function Container() {
   return (
     <div className="h-[26.4px] relative shrink-0 w-full" data-name="Container">
-      <p className="absolute font-['Libre_Baskerville:Regular',sans-serif] leading-[26.4px] left-0 not-italic text-[22px] text-[rgba(255,255,255,0.88)] top-[-0.8px] whitespace-nowrap">Elena Voss</p>
+      <p className="absolute font-['Cormorant_Garamond'] leading-[26.4px] left-0 not-italic text-[22px] text-[rgba(255,255,255,0.88)] top-[-0.8px] whitespace-nowrap">Elena Voss</p>
     </div>
   );
 }

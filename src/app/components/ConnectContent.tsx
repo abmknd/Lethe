@@ -257,7 +257,7 @@ export function ConnectContent({ activeTab }: ConnectContentProps) {
                   </div>
                   <div className="flex flex-col justify-center gap-[4px]">
                     <div 
-                      className="font-serif text-[length:var(--lethe-text-xl)] leading-[1.2] text-white/[0.88] cursor-pointer hover:text-lethe-accent transition-colors"
+                      className="font-display text-[length:var(--lethe-text-xl)] leading-[1.2] text-white/[0.88] cursor-pointer hover:text-lethe-accent transition-colors"
                       onClick={() => navigate(`/user/${currentSuggestion.handle.replace('@', '')}`)}
                     >
                       {currentSuggestion.name}
@@ -265,7 +265,7 @@ export function ConnectContent({ activeTab }: ConnectContentProps) {
                     <div className="text-[length:var(--lethe-text-sm)] text-lethe-ghost tracking-[length:var(--lethe-tracking-body)]">{currentSuggestion.handle}</div>
                     
                     <div className="flex flex-col gap-[4px] mt-[8px]">
-                      <div className="font-serif text-[length:var(--lethe-text-sm)] leading-[1.5] text-[rgba(255,255,255,0.4)]">
+                      <div className="font-display text-[length:var(--lethe-text-sm)] leading-[1.5] text-[rgba(255,255,255,0.4)]">
                         {currentSuggestion.role}
                       </div>
                       <div className="flex items-center gap-6 flex-wrap">
@@ -364,7 +364,7 @@ export function ConnectContent({ activeTab }: ConnectContentProps) {
             </>
           ) : (
             <div className="flex-1 flex flex-col items-center justify-center gap-3 px-10 py-[60px] text-center">
-              <p className="font-serif text-[length:var(--lethe-text-2xl)] italic text-white/[0.88]">You're all caught up.</p>
+              <p className="font-display text-[length:var(--lethe-text-2xl)] italic text-white/[0.88]">You're all caught up.</p>
               <p className="text-[length:var(--lethe-text-md)] font-light text-white/[0.52] leading-[var(--lethe-leading-loose)] max-w-[280px]">
                 New suggestions arrive each Monday.
               </p>
@@ -466,7 +466,7 @@ export function ConnectContent({ activeTab }: ConnectContentProps) {
             <Check size={13} className="text-white/80" strokeWidth={2.5} />
           </div>
         </div>
-        <div className="font-serif text-[length:var(--lethe-text-2xl)] italic text-white/[0.88]">Match set.</div>
+        <div className="font-display text-[length:var(--lethe-text-2xl)] italic text-white/[0.88]">Match set.</div>
         <div className="text-[length:var(--lethe-text-md)] font-light text-white/[0.52] text-center max-w-[280px] leading-[var(--lethe-leading-relaxed)]">
           Lethe will handle the introduction when the time is right.
         </div>
