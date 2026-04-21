@@ -101,14 +101,14 @@ export function OnboardingOne({ onContinue, onNext }: { onContinue: () => void; 
           <div className="w-5 h-5 opacity-60">
             <LetheLogo />
           </div>
-          <h1 className="text-white text-[11px] tracking-[0.35em] uppercase font-light font-serif opacity-60">
+          <h1 className="text-white text-[11px] tracking-[0.35em] uppercase font-light font-display opacity-60">
             LETHE
           </h1>
         </div>
 
         {/* Center Text Blocks */}
         <div className="max-w-2xl text-center space-y-12">
-          <h2 className="font-serif text-white leading-[1.15]">
+          <h2 className="font-display text-white leading-[1.15]">
             <span className="text-[2.75rem] md:text-[3.5rem] font-normal italic">
               You are not
             </span>
@@ -119,7 +119,7 @@ export function OnboardingOne({ onContinue, onNext }: { onContinue: () => void; 
             </span>
           </h2>
 
-          <div className="text-[#6B6B6B] text-[15px] leading-[1.8] tracking-wide font-light max-w-lg mx-auto space-y-6 font-serif">
+          <div className="text-[#6B6B6B] text-[15px] leading-[1.8] tracking-wide font-light max-w-lg mx-auto space-y-6 font-display">
             <p>
               The person who posted three years ago is a stranger to who you are today. Yet{" "}
               <span className="text-white font-normal">the internet remembers everything</span> — and forgives nothing.

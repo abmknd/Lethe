@@ -44,7 +44,7 @@ export function Step1HowItWorks({ isActive, direction }: Step1Props) {
       <span className="font-['Inter'] text-[10px] tracking-[0.3em] uppercase text-[#7FFF00]/50 mb-[14px] block">
         Getting started
       </span>
-      <h1 className="font-['Libre_Baskerville'] text-[clamp(28px,4vw,40px)] font-light italic leading-[1.15] tracking-[-0.02em] text-white/90 mb-[10px]">
+      <h1 className="font-['Cormorant_Garamond'] text-[clamp(28px,4vw,40px)] font-light italic leading-[1.15] tracking-[-0.02em] text-white/90 mb-[10px]">
         Meet people<br />
         <em className="not-italic text-[#7FFF00]">worth meeting.</em>
       </h1>

@@ -240,7 +240,7 @@ export default function CommunityPage() {
                 />
               </div>
               <div className="flex-1 min-w-0 pb-[2px]">
-                <h1 className="font-['Libre_Baskerville'] text-[18px] font-normal text-white/88 mb-[3px] leading-[1.2]">
+                <h1 className="font-['Cormorant_Garamond'] text-[18px] font-normal text-white/88 mb-[3px] leading-[1.2]">
                   Conversation Design Guild
                 </h1>
                 <div className="flex items-center gap-3">

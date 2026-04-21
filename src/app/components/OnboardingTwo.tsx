@@ -97,7 +97,7 @@ export function OnboardingTwo({ onContinue, onBack }: { onContinue: (name?: stri
           <div className="w-5 h-5">
             <LetheLogo />
           </div>
-          <h1 className="text-[#6B6B6B] text-[11px] tracking-[0.35em] uppercase font-light font-serif">
+          <h1 className="text-[#6B6B6B] text-[11px] tracking-[0.35em] uppercase font-light font-display">
             LETHE
           </h1>
         </div>
@@ -106,13 +106,13 @@ export function OnboardingTwo({ onContinue, onBack }: { onContinue: (name?: stri
         <div className="max-w-xl w-full text-center space-y-12">
           {/* Main Question */}
           <div className="space-y-4">
-            <h2 className="font-serif text-white text-[2.5rem] md:text-[3rem] leading-[1.15] font-normal italic">
+            <h2 className="font-display text-white text-[2.5rem] md:text-[3rem] leading-[1.15] font-normal italic">
               What would you
               <br />
               like to be called?
             </h2>
             
-            <p className="text-[#6B6B6B] text-[15px] italic font-serif">
+            <p className="text-[#6B6B6B] text-[15px] italic font-display">
               a name, a word, anything
             </p>
           </div>
@@ -123,7 +123,7 @@ export function OnboardingTwo({ onContinue, onBack }: { onContinue: (name?: stri
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full bg-transparent border-0 border-b border-[#8B7355] text-white text-center text-xl font-serif italic placeholder:text-[#3A3A3A] focus:outline-none focus:border-[#7FFF00] transition-colors pb-2"
+              className="w-full bg-transparent border-0 border-b border-[#8B7355] text-white text-center text-xl font-display italic placeholder:text-[#3A3A3A] focus:outline-none focus:border-[#7FFF00] transition-colors pb-2"
               placeholder=""
               autoFocus
             />
@@ -134,10 +134,10 @@ export function OnboardingTwo({ onContinue, onBack }: { onContinue: (name?: stri
 
           {/* Philosophy Text */}
           <div className="pt-8 space-y-3">
-            <p className="text-[#9B9B9B] text-[15px] leading-[1.8] font-serif">
+            <p className="text-[#9B9B9B] text-[15px] leading-[1.8] font-display">
               Post freely. Evolve naturally.
             </p>
-            <p className="text-[#6B6B6B] text-[15px] leading-[1.8] font-serif">
+            <p className="text-[#6B6B6B] text-[15px] leading-[1.8] font-display">
               What matters will remain. What no longer serves you
               <br />
               will softly fade. The river always returns to stillness.

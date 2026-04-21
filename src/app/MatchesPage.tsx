@@ -19,7 +19,7 @@ export default function MatchesPage() {
           <span className="text-sm">Back to Feed</span>
         </button>
 
-        <h1 className={`font-['Libre_Baskerville'] text-4xl font-light italic mb-4 ${
+        <h1 className={`font-['Cormorant_Garamond'] text-4xl font-light italic mb-4 ${
           theme === "dark" ? "text-white" : "text-black"
         }`}>
           Your Matches

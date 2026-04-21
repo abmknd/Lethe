@@ -172,7 +172,7 @@ export default function ProfilePage() {
           {/* Logo */}
           <button 
             onClick={() => navigate("/")}
-            className="flex items-center gap-2 text-white text-sm tracking-[0.3em] uppercase font-light font-serif hover:opacity-70 cursor-pointer transition-opacity"
+            className="flex items-center gap-2 text-white text-sm tracking-[0.3em] uppercase font-light font-display hover:opacity-70 cursor-pointer transition-opacity"
           >
             <div className="w-5 h-5">
               <LetheLogo />
@@ -224,7 +224,7 @@ export default function ProfilePage() {
               {/* Identity */}
               <div className="flex flex-col h-[115px]">
                 <div className="flex flex-col gap-[4px] mb-[12px]">
-                  <h1 className="font-['Libre_Baskerville'] text-[22px] leading-[26.4px] text-[rgba(255,255,255,0.88)]">
+                  <h1 className="font-['Cormorant_Garamond'] text-[22px] leading-[26.4px] text-[rgba(255,255,255,0.88)]">
                     A. Fitch
                   </h1>
                   <p className="font-['Inter'] text-[13px] leading-[19.5px] tracking-[0.52px] text-[rgba(255,255,255,0.25)]">
@@ -234,7 +234,7 @@ export default function ProfilePage() {
 
                 {/* Occupation, Location & Gender */}
                 <div className="flex flex-col gap-[4px]">
-                  <div className="font-['Libre_Baskerville'] text-[13px] leading-[19.5px] text-[rgba(255,255,255,0.4)]">
+                  <div className="font-['Cormorant_Garamond'] text-[13px] leading-[19.5px] text-[rgba(255,255,255,0.4)]">
                     Civil Engineer
                   </div>
                   <div className="flex gap-6">
@@ -348,7 +348,7 @@ export default function ProfilePage() {
                   <p className="font-['Inter'] font-medium text-[11px] tracking-[2px] uppercase text-[#6b6b6b] mb-4">
                     bio
                   </p>
-                  <p className="font-['Libre_Baskerville'] text-[14px] leading-[25.5px] text-[rgba(255,255,255,0.4)]">
+                  <p className="font-['Cormorant_Garamond'] text-[14px] leading-[25.5px] text-[rgba(255,255,255,0.4)]">
                     Writing about the spaces between things. Product at Tempo. Thinking about memory and what we owe the future.
                   </p>
                 </div>
@@ -357,7 +357,7 @@ export default function ProfilePage() {
                 <div className="relative border-t-[0.8px] border-b-[0.8px] border-[rgba(255,255,255,0.07)]">
                   <div className="flex flex-wrap gap-x-8 gap-y-8 px-5 py-[20.8px]">
                     <div className="w-[160px]">
-                      <p className="font-['Libre_Baskerville'] text-[22px] leading-[22px] text-[rgba(255,255,255,0.9)] mb-2">
+                      <p className="font-['Cormorant_Garamond'] text-[22px] leading-[22px] text-[rgba(255,255,255,0.9)] mb-2">
                         284
                       </p>
                       <p className="font-['Inter'] font-medium text-[11px] tracking-[2px] uppercase text-[#6b6b6b]">
@@ -365,7 +365,7 @@ export default function ProfilePage() {
                       </p>
                     </div>
                     <div className="w-[160px]">
-                      <p className="font-['Libre_Baskerville'] text-[22px] leading-[22px] text-[rgba(255,255,255,0.9)] mb-2">
+                      <p className="font-['Cormorant_Garamond'] text-[22px] leading-[22px] text-[rgba(255,255,255,0.9)] mb-2">
                         521
                       </p>
                       <p className="font-['Inter'] font-medium text-[11px] tracking-[2px] uppercase text-[#6b6b6b]">
@@ -373,7 +373,7 @@ export default function ProfilePage() {
                       </p>
                     </div>
                     <div className="w-[160px]">
-                      <p className="font-['Libre_Baskerville'] text-[22px] leading-[22px] text-[rgba(255,255,255,0.9)] mb-2">
+                      <p className="font-['Cormorant_Garamond'] text-[22px] leading-[22px] text-[rgba(255,255,255,0.9)] mb-2">
                         1,603
                       </p>
                       <p className="font-['Inter'] font-medium text-[11px] tracking-[2px] uppercase text-[#6b6b6b]">
@@ -381,7 +381,7 @@ export default function ProfilePage() {
                       </p>
                     </div>
                     <div className="w-[160px]">
-                      <p className="font-['Libre_Baskerville'] text-[22px] leading-[22px] text-[rgba(255,255,255,0.9)] mb-2">
+                      <p className="font-['Cormorant_Garamond'] text-[22px] leading-[22px] text-[rgba(255,255,255,0.9)] mb-2">
                         5,499
                       </p>
                       <p className="font-['Inter'] font-medium text-[11px] tracking-[2px] uppercase text-[#6b6b6b]">
@@ -414,7 +414,7 @@ export default function ProfilePage() {
                             <div aria-hidden="true" className="absolute border border-black border-solid inset-[-1px] pointer-events-none rounded-full" />
                           </div>
                         </div>
-                        <p className="font-['Libre_Baskerville'] text-[22px] leading-[22px] text-[rgba(255,255,255,0.9)]">
+                        <p className="font-['Cormorant_Garamond'] text-[22px] leading-[22px] text-[rgba(255,255,255,0.9)]">
                           132
                         </p>
                       </div>
@@ -440,7 +440,7 @@ export default function ProfilePage() {
                             <div aria-hidden="true" className="absolute border border-black border-solid inset-[-1px] pointer-events-none rounded-full" />
                           </div>
                         </div>
-                        <p className="font-['Libre_Baskerville'] text-[22px] leading-[22px] text-[rgba(255,255,255,0.9)]">
+                        <p className="font-['Cormorant_Garamond'] text-[22px] leading-[22px] text-[rgba(255,255,255,0.9)]">
                           56
                         </p>
                       </div>
@@ -599,7 +599,7 @@ function PostCardProfile({ post }: { post: Post }) {
         )}
 
         {/* Text - NO BLUR OR FADE */}
-        <p className="font-['Libre_Baskerville'] text-[14px] leading-[23.8px] tracking-[0.35px] text-[#d4d4d4] mb-4">
+        <p className="font-['Cormorant_Garamond'] text-[14px] leading-[23.8px] tracking-[0.35px] text-[#d4d4d4] mb-4">
           {post.text}
         </p>
 

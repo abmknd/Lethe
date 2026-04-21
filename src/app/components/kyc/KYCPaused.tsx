@@ -17,7 +17,7 @@ export function KYCPaused({ onCompleteNow, onMaybeLater }: KYCPausedProps) {
         </div>
       </div>
 
-      <div className="font-['Libre_Baskerville'] text-[32px] font-light mb-[10px] text-white/90">
+      <div className="font-['Cormorant_Garamond'] text-[32px] font-light mb-[10px] text-white/90">
         Matching is on pause for you.
       </div>
       

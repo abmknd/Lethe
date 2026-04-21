@@ -45,7 +45,7 @@ export function Step5Hobbies({ isActive, direction, data, updateData }: Step5Pro
       <span className="font-['Inter'] text-[10px] tracking-[0.3em] uppercase text-[#7FFF00]/50 mb-[14px] block">
         Your texture
       </span>
-      <h1 className="font-['Libre_Baskerville'] text-[clamp(28px,4vw,40px)] font-light italic leading-[1.15] tracking-[-0.02em] text-white/90 mb-[10px]">
+      <h1 className="font-['Cormorant_Garamond'] text-[clamp(28px,4vw,40px)] font-light italic leading-[1.15] tracking-[-0.02em] text-white/90 mb-[10px]">
         What are<br />
         you <em className="not-italic text-[#7FFF00]">into?</em>
       </h1>

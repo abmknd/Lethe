@@ -17,7 +17,7 @@ function Container2() {
   return (
     <div className="relative shrink-0 w-full" data-name="Container">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex items-start relative w-full">
-        <p className="flex-[1_0_0] font-['Libre_Baskerville:Regular',sans-serif] leading-[25.5px] min-h-px min-w-px not-italic relative text-[15px] text-[rgba(255,255,255,0.4)]">Writing about the spaces between things. Product at Tempo. Thinking about memory and what we owe the future.</p>
+        <p className="flex-[1_0_0] font-['Cormorant_Garamond'] leading-[25.5px] min-h-px min-w-px not-italic relative text-[15px] text-[rgba(255,255,255,0.4)]">Writing about the spaces between things. Product at Tempo. Thinking about memory and what we owe the future.</p>
       </div>
     </div>
   );
@@ -46,7 +46,7 @@ function Span1() {
   return (
     <div className="relative shrink-0" data-name="span">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex items-start relative">
-        <p className="font-['Libre_Baskerville:Regular',sans-serif] leading-[22px] not-italic relative shrink-0 text-[22px] text-[rgba(255,255,255,0.9)] whitespace-nowrap">284</p>
+        <p className="font-['Cormorant_Garamond'] leading-[22px] not-italic relative shrink-0 text-[22px] text-[rgba(255,255,255,0.9)] whitespace-nowrap">284</p>
       </div>
     </div>
   );
@@ -77,7 +77,7 @@ function Span3() {
   return (
     <div className="relative shrink-0" data-name="span">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex items-start relative">
-        <p className="font-['Libre_Baskerville:Regular',sans-serif] leading-[22px] not-italic relative shrink-0 text-[22px] text-[rgba(255,255,255,0.9)] whitespace-nowrap">521</p>
+        <p className="font-['Cormorant_Garamond'] leading-[22px] not-italic relative shrink-0 text-[22px] text-[rgba(255,255,255,0.9)] whitespace-nowrap">521</p>
       </div>
     </div>
   );
@@ -108,7 +108,7 @@ function Span5() {
   return (
     <div className="relative shrink-0" data-name="span">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex items-start relative">
-        <p className="font-['Libre_Baskerville:Regular',sans-serif] leading-[22px] not-italic relative shrink-0 text-[22px] text-[rgba(255,255,255,0.9)] whitespace-nowrap">1,603</p>
+        <p className="font-['Cormorant_Garamond'] leading-[22px] not-italic relative shrink-0 text-[22px] text-[rgba(255,255,255,0.9)] whitespace-nowrap">1,603</p>
       </div>
     </div>
   );
@@ -139,7 +139,7 @@ function Span7() {
   return (
     <div className="relative shrink-0" data-name="span">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex items-start relative">
-        <p className="font-['Libre_Baskerville:Regular',sans-serif] leading-[22px] not-italic relative shrink-0 text-[22px] text-[rgba(255,255,255,0.9)] whitespace-nowrap">5,499</p>
+        <p className="font-['Cormorant_Garamond'] leading-[22px] not-italic relative shrink-0 text-[22px] text-[rgba(255,255,255,0.9)] whitespace-nowrap">5,499</p>
       </div>
     </div>
   );
@@ -244,7 +244,7 @@ function Members() {
 function Span10() {
   return (
     <div className="content-stretch flex items-end relative shrink-0" data-name="span">
-      <p className="font-['Libre_Baskerville:Regular',sans-serif] leading-[22px] not-italic relative shrink-0 text-[22px] text-[rgba(255,255,255,0.9)] whitespace-nowrap">132</p>
+      <p className="font-['Cormorant_Garamond'] leading-[22px] not-italic relative shrink-0 text-[22px] text-[rgba(255,255,255,0.9)] whitespace-nowrap">132</p>
     </div>
   );
 }
@@ -335,7 +335,7 @@ function Members1() {
 function Span12() {
   return (
     <div className="content-stretch flex items-end relative shrink-0" data-name="span">
-      <p className="font-['Libre_Baskerville:Regular',sans-serif] leading-[22px] not-italic relative shrink-0 text-[22px] text-[rgba(255,255,255,0.9)] whitespace-nowrap">56</p>
+      <p className="font-['Cormorant_Garamond'] leading-[22px] not-italic relative shrink-0 text-[22px] text-[rgba(255,255,255,0.9)] whitespace-nowrap">56</p>
     </div>
   );
 }

@@ -83,7 +83,7 @@ export function EditProfileModal({ isOpen, onClose, onSave, initialData }: EditP
         >
           {/* Header */}
           <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-white/[0.07] flex-shrink-0">
-            <h2 className="font-['Libre_Baskerville'] text-[18px] italic font-normal text-white/88">
+            <h2 className="font-['Cormorant_Garamond'] text-[18px] italic font-normal text-white/88">
               Edit profile
             </h2>
             <button
@@ -120,7 +120,7 @@ export function EditProfileModal({ isOpen, onClose, onSave, initialData }: EditP
                   />
                 </div>
                 <div className="flex-1">
-                  <div className="font-['Libre_Baskerville'] text-[15px] text-white/88 mb-[3px]">
+                  <div className="font-['Cormorant_Garamond'] text-[15px] text-white/88 mb-[3px]">
                     {formData.name}
                   </div>
                   <div className="text-[12px] font-light text-white/[0.28] leading-[1.5]">

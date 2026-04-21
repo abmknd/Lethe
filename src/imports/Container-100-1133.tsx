@@ -4,7 +4,7 @@ function Container1() {
   return (
     <div className="h-[19.5px] relative shrink-0 w-[236.65px]" data-name="Container">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid relative size-full">
-        <p className="absolute font-['Libre_Baskerville:Regular',sans-serif] leading-[19.5px] left-0 not-italic text-[13px] text-[rgba(255,255,255,0.4)] top-[0.6px] whitespace-nowrap">Product Designer</p>
+        <p className="absolute font-['Cormorant_Garamond'] leading-[19.5px] left-0 not-italic text-[13px] text-[rgba(255,255,255,0.4)] top-[0.6px] whitespace-nowrap">Product Designer</p>
       </div>
     </div>
   );
