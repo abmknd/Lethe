@@ -46,7 +46,7 @@ export function UpcomingMatches({ isMatchingPaused = false }: UpcomingMatchesPro
         <div className="flex-1 min-w-0 bg-[#0b0e0b] border border-white/[0.07] rounded-2xl flex flex-col overflow-hidden">
           {isMatchingPaused ? (
             <div className="flex-1 flex flex-col items-center justify-center gap-3 px-10 py-[60px] text-center">
-              <p className="font-['Libre_Baskerville'] text-[24px] italic text-white/[0.88]">You have no upcoming meetings</p>
+              <p className="font-['Cormorant_Garamond'] text-[24px] italic text-white/[0.88]">You have no upcoming meetings</p>
               <p className="text-[15px] font-light text-white/[0.52] leading-[1.7] max-w-[280px]">
                 switch on matching to resume meetings
               </p>
@@ -83,7 +83,7 @@ export function UpcomingMatches({ isMatchingPaused = false }: UpcomingMatchesPro
                     
                     {/* Upcoming Match title and description */}
                     <div className="border-t border-white/[0.05] pt-2 mt-2">
-                      <div className="font-serif text-[13px] leading-[1.4] text-white/[0.62] mb-1">
+                      <div className="font-display text-[13px] leading-[1.4] text-white/[0.62] mb-1">
                         Upcoming Match
                       </div>
                       <div className="text-[13px] leading-[1.5] text-white/[0.35]">

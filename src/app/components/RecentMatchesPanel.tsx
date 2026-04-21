@@ -89,7 +89,7 @@ export function RecentMatchesPanel() {
   return (
     <div className={`${bg} rounded-2xl border ${border} p-5 transition-colors duration-300`}>
       <div className="flex items-center justify-between mb-4">
-        <h2 className={`${textPrimary} text-[15px] font-serif tracking-wide`}>
+        <h2 className={`${textPrimary} text-[15px] font-display tracking-wide`}>
           Your matches
         </h2>
         <button
@@ -110,7 +110,7 @@ export function RecentMatchesPanel() {
               />
               <div className="flex-1 min-w-0">
                 <div className="flex items-start justify-between gap-2 mb-2">
-                  <div className={`${textPrimary} text-[13px] font-serif truncate`}>
+                  <div className={`${textPrimary} text-[13px] font-display truncate`}>
                     {match.name}
                   </div>
                   <button className={`${textSecondary} hover:opacity-70 transition-opacity flex-shrink-0`}>

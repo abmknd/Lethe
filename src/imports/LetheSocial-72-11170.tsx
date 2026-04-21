@@ -55,7 +55,7 @@ function Container3() {
 function H() {
   return (
     <div className="content-stretch flex items-center relative shrink-0 w-full" data-name="h1">
-      <p className="font-['Libre_Baskerville:Italic',sans-serif] italic leading-[48.4px] relative shrink-0 text-[36px] text-[rgba(255,255,255,0.9)] tracking-[-0.88px] whitespace-nowrap">A. Fitch</p>
+      <p className="font-['Cormorant_Garamond'] italic leading-[48.4px] relative shrink-0 text-[36px] text-[rgba(255,255,255,0.9)] tracking-[-0.88px] whitespace-nowrap">A. Fitch</p>
     </div>
   );
 }
@@ -104,7 +104,7 @@ function Location() {
 function P() {
   return (
     <div className="content-stretch flex items-center justify-center relative shrink-0" data-name="p">
-      <p className="font-['Libre_Baskerville:Regular',sans-serif] leading-[25.5px] not-italic relative shrink-0 text-[15px] text-[rgba(255,255,255,0.4)] whitespace-nowrap">Frankfurt, Kentucky</p>
+      <p className="font-['Cormorant_Garamond'] leading-[25.5px] not-italic relative shrink-0 text-[15px] text-[rgba(255,255,255,0.4)] whitespace-nowrap">Frankfurt, Kentucky</p>
     </div>
   );
 }
@@ -141,7 +141,7 @@ function Gender() {
 function P1() {
   return (
     <div className="content-stretch flex items-center justify-center relative shrink-0" data-name="p">
-      <p className="font-['Libre_Baskerville:Regular',sans-serif] leading-[25.5px] not-italic relative shrink-0 text-[15px] text-[rgba(255,255,255,0.4)] whitespace-nowrap">He/Him/His</p>
+      <p className="font-['Cormorant_Garamond'] leading-[25.5px] not-italic relative shrink-0 text-[15px] text-[rgba(255,255,255,0.4)] whitespace-nowrap">He/Him/His</p>
     </div>
   );
 }
@@ -424,7 +424,7 @@ function Container14() {
 function P2() {
   return (
     <div className="h-[46px] relative shrink-0 w-[581px]" data-name="p">
-      <p className="absolute font-['Libre_Baskerville:Regular',sans-serif] leading-[23.8px] left-0 not-italic text-[#d4d4d4] text-[14px] top-[-1.6px] tracking-[0.35px] w-[581px]">We spend so much time building walls around our hearts, forgetting that bridges serve us better.</p>
+      <p className="absolute font-['Cormorant_Garamond'] leading-[23.8px] left-0 not-italic text-[#d4d4d4] text-[14px] top-[-1.6px] tracking-[0.35px] w-[581px]">We spend so much time building walls around our hearts, forgetting that bridges serve us better.</p>
     </div>
   );
 }
@@ -818,7 +818,7 @@ function Container27() {
 function P3() {
   return (
     <div className="h-[46px] relative shrink-0 w-[581px]" data-name="p">
-      <p className="absolute font-['Libre_Baskerville:Regular',sans-serif] leading-[23.8px] left-0 not-italic text-[#d4d4d4] text-[14px] top-[-1.6px] tracking-[0.35px] w-[581px]">We spend so much time building walls around our hearts, forgetting that bridges serve us better.</p>
+      <p className="absolute font-['Cormorant_Garamond'] leading-[23.8px] left-0 not-italic text-[#d4d4d4] text-[14px] top-[-1.6px] tracking-[0.35px] w-[581px]">We spend so much time building walls around our hearts, forgetting that bridges serve us better.</p>
     </div>
   );
 }
@@ -1197,7 +1197,7 @@ function Container40() {
 function P4() {
   return (
     <div className="h-[46px] relative shrink-0 w-[581px]" data-name="p">
-      <p className="absolute font-['Libre_Baskerville:Regular',sans-serif] leading-[23.8px] left-0 not-italic text-[#d4d4d4] text-[14px] top-[-1.6px] tracking-[0.35px] w-[581px]">We spend so much time building walls around our hearts, forgetting that bridges serve us better.</p>
+      <p className="absolute font-['Cormorant_Garamond'] leading-[23.8px] left-0 not-italic text-[#d4d4d4] text-[14px] top-[-1.6px] tracking-[0.35px] w-[581px]">We spend so much time building walls around our hearts, forgetting that bridges serve us better.</p>
     </div>
   );
 }
@@ -1607,7 +1607,7 @@ function Container59() {
 function P5() {
   return (
     <div className="h-[46px] relative shrink-0 w-[581px]" data-name="p">
-      <p className="absolute font-['Libre_Baskerville:Regular',sans-serif] leading-[23.8px] left-0 not-italic text-[#d4d4d4] text-[14px] top-[-1.6px] tracking-[0.35px] w-[581px]">We spend so much time building walls around our hearts, forgetting that bridges serve us better.</p>
+      <p className="absolute font-['Cormorant_Garamond'] leading-[23.8px] left-0 not-italic text-[#d4d4d4] text-[14px] top-[-1.6px] tracking-[0.35px] w-[581px]">We spend so much time building walls around our hearts, forgetting that bridges serve us better.</p>
     </div>
   );
 }
@@ -2034,7 +2034,7 @@ function Container75() {
 function P6() {
   return (
     <div className="h-[46px] relative shrink-0 w-[581px]" data-name="p">
-      <p className="absolute font-['Libre_Baskerville:Regular',sans-serif] leading-[23.8px] left-0 not-italic text-[#d4d4d4] text-[14px] top-[-1.6px] tracking-[0.35px] w-[581px]">We spend so much time building walls around our hearts, forgetting that bridges serve us better.</p>
+      <p className="absolute font-['Cormorant_Garamond'] leading-[23.8px] left-0 not-italic text-[#d4d4d4] text-[14px] top-[-1.6px] tracking-[0.35px] w-[581px]">We spend so much time building walls around our hearts, forgetting that bridges serve us better.</p>
     </div>
   );
 }
@@ -2446,7 +2446,7 @@ function Container91() {
 function P7() {
   return (
     <div className="h-[46px] relative shrink-0 w-[581px]" data-name="p">
-      <p className="absolute font-['Libre_Baskerville:Regular',sans-serif] leading-[23.8px] left-0 not-italic text-[#d4d4d4] text-[14px] top-[-1.6px] tracking-[0.35px] w-[581px]">We spend so much time building walls around our hearts, forgetting that bridges serve us better.</p>
+      <p className="absolute font-['Cormorant_Garamond'] leading-[23.8px] left-0 not-italic text-[#d4d4d4] text-[14px] top-[-1.6px] tracking-[0.35px] w-[581px]">We spend so much time building walls around our hearts, forgetting that bridges serve us better.</p>
     </div>
   );
 }
@@ -2873,7 +2873,7 @@ function Container107() {
 function P8() {
   return (
     <div className="h-[46px] relative shrink-0 w-[581px]" data-name="p">
-      <p className="absolute font-['Libre_Baskerville:Regular',sans-serif] leading-[23.8px] left-0 not-italic text-[#d4d4d4] text-[14px] top-[-1.6px] tracking-[0.35px] w-[581px]">We spend so much time building walls around our hearts, forgetting that bridges serve us better.</p>
+      <p className="absolute font-['Cormorant_Garamond'] leading-[23.8px] left-0 not-italic text-[#d4d4d4] text-[14px] top-[-1.6px] tracking-[0.35px] w-[581px]">We spend so much time building walls around our hearts, forgetting that bridges serve us better.</p>
     </div>
   );
 }
@@ -3143,7 +3143,7 @@ function Container119() {
   return (
     <div className="relative shrink-0 w-full" data-name="Container">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex items-start relative w-full">
-        <p className="flex-[1_0_0] font-['Libre_Baskerville:Regular',sans-serif] leading-[25.5px] min-h-px min-w-px not-italic relative text-[15px] text-[rgba(255,255,255,0.4)]">Writing about the spaces between things. Product at Tempo. Thinking about memory and what we owe the future.</p>
+        <p className="flex-[1_0_0] font-['Cormorant_Garamond'] leading-[25.5px] min-h-px min-w-px not-italic relative text-[15px] text-[rgba(255,255,255,0.4)]">Writing about the spaces between things. Product at Tempo. Thinking about memory and what we owe the future.</p>
       </div>
     </div>
   );
@@ -3172,7 +3172,7 @@ function Span19() {
   return (
     <div className="relative shrink-0" data-name="span">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex items-start relative">
-        <p className="font-['Libre_Baskerville:Regular',sans-serif] leading-[22px] not-italic relative shrink-0 text-[22px] text-[rgba(255,255,255,0.9)] whitespace-nowrap">284</p>
+        <p className="font-['Cormorant_Garamond'] leading-[22px] not-italic relative shrink-0 text-[22px] text-[rgba(255,255,255,0.9)] whitespace-nowrap">284</p>
       </div>
     </div>
   );
@@ -3203,7 +3203,7 @@ function Span21() {
   return (
     <div className="relative shrink-0" data-name="span">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex items-start relative">
-        <p className="font-['Libre_Baskerville:Regular',sans-serif] leading-[22px] not-italic relative shrink-0 text-[22px] text-[rgba(255,255,255,0.9)] whitespace-nowrap">521</p>
+        <p className="font-['Cormorant_Garamond'] leading-[22px] not-italic relative shrink-0 text-[22px] text-[rgba(255,255,255,0.9)] whitespace-nowrap">521</p>
       </div>
     </div>
   );
@@ -3234,7 +3234,7 @@ function Span23() {
   return (
     <div className="relative shrink-0" data-name="span">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex items-start relative">
-        <p className="font-['Libre_Baskerville:Regular',sans-serif] leading-[22px] not-italic relative shrink-0 text-[22px] text-[rgba(255,255,255,0.9)] whitespace-nowrap">1,603</p>
+        <p className="font-['Cormorant_Garamond'] leading-[22px] not-italic relative shrink-0 text-[22px] text-[rgba(255,255,255,0.9)] whitespace-nowrap">1,603</p>
       </div>
     </div>
   );
@@ -3265,7 +3265,7 @@ function Span25() {
   return (
     <div className="relative shrink-0" data-name="span">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex items-start relative">
-        <p className="font-['Libre_Baskerville:Regular',sans-serif] leading-[22px] not-italic relative shrink-0 text-[22px] text-[rgba(255,255,255,0.9)] whitespace-nowrap">5,499</p>
+        <p className="font-['Cormorant_Garamond'] leading-[22px] not-italic relative shrink-0 text-[22px] text-[rgba(255,255,255,0.9)] whitespace-nowrap">5,499</p>
       </div>
     </div>
   );
@@ -3370,7 +3370,7 @@ function Members() {
 function Span28() {
   return (
     <div className="content-stretch flex items-end relative shrink-0" data-name="span">
-      <p className="font-['Libre_Baskerville:Regular',sans-serif] leading-[22px] not-italic relative shrink-0 text-[22px] text-[rgba(255,255,255,0.9)] whitespace-nowrap">132</p>
+      <p className="font-['Cormorant_Garamond'] leading-[22px] not-italic relative shrink-0 text-[22px] text-[rgba(255,255,255,0.9)] whitespace-nowrap">132</p>
     </div>
   );
 }
@@ -3461,7 +3461,7 @@ function Members1() {
 function Span30() {
   return (
     <div className="content-stretch flex items-end relative shrink-0" data-name="span">
-      <p className="font-['Libre_Baskerville:Regular',sans-serif] leading-[22px] not-italic relative shrink-0 text-[22px] text-[rgba(255,255,255,0.9)] whitespace-nowrap">56</p>
+      <p className="font-['Cormorant_Garamond'] leading-[22px] not-italic relative shrink-0 text-[22px] text-[rgba(255,255,255,0.9)] whitespace-nowrap">56</p>
     </div>
   );
 }
@@ -3922,7 +3922,7 @@ function Button44() {
     <div className="h-[20px] relative shrink-0 w-[103.7px]" data-name="button">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid relative size-full">
         <Div19 />
-        <p className="-translate-x-1/2 absolute font-['Libre_Baskerville:Regular',sans-serif] leading-[20px] left-[66px] not-italic text-[14px] text-center text-white top-[-1.2px] tracking-[4.2px] uppercase whitespace-nowrap">LETHE</p>
+        <p className="-translate-x-1/2 absolute font-['Cormorant_Garamond'] leading-[20px] left-[66px] not-italic text-[14px] text-center text-white top-[-1.2px] tracking-[4.2px] uppercase whitespace-nowrap">LETHE</p>
       </div>
     </div>
   );

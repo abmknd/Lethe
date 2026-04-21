@@ -44,7 +44,7 @@ function Container2() {
 function H() {
   return (
     <div className="content-stretch flex items-center relative shrink-0 w-full" data-name="h1">
-      <p className="font-['Libre_Baskerville:Italic',sans-serif] italic leading-[48.4px] relative shrink-0 text-[36px] text-[rgba(255,255,255,0.9)] tracking-[-0.88px] whitespace-nowrap">A. Fitch</p>
+      <p className="font-['Cormorant_Garamond'] italic leading-[48.4px] relative shrink-0 text-[36px] text-[rgba(255,255,255,0.9)] tracking-[-0.88px] whitespace-nowrap">A. Fitch</p>
     </div>
   );
 }
@@ -93,7 +93,7 @@ function Location() {
 function P() {
   return (
     <div className="content-stretch flex items-center justify-center relative shrink-0" data-name="p">
-      <p className="font-['Libre_Baskerville:Regular',sans-serif] leading-[25.5px] not-italic relative shrink-0 text-[15px] text-[rgba(255,255,255,0.4)] whitespace-nowrap">Frankfurt, Kentucky</p>
+      <p className="font-['Cormorant_Garamond'] leading-[25.5px] not-italic relative shrink-0 text-[15px] text-[rgba(255,255,255,0.4)] whitespace-nowrap">Frankfurt, Kentucky</p>
     </div>
   );
 }
@@ -130,7 +130,7 @@ function Gender() {
 function P1() {
   return (
     <div className="content-stretch flex items-center justify-center relative shrink-0" data-name="p">
-      <p className="font-['Libre_Baskerville:Regular',sans-serif] leading-[25.5px] not-italic relative shrink-0 text-[15px] text-[rgba(255,255,255,0.4)] whitespace-nowrap">He/Him/His</p>
+      <p className="font-['Cormorant_Garamond'] leading-[25.5px] not-italic relative shrink-0 text-[15px] text-[rgba(255,255,255,0.4)] whitespace-nowrap">He/Him/His</p>
     </div>
   );
 }

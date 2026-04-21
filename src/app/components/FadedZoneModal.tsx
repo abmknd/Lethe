@@ -267,7 +267,7 @@ export function FadedZoneModal({
                 {/* Visit label */}
                 {message.header && (
                   <p
-                    className="text-center text-[11px] tracking-[0.28em] uppercase font-light mb-5 font-serif"
+                    className="text-center text-[11px] tracking-[0.28em] uppercase font-light mb-5 font-display"
                     style={{ color: "rgba(173,255,47,0.38)" }}
                   >
                     {message.header}
@@ -276,7 +276,7 @@ export function FadedZoneModal({
 
                 {/* Main message */}
                 <h2
-                  className="text-center font-serif font-light italic mb-4"
+                  className="text-center font-display font-light italic mb-4"
                   style={{
                     fontSize: "clamp(24px, 3.4vw, 38px)",
                     lineHeight: 1.22,
@@ -297,7 +297,7 @@ export function FadedZoneModal({
                 {/* Accent text */}
                 {message.accentText && (
                   <p
-                    className="text-center font-serif font-light italic mt-2"
+                    className="text-center font-display font-light italic mt-2"
                     style={{
                       fontSize: "18px",
                       color: "rgba(173,255,47,0.75)",
@@ -323,7 +323,7 @@ export function FadedZoneModal({
                 <div className="flex justify-center">
                   <button
                     onClick={onReturnToPresent}
-                    className="font-serif font-light tracking-[0.22em] uppercase transition-all duration-300"
+                    className="font-display font-light tracking-[0.22em] uppercase transition-all duration-300"
                     style={{
                       fontSize: 11,
                       color: "rgba(173,255,47,0.72)",
