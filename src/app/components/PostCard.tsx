@@ -173,7 +173,7 @@ export function PostCard({
         {/* Post text */}
         <div className="relative mb-5">
           <p
-            className={`leading-[var(--lethe-leading-loose)] tracking-[var(--lethe-tracking-body)] text-[length:var(--lethe-text-sm)] font-light font-serif ${
+            className={`leading-[var(--lethe-leading-loose)] tracking-[var(--lethe-tracking-body)] text-[length:var(--lethe-text-sm)] font-light font-display ${
               status === "faded"
                 ? "text-lethe-muted blur-[3px] select-none"
                 : status === "fading"

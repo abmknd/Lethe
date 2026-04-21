@@ -16,7 +16,7 @@ export function KYCDone({ onFinish }: KYCDoneProps) {
         </div>
       </div>
 
-      <div className="font-['Libre_Baskerville'] text-[32px] font-light italic mb-[10px] text-white/90">
+      <div className="font-['Cormorant_Garamond'] text-[32px] font-light italic mb-[10px] text-white/90">
         You're live.
       </div>
       

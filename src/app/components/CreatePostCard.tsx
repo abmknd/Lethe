@@ -44,7 +44,7 @@ export function CreatePostCard({
           className="w-10 h-10 rounded-full object-cover flex-shrink-0"
         />
         <div className="flex-1">
-          <div className="text-lethe-dim mb-2 font-serif">{username}</div>
+          <div className="text-lethe-dim mb-2 font-display">{username}</div>
           <textarea
             placeholder="What's on your mind?"
             className="w-full bg-transparent border-none text-lethe-muted text-[length:var(--lethe-text-md)] font-sans placeholder:text-lethe-muted focus:outline-none resize-none leading-[var(--lethe-leading-relaxed)]"

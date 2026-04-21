@@ -231,7 +231,7 @@ export default function ConnectPage() {
       <nav className="h-14 flex-shrink-0 flex items-center justify-between px-8 bg-[rgba(5,7,5,0.97)] backdrop-blur-[20px] border-b border-white/[0.07]">
         <button
           onClick={() => navigate('/feed')}
-          className="font-['Libre_Baskerville'] text-[13px] tracking-[0.32em] uppercase text-white/[0.52] flex items-center gap-[9px] hover:text-white/70 transition-colors"
+          className="font-['Cormorant_Garamond'] text-[13px] tracking-[0.32em] uppercase text-white/[0.52] flex items-center gap-[9px] hover:text-white/70 transition-colors"
         >
           <LetheLogo className="w-[15px] h-[15px] opacity-55" />
           Lethe
@@ -314,7 +314,7 @@ export default function ConnectPage() {
                     <img src={currentSuggestion.img} alt={currentSuggestion.name} className="w-full h-full object-cover object-[center_20%]" />
                   </div>
                   <div className="flex flex-col justify-center gap-[3px]">
-                    <div className="font-['Libre_Baskerville'] text-[20px] leading-[1.2] text-white/[0.88]">{currentSuggestion.name}</div>
+                    <div className="font-['Cormorant_Garamond'] text-[20px] leading-[1.2] text-white/[0.88]">{currentSuggestion.name}</div>
                     <div className="text-[11px] text-white/[0.25] tracking-[0.05em]">{currentSuggestion.handle}</div>
                     <div className="flex items-center gap-[7px] flex-wrap">
                       <div className="flex items-center gap-1 text-[11px] font-light text-white/[0.25]">
@@ -385,7 +385,7 @@ export default function ConnectPage() {
             </>
           ) : (
             <div className="flex-1 flex flex-col items-center justify-center gap-3 px-10 py-[60px] text-center">
-              <p className="font-['Libre_Baskerville'] text-[20px] italic text-white/[0.88]">You're all caught up.</p>
+              <p className="font-['Cormorant_Garamond'] text-[20px] italic text-white/[0.88]">You're all caught up.</p>
               <p className="text-[13px] font-light text-white/[0.52] leading-[1.7] max-w-[240px]">
                 New suggestions arrive each Monday.
               </p>
@@ -495,7 +495,7 @@ export default function ConnectPage() {
             <Check size={11} className="text-white/80" strokeWidth={2.5} />
           </div>
         </div>
-        <div className="font-['Libre_Baskerville'] text-[22px] italic text-white/[0.88]">Match set.</div>
+        <div className="font-['Cormorant_Garamond'] text-[22px] italic text-white/[0.88]">Match set.</div>
         <div className="text-[12px] font-light text-white/[0.52] text-center max-w-[220px] leading-[1.65]">
           Lethe will handle the introduction when the time is right.
         </div>

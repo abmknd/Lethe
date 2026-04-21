@@ -207,7 +207,7 @@ export default function OtherUserProfilePage() {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-center">
-          <h1 className="font-['Libre_Baskerville'] text-[24px] text-white/90 mb-4">
+          <h1 className="font-['Cormorant_Garamond'] text-[24px] text-white/90 mb-4">
             User not found
           </h1>
           <button
@@ -237,7 +237,7 @@ export default function OtherUserProfilePage() {
           {/* Logo */}
           <button 
             onClick={() => navigate("/")}
-            className="flex items-center gap-2 text-white text-sm tracking-[0.3em] uppercase font-light font-serif hover:opacity-70 cursor-pointer transition-opacity"
+            className="flex items-center gap-2 text-white text-sm tracking-[0.3em] uppercase font-light font-display hover:opacity-70 cursor-pointer transition-opacity"
           >
             <div className="w-5 h-5">
               <LetheLogo />
@@ -290,7 +290,7 @@ export default function OtherUserProfilePage() {
               <div className="flex flex-col h-[115px]">
                 <div className="flex flex-col gap-[4px] mb-[12px]">
                   <div className="flex items-center gap-[6px]">
-                    <h1 className="font-['Libre_Baskerville'] text-[22px] leading-[26.4px] text-[rgba(255,255,255,0.88)]">
+                    <h1 className="font-['Cormorant_Garamond'] text-[22px] leading-[26.4px] text-[rgba(255,255,255,0.88)]">
                       {user.name}
                     </h1>
                     {user.isMatch && (
@@ -306,7 +306,7 @@ export default function OtherUserProfilePage() {
 
                 {/* Occupation, Location & Gender */}
                 <div className="flex flex-col gap-[4px]">
-                  <div className="font-['Libre_Baskerville'] text-[13px] leading-[19.5px] text-[rgba(255,255,255,0.4)]">
+                  <div className="font-['Cormorant_Garamond'] text-[13px] leading-[19.5px] text-[rgba(255,255,255,0.4)]">
                     {user.occupation}
                   </div>
                   <div className="flex gap-6">
@@ -445,7 +445,7 @@ export default function OtherUserProfilePage() {
                   <p className="font-['Inter'] font-medium text-[11px] tracking-[2px] uppercase text-[#6b6b6b] mb-4">
                     bio
                   </p>
-                  <p className="font-['Libre_Baskerville'] text-[14px] leading-[25.5px] text-[rgba(255,255,255,0.4)]">
+                  <p className="font-['Cormorant_Garamond'] text-[14px] leading-[25.5px] text-[rgba(255,255,255,0.4)]">
                     {user.bio}
                   </p>
                 </div>
@@ -454,7 +454,7 @@ export default function OtherUserProfilePage() {
                 <div className="relative border-t-[0.8px] border-b-[0.8px] border-[rgba(255,255,255,0.07)]">
                   <div className="flex flex-wrap gap-x-8 gap-y-8 px-5 py-[20.8px]">
                     <div className="w-[160px]">
-                      <p className="font-['Libre_Baskerville'] text-[22px] leading-[22px] text-[rgba(255,255,255,0.9)] mb-2">
+                      <p className="font-['Cormorant_Garamond'] text-[22px] leading-[22px] text-[rgba(255,255,255,0.9)] mb-2">
                         {user.stats.followers}
                       </p>
                       <p className="font-['Inter'] font-medium text-[11px] tracking-[2px] uppercase text-[#6b6b6b]">
@@ -462,7 +462,7 @@ export default function OtherUserProfilePage() {
                       </p>
                     </div>
                     <div className="w-[160px]">
-                      <p className="font-['Libre_Baskerville'] text-[22px] leading-[22px] text-[rgba(255,255,255,0.9)] mb-2">
+                      <p className="font-['Cormorant_Garamond'] text-[22px] leading-[22px] text-[rgba(255,255,255,0.9)] mb-2">
                         {user.stats.following}
                       </p>
                       <p className="font-['Inter'] font-medium text-[11px] tracking-[2px] uppercase text-[#6b6b6b]">
@@ -470,7 +470,7 @@ export default function OtherUserProfilePage() {
                       </p>
                     </div>
                     <div className="w-[160px]">
-                      <p className="font-['Libre_Baskerville'] text-[22px] leading-[22px] text-[rgba(255,255,255,0.9)] mb-2">
+                      <p className="font-['Cormorant_Garamond'] text-[22px] leading-[22px] text-[rgba(255,255,255,0.9)] mb-2">
                         {user.stats.posts}
                       </p>
                       <p className="font-['Inter'] font-medium text-[11px] tracking-[2px] uppercase text-[#6b6b6b]">
@@ -478,7 +478,7 @@ export default function OtherUserProfilePage() {
                       </p>
                     </div>
                     <div className="w-[160px]">
-                      <p className="font-['Libre_Baskerville'] text-[22px] leading-[22px] text-[rgba(255,255,255,0.9)] mb-2">
+                      <p className="font-['Cormorant_Garamond'] text-[22px] leading-[22px] text-[rgba(255,255,255,0.9)] mb-2">
                         {user.stats.faded}
                       </p>
                       <p className="font-['Inter'] font-medium text-[11px] tracking-[2px] uppercase text-[#6b6b6b]">
@@ -507,7 +507,7 @@ export default function OtherUserProfilePage() {
                             />
                           ))}
                         </div>
-                        <span className="font-['Libre_Baskerville'] text-[14px] leading-[25.5px] text-[rgba(255,255,255,0.4)]">
+                        <span className="font-['Cormorant_Garamond'] text-[14px] leading-[25.5px] text-[rgba(255,255,255,0.4)]">
                           {user.matches.count}
                         </span>
                       </div>
@@ -518,7 +518,7 @@ export default function OtherUserProfilePage() {
                       <p className="font-['Inter'] font-medium text-[11px] tracking-[2px] uppercase text-[#6b6b6b] mb-2">
                         Meetings
                       </p>
-                      <p className="font-['Libre_Baskerville'] text-[22px] leading-[22px] text-[rgba(255,255,255,0.9)]">
+                      <p className="font-['Cormorant_Garamond'] text-[22px] leading-[22px] text-[rgba(255,255,255,0.9)]">
                         {user.meetings}
                       </p>
                     </div>

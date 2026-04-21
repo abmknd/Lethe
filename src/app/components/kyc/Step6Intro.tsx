@@ -22,7 +22,7 @@ export function Step6Intro({ isActive, direction, data, updateData }: Step6Props
       <span className="font-['Inter'] text-[10px] tracking-[0.3em] uppercase text-[#7FFF00]/50 mb-[14px] block">
         Your voice
       </span>
-      <h1 className="font-['Libre_Baskerville'] text-[clamp(28px,4vw,40px)] font-light italic leading-[1.15] tracking-[-0.02em] text-white/90 mb-[10px]">
+      <h1 className="font-['Cormorant_Garamond'] text-[clamp(28px,4vw,40px)] font-light italic leading-[1.15] tracking-[-0.02em] text-white/90 mb-[10px]">
         How would you<br />
         <em className="not-italic text-[#7FFF00]">introduce yourself?</em>
       </h1>
@@ -36,7 +36,7 @@ export function Step6Intro({ isActive, direction, data, updateData }: Step6Props
         onChange={(e) => updateData({ intro: e.target.value })}
         maxLength={300}
         placeholder="I'm a product designer who thinks about the ethics of what we build…"
-        className="w-full bg-white/[0.08] border border-white/[0.07] rounded-[14px] px-[18px] py-[18px] font-['Libre_Baskerville'] text-[17px] font-light leading-[1.75] text-white/90 resize-none outline-none focus:border-[#7FFF00]/30 transition-colors placeholder:text-white/30 placeholder:italic min-h-[140px]"
+        className="w-full bg-white/[0.08] border border-white/[0.07] rounded-[14px] px-[18px] py-[18px] font-['Cormorant_Garamond'] text-[17px] font-light leading-[1.75] text-white/90 resize-none outline-none focus:border-[#7FFF00]/30 transition-colors placeholder:text-white/30 placeholder:italic min-h-[140px]"
       />
       
       {/* Character count */}

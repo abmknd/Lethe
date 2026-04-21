@@ -31,7 +31,7 @@ export function Step9FinishRegistration({ isActive, direction, onContinueToVerif
       <span className="font-['Inter'] text-[10px] tracking-[0.3em] uppercase text-[#7FFF00]/50 mb-[14px] block">
         Almost there
       </span>
-      <h1 className="font-['Libre_Baskerville'] text-[clamp(28px,4vw,40px)] font-light italic leading-[1.15] tracking-[-0.02em] text-white/90 mb-10">
+      <h1 className="font-['Cormorant_Garamond'] text-[clamp(28px,4vw,40px)] font-light italic leading-[1.15] tracking-[-0.02em] text-white/90 mb-10">
         Finish your<br />
         <em className="not-italic text-[#7FFF00]">registration.</em>
       </h1>
@@ -65,7 +65,7 @@ export function Step9FinishRegistration({ isActive, direction, onContinueToVerif
 
       {/* Why connect section */}
       <div className="mb-8">
-        <h2 className="font-['Libre_Baskerville'] text-[18px] font-normal text-white/90 mb-4 text-center">
+        <h2 className="font-['Cormorant_Garamond'] text-[18px] font-normal text-white/90 mb-4 text-center">
           Why connect my Google account?
         </h2>
         <p className="text-[14px] font-light leading-[1.7] text-white/50 text-center mb-6">

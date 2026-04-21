@@ -41,7 +41,7 @@ export function Step7ProfileImage({ isActive, direction, data, updateData }: Ste
       <span className="font-['Inter'] text-[10px] tracking-[0.3em] uppercase text-[#7FFF00]/50 mb-[14px] block">
         Your profile
       </span>
-      <h1 className="font-['Libre_Baskerville'] text-[clamp(28px,4vw,40px)] font-light italic leading-[1.15] tracking-[-0.02em] text-white/90 mb-[10px]">
+      <h1 className="font-['Cormorant_Garamond'] text-[clamp(28px,4vw,40px)] font-light italic leading-[1.15] tracking-[-0.02em] text-white/90 mb-[10px]">
         Add a profile<br />
         <em className="not-italic text-[#7FFF00]">image.</em>
       </h1>

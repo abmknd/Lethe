@@ -57,7 +57,7 @@ export default function Button() {
   return (
     <div className="relative size-full" data-name="button">
       <Div />
-      <p className="-translate-x-1/2 absolute font-['Libre_Baskerville:Regular',sans-serif] leading-[20px] left-[66px] not-italic text-[14px] text-[rgba(255,255,255,0.5)] text-center top-[-1.2px] tracking-[4.2px] uppercase whitespace-nowrap">LETHE</p>
+      <p className="-translate-x-1/2 absolute font-['Cormorant_Garamond'] leading-[20px] left-[66px] not-italic text-[14px] text-[rgba(255,255,255,0.5)] text-center top-[-1.2px] tracking-[4.2px] uppercase whitespace-nowrap">LETHE</p>
     </div>
   );
 }
