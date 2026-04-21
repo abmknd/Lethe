@@ -64,6 +64,10 @@ export class RecommendationRepository {
   listPairHistory() {
     throw new Error('Not implemented');
   }
+
+  listRecommendationsWithDecisionAndOutcome() {
+    throw new Error('Not implemented');
+  }
 }
 
 export class EventRepository {
@@ -72,6 +76,10 @@ export class EventRepository {
   }
 
   listEvents() {
+    throw new Error('Not implemented');
+  }
+
+  countEventsByType() {
     throw new Error('Not implemented');
   }
 }

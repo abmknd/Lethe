@@ -9,6 +9,7 @@
     "trial:init": "node scripts/init-trial-data.mjs",
     "trial:init:reset": "node scripts/init-trial-data.mjs --reset",
     "trial:run-weekly": "node scripts/run-weekly-matching.mjs",
+    "trial:report:weekly": "node scripts/trial-weekly-report.mjs",
     "trial:smoke": "node scripts/trial-smoke-check.mjs",
     "build": "vite build"
   },

@@ -16,6 +16,8 @@ Purpose:
    - `npm run dev`
 5. Optional preflight smoke check:
    - `npm run trial:smoke`
+6. Optional weekly metrics snapshot:
+   - `npm run trial:report:weekly`
 
 ## Demo flow (recommended order)
 
@@ -45,6 +47,10 @@ Purpose:
 6. Recommendations (`/trial/connect`) again
    - Show downstream status updates.
    - Optionally mark `intro_sent`.
+
+7. Terminal metrics snapshot
+   - Run `npm run trial:report:weekly`.
+   - Review generated volume, decision rates, response rates, outcomes, and median generated-to-decision latency.
 
 ## Demo acceptance checklist
 

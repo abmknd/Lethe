@@ -35,3 +35,7 @@ Definition of done for data/events:
 - End-to-end flow produces coherent local records from onboarding to recommendation to admin decision to user feedback/outcome.
 - Reload/restart does not lose trial-critical state.
 - Admin decision conflicts and rationale validation return deterministic error messages for predictable UI handling.
+
+Weekly reporting:
+- Use `npm run trial:report:weekly` to generate a local snapshot from persisted recommendations/events/outcomes.
+- Snapshot includes generated volume, decision rates, response rates, outcome counts, and median generated-to-decision latency.

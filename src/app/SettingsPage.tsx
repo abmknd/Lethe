@@ -711,17 +711,17 @@ export default function SettingsPage() {
                 <div className="px-7 py-[22px] border-b border-white/[0.07]">
                   <div className="flex items-start justify-between">
                     <div>
-                      <div className="text-[13px] font-medium text-white/88">Chat with Lethe AI</div>
-                      <div className="text-[12px] font-light text-white/[0.25] mt-[2px]">Fine-tune your matches</div>
+                      <div className="text-[13px] font-medium text-white/88">Preference Assistant (Prototype)</div>
+                      <div className="text-[12px] font-light text-white/[0.25] mt-[2px]">Not used in the trial matching engine</div>
                     </div>
                   </div>
                   <div className="mt-3 rounded-xl bg-[#7FFF00]/[0.04] border border-[#7FFF00]/[0.12] px-5 py-4 flex items-start gap-4">
                     <div className="flex-1">
-                      <div className="text-[13px] font-medium text-white/88 mb-[6px]">Unlock hyper-personalised matching</div>
+                      <div className="text-[13px] font-medium text-white/88 mb-[6px]">Exploratory premium concept</div>
                       <ul className="space-y-[5px]">
                         <li className="flex items-center gap-2 text-[12px] font-light text-white/[0.25]">
                           <div className="w-[3px] h-[3px] rounded-full bg-[#7FFF00]/40 flex-shrink-0" />
-                          Chat with Lethe AI to fine-tune who you meet
+                          Placeholder assistant flow (prototype only)
                         </li>
                         <li className="flex items-center gap-2 text-[12px] font-light text-white/[0.25]">
                           <div className="w-[3px] h-[3px] rounded-full bg-[#7FFF00]/40 flex-shrink-0" />

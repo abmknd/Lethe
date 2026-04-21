@@ -796,6 +796,44 @@ export class SqliteTrialRepository extends UserRepository {
     return historyByPair;
   }
 
+  listRecommendationsWithDecisionAndOutcome({ fromIso = null, toIso = null } = {}) {
+    const rows = this.db
+      .prepare(
+        `
+        SELECT
+          r.id,
+          r.created_at,
+          r.status,
+          r.source_user_id,
+          r.target_user_id,
+          ad.decision,
+          ad.decided_at,
+          o.outcome_status
+        FROM recommendations r
+        LEFT JOIN admin_decisions ad ON ad.recommendation_id = r.id
+        LEFT JOIN outcomes o ON o.recommendation_id = r.id
+        WHERE (:fromIso IS NULL OR r.created_at >= :fromIso)
+          AND (:toIso IS NULL OR r.created_at < :toIso)
+        ORDER BY r.created_at ASC
+      `,
+      )
+      .all({
+        fromIso: fromIso ?? null,
+        toIso: toIso ?? null,
+      });
+
+    return rows.map((row) => ({
+      id: row.id,
+      createdAt: row.created_at,
+      status: row.status,
+      sourceUserId: row.source_user_id,
+      targetUserId: row.target_user_id,
+      decision: row.decision ?? null,
+      decidedAt: row.decided_at ?? null,
+      outcomeStatus: row.outcome_status ?? null,
+    }));
+  }
+
   appendEvents(events) {
     if (!events.length) {
       return;
@@ -876,6 +914,29 @@ export class SqliteTrialRepository extends UserRepository {
         createdAt: row.created_at,
       };
     });
+  }
+
+  countEventsByType({ fromIso = null, toIso = null } = {}) {
+    const rows = this.db
+      .prepare(
+        `
+        SELECT event_type, COUNT(*) AS total
+        FROM events
+        WHERE (:fromIso IS NULL OR created_at >= :fromIso)
+          AND (:toIso IS NULL OR created_at < :toIso)
+        GROUP BY event_type
+      `,
+      )
+      .all({
+        fromIso: fromIso ?? null,
+        toIso: toIso ?? null,
+      });
+
+    const counts = {};
+    for (const row of rows) {
+      counts[row.event_type] = Number(row.total);
+    }
+    return counts;
   }
 
   getOutcomeByRecommendation(recommendationId) {

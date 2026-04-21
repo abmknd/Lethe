@@ -15,6 +15,7 @@
 - `npm run trial:init`
 - `npm run trial:init:reset`
 - `npm run trial:run-weekly`
+- `npm run trial:report:weekly`
 - `npm run trial:api`
 - `npm run trial:smoke`
 - `npm run dev`
