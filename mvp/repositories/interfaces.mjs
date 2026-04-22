@@ -57,6 +57,14 @@ export class RecommendationRepository {
     throw new Error('Not implemented');
   }
 
+  getAdminDecisionByRecommendationId() {
+    throw new Error('Not implemented');
+  }
+
+  listPairContextNotes() {
+    throw new Error('Not implemented');
+  }
+
   updateRecommendationStatus() {
     throw new Error('Not implemented');
   }

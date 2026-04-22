@@ -165,6 +165,14 @@ export function createTrialApiServer({ services, dbPath }) {
         return;
       }
 
+      const adminContextMatch = path.match(/^\/api\/trial\/admin\/recommendations\/([^/]+)\/context$/);
+      if (adminContextMatch && req.method === 'GET') {
+        const recommendationId = decodeURIComponent(adminContextMatch[1]);
+        const context = services.profileContext.getRecommendationContext(recommendationId);
+        sendJson(res, 200, { context });
+        return;
+      }
+
       const recommendationResponseMatch = path.match(/^\/api\/trial\/recommendations\/([^/]+)\/respond$/);
       if (recommendationResponseMatch && req.method === 'POST') {
         const recommendationId = decodeURIComponent(recommendationResponseMatch[1]);

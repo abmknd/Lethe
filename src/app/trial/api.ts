@@ -1,5 +1,6 @@
 import type {
   TrialAdminRecommendation,
+  TrialAdminRecommendationContext,
   TrialEvent,
   TrialRecommendation,
   TrialUser,
@@ -103,6 +104,13 @@ export async function submitAdminDecision(params: {
       }),
     },
   );
+}
+
+export async function getAdminRecommendationContext(recommendationId: string) {
+  const result = await request<{ context: TrialAdminRecommendationContext }>(
+    `/api/trial/admin/recommendations/${encodeURIComponent(recommendationId)}/context`,
+  );
+  return result.context;
 }
 
 export async function respondToRecommendation(params: {

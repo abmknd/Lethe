@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { listAdminRecommendations, submitAdminDecision } from './api';
-import type { TrialAdminRecommendation } from './types';
+import { getAdminRecommendationContext, listAdminRecommendations, submitAdminDecision } from './api';
+import type { TrialAdminRecommendation, TrialAdminRecommendationContext } from './types';
 
 const MIN_RATIONALE_CHARS = 10;
 
@@ -24,6 +24,9 @@ export default function TrialAdminPage() {
   const [savingById, setSavingById] = useState<Record<string, boolean>>({});
   const [rationaleById, setRationaleById] = useState<Record<string, string>>({});
   const [rowMessageById, setRowMessageById] = useState<Record<string, string>>({});
+  const [expandedContextById, setExpandedContextById] = useState<Record<string, boolean>>({});
+  const [contextById, setContextById] = useState<Record<string, TrialAdminRecommendationContext>>({});
+  const [loadingContextById, setLoadingContextById] = useState<Record<string, boolean>>({});
 
   async function refresh(currentStatus: 'pending_review' | 'approved' | 'rejected') {
     const nextRows = await listAdminRecommendations(currentStatus);
@@ -80,6 +83,30 @@ export default function TrialAdminPage() {
     }
   }
 
+  async function toggleContext(recommendationId: string) {
+    const currentlyExpanded = Boolean(expandedContextById[recommendationId]);
+    if (currentlyExpanded) {
+      setExpandedContextById((current) => ({ ...current, [recommendationId]: false }));
+      return;
+    }
+
+    if (!contextById[recommendationId]) {
+      setLoadingContextById((current) => ({ ...current, [recommendationId]: true }));
+      try {
+        const context = await getAdminRecommendationContext(recommendationId);
+        setContextById((current) => ({ ...current, [recommendationId]: context }));
+      } catch (error) {
+        const failureMessage = error instanceof Error ? error.message : 'Failed to load context';
+        setRowMessageById((current) => ({ ...current, [recommendationId]: failureMessage }));
+        setLoadingContextById((current) => ({ ...current, [recommendationId]: false }));
+        return;
+      }
+      setLoadingContextById((current) => ({ ...current, [recommendationId]: false }));
+    }
+
+    setExpandedContextById((current) => ({ ...current, [recommendationId]: true }));
+  }
+
   return (
     <div className="space-y-5">
       <section className="bg-[#0d140d] border border-white/10 rounded-xl p-5">
@@ -109,6 +136,9 @@ export default function TrialAdminPage() {
             const rationale = normalizeRationale(rationaleById[row.id] ?? '');
             const isRationaleValid = rationale.length >= MIN_RATIONALE_CHARS;
             const isSaving = savingById[row.id] ?? false;
+            const isContextLoading = loadingContextById[row.id] ?? false;
+            const context = contextById[row.id];
+            const isContextExpanded = expandedContextById[row.id] ?? false;
 
             return (
               <div key={row.id} className="border border-white/10 rounded-lg p-4 bg-black/25">
@@ -148,7 +178,77 @@ export default function TrialAdminPage() {
                   >
                     View events
                   </a>
+                  <button
+                    onClick={() => toggleContext(row.id)}
+                    className="ml-3 text-xs px-2 py-1 rounded border border-white/20 text-white/70 hover:text-white/90"
+                  >
+                    {isContextLoading ? 'Loading context...' : isContextExpanded ? 'Hide context' : 'View context'}
+                  </button>
                 </div>
+
+                {isContextExpanded && context && (
+                  <div className="mt-3 rounded border border-white/15 bg-black/30 p-3 space-y-3">
+                    <div className="text-xs text-white/60 uppercase tracking-[0.12em]">
+                      Reviewer Context ({context.meta.strategy}, snapshotUsed: {String(context.meta.snapshotUsed)})
+                    </div>
+
+                    <div>
+                      <p className="text-xs text-white/50 uppercase tracking-[0.12em] mb-1">Source summary</p>
+                      <p className="text-sm text-white/80">{context.sourceContext.summary}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-white/50 uppercase tracking-[0.12em] mb-1">Candidate summary</p>
+                      <p className="text-sm text-white/80">{context.candidateContext.summary}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-white/50 uppercase tracking-[0.12em] mb-1">Explanation support</p>
+                      <p className="text-sm text-white/85">{context.explanationSupport.headline}</p>
+                      <ul className="mt-1 space-y-1 text-sm text-white/70">
+                        {context.explanationSupport.highlights.map((line, index) => (
+                          <li key={`${row.id}-hl-${index}`}>- {line}</li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div className="grid md:grid-cols-2 gap-2 text-xs text-white/70">
+                      <p>Shared intents: {context.explanationSupport.alignment.sharedIntents.join(', ') || '-'}</p>
+                      <p>Shared interests: {context.explanationSupport.alignment.sharedInterests.join(', ') || '-'}</p>
+                      <p>Ask/offer bridges: {context.explanationSupport.alignment.askOfferBridges.join(' | ') || '-'}</p>
+                      <p>Calibration alignment: {context.explanationSupport.alignment.calibrationAlignment.join(', ') || '-'}</p>
+                    </div>
+                    <div className="grid md:grid-cols-2 gap-2 text-xs text-white/70">
+                      <p>
+                        Latest admin rationale:{' '}
+                        {context.explanationSupport.adminAndFollowUp.latestAdminDecision?.rationale ?? '-'}
+                      </p>
+                      <p>
+                        Latest follow-up notes:{' '}
+                        {context.explanationSupport.adminAndFollowUp.latestOutcome?.notes ?? '-'}
+                      </p>
+                    </div>
+                    {context.explanationSupport.adminAndFollowUp.priorPairNotes.length > 0 && (
+                      <div>
+                        <p className="text-xs text-white/50 uppercase tracking-[0.12em] mb-1">Prior pair notes</p>
+                        <ul className="space-y-1 text-xs text-white/65">
+                          {context.explanationSupport.adminAndFollowUp.priorPairNotes.map((note) => (
+                            <li key={`${row.id}-prior-${note.recommendationId}`}>
+                              {note.recommendationId}: {note.adminRationale ?? note.outcomeNotes ?? note.outcomeStatus ?? 'note'}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    <div>
+                      <p className="text-xs text-white/50 uppercase tracking-[0.12em] mb-1">Evidence references</p>
+                      <ul className="space-y-1 text-xs text-white/65 max-h-36 overflow-auto pr-1">
+                        {context.explanationSupport.evidence.map((evidence, index) => (
+                          <li key={`${row.id}-ev-${index}`}>
+                            {evidence.entityType}:{evidence.entityId} · {evidence.fieldPath}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                )}
 
                 {status === 'pending_review' && (
                   <div className="mt-3 space-y-2">

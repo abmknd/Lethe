@@ -108,3 +108,82 @@ export interface TrialEvent {
   payload: Record<string, unknown>;
   createdAt: string;
 }
+
+export interface TrialEvidenceReference {
+  entityType: string;
+  entityId: string;
+  fieldPath: string;
+  normalizedValue: unknown;
+  sourceTimestamp?: string;
+}
+
+export interface TrialUserContext {
+  userId: string;
+  summary: string;
+  extractionSupport: {
+    asks: string[];
+    offers: string[];
+    intents: string[];
+    interests: string[];
+    preferredUserTypes: string[];
+    calibrationChoices: string[];
+    freeText: string;
+    availabilityDigest: string;
+  };
+  reviewerContextCard: {
+    location: string;
+    timezone: string;
+    matchingEnabled: boolean;
+    localOnly: boolean;
+    meetingFormat: string;
+  };
+  evidence: TrialEvidenceReference[];
+}
+
+export interface TrialRecommendationContextSupport {
+  recommendationId: string;
+  runId: string;
+  headline: string;
+  highlights: string[];
+  alignment: {
+    sharedIntents: string[];
+    sharedInterests: string[];
+    askOfferBridges: string[];
+    calibrationAlignment: string[];
+  };
+  adminAndFollowUp: {
+    latestAdminDecision: {
+      decision: string;
+      rationale: string | null;
+      decidedAt: string | null;
+      adminId: string | null;
+    } | null;
+    latestOutcome: {
+      outcomeStatus: string | null;
+      notes: string | null;
+      updatedAt: string | null;
+    } | null;
+    priorPairNotes: Array<{
+      recommendationId: string;
+      createdAt: string;
+      recommendationStatus: string;
+      adminRationale: string | null;
+      adminDecidedAt: string | null;
+      outcomeStatus: string | null;
+      outcomeNotes: string | null;
+      outcomeUpdatedAt: string | null;
+    }>;
+  };
+  evidence: TrialEvidenceReference[];
+  generatedAt: string | null;
+}
+
+export interface TrialAdminRecommendationContext {
+  sourceContext: TrialUserContext;
+  candidateContext: TrialUserContext;
+  explanationSupport: TrialRecommendationContextSupport;
+  meta: {
+    strategy: string;
+    snapshotUsed: boolean;
+  };
+}

@@ -93,6 +93,28 @@ async function runWeeklyViaApi(app) {
   }
 }
 
+async function fetchAdminContextViaApi(app, recommendationId) {
+  const server = createTrialApiServer({
+    services: app.services,
+    dbPath: app.dbPath,
+  });
+
+  await listen(server);
+
+  try {
+    const address = server.address();
+    assert(address && typeof address === 'object', 'Expected API server to bind to an address.');
+    const response = await fetch(
+      `http://127.0.0.1:${address.port}/api/trial/admin/recommendations/${encodeURIComponent(recommendationId)}/context`,
+      { method: 'GET' },
+    );
+    assert(response.ok, `Expected API admin context HTTP 200, got ${response.status}.`);
+    return response.json();
+  } finally {
+    await closeServer(server);
+  }
+}
+
 const app = createTrialAppContext({
   dbPath: process.env.LETHE_TRIAL_DB_PATH,
 });
@@ -138,6 +160,10 @@ try {
     eventType: 'recommendation_generated',
   });
   assert(runGeneratedEvents.length > 0, 'Expected at least one recommendation_generated event for service run.');
+  assert(
+    runGeneratedEvents.some((event) => event.payload?.explanationSupportSnapshot),
+    'Expected explanationSupportSnapshot in recommendation_generated payload.',
+  );
 
   log('3) Confirm API parity for /api/trial/matching/run-weekly');
   const apiRunResult = await runWeeklyViaApi(app);
@@ -159,7 +185,29 @@ try {
   const recommendation = pendingQueue[0];
   const recommendationId = recommendation.id;
 
-  log('4) Validate rationale enforcement');
+  log('4) Validate admin context endpoint + evidence contract');
+  const contextResponse = await fetchAdminContextViaApi(app, recommendationId);
+  const context = contextResponse.context;
+  assert(context.meta.strategy === 'deterministic', 'Expected context strategy=deterministic.');
+  assert(typeof context.meta.snapshotUsed === 'boolean', 'Expected snapshotUsed boolean.');
+  assert(Array.isArray(context.explanationSupport.evidence), 'Expected explanationSupport evidence array.');
+  assert(
+    context.explanationSupport.evidence.every(
+      (evidence) =>
+        evidence &&
+        typeof evidence.entityType === 'string' &&
+        typeof evidence.entityId === 'string' &&
+        typeof evidence.fieldPath === 'string' &&
+        Object.prototype.hasOwnProperty.call(evidence, 'normalizedValue'),
+    ),
+    'Expected strict evidence reference fields in context endpoint response.',
+  );
+  assert(
+    Array.isArray(context.sourceContext.extractionSupport.calibrationChoices),
+    'Expected calibration choices in source extraction support.',
+  );
+
+  log('5) Validate rationale enforcement');
   let rationaleFailed = false;
   try {
     app.services.adminReview.decide({
@@ -174,7 +222,7 @@ try {
   }
   assert(rationaleFailed, 'Expected short rationale decision to fail.');
 
-  log('5) Validate first-write-wins concurrency behavior');
+  log('6) Validate first-write-wins concurrency behavior');
   const firstDecision = app.services.adminReview.decide({
     recommendationId,
     adminId: 'admin_trial',
@@ -197,7 +245,7 @@ try {
   }
   assert(conflictFailed, 'Expected second decision on same recommendation to fail with conflict.');
 
-  log('6) Validate event filter by recommendationId');
+  log('7) Validate event filter by recommendationId');
   const filteredEvents = app.services.recommendations.listEvents({
     recommendationId,
     limit: 200,
@@ -226,6 +274,8 @@ try {
         recommendationRunIdApi: apiRunResult.runId,
         recommendationsGeneratedApiRun: apiGenerated,
         recommendationId,
+        snapshotUsedForContext: context.meta.snapshotUsed,
+        contextEvidenceCount: context.explanationSupport.evidence.length,
         filteredEvents: filteredEvents.length,
       },
       null,

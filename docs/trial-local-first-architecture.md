@@ -16,6 +16,9 @@ This implementation keeps the MVP demo local while isolating business logic so s
   - explicit repository interfaces: `UserRepository`, `PreferenceRepository`, `AvailabilityRepository`, `RecommendationRepository`, `EventRepository`, `AdminDecisionRepository`, `OutcomeRepository`
 - Event model + persisted taxonomy:
   - `recommendation_generated`, `admin_approved`, `admin_rejected`, `user_accept`, `user_pass`, `intro_sent`, `follow_through_updated`
+- Layer 2 Profile/Context Support v1 (Deterministic, Admin-First):
+  - Generation-time explanation snapshots in `recommendation_generated` payloads for auditability
+  - Read-time reviewer context derivation for `/trial/admin`
 - Callable application service for matching:
   - `WeeklyMatchingService.runWeeklyMatching()`
 - Thin API boundary between UI and services:

@@ -7,6 +7,7 @@
 - [Trial Data and Events](./docs/trial-data-events-note.md)
 - [Trial Local-First Architecture](./docs/trial-local-first-architecture.md)
 - [Trial Persistence Layer (Ticket 2)](./docs/trial-persistence-layer-note.md)
+- [Layer 2 Profile/Context Support v1 (Deterministic, Admin-First)](./docs/trial-layer2-profile-context-v1.md)
 - [Trial Demo Runbook (Ticket 5)](./docs/trial-demo-runbook.md)
 - [Trial Learnings Memo Template](./docs/trial-learnings-memo-template.md)
 

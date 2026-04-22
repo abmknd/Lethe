@@ -720,6 +720,82 @@ export class SqliteTrialRepository extends UserRepository {
     };
   }
 
+  getAdminDecisionByRecommendationId(recommendationId) {
+    const row = this.db
+      .prepare(
+        `
+        SELECT recommendation_id, decision, rationale, admin_id, decided_at
+        FROM admin_decisions
+        WHERE recommendation_id = :recommendationId
+        ORDER BY decided_at DESC
+        LIMIT 1
+      `,
+      )
+      .get({ recommendationId });
+
+    if (!row) {
+      return null;
+    }
+
+    return {
+      recommendationId: row.recommendation_id,
+      decision: row.decision,
+      rationale: row.rationale ?? null,
+      adminId: row.admin_id ?? null,
+      decidedAt: row.decided_at ?? null,
+    };
+  }
+
+  listPairContextNotes({ sourceUserId, targetUserId, excludeRecommendationId = null, limit = 5 } = {}) {
+    const rows = this.db
+      .prepare(
+        `
+        SELECT
+          r.id AS recommendation_id,
+          r.created_at,
+          r.status,
+          ad.rationale AS admin_rationale,
+          ad.decided_at AS admin_decided_at,
+          o.outcome_status,
+          o.notes AS outcome_notes,
+          o.updated_at AS outcome_updated_at
+        FROM recommendations r
+        LEFT JOIN admin_decisions ad ON ad.recommendation_id = r.id
+        LEFT JOIN outcomes o ON o.recommendation_id = r.id
+        WHERE (
+          (r.source_user_id = :sourceUserId AND r.target_user_id = :targetUserId)
+          OR
+          (r.source_user_id = :targetUserId AND r.target_user_id = :sourceUserId)
+        )
+          AND (:excludeRecommendationId IS NULL OR r.id != :excludeRecommendationId)
+          AND (
+            ad.rationale IS NOT NULL
+            OR o.notes IS NOT NULL
+            OR o.outcome_status IS NOT NULL
+          )
+        ORDER BY r.created_at DESC
+        LIMIT :limit
+      `,
+      )
+      .all({
+        sourceUserId,
+        targetUserId,
+        excludeRecommendationId: excludeRecommendationId ?? null,
+        limit,
+      });
+
+    return rows.map((row) => ({
+      recommendationId: row.recommendation_id,
+      createdAt: row.created_at,
+      recommendationStatus: row.status,
+      adminRationale: row.admin_rationale ?? null,
+      adminDecidedAt: row.admin_decided_at ?? null,
+      outcomeStatus: row.outcome_status ?? null,
+      outcomeNotes: row.outcome_notes ?? null,
+      outcomeUpdatedAt: row.outcome_updated_at ?? null,
+    }));
+  }
+
   recordAdminDecision({ id, recommendationId, adminId, decision, rationale, decidedAt = nowIso() }) {
     this.db
       .prepare(
