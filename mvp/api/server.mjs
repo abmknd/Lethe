@@ -118,6 +118,14 @@ export function createTrialApiServer({ services, dbPath }) {
         }
       }
 
+      const userContextMatch = path.match(/^\/api\/trial\/users\/([^/]+)\/context$/);
+      if (userContextMatch && req.method === 'GET') {
+        const userId = decodeURIComponent(userContextMatch[1]);
+        const context = services.profileContext.getViewerSafeUserContext(userId);
+        sendJson(res, 200, { context });
+        return;
+      }
+
       const userRecommendationsMatch = path.match(/^\/api\/trial\/users\/([^/]+)\/recommendations$/);
       if (userRecommendationsMatch && req.method === 'GET') {
         const userId = decodeURIComponent(userRecommendationsMatch[1]);
@@ -169,6 +177,16 @@ export function createTrialApiServer({ services, dbPath }) {
       if (adminContextMatch && req.method === 'GET') {
         const recommendationId = decodeURIComponent(adminContextMatch[1]);
         const context = services.profileContext.getRecommendationContext(recommendationId);
+        sendJson(res, 200, { context });
+        return;
+      }
+
+      const recommendationParticipantsContextMatch = path.match(
+        /^\/api\/trial\/recommendations\/([^/]+)\/participants-context$/,
+      );
+      if (recommendationParticipantsContextMatch && req.method === 'GET') {
+        const recommendationId = decodeURIComponent(recommendationParticipantsContextMatch[1]);
+        const context = services.profileContext.getRecommendationParticipantsContext(recommendationId);
         sendJson(res, 200, { context });
         return;
       }

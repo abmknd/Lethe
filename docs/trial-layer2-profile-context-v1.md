@@ -1,11 +1,11 @@
-# Layer 2 Profile/Context Support v1 (Deterministic, Admin-First)
+# Layer 2 Profile/Context Support v1 (Deterministic, Admin + Bridge Read APIs)
 
 ## Purpose
-Improve reviewer understanding and explanation quality in `/trial/admin` without changing ranking behavior.
+Improve reviewer understanding and explanation quality in `/trial/admin`, and expose lightweight viewer-safe bridge payloads for recommendation cards, without changing ranking behavior.
 
 ## v1 scope
 - Deterministic profile/context support only.
-- Admin-first surface only.
+- Admin surface and bridge-read API surface only.
 - Uses existing persisted entities.
 - Adds generation-time explanation snapshot to `recommendation_generated` events for auditability and traceability.
 - Computes current reviewer context on read from persisted entities/notes.
@@ -17,13 +17,33 @@ Improve reviewer understanding and explanation quality in `/trial/admin` without
 - admin notes/rationales
 - prior intro/follow-up notes/outcomes when available
 
-## API (admin-first)
+## API (implemented)
 - `GET /api/trial/admin/recommendations/:recommendationId/context`
+- `GET /api/trial/recommendations/:recommendationId/participants-context`
+- `GET /api/trial/users/:userId/context`
 - Returns:
   - `sourceContext`
   - `candidateContext`
   - `explanationSupport`
   - `meta` (`strategy`, `snapshotUsed`)
+
+Bridge payloads return lightweight participant context for card rendering:
+- participant identity/context:
+  - `id`, `displayName`, `handle`, `location`, `timezone`
+  - `summary`
+  - `reviewerContextCard`
+- extraction subset:
+  - `asks`, `offers`, `intents`, `interests`
+  - `preferredUserTypes`, `calibrationChoices`, `availabilityDigest`
+- explanation subset:
+  - `headline`, `highlights`, `alignment`, compact `evidence`
+- metadata:
+  - `strategy`, `snapshotUsed`
+
+Shared typed contracts:
+- `ParticipantContext`
+- `RecommendationParticipantsContextResponse`
+- `UserContextResponse`
 
 ## Evidence reference contract
 Each explanation evidence reference must include:
@@ -45,5 +65,12 @@ Each explanation evidence reference must include:
 - Does not affect ranking/scoring behavior.
 - Does not introduce vector retrieval.
 - Does not introduce LLM summarization.
-- Does not expose context on `/trial/connect`.
+- Does not wire bridge payloads to main UI in this phase.
 - Does not create a general-purpose context warehouse.
+
+## Viewer-safe contract rules
+- Excludes private/unneeded fields from bridge payloads (for example `email`, `blockedUserIds`).
+- Excludes raw extraction internals not needed by cards (for example `freeText`).
+- Evidence payload is compact and capped server-side (default: 20 items).
+- No auth/session behavior changes in this phase.
+- No schema migrations in this phase.

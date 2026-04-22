@@ -117,6 +117,61 @@ export interface TrialEvidenceReference {
   sourceTimestamp?: string;
 }
 
+export interface ParticipantContext {
+  id: string;
+  displayName: string;
+  handle: string;
+  location: string;
+  timezone: string;
+  summary: string;
+  reviewerContextCard: {
+    location: string;
+    timezone: string;
+    matchingEnabled: boolean;
+    localOnly: boolean;
+    meetingFormat: string;
+  };
+  extractionSupport: {
+    asks: string[];
+    offers: string[];
+    intents: string[];
+    interests: string[];
+    preferredUserTypes: string[];
+    calibrationChoices: string[];
+    availabilityDigest: string;
+  };
+  evidence: TrialEvidenceReference[];
+}
+
+export interface UserContextResponse {
+  participant: ParticipantContext;
+  meta: {
+    strategy: string;
+  };
+}
+
+export interface RecommendationParticipantsContextResponse {
+  recommendationId: string;
+  runId: string;
+  sourceParticipant: ParticipantContext;
+  candidateParticipant: ParticipantContext;
+  explanationSupport: {
+    headline: string;
+    highlights: string[];
+    alignment: {
+      sharedIntents: string[];
+      sharedInterests: string[];
+      askOfferBridges: string[];
+      calibrationAlignment: string[];
+    };
+    evidence: TrialEvidenceReference[];
+  };
+  meta: {
+    strategy: string;
+    snapshotUsed: boolean;
+  };
+}
+
 export interface TrialUserContext {
   userId: string;
   summary: string;

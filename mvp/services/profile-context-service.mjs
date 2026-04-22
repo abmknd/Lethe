@@ -3,6 +3,8 @@ import {
   buildUserContext,
 } from '../context/profile-context-support.mjs';
 
+const DEFAULT_EVIDENCE_LIMIT = 20;
+
 function createHttpError(statusCode, message) {
   const error = new Error(message);
   error.statusCode = statusCode;
@@ -14,21 +16,45 @@ export class ProfileContextService {
     this.repository = repository;
   }
 
-  getUserContext(userId) {
-    const profile = this.repository.getUserProfile(userId);
-    if (!profile) {
-      throw createHttpError(404, 'User not found.');
+  _limitEvidence(evidence, evidenceLimit = DEFAULT_EVIDENCE_LIMIT) {
+    if (!Array.isArray(evidence)) {
+      return [];
     }
+    return evidence.slice(0, Math.max(0, evidenceLimit));
+  }
 
+  _toParticipantContext(userContext, evidenceLimit = DEFAULT_EVIDENCE_LIMIT) {
     return {
-      ...buildUserContext(profile),
-      meta: {
-        strategy: 'deterministic',
+      id: userContext.userId,
+      displayName: userContext.displayName,
+      handle: userContext.handle,
+      location: userContext.reviewerContextCard.location,
+      timezone: userContext.reviewerContextCard.timezone,
+      summary: userContext.summary,
+      reviewerContextCard: userContext.reviewerContextCard,
+      extractionSupport: {
+        asks: userContext.extractionSupport.asks,
+        offers: userContext.extractionSupport.offers,
+        intents: userContext.extractionSupport.intents,
+        interests: userContext.extractionSupport.interests,
+        preferredUserTypes: userContext.extractionSupport.preferredUserTypes,
+        calibrationChoices: userContext.extractionSupport.calibrationChoices,
+        availabilityDigest: userContext.extractionSupport.availabilityDigest,
       },
+      evidence: this._limitEvidence(userContext.evidence, evidenceLimit),
     };
   }
 
-  getRecommendationContext(recommendationId) {
+  _toBridgeExplanationSupport(explanationSupport, evidenceLimit = DEFAULT_EVIDENCE_LIMIT) {
+    return {
+      headline: explanationSupport.headline,
+      highlights: explanationSupport.highlights,
+      alignment: explanationSupport.alignment,
+      evidence: this._limitEvidence(explanationSupport.evidence, evidenceLimit),
+    };
+  }
+
+  _buildRecommendationContextData(recommendationId) {
     const recommendation = this.repository.getRecommendationById(recommendationId);
     if (!recommendation) {
       throw createHttpError(404, 'Recommendation not found.');
@@ -86,6 +112,7 @@ export class ProfileContextService {
       });
 
     return {
+      recommendation,
       sourceContext,
       candidateContext,
       explanationSupport,
@@ -93,6 +120,75 @@ export class ProfileContextService {
         strategy: 'deterministic',
         snapshotUsed: Boolean(snapshotEvent?.payload?.explanationSupportSnapshot),
       },
+    };
+  }
+
+  getUserContext(userId) {
+    const profile = this.repository.getUserProfile(userId);
+    if (!profile) {
+      throw createHttpError(404, 'User not found.');
+    }
+
+    const userContext = buildUserContext(profile);
+    return {
+      ...userContext,
+      displayName: profile.user.displayName ?? profile.user.name,
+      handle: profile.user.handle,
+      meta: {
+        strategy: 'deterministic',
+      },
+    };
+  }
+
+  getViewerSafeUserContext(userId, { evidenceLimit = DEFAULT_EVIDENCE_LIMIT } = {}) {
+    const context = this.getUserContext(userId);
+    return {
+      participant: this._toParticipantContext(context, evidenceLimit),
+      meta: context.meta,
+    };
+  }
+
+  getRecommendationContext(recommendationId) {
+    const contextData = this._buildRecommendationContextData(recommendationId);
+
+    return {
+      sourceContext: contextData.sourceContext,
+      candidateContext: contextData.candidateContext,
+      explanationSupport: contextData.explanationSupport,
+      meta: contextData.meta,
+    };
+  }
+
+  getRecommendationParticipantsContext(recommendationId, { evidenceLimit = DEFAULT_EVIDENCE_LIMIT } = {}) {
+    const contextData = this._buildRecommendationContextData(recommendationId);
+
+    return {
+      recommendationId: contextData.recommendation.id,
+      runId: contextData.recommendation.runId,
+      sourceParticipant: this._toParticipantContext(
+        {
+          ...contextData.sourceContext,
+          displayName:
+            contextData.recommendation.source?.displayName ??
+            contextData.recommendation.source?.name ??
+            contextData.sourceContext.userId,
+          handle: contextData.recommendation.source?.handle ?? '',
+        },
+        evidenceLimit,
+      ),
+      candidateParticipant: this._toParticipantContext(
+        {
+          ...contextData.candidateContext,
+          displayName:
+            contextData.recommendation.candidate?.displayName ??
+            contextData.recommendation.candidate?.name ??
+            contextData.candidateContext.userId,
+          handle: contextData.recommendation.candidate?.handle ?? '',
+        },
+        evidenceLimit,
+      ),
+      explanationSupport: this._toBridgeExplanationSupport(contextData.explanationSupport, evidenceLimit),
+      meta: contextData.meta,
     };
   }
 }
