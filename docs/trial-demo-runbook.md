@@ -55,7 +55,10 @@ Purpose:
 ## Demo acceptance checklist
 
 - [ ] Onboarding changes persist after page reload.
-- [ ] Weekly run produces recommendations.
+- [ ] `npm run trial:run-weekly` creates a completed `recommendation_runs` record with non-zero `summary_json.recommendationsGenerated`.
+- [ ] Generated recommendations persist with `run_id` linked to the weekly run.
+- [ ] `recommendation_generated` events exist for the weekly run.
+- [ ] `POST /api/trial/matching/run-weekly` has parity with CLI behavior (run persisted + recommendations generated).
 - [ ] Admin approve/reject requires rationale.
 - [ ] Non-pending recommendations cannot be re-decided.
 - [ ] Event log is filterable by `recommendationId`.
