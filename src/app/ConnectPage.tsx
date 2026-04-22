@@ -288,6 +288,19 @@ export default function ConnectPage() {
         </div>
       </div>
 
+      {/* Trial isolation notice */}
+      <div className="flex-shrink-0 px-8 py-2 bg-[#131a13] border-b border-white/[0.06]">
+        <div className="flex flex-wrap items-center gap-3 text-[11px] tracking-[0.04em] text-white/[0.65]">
+          <span>This page is prototype/mock data.</span>
+          <button
+            onClick={() => navigate('/trial/connect')}
+            className="px-2.5 py-1 rounded border border-[#4dc7ff]/35 text-[#9fe4ff] bg-[#4dc7ff]/10 hover:bg-[#4dc7ff]/15 transition-colors"
+          >
+            Open real trial recommendations
+          </button>
+        </div>
+      </div>
+
       {/* Weekly banner */}
       <div className="flex-shrink-0 px-8 bg-[rgba(173,255,47,0.03)] border-b border-[rgba(173,255,47,0.07)] flex items-center justify-between h-10">
         <div className="flex items-center gap-[9px]">
