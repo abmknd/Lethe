@@ -235,7 +235,8 @@ export function createDeterministicMatcher({ topN = 5, recentIntroDays = 45 } = 
           const historicalPenalty = Math.min(20, historyRows.length * 4);
 
           const baseScore =
-            complementarityRatio * 0.3 +
+            complementarityRatio * 0.2 +
+            reciprocalComplementarity * 0.1 +
             roleFitRatio * 0.15 +
             intentRatio * 0.2 +
             interestRatio * 0.15 +

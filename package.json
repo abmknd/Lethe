@@ -11,6 +11,7 @@
     "trial:run-weekly": "node scripts/run-weekly-matching.mjs",
     "trial:report:weekly": "node scripts/trial-weekly-report.mjs",
     "trial:smoke": "node scripts/trial-smoke-check.mjs",
+    "trial:test:backend": "node --test mvp/tests/**/*.test.mjs",
     "build": "vite build"
   },
   "dependencies": {

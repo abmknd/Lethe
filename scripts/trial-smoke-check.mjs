@@ -231,6 +231,39 @@ try {
   });
   assert(firstDecision.status === 'approved', 'Expected first decision to set status=approved.');
 
+  log('7) Validate user response + follow-through outcome traceability');
+  const userResponse = app.services.recommendations.respondToRecommendation({
+    recommendationId,
+    userId: recommendation.userId,
+    decision: 'accept',
+  });
+  assert(userResponse.status === 'accepted', 'Expected accept response to set status=accepted.');
+
+  const introOutcome = app.services.recommendations.updateFollowThrough({
+    recommendationId,
+    actorUserId: 'admin_trial',
+    status: 'intro_sent',
+    notes: 'Intro sent during smoke validation.',
+  });
+  assert(introOutcome.outcomeStatus === 'intro_sent', 'Expected intro_sent outcome status.');
+
+  const meetingOutcome = app.services.recommendations.updateFollowThrough({
+    recommendationId,
+    actorUserId: 'admin_trial',
+    status: 'meeting_scheduled',
+    notes: 'Meeting scheduled during smoke validation.',
+  });
+  assert(meetingOutcome.outcomeStatus === 'meeting_scheduled', 'Expected meeting_scheduled outcome status.');
+
+  const refreshedRecommendation = app.services.recommendations
+    .listForUser(recommendation.userId)
+    .find((item) => item.id === recommendationId);
+  assert(Boolean(refreshedRecommendation), 'Expected recommendation to remain queryable for user.');
+  assert(
+    refreshedRecommendation.outcome.outcomeStatus === 'meeting_scheduled',
+    'Expected recommendation outcomeStatus to persist as meeting_scheduled.',
+  );
+
   let conflictFailed = false;
   try {
     app.services.adminReview.decide({
@@ -245,7 +278,7 @@ try {
   }
   assert(conflictFailed, 'Expected second decision on same recommendation to fail with conflict.');
 
-  log('7) Validate event filter by recommendationId');
+  log('8) Validate event filters by recommendationId and eventType');
   const filteredEvents = app.services.recommendations.listEvents({
     recommendationId,
     limit: 200,
@@ -263,6 +296,29 @@ try {
     filteredEvents.some((event) => event.eventType === 'admin_approved'),
     'Expected admin_approved event in filtered set.',
   );
+  assert(
+    filteredEvents.some((event) => event.eventType === 'user_accept'),
+    'Expected user_accept event in filtered set.',
+  );
+  assert(
+    filteredEvents.some((event) => event.eventType === 'intro_sent'),
+    'Expected intro_sent event in filtered set.',
+  );
+  assert(
+    filteredEvents.some((event) => event.eventType === 'follow_through_updated'),
+    'Expected follow_through_updated event in filtered set.',
+  );
+
+  const introEvents = app.services.recommendations.listEvents({
+    recommendationId,
+    eventType: 'intro_sent',
+    limit: 50,
+  });
+  assert(introEvents.length > 0, 'Expected intro_sent event filter to return records.');
+  assert(
+    introEvents.every((event) => event.eventType === 'intro_sent' && event.recommendationId === recommendationId),
+    'Expected intro_sent filtered events scoped by recommendationId.',
+  );
 
   log('Trial smoke check passed.');
   log(
@@ -274,6 +330,7 @@ try {
         recommendationRunIdApi: apiRunResult.runId,
         recommendationsGeneratedApiRun: apiGenerated,
         recommendationId,
+        outcomeStatusFinal: refreshedRecommendation.outcome.outcomeStatus,
         snapshotUsedForContext: context.meta.snapshotUsed,
         contextEvidenceCount: context.explanationSupport.evidence.length,
         filteredEvents: filteredEvents.length,

@@ -240,6 +240,19 @@ export function createTrialApiServer({ services, dbPath }) {
         return;
       }
 
+      if (req.method === 'GET' && path === '/api/trial/report') {
+        const windowDays = Number(url.searchParams.get('windowDays') ?? 7);
+        const fromIso = url.searchParams.get('from') ?? undefined;
+        const toIso = url.searchParams.get('to') ?? undefined;
+        const snapshot = services.weeklyReport.generateSnapshot({
+          windowDays: Number.isFinite(windowDays) ? Math.max(1, windowDays) : 7,
+          fromIso,
+          toIso,
+        });
+        sendJson(res, 200, { report: snapshot });
+        return;
+      }
+
       sendJson(res, 404, { error: 'Route not found.' });
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unexpected error';

@@ -19,6 +19,7 @@
 - `npm run trial:report:weekly`
 - `npm run trial:api`
 - `npm run trial:smoke`
+- `npm run trial:test:backend`
 - `npm run dev`
 
 ## Demo Path
