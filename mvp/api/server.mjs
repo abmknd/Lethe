@@ -118,6 +118,14 @@ export function createTrialApiServer({ services, dbPath }) {
         }
       }
 
+      const userContextMatch = path.match(/^\/api\/trial\/users\/([^/]+)\/context$/);
+      if (userContextMatch && req.method === 'GET') {
+        const userId = decodeURIComponent(userContextMatch[1]);
+        const context = services.profileContext.getViewerSafeUserContext(userId);
+        sendJson(res, 200, { context });
+        return;
+      }
+
       const userRecommendationsMatch = path.match(/^\/api\/trial\/users\/([^/]+)\/recommendations$/);
       if (userRecommendationsMatch && req.method === 'GET') {
         const userId = decodeURIComponent(userRecommendationsMatch[1]);
@@ -173,6 +181,16 @@ export function createTrialApiServer({ services, dbPath }) {
         return;
       }
 
+      const recommendationParticipantsContextMatch = path.match(
+        /^\/api\/trial\/recommendations\/([^/]+)\/participants-context$/,
+      );
+      if (recommendationParticipantsContextMatch && req.method === 'GET') {
+        const recommendationId = decodeURIComponent(recommendationParticipantsContextMatch[1]);
+        const context = services.profileContext.getRecommendationParticipantsContext(recommendationId);
+        sendJson(res, 200, { context });
+        return;
+      }
+
       const recommendationResponseMatch = path.match(/^\/api\/trial\/recommendations\/([^/]+)\/respond$/);
       if (recommendationResponseMatch && req.method === 'POST') {
         const recommendationId = decodeURIComponent(recommendationResponseMatch[1]);
@@ -219,6 +237,19 @@ export function createTrialApiServer({ services, dbPath }) {
         });
 
         sendJson(res, 200, { events });
+        return;
+      }
+
+      if (req.method === 'GET' && path === '/api/trial/report') {
+        const windowDays = Number(url.searchParams.get('windowDays') ?? 7);
+        const fromIso = url.searchParams.get('from') ?? undefined;
+        const toIso = url.searchParams.get('to') ?? undefined;
+        const snapshot = services.weeklyReport.generateSnapshot({
+          windowDays: Number.isFinite(windowDays) ? Math.max(1, windowDays) : 7,
+          fromIso,
+          toIso,
+        });
+        sendJson(res, 200, { report: snapshot });
         return;
       }
 

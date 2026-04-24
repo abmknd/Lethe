@@ -1,9 +1,11 @@
 import type {
+  RecommendationParticipantsContextResponse,
   TrialAdminRecommendation,
   TrialAdminRecommendationContext,
   TrialEvent,
   TrialRecommendation,
   TrialUser,
+  UserContextResponse,
   TrialUserProfile,
 } from './types';
 
@@ -45,6 +47,11 @@ export async function listTrialUsers() {
 export async function getTrialUserProfile(userId: string) {
   const result = await request<{ profile: TrialUserProfile }>(`/api/trial/users/${encodeURIComponent(userId)}/profile`);
   return result.profile;
+}
+
+export async function getTrialUserContext(userId: string) {
+  const result = await request<{ context: UserContextResponse }>(`/api/trial/users/${encodeURIComponent(userId)}/context`);
+  return result.context;
 }
 
 export async function saveTrialUserProfile(userId: string, profile: Omit<TrialUserProfile, 'updatedAt'>) {
@@ -109,6 +116,13 @@ export async function submitAdminDecision(params: {
 export async function getAdminRecommendationContext(recommendationId: string) {
   const result = await request<{ context: TrialAdminRecommendationContext }>(
     `/api/trial/admin/recommendations/${encodeURIComponent(recommendationId)}/context`,
+  );
+  return result.context;
+}
+
+export async function getRecommendationParticipantsContext(recommendationId: string) {
+  const result = await request<{ context: RecommendationParticipantsContextResponse }>(
+    `/api/trial/recommendations/${encodeURIComponent(recommendationId)}/participants-context`,
   );
   return result.context;
 }
