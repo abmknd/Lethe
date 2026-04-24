@@ -39,7 +39,7 @@ export default function ConnectPage() {
     if (!selectedUserId) return;
     setIsLoading(true);
     setCurrentIdx(0);
-    listUserRecommendations(selectedUserId, 'approved')
+    listUserRecommendations(selectedUserId, 'pending_review')
       .then(setRecommendations)
       .catch(() => setRecommendations([]))
       .finally(() => setIsLoading(false));
