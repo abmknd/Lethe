@@ -113,7 +113,7 @@ export function Step10Verify({ isActive, direction, data, updateData, onComplete
       <div className="text-center mt-2 font-['Inter'] text-[11px] tracking-[0.14em] text-white/30">
         Didn't receive it?{' '}
         <button
-          onClick={() => console.log('Resend code')}
+          onClick={() => {}}
           className="underline hover:text-white/50 transition-colors"
         >
           Resend

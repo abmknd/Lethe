@@ -59,21 +59,16 @@ export default function Feed() {
 
   // Show KYC modal 3 seconds after first load from onboarding (only once per session)
   useEffect(() => {
-    // TEMPORARY: Always show KYC for testing purposes
-    // TODO: Re-enable storage checks for production
-    // const kycCompleted = localStorage.getItem('lethe_kyc_completed');
-    // const kycShownThisSession = sessionStorage.getItem('lethe_kyc_shown');
-    
-    console.log('🔍 KYC Check: Always showing for testing');
-    
-    // Always show KYC modal after 3 seconds
-    console.log('✅ KYC will show in 3 seconds...');
-    const timer = setTimeout(() => {
-      setIsKYCModalOpen(true);
-      // sessionStorage.setItem('lethe_kyc_shown', 'true');
-    }, 3000);
+    const kycCompleted = localStorage.getItem('lethe_kyc_completed');
+    const kycShownThisSession = sessionStorage.getItem('lethe_kyc_shown');
 
-    return () => clearTimeout(timer);
+    if (!kycCompleted && !kycShownThisSession) {
+      const timer = setTimeout(() => {
+        setIsKYCModalOpen(true);
+        sessionStorage.setItem('lethe_kyc_shown', 'true');
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
   }, []);
 
   // Handle KYC modal close
@@ -992,8 +987,7 @@ export default function Feed() {
         isOpen={isKYCModalOpen}
         onClose={handleKYCClose}
         onComplete={() => {
-          // KYC completed successfully
-          console.log('KYC completed');
+          localStorage.setItem('lethe_kyc_completed', 'true');
         }}
       />
     </div>

@@ -18,10 +18,8 @@ export function Step1HowItWorks({ isActive, direction }: Step1Props) {
   };
 
   const handlePlayClick = () => {
-    console.log('Play button clicked');
     setIsPlaying(true);
     if (videoRef.current) {
-      console.log('Video element exists, attempting to play');
       videoRef.current.play().catch((error) => {
         console.error('Video play error:', error);
         setVideoError(true);
@@ -31,7 +29,7 @@ export function Step1HowItWorks({ isActive, direction }: Step1Props) {
   };
 
   const handleVideoLoad = () => {
-    console.log('Video loaded successfully');
+    // video ready
   };
 
   const handleVideoError = (e: React.SyntheticEvent<HTMLVideoElement, Event>) => {
