@@ -896,7 +896,7 @@ export default function Feed() {
           {/* Logo */}
           <button 
             onClick={() => navigate("/")}
-            className={`flex items-center gap-2 ${text} text-sm tracking-[0.3em] uppercase font-light font-serif transition-colors duration-300 hover:opacity-70 cursor-pointer`}
+            className={`flex items-center gap-2 ${text} text-sm tracking-[0.3em] uppercase font-light font-display transition-colors duration-300 hover:opacity-70 cursor-pointer`}
           >
             <div className="w-5 h-5">
               <LetheLogo />

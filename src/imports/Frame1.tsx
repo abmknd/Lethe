@@ -3,7 +3,7 @@ import svgPaths from "./svg-oh0hq1ejtb";
 function Container() {
   return (
     <div className="absolute h-[27px] left-[20px] top-[20px] w-[279.2px]" data-name="Container">
-      <p className="absolute font-['Libre_Baskerville:Italic',sans-serif] italic leading-[27px] left-0 text-[18px] text-[rgba(255,255,255,0.9)] top-[-1.4px] whitespace-nowrap">Messages</p>
+      <p className="absolute font-['Cormorant_Garamond'] italic leading-[27px] left-0 text-[18px] text-[rgba(255,255,255,0.9)] top-[-1.4px] whitespace-nowrap">Messages</p>
     </div>
   );
 }
@@ -172,7 +172,7 @@ function Container10() {
 function Container9() {
   return (
     <div className="absolute bg-gradient-to-b border-[0.8px] border-[rgba(255,255,255,0.07)] border-solid from-[#1a2a1a] left-[20px] rounded-[26843500px] size-[42px] to-[#0d150d] top-[14.55px]" data-name="Container">
-      <p className="absolute font-['Libre_Baskerville:Italic',sans-serif] italic leading-[24px] left-[12.04px] text-[16px] text-[rgba(255,255,255,0.45)] top-[8.6px] whitespace-nowrap">M</p>
+      <p className="absolute font-['Cormorant_Garamond'] italic leading-[24px] left-[12.04px] text-[16px] text-[rgba(255,255,255,0.45)] top-[8.6px] whitespace-nowrap">M</p>
       <Container10 />
     </div>
   );
@@ -245,7 +245,7 @@ function Container16() {
   return (
     <div className="absolute bg-gradient-to-b content-stretch flex from-[#1a2a1a] items-center justify-center left-[20px] p-[0.8px] rounded-[26843500px] size-[42px] to-[#0d150d] top-[14px]" data-name="Container">
       <div aria-hidden="true" className="absolute border-[0.8px] border-[rgba(255,255,255,0.07)] border-solid inset-0 pointer-events-none rounded-[26843500px]" />
-      <p className="font-['Libre_Baskerville:Italic',sans-serif] italic leading-[24px] relative shrink-0 text-[16px] text-[rgba(255,255,255,0.45)] whitespace-nowrap">S</p>
+      <p className="font-['Cormorant_Garamond'] italic leading-[24px] relative shrink-0 text-[16px] text-[rgba(255,255,255,0.45)] whitespace-nowrap">S</p>
     </div>
   );
 }
@@ -335,7 +335,7 @@ function Container24() {
 function Container23() {
   return (
     <div className="absolute bg-gradient-to-b border-[0.8px] border-[rgba(255,255,255,0.07)] border-solid from-[#1a2a1a] left-[20px] rounded-[26843500px] size-[42px] to-[#0d150d] top-[14.55px]" data-name="Container">
-      <p className="absolute font-['Libre_Baskerville:Italic',sans-serif] italic leading-[24px] left-[14.28px] text-[16px] text-[rgba(255,255,255,0.45)] top-[8.6px] whitespace-nowrap">E</p>
+      <p className="absolute font-['Cormorant_Garamond'] italic leading-[24px] left-[14.28px] text-[16px] text-[rgba(255,255,255,0.45)] top-[8.6px] whitespace-nowrap">E</p>
       <Container24 />
     </div>
   );
@@ -408,7 +408,7 @@ function Container30() {
   return (
     <div className="absolute bg-gradient-to-b content-stretch flex from-[#1a2a1a] items-center justify-center left-[20px] p-[0.8px] rounded-[26843500px] size-[42px] to-[#0d150d] top-[14px]" data-name="Container">
       <div aria-hidden="true" className="absolute border-[0.8px] border-[rgba(255,255,255,0.07)] border-solid inset-0 pointer-events-none rounded-[26843500px]" />
-      <p className="font-['Libre_Baskerville:Italic',sans-serif] italic leading-[24px] relative shrink-0 text-[16px] text-[rgba(255,255,255,0.45)] whitespace-nowrap">T</p>
+      <p className="font-['Cormorant_Garamond'] italic leading-[24px] relative shrink-0 text-[16px] text-[rgba(255,255,255,0.45)] whitespace-nowrap">T</p>
     </div>
   );
 }
@@ -479,7 +479,7 @@ function Container36() {
   return (
     <div className="absolute bg-gradient-to-b content-stretch flex from-[#1a2a1a] items-center justify-center left-[20px] p-[0.8px] rounded-[26843500px] size-[42px] to-[#0d150d] top-[14px]" data-name="Container">
       <div aria-hidden="true" className="absolute border-[0.8px] border-[rgba(255,255,255,0.07)] border-solid inset-0 pointer-events-none rounded-[26843500px]" />
-      <p className="font-['Libre_Baskerville:Italic',sans-serif] italic leading-[24px] relative shrink-0 text-[16px] text-[rgba(255,255,255,0.45)] whitespace-nowrap">R</p>
+      <p className="font-['Cormorant_Garamond'] italic leading-[24px] relative shrink-0 text-[16px] text-[rgba(255,255,255,0.45)] whitespace-nowrap">R</p>
     </div>
   );
 }

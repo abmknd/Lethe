@@ -1,0 +1,334 @@
+/* ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+   Lethe Design System â Colors & Type
+   v2 â Three-font system. Dark is the brand. Light is functional.
+   ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+   Font system (3 fonts, non-overlapping roles):
+     Cormorant Garamond â all headings, display, hero, in-app titles
+     Inter              â all body copy, paragraphs, UI text, forms
+     DM Mono            â eyebrows, buttons, meta, all-caps, code, tags
+
+   Chartreuse (#7FFF00) only works on dark backgrounds.
+   In light mode, #5D9F00 replaces it on interactive elements only.
+   Decorative chartreuse uses (glows, borders, tints) are suppressed
+   in light mode entirely.
+   ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
+
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&display=swap');
+
+:root {
+  /* âââ Font stacks âââââââââââââââââââââââââââââââââââââââââââ */
+  --font-display: 'Cormorant Garamond', Georgia, serif; /* all headings: display, hero, in-app */
+  --font-sans:    'Inter', system-ui, -apple-system, sans-serif; /* all body, UI, forms */
+  --font-mono:    'DM Mono', ui-monospace, 'SF Mono', monospace; /* eyebrows, buttons, meta, code */
+
+  /* âââ Lethe Primitive Palette âââââââââââââââââââââââââââââââ */
+  --lethe-chartreuse:         #7FFF00;   /* primary accent â dark mode only */
+  --lethe-chartreuse-bright:  #ADFF2F;   /* glow + ripple variant â dark mode only */
+  --lethe-chartreuse-pale:    #DFFF00;   /* confetti / highlight â dark mode only */
+  --lethe-chartreuse-dim:     #5D9F00;   /* interactive accent in light mode (WCAG AA) */
+
+  --lethe-black:        #000000;
+  --lethe-ink:          #050705;   /* true page background (landing) */
+  --lethe-ink-2:        #0a0d0a;   /* cards on ink */
+  --lethe-ink-3:        #020402;   /* deep wells / story sections */
+
+  --lethe-grey-dark:    #3A3A3A;
+  --lethe-grey:         #6B6B6B;
+  --lethe-grey-light:   #9B9B9B;
+  --lethe-paper:        #FFFFFF;
+  --lethe-paper-2:      #F8F8F8;
+  --lethe-paper-3:      #EFEFEF;
+
+  /* âââ Semantic tokens (DARK â default, brand standard) âââââââ */
+  --bg:            var(--lethe-ink);
+  --bg-raised:     #0a0a0a;           /* cards / panels */
+  --bg-elevated:   #1a1a1a;           /* dropdowns, modals */
+  --bg-subtle:     #0f0f0f;
+  --bg-overlay:    #0b0e0b;
+
+  --fg:            #FFFFFF;
+  --fg-dim:        rgba(255,255,255,0.88);
+  --fg-muted:      rgba(255,255,255,0.42);
+  --fg-ghost:      rgba(255,255,255,0.25);
+  --fg-whisper:    rgba(255,255,255,0.16);
+
+  --line:          rgba(255,255,255,0.07);
+  --line-strong:   #1a1a1a;
+  --line-dim:      #3A3A3A;
+
+  /* Accent â full chartreuse in dark mode */
+  --accent:        var(--lethe-chartreuse);
+  --accent-bright: var(--lethe-chartreuse-bright);
+  --accent-bg:     rgba(127,255,0,0.06);
+  --accent-border: rgba(127,255,0,0.22);
+  --accent-text:   rgba(127,255,0,0.85);
+  --accent-glow:   0 0 80px rgba(127,255,0,0.08);
+
+  /* Status */
+  --status-flowing:    #7FFF00;
+  --status-fading:     #CC9933;
+  --status-faded:      #6B6B6B;
+  --status-upcoming:   #ADFF2F;
+  --status-met:        #A3CC66;
+  --status-cancelled:  #CC6B6B;
+  --danger:            #DC2626;
+
+  /* âââ Shadows âââââââââââââââââââââââââââââââââââââââââââââââ */
+  --shadow-card:    0 25px 50px -12px rgba(0,0,0,0.60);
+  --shadow-float:   0 32px 80px rgba(0,0,0,0.6), 0 0 40px rgba(127,255,0,0.06);
+  --shadow-overlay: 0 25px 50px -12px rgba(0,0,0,0.90);
+  --shadow-demo:    0 40px 100px rgba(0,0,0,0.7),
+                    0 0 0 1px rgba(255,255,255,0.06),
+                    0 0 80px rgba(127,255,0,0.06);
+
+  /* âââ Radii âââââââââââââââââââââââââââââââââââââââââââââââââ */
+  --radius-xs:   4px;
+  --radius-sm:   6px;
+  --radius-md:   10px;
+  --radius-lg:   16px;
+  --radius-xl:   20px;
+  --radius-2xl:  28px;
+  --radius-pill: 9999px;
+
+  /* âââ Spacing scale (4-based) âââââââââââââââââââââââââââââââ */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 120px;
+  --space-32: 140px;
+
+  /* âââ Type scale ââââââââââââââââââââââââââââââââââââââââââââ */
+  --text-2xs: 9px;
+  --text-xs:  11px;
+  --text-sm:  13px;
+  --text-md:  15px;
+  --text-lg:  17px;
+  --text-xl:  22px;
+  --text-2xl: 24px;
+  --text-3xl: 28px;
+  --text-4xl: 40px;
+  --text-display: clamp(40px, 6vw, 72px);
+  --text-hero:    clamp(36px, 5vw, 68px);
+
+  /* Line heights */
+  --leading-tight:   1.10;
+  --leading-snug:    1.20;
+  --leading-normal:  1.40;
+  --leading-relaxed: 1.65;
+  --leading-loose:   1.85;
+
+  /* Letter spacing */
+  --track-tight:  -0.03em;
+  --track-body:    0.02em;
+  --track-caps:    0.12em;
+  --track-ui:      0.20em;
+  --track-wide:    0.25em;
+  --track-xwide:   0.32em;
+
+  /* âââ Icon sizes âââââââââââââââââââââââââââââââââââââââââââ */
+  --icon-xs: 14px;
+  --icon-sm: 16px;
+  --icon-md: 18px;
+  --icon-lg: 20px;
+  --icon-xl: 24px;
+
+  /* âââ Motion âââââââââââââââââââââââââââââââââââââââââââââââ */
+  --dur-fast:    200ms;
+  --dur-normal:  300ms;
+  --dur-slow:    450ms;
+  --dur-slower:  600ms;
+  --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out:    cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* âââ LIGHT mode override ââââââââââââââââââââââââââââââââââââââ
+   Light mode is a functional accommodation, not a brand expression.
+   Rules:
+   - #5D9F00 replaces chartreuse on interactive elements only
+     (links, active states, focus rings, primary buttons).
+   - All decorative chartreuse (glows, tinted backgrounds, borders)
+     is suppressed â set to neutral equivalents.
+   - Shadows are lighter. No chartreuse in shadow values.
+   ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
+.light, :root.light {
+  --bg:           #FFFFFF;
+  --bg-raised:    #F8F8F8;
+  --bg-elevated:  #EFEFEF;
+  --bg-subtle:    #F5F5F5;
+  --bg-overlay:   #F0F0F0;
+
+  --fg:           #000000;
+  --fg-dim:       #3A3A3A;
+  --fg-muted:     #6B6B6B;
+  --fg-ghost:     #9B9B9B;
+  --fg-whisper:   rgba(0,0,0,0.25);
+
+  --line:         #E5E5E5;
+  --line-strong:  #D0D0D0;
+  --line-dim:     #D0D0D0;
+
+  /* Interactive accent only â not for decoration */
+  --accent:        var(--lethe-chartreuse-dim); /* #5D9F00 */
+  --accent-bright: var(--lethe-chartreuse-dim);
+
+  /* Decorative accent tokens suppressed in light mode */
+  --accent-bg:     transparent;
+  --accent-border: rgba(93,159,0,0.18);
+  --accent-text:   rgba(93,159,0,0.80);
+  --accent-glow:   none;
+
+  /* Shadows â no chartreuse */
+  --shadow-card:    0 25px 50px -12px rgba(0,0,0,0.10);
+  --shadow-float:   0 32px 80px rgba(0,0,0,0.12);
+  --shadow-overlay: 0 25px 50px -12px rgba(0,0,0,0.30);
+  --shadow-demo:    0 40px 100px rgba(0,0,0,0.12),
+                    0 0 0 1px rgba(0,0,0,0.06);
+}
+
+/* âââ Base ââââââââââââââââââââââââââââââââââââââââââââââââââââ  */
+html { font-size: 16px; }
+body {
+  font-family: var(--font-sans);
+  color: var(--fg);
+  background: var(--bg);
+}
+
+/* âââ Headings â all Cormorant Garamond ââââââââââââââââââââââââ */
+
+/* Marketing / hero / landing display */
+.display, h1 {
+  font-family: var(--font-display);
+  font-size: var(--text-display);
+  font-weight: 300;
+  font-style: italic;
+  line-height: var(--leading-tight);
+  letter-spacing: var(--track-tight);
+  color: var(--fg);
+}
+
+/* In-app h1 â same font, tighter size */
+.h1-app {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  font-weight: 400;
+  font-style: italic;
+  line-height: var(--leading-snug);
+  color: var(--fg);
+}
+
+h2 {
+  font-family: var(--font-display);
+  font-size: var(--text-hero);
+  font-weight: 300;
+  font-style: italic;
+  line-height: var(--leading-tight);
+  letter-spacing: var(--track-tight);
+}
+
+h3 {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: 400;
+  font-style: italic;
+  line-height: var(--leading-snug);
+}
+
+h4 {
+  font-family: var(--font-sans);
+  font-size: var(--text-md);
+  font-weight: 500;
+  line-height: var(--leading-snug);
+}
+
+/* âââ Body â Inter ââââââââââââââââââââââââââââââââââââââââââââââ */
+p, .body {
+  font-family: var(--font-sans);
+  font-size: var(--text-md);
+  font-weight: 300;
+  line-height: var(--leading-relaxed);
+  color: var(--fg-muted);
+  letter-spacing: var(--track-body);
+}
+
+/* âââ Mono â DM Mono ââââââââââââââââââââââââââââââââââââââââââââ */
+
+/* Tracked caps eyebrow â appears on every page */
+.eyebrow, .label-caps {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: 400;
+  letter-spacing: var(--track-xwide);
+  text-transform: uppercase;
+  color: var(--accent-text);
+}
+
+/* Meta / UI labels */
+.meta {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--track-caps);
+  color: var(--fg-ghost);
+}
+
+/* Pull-quote poetic line */
+.quote {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 300;
+  font-size: var(--text-3xl);
+  line-height: 1.35;
+  color: var(--fg-dim);
+}
+.quote em { color: var(--accent); font-style: italic; }
+
+code, .mono {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+}
+
+/* âââ Buttons â DM Mono âââââââââââââââââââââââââââââââââââââââââ */
+.btn {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--track-ui);
+  text-transform: uppercase;
+  padding: 12px 24px;
+  border-radius: var(--radius-2xl);
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  transition: all var(--dur-normal) var(--ease-spring);
+}
+
+.btn-primary {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+.btn-primary:hover {
+  background: rgba(127,255,0,0.12);
+}
+
+/* Light mode btn-primary override â no chartreuse fill */
+.light .btn-primary:hover,
+:root.light .btn-primary:hover {
+  background: rgba(93,159,0,0.10);
+}
+
+.btn-ghost {
+  color: var(--fg-muted);
+  border-color: var(--line);
+}
+.btn-ghost:hover {
+  color: var(--fg);
+  border-color: var(--fg-muted);
+}

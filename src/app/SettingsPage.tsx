@@ -282,7 +282,7 @@ export default function SettingsPage() {
           {/* Logo */}
           <button 
             onClick={() => navigate("/")}
-            className="flex items-center gap-2 text-white text-sm tracking-[0.3em] uppercase font-light font-serif hover:opacity-70 cursor-pointer transition-opacity"
+            className="flex items-center gap-2 text-white text-sm tracking-[0.3em] uppercase font-light font-display hover:opacity-70 cursor-pointer transition-opacity"
           >
             <div className="w-5 h-5">
               <LetheLogo />
@@ -308,7 +308,7 @@ export default function SettingsPage() {
         {/* Sidebar */}
         <aside className="w-[320px] min-w-[320px] flex-shrink-0 bg-[#0b0e0b] border border-white/[0.07] rounded-2xl overflow-hidden self-start">
           <div className="p-4 pb-4 border-b border-white/[0.07]">
-            <div className="font-['Libre_Baskerville'] text-[13px] italic text-white/52">
+            <div className="font-['Cormorant_Garamond'] text-[13px] italic text-white/52">
               Settings
             </div>
           </div>
@@ -343,7 +343,7 @@ export default function SettingsPage() {
               <div className="bg-[#0b0e0b] border border-white/[0.07] rounded-2xl overflow-hidden">
                 {/* Header */}
                 <div className="px-7 pt-[22px] pb-[22px] border-b border-white/[0.07]">
-                  <h2 className="font-['Libre_Baskerville'] text-[20px] font-normal text-white/88 mb-[5px]">
+                  <h2 className="font-['Cormorant_Garamond'] text-[20px] font-normal text-white/88 mb-[5px]">
                     Account
                   </h2>
                   <p className="text-[12px] font-light text-white/[0.25] leading-[1.6]">
@@ -512,7 +512,7 @@ export default function SettingsPage() {
             {activeSection === 'availability' && (
               <div className="bg-[#0b0e0b] border border-white/[0.07] rounded-2xl overflow-hidden">
                 <div className="px-7 pt-[22px] pb-[22px] border-b border-white/[0.07]">
-                  <h2 className="font-['Libre_Baskerville'] text-[20px] font-normal text-white/88 mb-[5px]">
+                  <h2 className="font-['Cormorant_Garamond'] text-[20px] font-normal text-white/88 mb-[5px]">
                     Availability
                   </h2>
                   <p className="text-[12px] font-light text-white/[0.25] leading-[1.6]">
@@ -699,7 +699,7 @@ export default function SettingsPage() {
             {activeSection === 'goals' && (
               <div className="bg-[#0b0e0b] border border-white/[0.07] rounded-2xl overflow-hidden">
                 <div className="px-7 pt-[22px] pb-[22px] border-b border-white/[0.07]">
-                  <h2 className="font-['Libre_Baskerville'] text-[20px] font-normal text-white/88 mb-[5px]">
+                  <h2 className="font-['Cormorant_Garamond'] text-[20px] font-normal text-white/88 mb-[5px]">
                     Goals
                   </h2>
                   <p className="text-[12px] font-light text-white/[0.25] leading-[1.6]">
@@ -919,7 +919,7 @@ export default function SettingsPage() {
             {activeSection === 'notifications' && (
               <div className="bg-[#0b0e0b] border border-white/[0.07] rounded-2xl overflow-hidden">
                 <div className="px-7 pt-[22px] pb-[22px] border-b border-white/[0.07]">
-                  <h2 className="font-['Libre_Baskerville'] text-[20px] font-normal text-white/88 mb-[5px]">
+                  <h2 className="font-['Cormorant_Garamond'] text-[20px] font-normal text-white/88 mb-[5px]">
                     Notifications
                   </h2>
                   <p className="text-[12px] font-light text-white/[0.25] leading-[1.6]">

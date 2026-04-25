@@ -126,7 +126,7 @@ export function OnboardingThree({ onContinue, onBack, onNext }: { onContinue: ()
           <div className="w-5 h-5">
             <LetheLogo />
           </div>
-          <h1 className="text-[#6B6B6B] text-[11px] tracking-[0.35em] uppercase font-light font-serif">
+          <h1 className="text-[#6B6B6B] text-[11px] tracking-[0.35em] uppercase font-light font-display">
             LETHE
           </h1>
         </div>
@@ -135,7 +135,7 @@ export function OnboardingThree({ onContinue, onBack, onNext }: { onContinue: ()
         <div className="max-w-2xl w-full text-center space-y-10">
           {/* Main Heading */}
           <div className="space-y-6">
-            <h2 className="font-serif text-white text-[2.5rem] md:text-[3.25rem] leading-[1.15] font-normal italic">
+            <h2 className="font-display text-white text-[2.5rem] md:text-[3.25rem] leading-[1.15] font-normal italic">
               Everything you share
               <br />
               has a <span style={{ color: "#7FFF00" }}>half-life</span>.
@@ -150,7 +150,7 @@ export function OnboardingThree({ onContinue, onBack, onNext }: { onContinue: ()
                 NOW
               </span>
               <div className="flex-1 bg-[#0f0f0f] border border-[#1a1a1a] rounded-lg px-4 py-3 text-left flex items-center justify-between gap-3">
-                <p className="text-white text-[13px] leading-[1.6] font-light font-serif">
+                <p className="text-white text-[13px] leading-[1.6] font-light font-display">
                   I think I finally understand what I want from life. It's not comfort — it's meaning.
                 </p>
                 <HalfLifeIndicator progress={100} />
@@ -163,7 +163,7 @@ export function OnboardingThree({ onContinue, onBack, onNext }: { onContinue: ()
                 6 MONTHS
               </span>
               <div className="flex-1 bg-[#0a0a0a] border border-[#151515] rounded-lg px-4 py-3 text-left flex items-center justify-between gap-3">
-                <p className="text-[#8B8B8B] text-[13px] leading-[1.6] font-light font-serif opacity-70">
+                <p className="text-[#8B8B8B] text-[13px] leading-[1.6] font-light font-display opacity-70">
                   Something about meaning and comfort... a shift in what I was seeking.
                 </p>
                 <HalfLifeIndicator progress={45} />
@@ -176,7 +176,7 @@ export function OnboardingThree({ onContinue, onBack, onNext }: { onContinue: ()
                 3 YEARS
               </span>
               <div className="flex-1 bg-[#070707] border border-[#0f0f0f] rounded-lg px-4 py-3 text-left flex items-center justify-between gap-3">
-                <p className="text-[#4a4a4a] text-[13px] leading-[1.6] font-light font-serif opacity-40 blur-[0.5px]">
+                <p className="text-[#4a4a4a] text-[13px] leading-[1.6] font-light font-display opacity-40 blur-[0.5px]">
                   A moment of clarity about what matters.
                 </p>
                 <HalfLifeIndicator progress={12} />

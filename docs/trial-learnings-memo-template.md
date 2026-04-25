@@ -39,10 +39,10 @@ Build/Branch:
 ## 6) Scope decisions
 
 ### Keep in next iteration
-- 
+-
 
 ### Defer / descoped
-- 
+-
 
 ### Explicitly not doing yet
 - Bespoke ML training

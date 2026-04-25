@@ -93,7 +93,7 @@ export default function ConnectPage() {
       <nav className="h-14 flex-shrink-0 flex items-center justify-between px-8 bg-[rgba(5,7,5,0.97)] backdrop-blur-[20px] border-b border-white/[0.07]">
         <button
           onClick={() => navigate('/feed')}
-          className="font-['Libre_Baskerville'] text-[13px] tracking-[0.32em] uppercase text-white/[0.52] flex items-center gap-[9px] hover:text-white/70 transition-colors"
+          className="font-['Cormorant_Garamond'] text-[13px] tracking-[0.32em] uppercase text-white/[0.52] flex items-center gap-[9px] hover:text-white/70 transition-colors"
         >
           <LetheLogo className="w-[15px] h-[15px] opacity-55" />
           Lethe
@@ -112,7 +112,7 @@ export default function ConnectPage() {
           )}
           <button
             onClick={() => navigate('/profile')}
-            className="w-8 h-8 rounded-full bg-gradient-to-br from-[#1a2a1a] to-[#0d150d] border-[1.5px] border-[#ADFF2F]/[0.22] flex items-center justify-center text-[11px] font-semibold text-[#ADFF2F]/70 font-['Libre_Baskerville']"
+            className="w-8 h-8 rounded-full bg-gradient-to-br from-[#1a2a1a] to-[#0d150d] border-[1.5px] border-[#ADFF2F]/[0.22] flex items-center justify-center text-[11px] font-semibold text-[#ADFF2F]/70 font-['Cormorant_Garamond']"
           >
             {initials(users.find(u => u.id === selectedUserId)?.displayName ?? '?')}
           </button>
@@ -182,11 +182,11 @@ export default function ConnectPage() {
               <div className={`flex-1 min-h-0 overflow-y-auto transition-opacity duration-[220ms] ${profileFade ? 'opacity-0' : 'opacity-100'}`}>
                 {/* Hero */}
                 <div className="flex items-center gap-4 p-5 flex-shrink-0 border-b border-white/[0.07]">
-                  <div className="w-[52px] h-[52px] rounded-full flex-shrink-0 bg-[#1a2a1a] border border-[#ADFF2F]/[0.15] flex items-center justify-center text-[18px] font-semibold text-[#ADFF2F]/60 font-['Libre_Baskerville']">
+                  <div className="w-[52px] h-[52px] rounded-full flex-shrink-0 bg-[#1a2a1a] border border-[#ADFF2F]/[0.15] flex items-center justify-center text-[18px] font-semibold text-[#ADFF2F]/60 font-['Cormorant_Garamond']">
                     {initials(rec.candidate.displayName)}
                   </div>
                   <div className="flex flex-col justify-center gap-[3px]">
-                    <div className="font-['Libre_Baskerville'] text-[20px] leading-[1.2] text-white/[0.88]">{rec.candidate.displayName}</div>
+                    <div className="font-['Cormorant_Garamond'] text-[20px] leading-[1.2] text-white/[0.88]">{rec.candidate.displayName}</div>
                     <div className="text-[11px] text-white/[0.25] tracking-[0.05em]">{rec.candidate.handle}</div>
                     <div className="flex items-center gap-1 text-[11px] font-light text-white/[0.25]">
                       <MapPin size={9} className="opacity-55 flex-shrink-0" strokeWidth={1.5} />
@@ -240,14 +240,14 @@ export default function ConnectPage() {
             <div className="flex-1 flex flex-col items-center justify-center gap-3 px-10 py-[60px] text-center">
               {recommendations.length === 0 ? (
                 <>
-                  <p className="font-['Libre_Baskerville'] text-[20px] italic text-white/[0.88]">No suggestions yet.</p>
+                  <p className="font-['Cormorant_Garamond'] text-[20px] italic text-white/[0.88]">No suggestions yet.</p>
                   <p className="text-[13px] font-light text-white/[0.52] leading-[1.7] max-w-[260px]">
                     Run the weekly matcher from the trial home to generate recommendations.
                   </p>
                 </>
               ) : (
                 <>
-                  <p className="font-['Libre_Baskerville'] text-[20px] italic text-white/[0.88]">You're all caught up.</p>
+                  <p className="font-['Cormorant_Garamond'] text-[20px] italic text-white/[0.88]">You're all caught up.</p>
                   <p className="text-[13px] font-light text-white/[0.52] leading-[1.7] max-w-[240px]">
                     New suggestions arrive each Monday.
                   </p>
@@ -300,7 +300,7 @@ export default function ConnectPage() {
             <Check size={11} className="text-white/80" strokeWidth={2.5} />
           </div>
         </div>
-        <div className="font-['Libre_Baskerville'] text-[22px] italic text-white/[0.88]">Match set.</div>
+        <div className="font-['Cormorant_Garamond'] text-[22px] italic text-white/[0.88]">Match set.</div>
         <div className="text-[12px] font-light text-white/[0.52] text-center max-w-[220px] leading-[1.65]">
           Lethe will handle the introduction when the time is right.
         </div>

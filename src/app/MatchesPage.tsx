@@ -54,7 +54,7 @@ export default function MatchesPage() {
       <nav className="h-14 flex-shrink-0 flex items-center justify-between px-8 bg-[rgba(5,7,5,0.97)] backdrop-blur-[20px] border-b border-white/[0.07]">
         <button
           onClick={() => navigate('/feed')}
-          className="font-['Libre_Baskerville'] text-[13px] tracking-[0.32em] uppercase text-white/[0.52] flex items-center gap-[9px] hover:text-white/70 transition-colors"
+          className="font-['Cormorant_Garamond'] text-[13px] tracking-[0.32em] uppercase text-white/[0.52] flex items-center gap-[9px] hover:text-white/70 transition-colors"
         >
           <LetheLogo className="w-[15px] h-[15px] opacity-55" />
           Lethe
@@ -88,7 +88,7 @@ export default function MatchesPage() {
       {/* Content */}
       <div className="flex-1 max-w-2xl mx-auto w-full px-8 py-6">
         <div className="mb-6">
-          <h1 className="font-['Libre_Baskerville'] text-[28px] font-light italic text-white/[0.88]">Your Matches</h1>
+          <h1 className="font-['Cormorant_Garamond'] text-[28px] font-light italic text-white/[0.88]">Your Matches</h1>
           {!isLoading && (
             <p className="text-[12px] text-white/[0.25] mt-1 tracking-[0.04em]">
               {matches.length} {matches.length === 1 ? 'match' : 'matches'} accepted
@@ -100,7 +100,7 @@ export default function MatchesPage() {
           <div className="text-[13px] text-white/[0.25] py-12 text-center">Loading…</div>
         ) : matches.length === 0 ? (
           <div className="text-center py-16">
-            <p className="font-['Libre_Baskerville'] text-[20px] italic text-white/[0.45] mb-2">No matches yet.</p>
+            <p className="font-['Cormorant_Garamond'] text-[20px] italic text-white/[0.45] mb-2">No matches yet.</p>
             <p className="text-[13px] font-light text-white/[0.25] leading-[1.7] max-w-[240px] mx-auto">
               Accept a suggestion from the recommendations page to see it here.
             </p>
@@ -118,12 +118,12 @@ export default function MatchesPage() {
               const statusLabel = (followStatus && FOLLOW_THROUGH_LABELS[followStatus]) ?? 'Accepted';
               return (
                 <div key={match.id} className="bg-[#0b0e0b] border border-white/[0.07] rounded-2xl p-5 flex items-start gap-4">
-                  <div className="w-[44px] h-[44px] rounded-full flex-shrink-0 bg-[#1a2a1a] border border-[#ADFF2F]/[0.15] flex items-center justify-center text-[15px] font-semibold text-[#ADFF2F]/60 font-['Libre_Baskerville']">
+                  <div className="w-[44px] h-[44px] rounded-full flex-shrink-0 bg-[#1a2a1a] border border-[#ADFF2F]/[0.15] flex items-center justify-center text-[15px] font-semibold text-[#ADFF2F]/60 font-['Cormorant_Garamond']">
                     {initials(match.candidate.displayName)}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-3 mb-[3px]">
-                      <div className="font-['Libre_Baskerville'] text-[17px] text-white/[0.88]">{match.candidate.displayName}</div>
+                      <div className="font-['Cormorant_Garamond'] text-[17px] text-white/[0.88]">{match.candidate.displayName}</div>
                       <div className="text-[10px] font-semibold tracking-[0.08em] text-[rgba(173,255,47,0.65)] whitespace-nowrap">{match.score}% match</div>
                     </div>
                     <div className="flex items-center gap-1 text-[11px] text-white/[0.25] mb-[10px]">

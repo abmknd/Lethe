@@ -1093,7 +1093,7 @@ export default function LandingPage() {
       <nav className="lethe-nav">
         <button
           onClick={() => window.location.href = '#lethe-hero'}
-          className="flex items-center gap-2 text-white text-sm tracking-[0.3em] uppercase font-light font-serif transition-colors duration-300 hover:opacity-70 cursor-pointer bg-transparent border-0"
+          className="flex items-center gap-2 text-white text-sm tracking-[0.3em] uppercase font-light font-display transition-colors duration-300 hover:opacity-70 cursor-pointer bg-transparent border-0"
           style={{ padding: 0 }}
         >
           <div className="w-5 h-5">

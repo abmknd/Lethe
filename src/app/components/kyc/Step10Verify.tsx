@@ -53,7 +53,7 @@ export function Step10Verify({ isActive, direction, data, updateData, onComplete
       <span className="font-['Inter'] text-[10px] tracking-[0.3em] uppercase text-[#7FFF00]/50 mb-[14px] block">
         One last thing
       </span>
-      <h1 className="font-['Libre_Baskerville'] text-[clamp(28px,4vw,40px)] font-light italic leading-[1.15] tracking-[-0.02em] text-white/90 mb-[10px]">
+      <h1 className="font-['Cormorant_Garamond'] text-[clamp(28px,4vw,40px)] font-light italic leading-[1.15] tracking-[-0.02em] text-white/90 mb-[10px]">
         Confirm your<br />
         <em className="not-italic text-[#7FFF00]">email.</em>
       </h1>
@@ -76,7 +76,7 @@ export function Step10Verify({ isActive, direction, data, updateData, onComplete
             <div
               key={i}
               onClick={() => inputRef.current?.focus()}
-              className={`w-[52px] h-16 rounded-xl flex items-center justify-center font-['Libre_Baskerville'] text-[28px] font-light transition-all cursor-text relative ${
+              className={`w-[52px] h-16 rounded-xl flex items-center justify-center font-['Cormorant_Garamond'] text-[28px] font-light transition-all cursor-text relative ${
                 isSuccess
                   ? 'bg-[#7FFF00]/[0.12] border-[#7FFF00]/50 text-white/90'
                   : isActive

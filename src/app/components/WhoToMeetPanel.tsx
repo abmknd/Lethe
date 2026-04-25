@@ -54,7 +54,7 @@ export function WhoToMeetPanel() {
 
   return (
     <div className={`${bg} rounded-2xl border ${border} p-5 transition-colors duration-300`}>
-      <h2 className={`${textPrimary} text-[15px] font-serif mb-4 tracking-wide`}>
+      <h2 className={`${textPrimary} text-[15px] font-display mb-4 tracking-wide`}>
         Would you like to meet?
       </h2>
 
@@ -69,7 +69,7 @@ export function WhoToMeetPanel() {
                 className="w-10 h-10 rounded-full object-cover flex-shrink-0"
               />
               <div className="flex-1 min-w-0">
-                <div className={`${textPrimary} text-[13px] font-serif truncate`}>
+                <div className={`${textPrimary} text-[13px] font-display truncate`}>
                   {user.name}
                 </div>
                 <div className={`${textSecondary} text-[11px] font-sans truncate`}>

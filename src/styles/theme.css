@@ -2,8 +2,9 @@
 
 :root {
   --font-size: 16px;
-  --font-serif: 'Libre Baskerville', serif;
+  --font-display: 'Cormorant Garamond', Georgia, serif;
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'DM Mono', ui-monospace, 'SF Mono', monospace;
 
   /* ─── Lethe Primitive Palette ──────────────────────────────────── */
   --lethe-chartreuse: #7FFF00;
@@ -316,7 +317,7 @@
 
   /* Serif typography for Lethe */
   .font-serif {
-    font-family: var(--font-serif);
+    font-family: var(--font-display);
   }
 
   /**
@@ -329,21 +330,21 @@
   }
 
   h1 {
-    font-family: var(--font-serif);
+    font-family: var(--font-display);
     font-size: var(--text-2xl);
     font-weight: var(--font-weight-medium);
     line-height: 1.5;
   }
 
   h2 {
-    font-family: var(--font-serif);
+    font-family: var(--font-display);
     font-size: var(--text-xl);
     font-weight: var(--font-weight-medium);
     line-height: 1.5;
   }
 
   h3 {
-    font-family: var(--font-serif);
+    font-family: var(--font-display);
     font-size: var(--text-lg);
     font-weight: var(--font-weight-medium);
     line-height: 1.5;

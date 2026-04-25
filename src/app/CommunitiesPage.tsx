@@ -109,7 +109,7 @@ export default function CommunitiesPage() {
           <div className="w-5 h-5">
             <LetheLogo />
           </div>
-          <div className="font-['Libre_Baskerville'] text-[14px] font-normal text-white tracking-[0.3em] uppercase leading-[1.4]">
+          <div className="font-['Cormorant_Garamond'] text-[14px] font-normal text-white tracking-[0.3em] uppercase leading-[1.4]">
             LETHE
           </div>
         </div>
@@ -197,7 +197,7 @@ export default function CommunitiesPage() {
           <>
             {/* Page Header */}
             <div className="mb-7">
-              <h1 className="font-['Libre_Baskerville'] text-[26px] font-normal italic text-white/88 mb-[6px]">
+              <h1 className="font-['Cormorant_Garamond'] text-[26px] font-normal italic text-white/88 mb-[6px]">
                 Your communities
               </h1>
               <p className="text-[13px] font-light text-white/25 leading-[1.65] max-w-[520px]">
@@ -253,7 +253,7 @@ export default function CommunitiesPage() {
           <>
             {/* Invites Tab */}
             <div className="mb-7">
-              <h1 className="font-['Libre_Baskerville'] text-[26px] font-normal italic text-white/88 mb-[6px]">
+              <h1 className="font-['Cormorant_Garamond'] text-[26px] font-normal italic text-white/88 mb-[6px]">
                 Invites
               </h1>
               <p className="text-[13px] font-light text-white/25 leading-[1.65] max-w-[520px]">
@@ -319,7 +319,7 @@ function CommunityCard({ community, onNavigate }: { community: Community; onNavi
             </span>
           </div>
         </div>
-        <h3 className="font-['Libre_Baskerville'] text-[16px] font-normal text-white/88 mb-[5px] leading-[1.3]">
+        <h3 className="font-['Cormorant_Garamond'] text-[16px] font-normal text-white/88 mb-[5px] leading-[1.3]">
           {community.name}
         </h3>
         <p className="text-[13px] font-light text-white/52 leading-[1.65] mb-3">
@@ -360,7 +360,7 @@ function CommunityListCard({ community, onNavigate }: { community: Community; on
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-[3px]">
-          <h3 className="font-['Libre_Baskerville'] text-[15px] font-normal text-white/88">
+          <h3 className="font-['Cormorant_Garamond'] text-[15px] font-normal text-white/88">
             {community.name}
           </h3>
           <span className="text-[13px] font-semibold tracking-[0.14em] uppercase px-[9px] py-[3px] rounded-[20px] bg-[rgba(173,255,47,0.08)] text-[rgba(173,255,47,0.65)] border border-[rgba(173,255,47,0.15)]">
@@ -401,7 +401,7 @@ function InviteCard({ community, onAccept, onDecline }: { community: Community; 
             Invited
           </span>
         </div>
-        <h3 className="font-['Libre_Baskerville'] text-[16px] font-normal text-white/88 mb-[5px] leading-[1.3]">
+        <h3 className="font-['Cormorant_Garamond'] text-[16px] font-normal text-white/88 mb-[5px] leading-[1.3]">
           {community.name}
         </h3>
         <p className="text-[13px] font-light text-white/52 leading-[1.65] mb-3">
@@ -446,7 +446,7 @@ function InviteListCard({ community, onAccept, onDecline }: { community: Communi
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-[3px]">
-          <h3 className="font-['Libre_Baskerville'] text-[15px] font-normal text-white/88">
+          <h3 className="font-['Cormorant_Garamond'] text-[15px] font-normal text-white/88">
             {community.name}
           </h3>
           <span className="text-[13px] font-semibold tracking-[0.14em] uppercase px-[9px] py-[3px] rounded-[20px] bg-[rgba(255,200,80,0.08)] text-[rgba(255,200,80,0.65)] border border-[rgba(255,200,80,0.15)]">
@@ -497,7 +497,7 @@ function EmptyState({ type }: { type: 'my' | 'invites' }) {
           <Users size={13} strokeWidth={1.5} />
         </div>
       </div>
-      <h3 className="font-['Libre_Baskerville'] text-[18px] italic font-normal text-white/88 mb-2">
+      <h3 className="font-['Cormorant_Garamond'] text-[18px] italic font-normal text-white/88 mb-2">
         {type === 'invites' ? 'No pending invites' : "You're not in any communities yet"}
       </h3>
       <p className="text-[13px] font-light text-white/25 leading-[1.7] max-w-[300px]">
