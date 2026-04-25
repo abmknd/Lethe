@@ -1394,7 +1394,7 @@ export default function LandingPage() {
             <div className="lethe-card-label">
               <span className="lethe-card-tag">Your weekly match</span>
               <p className="lethe-card-title">
-                Up to five introductions a week, selected based on your behavioral signal. You choose who makes the cut.
+                Up to five introductions a week, selected from your onboarding preferences and availability. You choose who makes the cut.
               </p>
             </div>
           </div>

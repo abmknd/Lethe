@@ -12,6 +12,12 @@ import ConnectPage from "./ConnectPage";
 import CommunitiesPage from "./CommunitiesPage";
 import CommunityPage from "./CommunityPage";
 import NotFound from "./NotFound";
+import TrialLayout from "./trial/TrialLayout";
+import TrialHomePage from "./trial/TrialHomePage";
+import TrialOnboardingPage from "./trial/TrialOnboardingPage";
+import TrialConnectPage from "./trial/TrialConnectPage";
+import TrialAdminPage from "./trial/TrialAdminPage";
+import TrialEventsPage from "./trial/TrialEventsPage";
 
 // Router configuration for Lethe app
 export const router = createBrowserRouter([
@@ -62,6 +68,32 @@ export const router = createBrowserRouter([
       { 
         path: "community/:id", 
         Component: CommunityPage 
+      },
+      {
+        path: "trial",
+        Component: TrialLayout,
+        children: [
+          {
+            index: true,
+            Component: TrialHomePage,
+          },
+          {
+            path: "onboarding",
+            Component: TrialOnboardingPage,
+          },
+          {
+            path: "connect",
+            Component: TrialConnectPage,
+          },
+          {
+            path: "admin",
+            Component: TrialAdminPage,
+          },
+          {
+            path: "events",
+            Component: TrialEventsPage,
+          },
+        ],
       },
       {
         path: "*",
