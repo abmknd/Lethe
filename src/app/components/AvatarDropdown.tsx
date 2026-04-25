@@ -28,7 +28,7 @@ export function AvatarDropdown({ avatarUrl }: AvatarDropdownProps) {
     { icon: MessageSquare, label: "Messages",   action: () => navigate("/messages") },
     { icon: Users,        label: "Communities", action: () => navigate("/communities") },
     { icon: Settings,     label: "Settings",    action: () => navigate("/settings") },
-    { icon: HelpCircle,   label: "Support",     action: () => console.log("Support") },
+    { icon: HelpCircle,   label: "Support",     action: () => {} },
   ];
 
   return (
@@ -97,7 +97,7 @@ export function AvatarDropdown({ avatarUrl }: AvatarDropdownProps) {
 
           {/* Logout */}
           <button
-            onClick={() => { console.log("Logout"); setIsOpen(false); }}
+            onClick={() => { setIsOpen(false); }}
             className="w-full px-4 py-3.5 flex items-center gap-3 text-lethe-danger hover:bg-lethe-danger/10 transition-colors text-left border-t border-lethe-line-subtle"
           >
             <LogOut size={18} strokeWidth={1.5} />

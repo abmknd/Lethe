@@ -70,7 +70,6 @@ export function PostOptionsMenu({ isOpen, onClose, type, isFaded = false, positi
             key={option.label}
             onClick={(e) => {
               e.stopPropagation();
-              console.log(`${option.label} clicked`);
               onClose();
             }}
             className={`w-full flex items-center gap-3 px-4 py-3.5 transition-colors ${

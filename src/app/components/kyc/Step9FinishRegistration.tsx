@@ -18,9 +18,7 @@ export function Step9FinishRegistration({ isActive, direction, onContinueToVerif
   };
 
   const handleGoogleSignUp = () => {
-    // Simulate Google OAuth
-    console.log('Initiating Google sign-up...');
-    // After successful connection, proceed to verification
+    // Simulate Google OAuth — proceed to verification after delay
     setTimeout(() => {
       onContinueToVerify();
     }, 1000);
