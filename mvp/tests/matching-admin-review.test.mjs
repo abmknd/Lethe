@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { createIsolatedTrialApp } from './helpers/trial-test-harness.mjs';
 import { buildProfileFixture } from './fixtures/profile-fixtures.mjs';
+import { createDeterministicMatcher } from '../matching/deterministic-matcher.mjs';
 
 function saveProfiles(app, profiles) {
   for (const profile of profiles) {
@@ -320,4 +321,63 @@ test('admin review first-write-wins conflict and non-pending transition enforcem
   } finally {
     cleanup();
   }
+});
+
+test('scoring weight vector produces expected output for a known input pair', () => {
+  // Weights: complementarity 0.2, reciprocalComplementarity 0.1, roleFit 0.15,
+  //          intent 0.2, interests 0.15, intro 0.1, availability 0.1 → total 1.0
+  const matcher = createDeterministicMatcher({ topN: 5 });
+
+  const source = {
+    user: { id: 'score_src', isActive: true, matchingEnabled: true, location: 'Montreal, Canada', timezone: 'UTC' },
+    preferences: {
+      matchEnabled: true,
+      blockedUserIds: [],
+      localOnly: false,
+      matchIntent: ['collaboration'],
+      interests: ['product'],
+      asks: ['fundraising advice'],
+      offers: ['design feedback'],
+      userType: 'designer',
+      preferredUserTypes: ['founder'],
+      introText: '',
+    },
+    availability: [{ dayOfWeek: 1, startHour: 10, endHour: 12, timezone: 'UTC' }],
+  };
+
+  const candidate = {
+    user: { id: 'score_cand', isActive: true, matchingEnabled: true, location: 'Toronto, Canada', timezone: 'UTC' },
+    preferences: {
+      matchEnabled: true,
+      blockedUserIds: [],
+      localOnly: false,
+      matchIntent: ['collaboration'],
+      interests: ['product'],
+      asks: ['design feedback'],
+      offers: ['fundraising advice', 'investor intros'],
+      userType: 'founder',
+      preferredUserTypes: ['designer', 'operator'],
+      introText: '',
+    },
+    availability: [{ dayOfWeek: 1, startHour: 10, endHour: 12, timezone: 'UTC' }],
+  };
+
+  const results = matcher.matchUsers([source, candidate]);
+  const recommendations = results.get('score_src');
+
+  assert.ok(recommendations && recommendations.length === 1, 'expected exactly one recommendation');
+
+  const rec = recommendations[0];
+  assert.equal(rec.candidateUserId, 'score_cand');
+
+  // complementarityRatio: ['fundraising advice'] vs ['fundraising advice', 'investor intros'] = 1/2 = 0.5 → *0.2 = 0.10
+  // reciprocalComplementarity: ['design feedback'] vs ['design feedback'] = 1/1 = 1.0 → *0.1 = 0.10
+  // roleFitRatio: profile wants candidate type? 'founder' in ['founder'] YES.
+  //               candidate wants profile type? 'designer' in ['designer','operator'] YES. → 1.0 → *0.15 = 0.15
+  // intentRatio: ['collaboration'] vs ['collaboration'] = 1.0 → *0.2 = 0.20
+  // interestRatio: ['product'] vs ['product'] = 1.0 → *0.15 = 0.15
+  // introScore: both empty → 0 → *0.1 = 0
+  // availabilityScore: 2h overlap → min(1, 2/3) ≈ 0.667 → *0.1 = 0.0667
+  // base = 0.10 + 0.10 + 0.15 + 0.20 + 0.15 + 0 + 0.0667 = 0.7667 → score = round(76.67) = 77
+  assert.equal(rec.score, 77, 'expected score 77 given the current weight vector');
 });

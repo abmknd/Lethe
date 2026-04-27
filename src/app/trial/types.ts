@@ -23,6 +23,7 @@ export interface TrialPreferences {
   offers: string[];
   asks: string[];
   preferredLocations?: string[];
+  userType?: string;
   preferredUserTypes?: string[];
   interests: string[];
   objectives?: string[];

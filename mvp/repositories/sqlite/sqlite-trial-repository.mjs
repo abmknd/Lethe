@@ -179,7 +179,7 @@ export class SqliteTrialRepository extends UserRepository {
     const row = this.db
       .prepare(
         `
-        SELECT id, user_id, match_intent, offers, asks, preferred_locations, preferred_user_types, interests, objectives,
+        SELECT id, user_id, match_intent, offers, asks, preferred_locations, user_type, preferred_user_types, interests, objectives,
                intro_text, meeting_format, local_only, blocked_user_ids, created_at, updated_at
         FROM preferences
         WHERE user_id = :userId
@@ -198,6 +198,7 @@ export class SqliteTrialRepository extends UserRepository {
       offers: parseJson(row.offers, []),
       asks: parseJson(row.asks, []),
       preferredLocations: parseJson(row.preferred_locations, []),
+      userType: row.user_type ?? '',
       preferredUserTypes: parseJson(row.preferred_user_types, []),
       interests: parseJson(row.interests, []),
       objectives: parseJson(row.objectives, []),
@@ -224,6 +225,7 @@ export class SqliteTrialRepository extends UserRepository {
           offers,
           asks,
           preferred_locations,
+          user_type,
           preferred_user_types,
           interests,
           objectives,
@@ -241,6 +243,7 @@ export class SqliteTrialRepository extends UserRepository {
           :offers,
           :asks,
           :preferredLocations,
+          :userType,
           :preferredUserTypes,
           :interests,
           :objectives,
@@ -256,6 +259,7 @@ export class SqliteTrialRepository extends UserRepository {
           offers = excluded.offers,
           asks = excluded.asks,
           preferred_locations = excluded.preferred_locations,
+          user_type = excluded.user_type,
           preferred_user_types = excluded.preferred_user_types,
           interests = excluded.interests,
           objectives = excluded.objectives,
@@ -273,6 +277,7 @@ export class SqliteTrialRepository extends UserRepository {
         offers: JSON.stringify(preferences.offers ?? []),
         asks: JSON.stringify(preferences.asks ?? []),
         preferredLocations: JSON.stringify(preferences.preferredLocations ?? []),
+        userType: preferences.userType ?? '',
         preferredUserTypes: JSON.stringify(preferences.preferredUserTypes ?? []),
         interests: JSON.stringify(preferences.interests ?? []),
         objectives: JSON.stringify(preferences.objectives ?? []),
@@ -422,6 +427,7 @@ export class SqliteTrialRepository extends UserRepository {
         offers: preferences.offers,
         asks: preferences.asks,
         preferredLocations: preferences.preferredLocations,
+        userType: preferences.userType,
         preferredUserTypes: preferences.preferredUserTypes,
         interests: preferences.interests,
         objectives: preferences.objectives,

@@ -33,6 +33,7 @@ export function buildProfileFixture(overrides = {}) {
       offers: ['design feedback', 'product strategy'],
       asks: ['fundraising advice'],
       preferredLocations: ['Montreal, Canada'],
+      userType: 'designer',
       preferredUserTypes: ['founder', 'operator'],
       interests: ['product', 'ai'],
       objectives: ['calibration_v1', 'career_growth'],

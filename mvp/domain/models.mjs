@@ -93,6 +93,7 @@ export function normalizePreferences(input = {}) {
     offers: normalizeStringList(input.offers),
     asks: normalizeStringList(input.asks),
     preferredLocations,
+    userType: typeof input.userType === 'string' ? input.userType.trim().toLowerCase() : '',
     preferredUserTypes,
     interests: normalizeStringList(input.interests),
     objectives: normalizeStringList(input.objectives),
