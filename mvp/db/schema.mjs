@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS preferences (
   offers TEXT NOT NULL DEFAULT '[]',
   asks TEXT NOT NULL DEFAULT '[]',
   preferred_locations TEXT NOT NULL,
+  user_type TEXT NOT NULL DEFAULT '',
   preferred_user_types TEXT NOT NULL,
   interests TEXT NOT NULL,
   objectives TEXT NOT NULL,

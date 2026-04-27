@@ -215,7 +215,14 @@ export function createDeterministicMatcher({ topN = 5, recentIntroDays = 45 } = 
           const interestRatio = overlapRatio(profile.preferences.interests, candidate.preferences.interests);
           const complementarityRatio = overlapRatio(profile.preferences.asks, candidate.preferences.offers);
           const reciprocalComplementarity = overlapRatio(candidate.preferences.asks, profile.preferences.offers);
-          const roleFitRatio = overlapRatio(profile.preferences.preferredUserTypes, candidate.preferences.preferredUserTypes);
+          // Does profile want to meet candidate's type? Does candidate want to meet profile's type?
+          const profileWantsCandidate = candidate.preferences.userType
+            ? new Set((profile.preferences.preferredUserTypes ?? []).map(normalizeToken)).has(normalizeToken(candidate.preferences.userType))
+            : false;
+          const candidateWantsProfile = profile.preferences.userType
+            ? new Set((candidate.preferences.preferredUserTypes ?? []).map(normalizeToken)).has(normalizeToken(profile.preferences.userType))
+            : false;
+          const roleFitRatio = ((profileWantsCandidate ? 1 : 0) + (candidateWantsProfile ? 1 : 0)) / 2;
           if (intentRatio === 0 && interestRatio < 0.15 && complementarityRatio === 0) {
             continue;
           }
@@ -252,7 +259,7 @@ export function createDeterministicMatcher({ topN = 5, recentIntroDays = 45 } = 
             whyMatched: [
               `Ask-offer fit ${(complementarityRatio * 100).toFixed(0)}%`,
               `Mutual ask-offer bonus ${(reciprocalComplementarity * 100).toFixed(0)}%`,
-              `Role/domain fit ${(roleFitRatio * 100).toFixed(0)}%`,
+              `Role fit ${(roleFitRatio * 100).toFixed(0)}% (${profile.preferences.userType || '?'} ↔ ${candidate.preferences.userType || '?'})`,
               `Intent overlap ${(intentRatio * 100).toFixed(0)}%`,
               `Interest overlap ${(interestRatio * 100).toFixed(0)}%`,
               `Availability overlap ${overlap.overlapHours.toFixed(1)}h (timezone-normalized)`,
