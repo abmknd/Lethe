@@ -19,6 +19,9 @@ import TrialConnectPage from "./trial/TrialConnectPage";
 import TrialAdminPage from "./trial/TrialAdminPage";
 import TrialEventsPage from "./trial/TrialEventsPage";
 
+const baseUrl = import.meta.env.BASE_URL;
+const routerOptions = baseUrl === "/" ? undefined : { basename: baseUrl.replace(/\/$/, "") };
+
 // Router configuration for Lethe app
 export const router = createBrowserRouter([
   {
@@ -102,4 +105,4 @@ export const router = createBrowserRouter([
     ],
   },
 ],
-{ basename: "/lethe" });
+routerOptions);
