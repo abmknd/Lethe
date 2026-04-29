@@ -12,11 +12,29 @@ import { Step9FinishRegistration } from './kyc/Step9FinishRegistration';
 import { Step10Verify } from './kyc/Step10Verify';
 import { KYCDone } from './kyc/KYCDone';
 import { KYCPaused } from './kyc/KYCPaused';
+import { apiFetch } from '../../lib/api';
+
+const OBJECTIVE_LABELS = [
+  'Build in public', 'Find a cofounder', 'Grow my network', 'Meet interesting people',
+  'Get mentored', 'Mentor others', 'Explore new fields', 'Share knowledge',
+];
+
+const WHO_LABELS = [
+  'Are in the same field as me', 'Are in an adjacent field', 'Are building something',
+  "Have perspectives I don't", 'Are earlier in their career', 'Are further along than me',
+];
+
+const WHERE_LABELS = [
+  'Anywhere in the world', 'Africa', 'Asia', 'Europe',
+  'Latin America', 'Middle East', 'North America', 'Oceania',
+];
 
 interface KYCModalProps {
   isOpen: boolean;
   onClose: () => void;
   onComplete?: () => void;
+  userId?: string;
+  accessToken?: string;
 }
 
 export interface KYCData {
@@ -38,7 +56,7 @@ export interface KYCData {
   profileImage: string;
 }
 
-export function KYCModal({ isOpen, onClose, onComplete }: KYCModalProps) {
+export function KYCModal({ isOpen, onClose, onComplete, userId, accessToken }: KYCModalProps) {
   const [currentStep, setCurrentStep] = useState(1);
   const [direction, setDirection] = useState<'forward' | 'back'>('forward');
   const [isComplete, setIsComplete] = useState(false);
@@ -93,16 +111,44 @@ export function KYCModal({ isOpen, onClose, onComplete }: KYCModalProps) {
     setIsComplete(true);
   };
 
-  const handleFinish = () => {
-    // Mark KYC as completed in localStorage
-    localStorage.setItem('lethe_kyc_completed', 'true');
-    
-    // Call optional completion callback
-    if (onComplete) {
-      onComplete();
+  const handleFinish = async () => {
+    if (userId) {
+      try {
+        const timezone = data.timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone;
+        await apiFetch(
+          `/api/trial/users/${userId}/profile`,
+          {
+            method: 'PUT',
+            body: JSON.stringify({
+              user: {
+                location: data.city ?? '',
+                timezone,
+                matchingEnabled: true,
+              },
+              preferences: {
+                introText: data.intro,
+                interests: [...data.hobbies],
+                objectives: [...data.objectives].map((i) => OBJECTIVE_LABELS[i]).filter(Boolean),
+                matchIntent: [...data.objectives].map((i) => OBJECTIVE_LABELS[i]).filter(Boolean),
+                preferredUserTypes: [...data.meetWho].map((i) => WHO_LABELS[i]).filter(Boolean),
+                preferredLocations: [...data.meetWhere]
+                  .map((i) => WHERE_LABELS[i])
+                  .filter((l) => l && l !== 'Anywhere in the world'),
+              },
+              availability: [],
+            }),
+          },
+          accessToken,
+        );
+      } catch {
+        // Persist locally as fallback if API is not yet available
+        localStorage.setItem('lethe_kyc_completed', 'true');
+      }
+    } else {
+      localStorage.setItem('lethe_kyc_completed', 'true');
     }
-    
-    // Close the modal
+
+    if (onComplete) onComplete();
     onClose();
   };
 

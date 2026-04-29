@@ -12,6 +12,8 @@ import ConnectPage from "./ConnectPage";
 import CommunitiesPage from "./CommunitiesPage";
 import CommunityPage from "./CommunityPage";
 import NotFound from "./NotFound";
+import AuthPage from "./AuthPage";
+import ProtectedRoute from "./ProtectedRoute";
 import TrialLayout from "./trial/TrialLayout";
 import TrialHomePage from "./trial/TrialHomePage";
 import TrialOnboardingPage from "./trial/TrialOnboardingPage";
@@ -32,45 +34,24 @@ export const router = createBrowserRouter([
         index: true, 
         Component: LandingPage 
       },
-      { 
-        path: "onboarding", 
-        Component: OnboardingFlow 
+      {
+        path: "auth",
+        Component: AuthPage,
       },
-      { 
-        path: "feed", 
-        Component: Feed 
-      },
-      { 
-        path: "profile", 
-        Component: ProfilePage 
-      },
-      { 
-        path: "user/:username", 
-        Component: OtherUserProfilePage 
-      },
-      { 
-        path: "messages", 
-        Component: MessagesPage 
-      },
-      { 
-        path: "matches", 
-        Component: MatchesPage 
-      },
-      { 
-        path: "connect", 
-        Component: ConnectPage 
-      },
-      { 
-        path: "settings", 
-        Component: SettingsPage 
-      },
-      { 
-        path: "communities", 
-        Component: CommunitiesPage 
-      },
-      { 
-        path: "community/:id", 
-        Component: CommunityPage 
+      {
+        Component: ProtectedRoute,
+        children: [
+          { path: "onboarding", Component: OnboardingFlow },
+          { path: "feed", Component: Feed },
+          { path: "profile", Component: ProfilePage },
+          { path: "user/:username", Component: OtherUserProfilePage },
+          { path: "messages", Component: MessagesPage },
+          { path: "matches", Component: MatchesPage },
+          { path: "connect", Component: ConnectPage },
+          { path: "settings", Component: SettingsPage },
+          { path: "communities", Component: CommunitiesPage },
+          { path: "community/:id", Component: CommunityPage },
+        ],
       },
       {
         path: "trial",
