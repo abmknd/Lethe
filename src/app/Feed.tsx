@@ -15,6 +15,9 @@ import { useTheme } from "./context/ThemeContext";
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useNavigate } from "react-router";
 import LetheLogo from "../imports/LetheLogo";
+import { useAuth } from "./context/AuthContext";
+import { supabase } from "../lib/supabase";
+import { apiFetch } from "../lib/api";
 
 const avatarUrl1 = "https://images.unsplash.com/photo-1762522921456-cdfe882d36c3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx5b3VuZyUyMHByb2Zlc3Npb25hbCUyMHdvbWFuJTIwcG9ydHJhaXR8ZW58MXx8fHwxNzcyMzI5MzMwfDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral";
 const avatarUrl2 = "https://images.unsplash.com/photo-1532272278764-53cd1fe53f72?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx5b3VuZyUyMHByb2Zlc3Npb25hbCUyMG1hbiUyMHBvcnRyYWl0fGVufDF8fHx8MTc3MjM0NDQxOXww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral";
@@ -45,6 +48,7 @@ const postImage5 = "https://images.unsplash.com/photo-1694473799096-a915b576511f
  */
 export default function Feed() {
   const { theme } = useTheme();
+  const { user } = useAuth();
   const [activePage, setActivePage] = useState<"posts" | "matches">("posts");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [matchesTab, setMatchesTab] = useState<"suggestions" | "recent" | "upcoming">("suggestions");
@@ -53,23 +57,51 @@ export default function Feed() {
   const [fadedZoneVisitCount, setFadedZoneVisitCount] = useState(0);
   const [hasEnteredFadedZone, setHasEnteredFadedZone] = useState(false);
   const [isKYCModalOpen, setIsKYCModalOpen] = useState(false);
+  const [kycAccessToken, setKycAccessToken] = useState<string | undefined>(undefined);
   const postsContainerRef = useRef<HTMLDivElement>(null);
   const fadedZoneStartRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
-  // Show KYC modal 3 seconds after first load from onboarding (only once per session)
+  // Show KYC modal if the user has no profile yet (check API, fall back to localStorage)
   useEffect(() => {
-    const kycCompleted = localStorage.getItem('lethe_kyc_completed');
     const kycShownThisSession = sessionStorage.getItem('lethe_kyc_shown');
+    if (kycShownThisSession) return;
 
-    if (!kycCompleted && !kycShownThisSession) {
-      const timer = setTimeout(() => {
-        setIsKYCModalOpen(true);
-        sessionStorage.setItem('lethe_kyc_shown', 'true');
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, []);
+    (async () => {
+      if (user?.id) {
+        try {
+          const { data: { session } } = await supabase.auth.getSession();
+          const token = session?.access_token;
+          const data = await apiFetch(`/api/trial/users/${user.id}/profile`, undefined, token) as Record<string, unknown>;
+          const profile = data.profile as Record<string, unknown> | undefined;
+          if (profile) return; // Profile exists — KYC already done
+          setKycAccessToken(token);
+          setTimeout(() => {
+            setIsKYCModalOpen(true);
+            sessionStorage.setItem('lethe_kyc_shown', 'true');
+          }, 3000);
+        } catch {
+          // API not yet available — fall back to localStorage
+          const kycCompleted = localStorage.getItem('lethe_kyc_completed');
+          if (!kycCompleted) {
+            setTimeout(() => {
+              setIsKYCModalOpen(true);
+              sessionStorage.setItem('lethe_kyc_shown', 'true');
+            }, 3000);
+          }
+        }
+      } else {
+        // No auth yet — fall back to localStorage
+        const kycCompleted = localStorage.getItem('lethe_kyc_completed');
+        if (!kycCompleted) {
+          setTimeout(() => {
+            setIsKYCModalOpen(true);
+            sessionStorage.setItem('lethe_kyc_shown', 'true');
+          }, 3000);
+        }
+      }
+    })();
+  }, [user?.id]);
 
   // Handle KYC modal close
   const handleKYCClose = () => {
@@ -986,9 +1018,8 @@ export default function Feed() {
       <KYCModal
         isOpen={isKYCModalOpen}
         onClose={handleKYCClose}
-        onComplete={() => {
-          localStorage.setItem('lethe_kyc_completed', 'true');
-        }}
+        userId={user?.id}
+        accessToken={kycAccessToken}
       />
     </div>
   );

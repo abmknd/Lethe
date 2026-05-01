@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
-import { 
-  User, Calendar, Target, Bell, 
-  Upload, X, Plus, ChevronDown, Heart, 
+import {
+  User, Calendar, Target, Bell,
+  Upload, X, Plus, ChevronDown, Heart,
   MessageCircle, Users, Globe, Check
 } from 'lucide-react';
 import LetheLogo from '../imports/LetheLogo';
@@ -11,6 +11,74 @@ import GoogleCalendarIcon from '../imports/Container-120-16';
 import GoogleIcon from '../imports/Container-120-20';
 import AppleIcon from '../imports/Container-120-24';
 import { toast } from 'sonner';
+import { useAuth } from './context/AuthContext';
+import { supabase } from '../lib/supabase';
+import { apiFetch } from '../lib/api';
+
+// ── availability helpers ───────────────────────────────────────────────────────
+
+const DAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+function parseAmPmHour(label: string): number {
+  const [timePart, period] = label.split(' ');
+  const [h] = timePart.split(':').map(Number);
+  if (period === 'AM') return h === 12 ? 0 : h;
+  return h === 12 ? 12 : h + 12;
+}
+
+function hourToAmPm(h: number): string {
+  if (h === 0) return '12:00 AM';
+  if (h === 12) return '12:00 PM';
+  return h < 12 ? `${h}:00 AM` : `${h - 12}:00 PM`;
+}
+
+function slotsToAvailability(
+  slots: Array<{ dayOfWeek: number; startTime: string }>,
+): AvailabilityData {
+  const result: AvailabilityData = Object.fromEntries(DAY_NAMES.map((d) => [d, []]));
+  for (const slot of slots) {
+    const day = DAY_NAMES[slot.dayOfWeek];
+    if (!day) continue;
+    const [h] = slot.startTime.split(':').map(Number);
+    result[day].push(hourToAmPm(h));
+  }
+  return result;
+}
+
+function availabilityToSlots(
+  av: AvailabilityData,
+  timezone: string,
+): Array<{ dayOfWeek: number; startHour: number; endHour: number; timezone: string }> {
+  const out: Array<{ dayOfWeek: number; startHour: number; endHour: number; timezone: string }> = [];
+  for (let i = 0; i < DAY_NAMES.length; i++) {
+    for (const label of av[DAY_NAMES[i]] ?? []) {
+      const h = parseAmPmHour(label);
+      out.push({ dayOfWeek: i, startHour: h, endHour: h + 1, timezone });
+    }
+  }
+  return out;
+}
+
+// ── meeting format helpers ─────────────────────────────────────────────────────
+
+const MEETING_FORMAT_VALUES = ['video', 'voice', 'in-person', 'no-preference'];
+
+function meetingFormatToIndex(val: string): number {
+  const i = MEETING_FORMAT_VALUES.indexOf(val);
+  return i >= 0 ? i : 0;
+}
+
+// ── goals label helpers ────────────────────────────────────────────────────────
+
+const GOAL_LABELS = [
+  'Brainstorm with peers',
+  'Business development',
+  'Meet interesting people',
+  'Find a co-founder',
+  'Get career advice',
+  'Find collaborators',
+  'Share knowledge',
+];
 
 type SectionType = 'account' | 'availability' | 'goals' | 'notifications';
 
@@ -34,15 +102,17 @@ interface NotificationItem {
 
 export default function SettingsPage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [activeSection, setActiveSection] = useState<SectionType>('account');
   const [isDirty, setIsDirty] = useState(false);
-  
+  const [saving, setSaving] = useState(false);
+
   // Account state
-  const [email, setEmail] = useState('abiola@lethe.io');
-  const [location, setLocation] = useState('Lagos, Nigeria');
+  const email = user?.email ?? '';
+  const [location, setLocation] = useState('');
   const [languages, setLanguages] = useState(['English', 'French']);
   const [languageInput, setLanguageInput] = useState('');
-  const [dob, setDob] = useState('1999-06-10');
+  const [dob, setDob] = useState('');
   const [connectedAccounts, setConnectedAccounts] = useState([
     { name: 'Google Calendar', icon: <GoogleCalendarIcon />, connected: true },
     { name: 'Google', icon: <GoogleIcon />, connected: false },
@@ -51,13 +121,7 @@ export default function SettingsPage() {
   
   // Availability state
   const [availability, setAvailability] = useState<AvailabilityData>({
-    Mon: ['7:00 AM'],
-    Tue: [],
-    Wed: ['8:00 PM'],
-    Thu: [],
-    Fri: [],
-    Sat: ['10:00 AM'],
-    Sun: []
+    Mon: [], Tue: [], Wed: [], Thu: [], Fri: [], Sat: [], Sun: [],
   });
   const [meetingFrequency, setMeetingFrequency] = useState('Every week');
   const [localMatchesOnly, setLocalMatchesOnly] = useState(false);
@@ -65,20 +129,20 @@ export default function SettingsPage() {
   const [showTimePicker, setShowTimePicker] = useState<{ day: string; x: number; y: number } | null>(null);
   
   // Goals state
-  const [interests, setInterests] = useState(['Design Ethics', 'AI Research', 'Systems Thinking', 'Effective Altruism', 'Building in Public', 'Conversation Design']);
+  const [interests, setInterests] = useState<string[]>([]);
   const [interestInput, setInterestInput] = useState('');
-  const [introText, setIntroText] = useState("I'm a product designer exploring the intersection of AI and human communication. Looking for people working on hard problems who think out loud.");
+  const [introText, setIntroText] = useState('');
   const [goals, setGoals] = useState([
-    { icon: '🧠', label: 'Brainstorm with peers', active: true },
-    { icon: '💼', label: 'Business development', active: true },
-    { icon: '🌍', label: 'Meet interesting people', active: true },
+    { icon: '🧠', label: 'Brainstorm with peers', active: false },
+    { icon: '💼', label: 'Business development', active: false },
+    { icon: '🌍', label: 'Meet interesting people', active: false },
     { icon: '🚀', label: 'Find a co-founder', active: false },
     { icon: '🎯', label: 'Get career advice', active: false },
     { icon: '📣', label: 'Find collaborators', active: false },
     { icon: '💡', label: 'Share knowledge', active: false },
   ]);
-  const [learnAbout, setLearnAbout] = useState('I want to understand more about the intersection of cognitive science and AI design.');
-  const [askAbout, setAskAbout] = useState('Designing AI products from first principles, or how to pivot into conversation design.');
+  const [learnAbout, setLearnAbout] = useState('');
+  const [askAbout, setAskAbout] = useState('');
   const [whoToMeet, setWhoToMeet] = useState(3);
   const [whereBased, setWhereBased] = useState('Anywhere in the world');
   const [meetingFormat, setMeetingFormat] = useState(0);
@@ -130,21 +194,95 @@ export default function SettingsPage() {
   const MAX_SLOTS = 5;
   const TIME_OPTIONS = ['6:00 AM', '7:00 AM', '8:00 AM', '9:00 AM', '10:00 AM', '11:00 AM', '12:00 PM', '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM', '6:00 PM', '7:00 PM', '8:00 PM', '9:00 PM', '10:00 PM'];
 
-  const totalSlots = () => {
-    return Object.values(availability).reduce((sum, times) => sum + times.length, 0);
-  };
-
+  const totalSlots = () => Object.values(availability).reduce((sum, times) => sum + times.length, 0);
   const markDirty = () => setIsDirty(true);
 
-  const saveChanges = () => {
-    setIsDirty(false);
-    toast.success('Changes saved');
+  // ── load profile ─────────────────────────────────────────────────────────────
+
+  useEffect(() => {
+    if (!user?.id) return;
+    (async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        const token = session?.access_token;
+        const data = await apiFetch(`/api/trial/users/${user.id}/profile`, undefined, token) as Record<string, unknown>;
+        const profile = data.profile as Record<string, unknown> | undefined;
+        if (!profile) return;
+
+        const u = profile.user as Record<string, unknown> | undefined;
+        const p = profile.preferences as Record<string, unknown> | undefined;
+        const av = profile.availability as Array<Record<string, unknown>> | undefined;
+
+        if (u?.location) setLocation(u.location as string);
+        if (u?.matchingEnabled === false) setPauseMeetings(true);
+
+        if (p?.localOnly) setLocalMatchesOnly(p.localOnly as boolean);
+        if (Array.isArray(p?.interests) && p.interests.length) setInterests(p.interests as string[]);
+        if (p?.introText) setIntroText(p.introText as string);
+        if (p?.meetingFormat) setMeetingFormat(meetingFormatToIndex(p.meetingFormat as string));
+        if (Array.isArray(p?.matchIntent)) {
+          const active = new Set(p.matchIntent as string[]);
+          setGoals((prev) => prev.map((g) => ({ ...g, active: active.has(g.label) })));
+        }
+        if (Array.isArray(p?.preferredLocations) && (p.preferredLocations as string[]).length) {
+          setWhereBased((p.preferredLocations as string[])[0]);
+        }
+
+        if (Array.isArray(av) && av.length) {
+          setAvailability(slotsToAvailability(av as Array<{ dayOfWeek: number; startTime: string }>));
+        }
+      } catch {
+        // Profile not found yet — first login, use empty defaults
+      }
+    })();
+  }, [user?.id]);
+
+  // ── save / discard ────────────────────────────────────────────────────────────
+
+  const saveChanges = async () => {
+    if (!user?.id) return;
+    setSaving(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+      await apiFetch(
+        `/api/trial/users/${user.id}/profile`,
+        {
+          method: 'PUT',
+          body: JSON.stringify({
+            user: {
+              location,
+              matchingEnabled: !pauseMeetings,
+              timezone,
+            },
+            preferences: {
+              interests,
+              introText,
+              localOnly: localMatchesOnly,
+              meetingFormat: MEETING_FORMAT_VALUES[meetingFormat],
+              matchIntent: goals.filter((g) => g.active).map((g) => g.label),
+              preferredLocations: whereBased === 'Anywhere in the world' ? [] : [whereBased],
+            },
+            availability: availabilityToSlots(availability, timezone),
+          }),
+        },
+        token,
+      );
+
+      setIsDirty(false);
+      toast.success('Changes saved');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to save changes');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const discardChanges = () => {
     setIsDirty(false);
     toast.info('Changes discarded');
-    // Reset to initial values would go here
   };
 
   const addLanguage = (e: React.KeyboardEvent) => {
@@ -361,8 +499,8 @@ export default function SettingsPage() {
                       <input
                         type="email"
                         value={email}
-                        onChange={(e) => { setEmail(e.target.value); markDirty(); }}
-                        className="flex-1 bg-black border border-white/[0.12] rounded-[10px] px-[14px] py-[11px] text-[13px] font-light text-white/88 outline-none transition-colors focus:border-[#7FFF00]/30 placeholder:text-white/[0.25]"
+                        readOnly
+                        className="flex-1 bg-black border border-white/[0.12] rounded-[10px] px-[14px] py-[11px] text-[13px] font-light text-white/88 outline-none opacity-60 cursor-default"
                       />
                       <div className="px-3 py-[5px] rounded-lg bg-white/[0.07] border border-white/[0.12] text-[12px] font-medium tracking-[0.08em] uppercase text-white/[0.25] whitespace-nowrap">
                         verified
@@ -1059,9 +1197,10 @@ export default function SettingsPage() {
         </button>
         <button
           onClick={saveChanges}
-          className="px-6 py-[10px] rounded-[10px] bg-white/10 border border-white/20 text-[12px] font-semibold tracking-[0.08em] uppercase text-white/88 transition-all hover:bg-white/[0.16] hover:border-white/30"
+          disabled={saving}
+          className="px-6 py-[10px] rounded-[10px] bg-white/10 border border-white/20 text-[12px] font-semibold tracking-[0.08em] uppercase text-white/88 transition-all hover:bg-white/[0.16] hover:border-white/30 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Save changes
+          {saving ? 'Saving…' : 'Save changes'}
         </button>
       </div>
     </div>

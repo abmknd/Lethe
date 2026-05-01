@@ -2,15 +2,16 @@ import { RouterProvider } from "react-router";
 import { router } from "./routes";
 import { ThemeProvider } from "./context/ThemeContext";
 import { ThemeAwareWrapper } from "./components/ThemeAwareWrapper";
+import { AuthProvider } from "./context/AuthContext";
 import { Toaster } from "sonner";
 
-// Main application component
 export default function App() {
   return (
+    <AuthProvider>
     <ThemeProvider>
       <ThemeAwareWrapper>
         <RouterProvider router={router} />
-        <Toaster 
+        <Toaster
           position="bottom-center"
           toastOptions={{
             style: {
@@ -27,5 +28,6 @@ export default function App() {
         />
       </ThemeAwareWrapper>
     </ThemeProvider>
+    </AuthProvider>
   );
 }

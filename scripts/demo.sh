@@ -122,7 +122,7 @@ sleep 1
 
 # ── start frontend ────────────────────────────────────────────────────────────
 log "Starting frontend on http://localhost:5173 ..."
-npm run dev &
+npm run dev -- --host 127.0.0.1 &
 DEV_PID=$!
 
 # ── ready ─────────────────────────────────────────────────────────────────────
