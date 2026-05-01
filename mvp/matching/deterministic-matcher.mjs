@@ -194,6 +194,21 @@ export function createDeterministicMatcher({ topN = 5, recentIntroDays = 45 } = 
             continue;
           }
 
+          const profileDomain = profile.user.email?.split('@')[1]?.toLowerCase();
+          const candidateDomain = candidate.user.email?.split('@')[1]?.toLowerCase();
+          const PLATFORM_AND_PERSONAL_DOMAINS = new Set([
+            'lethe.io', 'example.com',
+            'gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com',
+            'icloud.com', 'protonmail.com', 'me.com', 'live.com', 'msn.com',
+          ]);
+          if (
+            profileDomain && candidateDomain &&
+            profileDomain === candidateDomain &&
+            !PLATFORM_AND_PERSONAL_DOMAINS.has(profileDomain)
+          ) {
+            continue;
+          }
+
           if (
             (profile.preferences.localOnly || candidate.preferences.localOnly) &&
             normalizeToken(profile.user.location) !== normalizeToken(candidate.user.location)
