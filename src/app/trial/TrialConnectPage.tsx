@@ -4,7 +4,9 @@ import {
   listUserRecommendations,
   respondToRecommendation,
   runWeeklyMatching,
+  saveRecommendationMeeting,
   updateFollowThrough,
+  updateRecommendationMeetingStatus,
 } from './api';
 import type { TrialRecommendation, TrialUser } from './types';
 
@@ -14,10 +16,30 @@ export default function TrialConnectPage() {
   const [recommendations, setRecommendations] = useState<TrialRecommendation[]>([]);
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [meetingUrlById, setMeetingUrlById] = useState<Record<string, string>>({});
+  const [scheduledAtById, setScheduledAtById] = useState<Record<string, string>>({});
 
   async function refreshRecommendations(userId: string) {
     const nextRecommendations = await listUserRecommendations(userId);
     setRecommendations(nextRecommendations);
+    setMeetingUrlById((current) => {
+      const next = { ...current };
+      for (const recommendation of nextRecommendations) {
+        if (recommendation.meeting?.meetingUrl && !next[recommendation.id]) {
+          next[recommendation.id] = recommendation.meeting.meetingUrl;
+        }
+      }
+      return next;
+    });
+    setScheduledAtById((current) => {
+      const next = { ...current };
+      for (const recommendation of nextRecommendations) {
+        if (recommendation.meeting?.scheduledAt && !next[recommendation.id]) {
+          next[recommendation.id] = recommendation.meeting.scheduledAt.slice(0, 16);
+        }
+      }
+      return next;
+    });
   }
 
   useEffect(() => {
@@ -102,6 +124,57 @@ export default function TrialConnectPage() {
     }
   }
 
+  async function handleSaveMeeting(recommendationId: string) {
+    const meetingUrl = (meetingUrlById[recommendationId] ?? '').trim();
+    if (!meetingUrl) {
+      setMessage('Meeting URL is required.');
+      return;
+    }
+
+    setIsLoading(true);
+    setMessage('');
+    try {
+      await saveRecommendationMeeting({
+        recommendationId,
+        actorUserId: 'admin_trial',
+        provider: 'manual_link',
+        meetingUrl,
+        scheduledAt: scheduledAtById[recommendationId] || null,
+        status: 'scheduled',
+        notes: 'Manual meeting link added during local demo',
+      });
+      if (selectedUserId) {
+        await refreshRecommendations(selectedUserId);
+      }
+      setMessage('Meeting scheduled.');
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Failed to save meeting');
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function handleMeetingCompleted(recommendationId: string) {
+    setIsLoading(true);
+    setMessage('');
+    try {
+      await updateRecommendationMeetingStatus({
+        recommendationId,
+        actorUserId: 'admin_trial',
+        status: 'completed',
+        notes: 'Meeting completed during local demo',
+      });
+      if (selectedUserId) {
+        await refreshRecommendations(selectedUserId);
+      }
+      setMessage('Meeting marked completed.');
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Failed to update meeting');
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
   return (
     <div className="space-y-5">
       <section className="bg-[#0d140d] border border-white/10 rounded-xl p-5">
@@ -177,6 +250,71 @@ export default function TrialConnectPage() {
                 >
                   Mark intro sent
                 </button>
+              </div>
+
+              <div className="mt-4 rounded border border-white/10 bg-black/20 p-3 space-y-2">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.12em] text-white/50">Meeting</p>
+                    {recommendation.meeting ? (
+                      <p className="text-sm text-white/75">
+                        {recommendation.meeting.status} · {recommendation.meeting.provider}
+                        {recommendation.meeting.scheduledAt ? ` · ${new Date(recommendation.meeting.scheduledAt).toLocaleString()}` : ''}
+                      </p>
+                    ) : (
+                      <p className="text-sm text-white/55">No meeting link attached.</p>
+                    )}
+                  </div>
+                  {recommendation.meeting?.meetingUrl && (
+                    <a
+                      href={recommendation.meeting.meetingUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-xs text-[#9fe4ff] hover:text-[#b9ecff] underline underline-offset-2"
+                    >
+                      Open meeting
+                    </a>
+                  )}
+                </div>
+
+                <div className="grid md:grid-cols-[1fr_220px_auto_auto] gap-2">
+                  <input
+                    className="bg-black/30 border border-white/15 rounded px-3 py-2 text-sm"
+                    placeholder="https://meet.google.com/... or Zoom link"
+                    value={meetingUrlById[recommendation.id] ?? ''}
+                    onChange={(event) =>
+                      setMeetingUrlById((current) => ({
+                        ...current,
+                        [recommendation.id]: event.target.value,
+                      }))
+                    }
+                  />
+                  <input
+                    type="datetime-local"
+                    className="bg-black/30 border border-white/15 rounded px-3 py-2 text-sm"
+                    value={scheduledAtById[recommendation.id] ?? ''}
+                    onChange={(event) =>
+                      setScheduledAtById((current) => ({
+                        ...current,
+                        [recommendation.id]: event.target.value,
+                      }))
+                    }
+                  />
+                  <button
+                    disabled={isLoading}
+                    onClick={() => handleSaveMeeting(recommendation.id)}
+                    className="px-3 py-1 text-xs rounded border border-[#4dc7ff]/35 text-[#9fe4ff] bg-[#4dc7ff]/10 disabled:opacity-50"
+                  >
+                    Save meeting
+                  </button>
+                  <button
+                    disabled={isLoading || !recommendation.meeting}
+                    onClick={() => handleMeetingCompleted(recommendation.id)}
+                    className="px-3 py-1 text-xs rounded border border-[#7FFF00]/40 text-[#c9ff87] bg-[#7FFF00]/10 disabled:opacity-50"
+                  >
+                    Complete
+                  </button>
+                </div>
               </div>
             </div>
           ))}

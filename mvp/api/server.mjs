@@ -205,6 +205,49 @@ export function createTrialApiServer({ services, dbPath }) {
         return;
       }
 
+      const meetingMatch = path.match(/^\/api\/trial\/recommendations\/([^/]+)\/meeting$/);
+      if (meetingMatch) {
+        const recommendationId = decodeURIComponent(meetingMatch[1]);
+
+        if (req.method === 'GET') {
+          const meeting = services.meetings.getMeetingForRecommendation(recommendationId);
+          sendJson(res, 200, { meeting });
+          return;
+        }
+
+        if (req.method === 'PUT') {
+          const body = await readJsonBody(req);
+          const meeting = services.meetings.createMeetingForRecommendation({
+            recommendationId,
+            actorUserId: body.actorUserId ?? null,
+            provider: body.provider,
+            externalMeetingId: body.externalMeetingId,
+            meetingUrl: body.meetingUrl,
+            scheduledAt: body.scheduledAt,
+            status: body.status,
+            metadata: body.metadata,
+            notes: body.notes,
+          });
+          sendJson(res, 200, { ok: true, meeting });
+          return;
+        }
+      }
+
+      const meetingStatusMatch = path.match(/^\/api\/trial\/recommendations\/([^/]+)\/meeting\/status$/);
+      if (meetingStatusMatch && req.method === 'POST') {
+        const recommendationId = decodeURIComponent(meetingStatusMatch[1]);
+        const body = await readJsonBody(req);
+        const meeting = services.meetings.updateMeetingStatus({
+          recommendationId,
+          actorUserId: body.actorUserId ?? null,
+          status: body.status,
+          notes: body.notes ?? null,
+        });
+
+        sendJson(res, 200, { ok: true, meeting });
+        return;
+      }
+
       const followThroughMatch = path.match(/^\/api\/trial\/recommendations\/([^/]+)\/follow-through$/);
       if (followThroughMatch && req.method === 'POST') {
         const recommendationId = decodeURIComponent(followThroughMatch[1]);

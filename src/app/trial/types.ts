@@ -61,8 +61,25 @@ export interface TrialRecommendation {
   outcome: {
     requesterResponse: string | null;
     followThroughStatus: string;
+    outcomeStatus?: string | null;
     notes: string | null;
   };
+  meeting: TrialMeeting | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface TrialMeeting {
+  id: string;
+  recommendationId: string;
+  provider: string;
+  externalMeetingId: string | null;
+  meetingUrl: string;
+  scheduledAt: string | null;
+  startedAt: string | null;
+  endedAt: string | null;
+  status: string;
+  metadata: Record<string, unknown>;
   createdAt: string;
   updatedAt: string;
 }

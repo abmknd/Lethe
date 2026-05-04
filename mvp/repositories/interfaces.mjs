@@ -107,3 +107,17 @@ export class OutcomeRepository {
     throw new Error('Not implemented');
   }
 }
+
+export class MeetingRepository {
+  upsertMeeting() {
+    throw new Error('Not implemented');
+  }
+
+  getMeetingByRecommendationId() {
+    throw new Error('Not implemented');
+  }
+
+  updateMeetingStatus() {
+    throw new Error('Not implemented');
+  }
+}

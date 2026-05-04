@@ -6,6 +6,8 @@ export const EVENT_TYPES = Object.freeze({
   USER_PASS: 'user_pass',
   INTRO_SENT: 'intro_sent',
   FOLLOW_THROUGH_UPDATED: 'follow_through_updated',
+  MEETING_CREATED: 'meeting_created',
+  MEETING_STATUS_UPDATED: 'meeting_status_updated',
 });
 
 export const EVENT_TYPE_VALUES = Object.freeze(Object.values(EVENT_TYPES));

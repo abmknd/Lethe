@@ -3,6 +3,7 @@ import type {
   TrialAdminRecommendation,
   TrialAdminRecommendationContext,
   TrialEvent,
+  TrialMeeting,
   TrialRecommendation,
   TrialUser,
   UserContextResponse,
@@ -155,6 +156,50 @@ export async function updateFollowThrough(params: {
       notes: params.notes ?? null,
     }),
   });
+}
+
+export async function saveRecommendationMeeting(params: {
+  recommendationId: string;
+  actorUserId: string;
+  provider?: string;
+  meetingUrl: string;
+  scheduledAt?: string | null;
+  status?: string;
+  notes?: string;
+}) {
+  return request<{ ok: boolean; meeting: TrialMeeting }>(
+    `/api/trial/recommendations/${encodeURIComponent(params.recommendationId)}/meeting`,
+    {
+      method: 'PUT',
+      body: JSON.stringify({
+        actorUserId: params.actorUserId,
+        provider: params.provider ?? 'manual_link',
+        meetingUrl: params.meetingUrl,
+        scheduledAt: params.scheduledAt ?? null,
+        status: params.status ?? 'scheduled',
+        notes: params.notes ?? null,
+      }),
+    },
+  );
+}
+
+export async function updateRecommendationMeetingStatus(params: {
+  recommendationId: string;
+  actorUserId: string;
+  status: string;
+  notes?: string;
+}) {
+  return request<{ ok: boolean; meeting: TrialMeeting }>(
+    `/api/trial/recommendations/${encodeURIComponent(params.recommendationId)}/meeting/status`,
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        actorUserId: params.actorUserId,
+        status: params.status,
+        notes: params.notes ?? null,
+      }),
+    },
+  );
 }
 
 export async function listTrialEvents(filters?: { userId?: string; eventType?: string; recommendationId?: string; limit?: number }) {

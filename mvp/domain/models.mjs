@@ -15,6 +15,26 @@ export const OUTCOME_STATUSES = Object.freeze({
   NO_FOLLOW_THROUGH: 'no_follow_through',
 });
 
+export const MEETING_PROVIDERS = Object.freeze({
+  MANUAL_LINK: 'manual_link',
+  GOOGLE_MEET: 'google_meet',
+  ZOOM: 'zoom',
+  WHEREBY: 'whereby',
+  DAILY: 'daily',
+  AGORA: 'agora',
+  LIVEKIT: 'livekit',
+});
+
+export const MEETING_STATUSES = Object.freeze({
+  DRAFT: 'draft',
+  SCHEDULED: 'scheduled',
+  READY: 'ready',
+  IN_PROGRESS: 'in_progress',
+  COMPLETED: 'completed',
+  CANCELLED: 'cancelled',
+  FAILED: 'failed',
+});
+
 export function nowIso() {
   return new Date().toISOString();
 }
@@ -128,6 +148,51 @@ export function normalizeProfilePayload(input = {}) {
     preferences: normalizePreferences(input.preferences),
     availability: normalizeAvailabilitySlots(input.availability),
   };
+}
+
+export function normalizeMeetingPayload(input = {}) {
+  const provider = String(input.provider ?? MEETING_PROVIDERS.MANUAL_LINK).trim().toLowerCase();
+  const status = String(input.status ?? MEETING_STATUSES.SCHEDULED).trim().toLowerCase();
+
+  if (!Object.values(MEETING_PROVIDERS).includes(provider)) {
+    throw new Error('Invalid meeting provider.');
+  }
+  if (!Object.values(MEETING_STATUSES).includes(status)) {
+    throw new Error('Invalid meeting status.');
+  }
+
+  const meetingUrl = String(input.meetingUrl ?? '').trim();
+  if (status !== MEETING_STATUSES.DRAFT && !meetingUrl) {
+    throw new Error('Meeting URL is required unless status is draft.');
+  }
+
+  const scheduledAt = normalizeOptionalDate(input.scheduledAt, 'scheduledAt');
+  const startedAt = normalizeOptionalDate(input.startedAt, 'startedAt');
+  const endedAt = normalizeOptionalDate(input.endedAt, 'endedAt');
+
+  return {
+    provider,
+    externalMeetingId: input.externalMeetingId ? String(input.externalMeetingId).trim() : null,
+    meetingUrl,
+    scheduledAt,
+    startedAt,
+    endedAt,
+    status,
+    metadata: typeof input.metadata === 'object' && input.metadata !== null ? input.metadata : {},
+  };
+}
+
+function normalizeOptionalDate(value, fieldName) {
+  if (!value) {
+    return null;
+  }
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    throw new Error(`Invalid meeting ${fieldName}.`);
+  }
+
+  return date.toISOString();
 }
 
 export function hasHourOverlap(a, b) {

@@ -113,4 +113,23 @@ CREATE TABLE IF NOT EXISTS outcomes (
   updated_at TEXT NOT NULL,
   FOREIGN KEY(recommendation_id) REFERENCES recommendations(id) ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS meetings (
+  id TEXT PRIMARY KEY,
+  recommendation_id TEXT UNIQUE NOT NULL,
+  provider TEXT NOT NULL DEFAULT 'manual_link',
+  external_meeting_id TEXT,
+  meeting_url TEXT NOT NULL DEFAULT '',
+  scheduled_at TEXT,
+  started_at TEXT,
+  ended_at TEXT,
+  status TEXT NOT NULL DEFAULT 'scheduled',
+  metadata TEXT NOT NULL DEFAULT '{}',
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  FOREIGN KEY(recommendation_id) REFERENCES recommendations(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_meetings_recommendation ON meetings(recommendation_id);
+CREATE INDEX IF NOT EXISTS idx_meetings_status ON meetings(status);
 `;

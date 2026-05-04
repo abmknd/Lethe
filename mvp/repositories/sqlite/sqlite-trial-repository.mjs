@@ -55,6 +55,27 @@ function mapLegacyToOutcome({ outcomeStatus, followThroughStatus, requesterRespo
   return OUTCOME_STATUSES.NO_FOLLOW_THROUGH;
 }
 
+function mapMeeting(row) {
+  if (!row?.meeting_id) {
+    return null;
+  }
+
+  return {
+    id: row.meeting_id,
+    recommendationId: row.meeting_recommendation_id,
+    provider: row.meeting_provider,
+    externalMeetingId: row.meeting_external_meeting_id ?? null,
+    meetingUrl: row.meeting_url,
+    scheduledAt: row.meeting_scheduled_at ?? null,
+    startedAt: row.meeting_started_at ?? null,
+    endedAt: row.meeting_ended_at ?? null,
+    status: row.meeting_status,
+    metadata: parseJson(row.meeting_metadata, {}),
+    createdAt: row.meeting_created_at,
+    updatedAt: row.meeting_updated_at,
+  };
+}
+
 /**
  * SQLite adapter for trial repositories.
  * Storage-specific details stay here; services consume repository methods only.
@@ -556,11 +577,24 @@ export class SqliteTrialRepository extends UserRepository {
         u.bio AS target_bio,
         o.outcome_status,
         o.notes AS outcome_notes,
-        ad.decision AS admin_decision
+        ad.decision AS admin_decision,
+        m.id AS meeting_id,
+        m.recommendation_id AS meeting_recommendation_id,
+        m.provider AS meeting_provider,
+        m.external_meeting_id AS meeting_external_meeting_id,
+        m.meeting_url AS meeting_url,
+        m.scheduled_at AS meeting_scheduled_at,
+        m.started_at AS meeting_started_at,
+        m.ended_at AS meeting_ended_at,
+        m.status AS meeting_status,
+        m.metadata AS meeting_metadata,
+        m.created_at AS meeting_created_at,
+        m.updated_at AS meeting_updated_at
       FROM recommendations r
       JOIN users u ON u.id = r.target_user_id
       LEFT JOIN outcomes o ON o.recommendation_id = r.id
       LEFT JOIN admin_decisions ad ON ad.recommendation_id = r.id
+      LEFT JOIN meetings m ON m.recommendation_id = r.id
       WHERE r.source_user_id = :userId
     `;
 
@@ -595,6 +629,7 @@ export class SqliteTrialRepository extends UserRepository {
         outcomeStatus: row.outcome_status ?? null,
         notes: row.outcome_notes ?? null,
       },
+      meeting: mapMeeting(row),
       createdAt: row.created_at,
       updatedAt: row.updated_at,
     }));
@@ -1085,5 +1120,136 @@ export class SqliteTrialRepository extends UserRepository {
       });
 
     return this.getOutcomeByRecommendation(recommendationId);
+  }
+
+  getMeetingByRecommendationId(recommendationId) {
+    const row = this.db
+      .prepare(
+        `
+        SELECT
+          id AS meeting_id,
+          recommendation_id AS meeting_recommendation_id,
+          provider AS meeting_provider,
+          external_meeting_id AS meeting_external_meeting_id,
+          meeting_url AS meeting_url,
+          scheduled_at AS meeting_scheduled_at,
+          started_at AS meeting_started_at,
+          ended_at AS meeting_ended_at,
+          status AS meeting_status,
+          metadata AS meeting_metadata,
+          created_at AS meeting_created_at,
+          updated_at AS meeting_updated_at
+        FROM meetings
+        WHERE recommendation_id = :recommendationId
+      `,
+      )
+      .get({ recommendationId });
+
+    return mapMeeting(row);
+  }
+
+  upsertMeeting({
+    id,
+    recommendationId,
+    provider,
+    externalMeetingId = null,
+    meetingUrl,
+    scheduledAt = null,
+    startedAt = null,
+    endedAt = null,
+    status,
+    metadata = {},
+    updatedAt = nowIso(),
+  }) {
+    const existing = this.getMeetingByRecommendationId(recommendationId);
+    const meetingId = existing?.id ?? id ?? `meeting_${randomUUID()}`;
+    const createdAt = existing?.createdAt ?? updatedAt;
+
+    this.db
+      .prepare(
+        `
+        INSERT INTO meetings (
+          id,
+          recommendation_id,
+          provider,
+          external_meeting_id,
+          meeting_url,
+          scheduled_at,
+          started_at,
+          ended_at,
+          status,
+          metadata,
+          created_at,
+          updated_at
+        )
+        VALUES (
+          :id,
+          :recommendationId,
+          :provider,
+          :externalMeetingId,
+          :meetingUrl,
+          :scheduledAt,
+          :startedAt,
+          :endedAt,
+          :status,
+          :metadata,
+          :createdAt,
+          :updatedAt
+        )
+        ON CONFLICT(recommendation_id) DO UPDATE SET
+          provider = excluded.provider,
+          external_meeting_id = excluded.external_meeting_id,
+          meeting_url = excluded.meeting_url,
+          scheduled_at = excluded.scheduled_at,
+          started_at = excluded.started_at,
+          ended_at = excluded.ended_at,
+          status = excluded.status,
+          metadata = excluded.metadata,
+          updated_at = excluded.updated_at
+      `,
+      )
+      .run({
+        id: meetingId,
+        recommendationId,
+        provider,
+        externalMeetingId,
+        meetingUrl,
+        scheduledAt,
+        startedAt,
+        endedAt,
+        status,
+        metadata: JSON.stringify(metadata ?? {}),
+        createdAt,
+        updatedAt,
+      });
+
+    return this.getMeetingByRecommendationId(recommendationId);
+  }
+
+  updateMeetingStatus(recommendationId, { status, startedAt = null, endedAt = null, updatedAt = nowIso() }) {
+    const result = this.db
+      .prepare(
+        `
+        UPDATE meetings
+        SET status = :status,
+            started_at = COALESCE(:startedAt, started_at),
+            ended_at = COALESCE(:endedAt, ended_at),
+            updated_at = :updatedAt
+        WHERE recommendation_id = :recommendationId
+      `,
+      )
+      .run({
+        recommendationId,
+        status,
+        startedAt,
+        endedAt,
+        updatedAt,
+      });
+
+    if ((result?.changes ?? 0) === 0) {
+      return null;
+    }
+
+    return this.getMeetingByRecommendationId(recommendationId);
   }
 }
