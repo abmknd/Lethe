@@ -68,7 +68,7 @@ export default function Feed() {
     if (kycShownThisSession) return;
 
     (async () => {
-      if (user?.id) {
+      if (user?.id && supabase) {
         try {
           const { data: { session } } = await supabase.auth.getSession();
           const token = session?.access_token;

@@ -200,7 +200,7 @@ export default function SettingsPage() {
   // ── load profile ─────────────────────────────────────────────────────────────
 
   useEffect(() => {
-    if (!user?.id) return;
+    if (!user?.id || !supabase) return;
     (async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
@@ -240,7 +240,7 @@ export default function SettingsPage() {
   // ── save / discard ────────────────────────────────────────────────────────────
 
   const saveChanges = async () => {
-    if (!user?.id) return;
+    if (!user?.id || !supabase) return;
     setSaving(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
