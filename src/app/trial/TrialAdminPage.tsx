@@ -165,6 +165,11 @@ export default function TrialAdminPage() {
                   <span className="text-xs uppercase tracking-[0.12em] text-white/50">{row.status}</span>
                 </div>
 
+                {row.insightText && (
+                  <p className="mt-2 text-sm text-white/70 leading-relaxed border-l-2 border-[#7FFF00]/30 pl-3 italic">
+                    {row.insightText}
+                  </p>
+                )}
                 <ul className="mt-2 space-y-1 text-sm text-white/75">
                   {row.whyMatched.map((line, index) => (
                     <li key={`${row.id}-${index}`}>- {line}</li>

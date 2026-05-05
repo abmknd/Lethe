@@ -273,13 +273,19 @@ export default function ConnectPage() {
                     </div>
                   </div>
                 </div>
-                <div className="px-4 pb-[14px] flex flex-col gap-[9px]">
-                  {rec.whyMatched.map((reason, idx) => (
-                    <div key={idx} className="flex items-start gap-[9px]">
-                      <div className="w-1 h-1 rounded-full bg-[rgba(173,255,47,0.35)] flex-shrink-0 mt-[7px]" />
-                      <div className="text-[12px] font-light leading-[1.72] text-white/[0.5]">{reason}</div>
+                <div className="px-4 pb-[14px]">
+                  {rec.insightText ? (
+                    <p className="text-[13px] font-light leading-[1.75] text-white/[0.55]">{rec.insightText}</p>
+                  ) : (
+                    <div className="flex flex-col gap-[9px]">
+                      {rec.whyMatched.map((reason, idx) => (
+                        <div key={idx} className="flex items-start gap-[9px]">
+                          <div className="w-1 h-1 rounded-full bg-[rgba(173,255,47,0.35)] flex-shrink-0 mt-[7px]" />
+                          <div className="text-[12px] font-light leading-[1.72] text-white/[0.5]">{reason}</div>
+                        </div>
+                      ))}
                     </div>
-                  ))}
+                  )}
                 </div>
               </div>
             </div>

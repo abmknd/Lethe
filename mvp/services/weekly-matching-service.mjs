@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { EVENT_TYPES } from '../domain/events.mjs';
 import { RECOMMENDATION_STATUSES, nowIso } from '../domain/models.mjs';
 import { buildRecommendationGenerationSnapshot } from '../context/profile-context-support.mjs';
+import { generateInsightText } from '../context/insight-generation.mjs';
 
 export class WeeklyMatchingService {
   constructor({ repository, matcher }) {
@@ -28,7 +29,11 @@ export class WeeklyMatchingService {
 
       const recommendations = [];
       for (const [userId, recs] of candidateMap.entries()) {
+        const sourceProfile = profilesById.get(userId);
         for (const recommendation of recs.slice(0, maxRecommendationsPerUser)) {
+          const candidateProfile = profilesById.get(recommendation.candidateUserId);
+          const insightText =
+            sourceProfile && candidateProfile ? generateInsightText(sourceProfile, candidateProfile) : '';
           recommendations.push({
             id: `rec_${randomUUID()}`,
             runId,
@@ -38,6 +43,7 @@ export class WeeklyMatchingService {
             score: recommendation.score,
             status: RECOMMENDATION_STATUSES.PENDING_REVIEW,
             whyMatched: recommendation.whyMatched,
+            insightText,
           });
         }
       }

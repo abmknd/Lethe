@@ -66,6 +66,7 @@ CREATE TABLE IF NOT EXISTS recommendations (
   rank INTEGER NOT NULL DEFAULT 1,
   score REAL NOT NULL,
   why_matched TEXT NOT NULL,
+  insight_text TEXT NOT NULL DEFAULT '',
   status TEXT NOT NULL,
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL,
