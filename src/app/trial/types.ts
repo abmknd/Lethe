@@ -1,3 +1,10 @@
+export interface TrialCompletenessResult {
+  userId: string;
+  isEligible: boolean;
+  missingFields: string[];
+  completenessScore: number;
+}
+
 export interface TrialCepEntry {
   id: string;
   userId: string;

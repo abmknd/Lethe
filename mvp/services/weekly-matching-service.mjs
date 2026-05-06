@@ -5,10 +5,11 @@ import { buildRecommendationGenerationSnapshot } from '../context/profile-contex
 import { generateInsightText } from '../context/insight-generation.mjs';
 
 export class WeeklyMatchingService {
-  constructor({ repository, matcher, cepService = null }) {
+  constructor({ repository, matcher, cepService = null, completenessService = null }) {
     this.repository = repository;
     this.matcher = matcher;
     this.cepService = cepService;
+    this.completenessService = completenessService;
   }
 
   runWeeklyMatching({ maxRecommendationsPerUser = 5 } = {}) {
@@ -23,7 +24,11 @@ export class WeeklyMatchingService {
     });
 
     try {
-      const profiles = this.repository.listUsersForMatching();
+      const allProfiles = this.repository.listUsersForMatching();
+      const profiles = this.completenessService
+        ? this.completenessService.filterEligibleProfiles(allProfiles)
+        : allProfiles;
+      const usersSkippedIncomplete = allProfiles.length - profiles.length;
       const pairHistory = this.repository.listPairHistory({ sinceDays: 90 });
       const allUserIds = profiles.map((p) => p.user.id);
       const cepMap = this.cepService ? this.cepService.getActiveFocusMap(allUserIds) : new Map();
@@ -94,6 +99,7 @@ export class WeeklyMatchingService {
 
       const summary = {
         usersEvaluated: profiles.length,
+        usersSkippedIncomplete,
         recommendationsGenerated: recommendations.length,
         maxRecommendationsPerUser,
       };

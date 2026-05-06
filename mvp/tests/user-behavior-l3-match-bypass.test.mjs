@@ -75,7 +75,9 @@ test('L3-S3: user with preferences.matchEnabled: false receives no match and is 
 // L3-S4: William has an effectively empty profile (no offers, no asks, no availability,
 // no matchIntent). The system has no guard against this — he still enters the match loop
 // but should score near zero on most dimensions.
-test('L3-S4: passive lurker with empty profile scores near zero — no KYC completeness gate (gap)', () => {
+// L3-S4: William has empty asks, offers, and matchIntent.
+// The completeness gate now blocks him from the matching pool entirely.
+test('L3-S4: passive lurker with empty profile receives zero matches — completeness gate blocks entry', () => {
   const { app, cleanup } = createIsolatedTrialApp({ seed: false });
   try {
     app.services.onboarding.saveUserProfile(buildWilliamCastillo());
@@ -84,13 +86,7 @@ test('L3-S4: passive lurker with empty profile scores near zero — no KYC compl
     app.services.weeklyMatching.runWeeklyMatching({ maxRecommendationsPerUser: 3 });
 
     const williamRecs = app.services.recommendations.listForUser('william_castillo', { status: 'pending_review' });
-    // GAP: William should be routed to a passive-user trust-building sequence,
-    // not dropped into the matching pool with a near-zero score.
-    // When a KYC completeness gate is implemented, assert williamRecs.length === 0.
-    if (williamRecs.length > 0) {
-      // Score should be very low given empty offers, asks, matchIntent, and availability.
-      assert.ok(williamRecs[0].score < 30, `expected very low score for near-empty profile (got ${williamRecs[0].score})`);
-    }
+    assert.equal(williamRecs.length, 0, 'incomplete profile (empty asks/offers) must not enter the matching pool');
   } finally {
     cleanup();
   }

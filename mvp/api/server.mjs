@@ -283,6 +283,18 @@ export function createTrialApiServer({ services, dbPath }) {
         return;
       }
 
+      const userCompletenessMatch = path.match(/^\/api\/trial\/users\/([^/]+)\/completeness$/);
+      if (userCompletenessMatch && req.method === 'GET') {
+        const userId = decodeURIComponent(userCompletenessMatch[1]);
+        const result = services.completeness.getCompleteness(userId);
+        if (!result) {
+          sendJson(res, 404, { error: 'User not found.' });
+          return;
+        }
+        sendJson(res, 200, { completeness: result });
+        return;
+      }
+
       const userCepMatch = path.match(/^\/api\/trial\/users\/([^/]+)\/cep$/);
       if (userCepMatch) {
         const userId = decodeURIComponent(userCepMatch[1]);

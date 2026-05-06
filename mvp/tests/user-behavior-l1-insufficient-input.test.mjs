@@ -15,10 +15,9 @@ import {
   buildMarcusWebb,
 } from './fixtures/persona-fixtures.mjs';
 
-// L1-S1: Tyler has no asks. The system has no guard on empty asks,
-// so a match can still be generated on other dimensions (intent, interests, availability).
-// GAP: there is no KYC completeness gate that blocks matching for empty asks.
-test('L1-S1: user with empty asks still receives a match — no input completeness gate (gap)', () => {
+// L1-S1: Tyler has no asks.
+// The completeness gate now blocks him from the matching pool until asks are filled.
+test('L1-S1: user with empty asks receives zero matches — completeness gate blocks entry', () => {
   const { app, cleanup } = createIsolatedTrialApp({ seed: false });
   try {
     app.services.onboarding.saveUserProfile(buildTylerBrooks());
@@ -27,48 +26,33 @@ test('L1-S1: user with empty asks still receives a match — no input completene
     app.services.weeklyMatching.runWeeklyMatching({ maxRecommendationsPerUser: 3 });
 
     const recs = app.services.recommendations.listForUser('tyler_brooks', { status: 'pending_review' });
-    // GAP: This passes because there is no guard. The desired behavior is that Tyler
-    // receives a community-first routing prompt rather than a direct match suggestion.
-    // When a completeness gate is added, the assertion should flip to recs.length === 0.
-    assert.ok(recs.length >= 0, 'documenting current behavior: no completeness gate on empty asks');
+    assert.equal(recs.length, 0, 'incomplete profile (empty asks) must not enter the matching pool');
   } finally {
     cleanup();
   }
 });
 
-// L1-S1 (complementarity score): A user with empty asks scores zero on complementarity.
-// The match score should reflect the missing ask signal.
-test('L1-S1: empty asks produces zero complementarity contribution to score', () => {
+// L1-S1 (complementarity score): Tyler is now blocked by the completeness gate so
+// receives no recs. The scoring assertion is no longer reachable for this persona,
+// but is preserved as documentation of the scoring intent.
+test('L1-S1: empty asks — Tyler receives no recommendations (gate blocks before scoring)', () => {
   const { app, cleanup } = createIsolatedTrialApp({ seed: false });
   try {
-    const tyler = buildTylerBrooks();
-    const mentor = buildLogisticsOperatorMentor();
-    app.services.onboarding.saveUserProfile(tyler);
-    app.services.onboarding.saveUserProfile(mentor);
+    app.services.onboarding.saveUserProfile(buildTylerBrooks());
+    app.services.onboarding.saveUserProfile(buildLogisticsOperatorMentor());
 
     app.services.weeklyMatching.runWeeklyMatching({ maxRecommendationsPerUser: 3 });
 
     const tylerRecs = app.services.recommendations.listForUser('tyler_brooks');
-    const mentorRecs = app.services.recommendations.listForUser('logistics_mentor');
-
-    if (tylerRecs.length > 0) {
-      // Tyler's asks are empty: complementarityRatio = 0, only other dimensions contribute.
-      // Score should be lower than a profile with matching asks.
-      const tylerScore = tylerRecs[0].score;
-      if (mentorRecs.length > 0) {
-        // The mentor's score against Marcus (who has matching asks) should be higher.
-        // We verify Tyler's score is depressed, not that it is zero.
-        assert.ok(tylerScore < 100, 'expected score below maximum given empty asks');
-      }
-    }
+    assert.equal(tylerRecs.length, 0, 'Tyler is excluded before scoring due to empty asks');
   } finally {
     cleanup();
   }
 });
 
-// L1-S5: Ethan has no offers. Same gap as L1-S1: no guard on empty offers.
-// The reciprocal complementarity score contribution is zero.
-test('L1-S5: user with empty offers still matches — reciprocal complementarity is zero (gap)', () => {
+// L1-S5: Ethan has no offers.
+// The completeness gate now blocks him from the matching pool until offers are filled.
+test('L1-S5: user with empty offers receives zero matches — completeness gate blocks entry', () => {
   const { app, cleanup } = createIsolatedTrialApp({ seed: false });
   try {
     app.services.onboarding.saveUserProfile(buildEthanPark());
@@ -77,13 +61,7 @@ test('L1-S5: user with empty offers still matches — reciprocal complementarity
     app.services.weeklyMatching.runWeeklyMatching({ maxRecommendationsPerUser: 3 });
 
     const recs = app.services.recommendations.listForUser('ethan_park', { status: 'pending_review' });
-    // GAP: Ethan should be routed to community-first, not matching, when his offer is empty.
-    // Documenting current behavior: no offer completeness guard exists.
-    assert.ok(recs.length >= 0, 'documenting current behavior: no guard on empty offers');
-
-    if (recs.length > 0) {
-      assert.ok(recs[0].score < 100, 'expected depressed score when offers are empty');
-    }
+    assert.equal(recs.length, 0, 'incomplete profile (empty offers) must not enter the matching pool');
   } finally {
     cleanup();
   }
@@ -115,10 +93,9 @@ test('L1-S6: user with no availability still receives a match — availability s
   }
 });
 
-// L1-S8: Claire skipped availability during onboarding (treated as optional).
-// The scheduling step would silently fail after a match is generated.
-// GAP: availability should be a required step before match generation, not optional.
-test('L1-S8: availability skipped appears optional — match generates with no scheduling path (gap)', () => {
+// L1-S8: Claire skipped availability during onboarding.
+// The completeness gate now requires at least one availability slot before matching.
+test('L1-S8: user with no availability receives zero matches — completeness gate requires availability', () => {
   const { app, cleanup } = createIsolatedTrialApp({ seed: false });
   try {
     const claire = buildProfileFixture({
@@ -150,9 +127,7 @@ test('L1-S8: availability skipped appears optional — match generates with no s
     app.services.weeklyMatching.runWeeklyMatching({ maxRecommendationsPerUser: 3 });
 
     const recs = app.services.recommendations.listForUser('claire_dubois', { status: 'pending_review' });
-    // GAP: Claire gets a match even though she has no availability to schedule a call.
-    // Desired: availability required before match surfacing. When fixed, assert recs.length === 0.
-    assert.ok(recs.length >= 0, 'documenting gap: match generated despite no availability set');
+    assert.equal(recs.length, 0, 'no-availability profile must not enter the matching pool');
   } finally {
     cleanup();
   }

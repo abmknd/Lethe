@@ -3,6 +3,7 @@ import type {
   TrialAdminRecommendation,
   TrialAdminRecommendationContext,
   TrialCepEntry,
+  TrialCompletenessResult,
   TrialCepResponse,
   TrialEvent,
   TrialMeeting,
@@ -240,4 +241,11 @@ export async function clearUserCep(userId: string): Promise<void> {
   await request<{ ok: boolean }>(`/api/trial/users/${encodeURIComponent(userId)}/cep`, {
     method: 'DELETE',
   });
+}
+
+export async function getUserCompleteness(userId: string): Promise<TrialCompletenessResult> {
+  const result = await request<{ completeness: TrialCompletenessResult }>(
+    `/api/trial/users/${encodeURIComponent(userId)}/completeness`,
+  );
+  return result.completeness;
 }

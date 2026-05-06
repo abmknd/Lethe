@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import {
   clearUserCep,
   getUserCep,
+  getUserCompleteness,
   listTrialUsers,
   listUserRecommendations,
   respondToRecommendation,
@@ -11,7 +12,7 @@ import {
   updateFollowThrough,
   updateRecommendationMeetingStatus,
 } from './api';
-import type { TrialCepEntry, TrialRecommendation, TrialUser } from './types';
+import type { TrialCepEntry, TrialCompletenessResult, TrialRecommendation, TrialUser } from './types';
 
 export default function TrialConnectPage() {
   const [users, setUsers] = useState<TrialUser[]>([]);
@@ -25,6 +26,7 @@ export default function TrialConnectPage() {
   const [cepIsActive, setCepIsActive] = useState(false);
   const [cepFocusText, setCepFocusText] = useState('');
   const [cepSaving, setCepSaving] = useState(false);
+  const [completeness, setCompleteness] = useState<TrialCompletenessResult | null>(null);
 
   async function refreshRecommendations(userId: string) {
     const nextRecommendations = await listUserRecommendations(userId);
@@ -90,6 +92,16 @@ export default function TrialConnectPage() {
         setActiveCep(null);
         setCepIsActive(false);
       });
+  }, [selectedUserId]);
+
+  useEffect(() => {
+    if (!selectedUserId) {
+      setCompleteness(null);
+      return;
+    }
+    getUserCompleteness(selectedUserId)
+      .then(setCompleteness)
+      .catch(() => setCompleteness(null));
   }, [selectedUserId]);
 
   async function handleSaveCep() {
@@ -304,6 +316,40 @@ export default function TrialConnectPage() {
               ) : (
                 <>Expired — save a new focus to re-activate.</>
               )}
+            </p>
+          )}
+        </section>
+      )}
+
+      {selectedUserId && completeness && (
+        <section className="bg-[#0d140d] border border-white/10 rounded-xl p-5">
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-base font-semibold">Profile completeness</h2>
+            <span
+              className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+                completeness.isEligible
+                  ? 'bg-[#c9ff87]/15 text-[#c9ff87]'
+                  : 'bg-orange-400/15 text-orange-300'
+              }`}
+            >
+              {completeness.isEligible ? 'Eligible for matching' : 'Incomplete — not in matching pool'}
+            </span>
+          </div>
+          <div className="flex items-center gap-3 mb-3">
+            <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
+              <div
+                className={`h-full rounded-full transition-all ${completeness.isEligible ? 'bg-[#c9ff87]' : 'bg-orange-400'}`}
+                style={{ width: `${completeness.completenessScore}%` }}
+              />
+            </div>
+            <span className="text-xs text-white/50 tabular-nums">{completeness.completenessScore}%</span>
+          </div>
+          {completeness.missingFields.length > 0 && (
+            <p className="text-xs text-white/50">
+              Missing:{' '}
+              <span className="text-orange-300">
+                {completeness.missingFields.join(', ')}
+              </span>
             </p>
           )}
         </section>
