@@ -50,6 +50,7 @@ export interface TrialRecommendation {
   score: number;
   status: string;
   whyMatched: string[];
+  insightText: string | null;
   candidate: {
     id: string;
     displayName: string;
@@ -93,6 +94,7 @@ export interface TrialAdminRecommendation {
   score: number;
   status: string;
   whyMatched: string[];
+  insightText: string | null;
   source: {
     id: string;
     displayName: string;

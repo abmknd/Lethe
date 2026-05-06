@@ -521,6 +521,7 @@ export class SqliteTrialRepository extends UserRepository {
           rank,
           score,
           why_matched,
+          insight_text,
           status,
           created_at,
           updated_at
@@ -533,6 +534,7 @@ export class SqliteTrialRepository extends UserRepository {
           :rank,
           :score,
           :whyMatched,
+          :insightText,
           :status,
           :createdAt,
           :updatedAt
@@ -550,6 +552,7 @@ export class SqliteTrialRepository extends UserRepository {
           score: recommendation.score,
           status: recommendation.status,
           whyMatched: JSON.stringify(recommendation.whyMatched ?? []),
+          insightText: recommendation.insightText ?? '',
           createdAt: now,
           updatedAt: now,
         });
@@ -568,6 +571,7 @@ export class SqliteTrialRepository extends UserRepository {
         r.score,
         r.status,
         r.why_matched,
+        r.insight_text,
         r.created_at,
         r.updated_at,
         u.name AS target_name,
@@ -615,6 +619,7 @@ export class SqliteTrialRepository extends UserRepository {
       score: row.score,
       status: row.status,
       whyMatched: parseJson(row.why_matched, []),
+      insightText: row.insight_text || null,
       candidate: {
         id: row.target_user_id,
         displayName: row.target_name,
@@ -648,6 +653,7 @@ export class SqliteTrialRepository extends UserRepository {
           r.score,
           r.status,
           r.why_matched,
+          r.insight_text,
           r.created_at,
           source.name AS source_name,
           source.handle AS source_handle,
@@ -680,6 +686,7 @@ export class SqliteTrialRepository extends UserRepository {
       score: row.score,
       status: row.status,
       whyMatched: parseJson(row.why_matched, []),
+      insightText: row.insight_text || null,
       source: {
         id: row.source_user_id,
         displayName: row.source_name,
@@ -719,6 +726,7 @@ export class SqliteTrialRepository extends UserRepository {
           r.score,
           r.status,
           r.why_matched,
+          r.insight_text,
           r.created_at,
           r.updated_at,
           source.name AS source_name,
@@ -746,6 +754,7 @@ export class SqliteTrialRepository extends UserRepository {
       score: row.score,
       status: row.status,
       whyMatched: parseJson(row.why_matched, []),
+      insightText: row.insight_text || null,
       source: {
         id: row.source_user_id,
         displayName: row.source_name,

@@ -36,7 +36,7 @@ function isSchemaCompatible(db) {
     users: ['name', 'bio', 'matching_enabled'],
     preferences: ['id', 'offers', 'asks', 'preferred_locations', 'user_type', 'preferred_user_types', 'objectives'],
     availability_slots: ['start_time', 'end_time', 'timezone'],
-    recommendations: ['source_user_id', 'target_user_id', 'why_matched'],
+    recommendations: ['source_user_id', 'target_user_id', 'why_matched', 'insight_text'],
     events: ['user_id', 'payload'],
     outcomes: ['outcome_status'],
   };
