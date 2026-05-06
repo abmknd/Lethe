@@ -39,6 +39,7 @@ function isSchemaCompatible(db) {
     recommendations: ['source_user_id', 'target_user_id', 'why_matched', 'insight_text'],
     events: ['user_id', 'payload'],
     outcomes: ['outcome_status'],
+    weekly_cep: ['user_id', 'focus_text', 'expires_at'],
   };
 
   for (const [table, requiredColumns] of Object.entries(requirements)) {
@@ -64,9 +65,11 @@ function isSchemaCompatible(db) {
 function rebuildSchema(db) {
   db.exec('PRAGMA foreign_keys = OFF;');
   db.exec(`
+    DROP TABLE IF EXISTS weekly_cep;
     DROP TABLE IF EXISTS outcomes;
     DROP TABLE IF EXISTS events;
     DROP TABLE IF EXISTS admin_decisions;
+    DROP TABLE IF EXISTS meetings;
     DROP TABLE IF EXISTS recommendations;
     DROP TABLE IF EXISTS recommendation_runs;
     DROP TABLE IF EXISTS availability_slots;

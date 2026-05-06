@@ -5,9 +5,10 @@ import { buildRecommendationGenerationSnapshot } from '../context/profile-contex
 import { generateInsightText } from '../context/insight-generation.mjs';
 
 export class WeeklyMatchingService {
-  constructor({ repository, matcher }) {
+  constructor({ repository, matcher, cepService = null }) {
     this.repository = repository;
     this.matcher = matcher;
+    this.cepService = cepService;
   }
 
   runWeeklyMatching({ maxRecommendationsPerUser = 5 } = {}) {
@@ -24,7 +25,9 @@ export class WeeklyMatchingService {
     try {
       const profiles = this.repository.listUsersForMatching();
       const pairHistory = this.repository.listPairHistory({ sinceDays: 90 });
-      const candidateMap = this.matcher.matchUsers(profiles, pairHistory);
+      const allUserIds = profiles.map((p) => p.user.id);
+      const cepMap = this.cepService ? this.cepService.getActiveFocusMap(allUserIds) : new Map();
+      const candidateMap = this.matcher.matchUsers(profiles, pairHistory, cepMap);
       const profilesById = new Map(profiles.map((profile) => [profile.user.id, profile]));
 
       const recommendations = [];
@@ -32,8 +35,12 @@ export class WeeklyMatchingService {
         const sourceProfile = profilesById.get(userId);
         for (const recommendation of recs.slice(0, maxRecommendationsPerUser)) {
           const candidateProfile = profilesById.get(recommendation.candidateUserId);
+          const sourceCep = cepMap.get(userId) ?? null;
+          const candidateCep = cepMap.get(recommendation.candidateUserId) ?? null;
           const insightText =
-            sourceProfile && candidateProfile ? generateInsightText(sourceProfile, candidateProfile) : '';
+            sourceProfile && candidateProfile
+              ? generateInsightText(sourceProfile, candidateProfile, { sourceCep, candidateCep })
+              : '';
           recommendations.push({
             id: `rec_${randomUUID()}`,
             runId,

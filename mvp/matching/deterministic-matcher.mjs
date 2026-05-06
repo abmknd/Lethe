@@ -171,7 +171,7 @@ function isRecentIntro(historyRows, now, recentIntroDays) {
 
 export function createDeterministicMatcher({ topN = 5, recentIntroDays = 45 } = {}) {
   return {
-    matchUsers(users, pairHistory = new Map()) {
+    matchUsers(users, pairHistory = new Map(), cepMap = new Map()) {
       const now = new Date();
       const recommendationsByUser = new Map();
 
@@ -265,7 +265,24 @@ export function createDeterministicMatcher({ topN = 5, recentIntroDays = 45 } = 
             introScore * 0.1 +
             availabilityScore * 0.1;
 
-          const score = Math.max(0, Math.round(baseScore * 100 - historicalPenalty));
+          const profileCep = cepMap.get(profile.user.id) ?? null;
+          const candidateCep = cepMap.get(candidate.user.id) ?? null;
+          let cepBoost = 0;
+          const cepNote = [];
+          if (profileCep && candidateCep) {
+            cepBoost += 5;
+            const profileTokens = toTokenSet(profileCep.focusText);
+            const candidateTokens = toTokenSet(candidateCep.focusText);
+            const sharedFocusCount = [...profileTokens].filter((t) => candidateTokens.has(t)).length;
+            if (sharedFocusCount > 0) {
+              cepBoost += 3;
+              cepNote.push(`Weekly focus overlap (+${cepBoost} pts)`);
+            } else {
+              cepNote.push(`Both have weekly focus signal (+5 pts)`);
+            }
+          }
+
+          const score = Math.max(0, Math.round(baseScore * 100 - historicalPenalty + cepBoost));
 
           scored.push({
             candidateUserId: candidate.user.id,
@@ -279,6 +296,7 @@ export function createDeterministicMatcher({ topN = 5, recentIntroDays = 45 } = 
               `Interest overlap ${(interestRatio * 100).toFixed(0)}%`,
               `Availability overlap ${overlap.overlapHours.toFixed(1)}h (timezone-normalized)`,
               `Intro similarity ${(introScore * 100).toFixed(0)}%`,
+              ...cepNote,
             ],
           });
         }

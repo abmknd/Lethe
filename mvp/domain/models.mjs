@@ -1,5 +1,8 @@
 const DAYS = new Set([0, 1, 2, 3, 4, 5, 6]);
 
+export const CEP_EXPIRY_DAYS = 8;
+export const CEP_MAX_TEXT_LENGTH = 280;
+
 export const RECOMMENDATION_STATUSES = Object.freeze({
   PENDING_REVIEW: 'pending_review',
   APPROVED: 'approved',
@@ -225,4 +228,23 @@ export function parseHour(timeValue) {
   }
 
   return hour;
+}
+
+export function normalizeCepEntry(input = {}) {
+  const focusText = String(input.focusText ?? input.focus_text ?? '').trim().slice(0, CEP_MAX_TEXT_LENGTH);
+  if (!focusText) {
+    throw new Error('CEP focus text is required.');
+  }
+  return { focusText };
+}
+
+export function cepExpiresAt(createdAt = new Date().toISOString()) {
+  const d = new Date(createdAt);
+  d.setUTCDate(d.getUTCDate() + CEP_EXPIRY_DAYS);
+  return d.toISOString();
+}
+
+export function isCepActive(cep, now = new Date().toISOString()) {
+  if (!cep) return false;
+  return cep.expiresAt > now;
 }

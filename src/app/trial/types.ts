@@ -1,3 +1,16 @@
+export interface TrialCepEntry {
+  id: string;
+  userId: string;
+  focusText: string;
+  createdAt: string;
+  expiresAt: string;
+}
+
+export interface TrialCepResponse {
+  cep: TrialCepEntry | null;
+  isActive: boolean;
+}
+
 export interface TrialUser {
   id: string;
   displayName: string;

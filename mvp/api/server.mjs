@@ -283,6 +283,31 @@ export function createTrialApiServer({ services, dbPath }) {
         return;
       }
 
+      const userCepMatch = path.match(/^\/api\/trial\/users\/([^/]+)\/cep$/);
+      if (userCepMatch) {
+        const userId = decodeURIComponent(userCepMatch[1]);
+
+        if (req.method === 'GET') {
+          const cep = services.cep.getFocus(userId);
+          const isActive = cep ? new Date(cep.expiresAt) > new Date() : false;
+          sendJson(res, 200, { cep: cep ?? null, isActive });
+          return;
+        }
+
+        if (req.method === 'PUT') {
+          const body = await readJsonBody(req);
+          const cep = services.cep.submitFocus(userId, { focusText: body.focusText ?? '' });
+          sendJson(res, 200, { cep });
+          return;
+        }
+
+        if (req.method === 'DELETE') {
+          services.cep.clearFocus(userId);
+          sendJson(res, 200, { ok: true });
+          return;
+        }
+      }
+
       if (req.method === 'GET' && path === '/api/trial/report') {
         const windowDays = Number(url.searchParams.get('windowDays') ?? 7);
         const fromIso = url.searchParams.get('from') ?? undefined;

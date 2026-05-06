@@ -9,6 +9,7 @@ import { SetupService } from './setup-service.mjs';
 import { WeeklyReportService } from './weekly-report-service.mjs';
 import { ProfileContextService } from './profile-context-service.mjs';
 import { MeetingService } from './meeting-service.mjs';
+import { CepService } from './cep-service.mjs';
 
 export function createTrialAppContext({ dbPath } = {}) {
   const resolvedDbPath = dbPath || process.env.LETHE_TRIAL_DB_PATH || resolveDefaultDbPath();
@@ -21,15 +22,18 @@ export function createTrialAppContext({ dbPath } = {}) {
     recentIntroDays: 45,
   });
 
+  const cepService = new CepService({ repository });
+
   const services = {
     setup: new SetupService({ db, repository }),
     onboarding: new OnboardingService({ repository }),
-    weeklyMatching: new WeeklyMatchingService({ repository, matcher }),
+    weeklyMatching: new WeeklyMatchingService({ repository, matcher, cepService }),
     adminReview: new AdminReviewService({ repository }),
     recommendations: new RecommendationService({ repository }),
     weeklyReport: new WeeklyReportService({ repository }),
     profileContext: new ProfileContextService({ repository }),
     meetings: new MeetingService({ repository }),
+    cep: cepService,
   };
 
   return {

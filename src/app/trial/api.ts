@@ -2,6 +2,8 @@ import type {
   RecommendationParticipantsContextResponse,
   TrialAdminRecommendation,
   TrialAdminRecommendationContext,
+  TrialCepEntry,
+  TrialCepResponse,
   TrialEvent,
   TrialMeeting,
   TrialRecommendation,
@@ -220,4 +222,22 @@ export async function listTrialEvents(filters?: { userId?: string; eventType?: s
   const qs = params.toString();
   const result = await request<{ events: TrialEvent[] }>(`/api/trial/events${qs ? `?${qs}` : ''}`);
   return result.events;
+}
+
+export async function getUserCep(userId: string): Promise<TrialCepResponse> {
+  return request<TrialCepResponse>(`/api/trial/users/${encodeURIComponent(userId)}/cep`);
+}
+
+export async function saveUserCep(userId: string, focusText: string): Promise<TrialCepEntry> {
+  const result = await request<{ cep: TrialCepEntry }>(`/api/trial/users/${encodeURIComponent(userId)}/cep`, {
+    method: 'PUT',
+    body: JSON.stringify({ focusText }),
+  });
+  return result.cep;
+}
+
+export async function clearUserCep(userId: string): Promise<void> {
+  await request<{ ok: boolean }>(`/api/trial/users/${encodeURIComponent(userId)}/cep`, {
+    method: 'DELETE',
+  });
 }

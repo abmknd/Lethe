@@ -1,14 +1,17 @@
 import { useEffect, useState } from 'react';
 import {
+  clearUserCep,
+  getUserCep,
   listTrialUsers,
   listUserRecommendations,
   respondToRecommendation,
   runWeeklyMatching,
   saveRecommendationMeeting,
+  saveUserCep,
   updateFollowThrough,
   updateRecommendationMeetingStatus,
 } from './api';
-import type { TrialRecommendation, TrialUser } from './types';
+import type { TrialCepEntry, TrialRecommendation, TrialUser } from './types';
 
 export default function TrialConnectPage() {
   const [users, setUsers] = useState<TrialUser[]>([]);
@@ -18,6 +21,10 @@ export default function TrialConnectPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [meetingUrlById, setMeetingUrlById] = useState<Record<string, string>>({});
   const [scheduledAtById, setScheduledAtById] = useState<Record<string, string>>({});
+  const [activeCep, setActiveCep] = useState<TrialCepEntry | null>(null);
+  const [cepIsActive, setCepIsActive] = useState(false);
+  const [cepFocusText, setCepFocusText] = useState('');
+  const [cepSaving, setCepSaving] = useState(false);
 
   async function refreshRecommendations(userId: string) {
     const nextRecommendations = await listUserRecommendations(userId);
@@ -64,6 +71,57 @@ export default function TrialConnectPage() {
       setMessage(error instanceof Error ? error.message : 'Failed to load recommendations');
     });
   }, [selectedUserId]);
+
+  useEffect(() => {
+    if (!selectedUserId) {
+      setActiveCep(null);
+      setCepIsActive(false);
+      setCepFocusText('');
+      return;
+    }
+
+    getUserCep(selectedUserId)
+      .then(({ cep, isActive }) => {
+        setActiveCep(cep);
+        setCepIsActive(isActive);
+        setCepFocusText(cep?.focusText ?? '');
+      })
+      .catch(() => {
+        setActiveCep(null);
+        setCepIsActive(false);
+      });
+  }, [selectedUserId]);
+
+  async function handleSaveCep() {
+    if (!selectedUserId || !cepFocusText.trim()) return;
+    setCepSaving(true);
+    try {
+      const saved = await saveUserCep(selectedUserId, cepFocusText.trim());
+      setActiveCep(saved);
+      setCepIsActive(true);
+      setMessage('Weekly focus saved.');
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Failed to save focus');
+    } finally {
+      setCepSaving(false);
+    }
+  }
+
+  async function handleClearCep() {
+    if (!selectedUserId) return;
+    setCepSaving(true);
+    try {
+      await clearUserCep(selectedUserId);
+      setActiveCep(null);
+      setCepIsActive(false);
+      setCepFocusText('');
+      setMessage('Weekly focus cleared.');
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Failed to clear focus');
+    } finally {
+      setCepSaving(false);
+    }
+  }
 
   async function handleRunMatching() {
     setIsLoading(true);
@@ -204,6 +262,52 @@ export default function TrialConnectPage() {
           </button>
         </div>
       </section>
+
+      {selectedUserId && (
+        <section className="bg-[#0d140d] border border-white/10 rounded-xl p-5">
+          <h2 className="text-base font-semibold mb-1">What are you focused on this week?</h2>
+          <p className="text-xs text-white/40 mb-3">Optional. Expires after 8 days. Used to improve match insights.</p>
+          <div className="flex items-end gap-3">
+            <label className="flex-1 text-sm text-white/70">
+              <textarea
+                className="block w-full mt-1 bg-black/30 border border-white/15 rounded px-3 py-2 text-sm resize-none"
+                rows={2}
+                maxLength={280}
+                placeholder="e.g. fundraising outreach for Series A, hiring a CTO, exploring climate finance..."
+                value={cepFocusText}
+                onChange={(e) => setCepFocusText(e.target.value)}
+              />
+            </label>
+            <div className="flex flex-col gap-2">
+              <button
+                disabled={cepSaving || !cepFocusText.trim()}
+                onClick={handleSaveCep}
+                className="px-3 py-2 rounded-md bg-[#4dc7ff]/15 border border-[#4dc7ff]/40 text-[#9fe4ff] text-sm disabled:opacity-50"
+              >
+                Save
+              </button>
+              {activeCep && (
+                <button
+                  disabled={cepSaving}
+                  onClick={handleClearCep}
+                  className="px-3 py-2 rounded-md bg-white/5 border border-white/10 text-white/50 text-sm disabled:opacity-50"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
+          </div>
+          {activeCep && (
+            <p className="mt-2 text-xs text-white/40">
+              {cepIsActive ? (
+                <>Active until {new Date(activeCep.expiresAt).toLocaleDateString()}</>
+              ) : (
+                <>Expired — save a new focus to re-activate.</>
+              )}
+            </p>
+          )}
+        </section>
+      )}
 
       <section className="bg-[#0d140d] border border-white/10 rounded-xl p-5">
         <h3 className="text-sm uppercase tracking-[0.13em] text-white/50 mb-3">Recommendations ({recommendations.length})</h3>
