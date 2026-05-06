@@ -1261,4 +1261,54 @@ export class SqliteTrialRepository extends UserRepository {
 
     return this.getMeetingByRecommendationId(recommendationId);
   }
+
+  upsertCep(userId, { id, focusText, createdAt, expiresAt }) {
+    this.db
+      .prepare(
+        `
+        INSERT INTO weekly_cep (id, user_id, focus_text, created_at, expires_at)
+        VALUES (:id, :userId, :focusText, :createdAt, :expiresAt)
+        ON CONFLICT(user_id) DO UPDATE SET
+          id = excluded.id,
+          focus_text = excluded.focus_text,
+          created_at = excluded.created_at,
+          expires_at = excluded.expires_at
+        `,
+      )
+      .run({ id, userId, focusText, createdAt, expiresAt });
+
+    return this.getCepByUserId(userId);
+  }
+
+  getCepByUserId(userId) {
+    const row = this.db.prepare('SELECT * FROM weekly_cep WHERE user_id = :userId').get({ userId });
+    if (!row) return null;
+    return {
+      id: row.id,
+      userId: row.user_id,
+      focusText: row.focus_text,
+      createdAt: row.created_at,
+      expiresAt: row.expires_at,
+    };
+  }
+
+  listActiveCeps(now = new Date().toISOString()) {
+    const rows = this.db
+      .prepare('SELECT * FROM weekly_cep WHERE expires_at > :now ORDER BY user_id')
+      .all({ now });
+    return rows.map((row) => ({
+      id: row.id,
+      userId: row.user_id,
+      focusText: row.focus_text,
+      createdAt: row.created_at,
+      expiresAt: row.expires_at,
+    }));
+  }
+
+  deleteCepByUserId(userId) {
+    const result = this.db
+      .prepare('DELETE FROM weekly_cep WHERE user_id = :userId')
+      .run({ userId });
+    return (result?.changes ?? 0) > 0;
+  }
 }

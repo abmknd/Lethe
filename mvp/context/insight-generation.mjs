@@ -1,3 +1,14 @@
+function toFocusTokens(text) {
+  if (!text) return new Set();
+  return new Set(
+    String(text)
+      .toLowerCase()
+      .split(/[^a-z0-9]+/)
+      .map((t) => t.trim())
+      .filter((t) => t.length > 2),
+  );
+}
+
 function firstName(displayName) {
   return String(displayName ?? '').split(' ')[0] || String(displayName ?? '');
 }
@@ -22,7 +33,7 @@ function listItems(items, maxItems = 2) {
   return `${limited[0]} and ${limited[1]}`;
 }
 
-export function generateInsightText(sourceProfile, candidateProfile) {
+export function generateInsightText(sourceProfile, candidateProfile, { sourceCep = null, candidateCep = null } = {}) {
   const sourceName = firstName(sourceProfile.user.displayName);
   const candidateName = firstName(candidateProfile.user.displayName);
 
@@ -89,7 +100,25 @@ export function generateInsightText(sourceProfile, candidateProfile) {
     sentences.push(`The pairing brings together a ${sourceType} and a ${candidateType}.`);
   }
 
-  // Sentence 3: practical context
+  // Sentence 3: CEP weekly focus (if both have active signals)
+  if (sourceCep && candidateCep && sentences.length < 3) {
+    const sourceTokens = toFocusTokens(sourceCep.focusText);
+    const candidateTokens = toFocusTokens(candidateCep.focusText);
+    const shared = [...sourceTokens].filter((t) => candidateTokens.has(t));
+    if (shared.length > 0) {
+      sentences.push(`This week both are working on ${listItems(shared, 2)}.`);
+    } else {
+      sentences.push(
+        `This week ${sourceName} is focused on ${sourceCep.focusText.slice(0, 60)}, and ${candidateName} on ${candidateCep.focusText.slice(0, 60)}.`,
+      );
+    }
+  } else if (sourceCep && sentences.length < 3) {
+    sentences.push(`This week ${sourceName} is focused on ${sourceCep.focusText.slice(0, 60)}.`);
+  } else if (candidateCep && sentences.length < 3) {
+    sentences.push(`This week ${candidateName} is focused on ${candidateCep.focusText.slice(0, 60)}.`);
+  }
+
+  // Sentence 3 fallback: location
   const sourceLocation = normalizeToken(sourceProfile.user.location);
   const candidateLocation = normalizeToken(candidateProfile.user.location);
   if (sourceLocation && sourceLocation === candidateLocation && sentences.length < 3) {

@@ -121,3 +121,21 @@ export class MeetingRepository {
     throw new Error('Not implemented');
   }
 }
+
+export class CepRepository {
+  upsertCep() {
+    throw new Error('Not implemented');
+  }
+
+  getCepByUserId() {
+    throw new Error('Not implemented');
+  }
+
+  listActiveCeps() {
+    throw new Error('Not implemented');
+  }
+
+  deleteCepByUserId() {
+    throw new Error('Not implemented');
+  }
+}

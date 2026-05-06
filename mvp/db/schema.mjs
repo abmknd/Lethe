@@ -133,4 +133,16 @@ CREATE TABLE IF NOT EXISTS meetings (
 
 CREATE INDEX IF NOT EXISTS idx_meetings_recommendation ON meetings(recommendation_id);
 CREATE INDEX IF NOT EXISTS idx_meetings_status ON meetings(status);
+
+CREATE TABLE IF NOT EXISTS weekly_cep (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL UNIQUE,
+  focus_text TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  expires_at TEXT NOT NULL,
+  FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_weekly_cep_user ON weekly_cep(user_id);
+CREATE INDEX IF NOT EXISTS idx_weekly_cep_expires ON weekly_cep(expires_at);
 `;
