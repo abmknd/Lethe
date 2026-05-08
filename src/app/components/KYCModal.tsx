@@ -13,6 +13,7 @@ import { Step10Verify } from './kyc/Step10Verify';
 import { KYCDone } from './kyc/KYCDone';
 import { KYCPaused } from './kyc/KYCPaused';
 import { apiFetch } from '../../lib/api';
+import { toast } from 'sonner';
 
 const OBJECTIVE_LABELS = [
   'Build in public', 'Find a cofounder', 'Grow my network', 'Meet interesting people',
@@ -112,40 +113,40 @@ export function KYCModal({ isOpen, onClose, onComplete, userId, accessToken }: K
   };
 
   const handleFinish = async () => {
-    if (userId) {
-      try {
-        const timezone = data.timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone;
-        await apiFetch(
-          `/api/trial/users/${userId}/profile`,
-          {
-            method: 'PUT',
-            body: JSON.stringify({
-              user: {
-                location: data.city ?? '',
-                timezone,
-                matchingEnabled: true,
-              },
-              preferences: {
-                introText: data.intro,
-                interests: [...data.hobbies],
-                objectives: [...data.objectives].map((i) => OBJECTIVE_LABELS[i]).filter(Boolean),
-                matchIntent: [...data.objectives].map((i) => OBJECTIVE_LABELS[i]).filter(Boolean),
-                preferredUserTypes: [...data.meetWho].map((i) => WHO_LABELS[i]).filter(Boolean),
-                preferredLocations: [...data.meetWhere]
-                  .map((i) => WHERE_LABELS[i])
-                  .filter((l) => l && l !== 'Anywhere in the world'),
-              },
-              availability: [],
-            }),
-          },
-          accessToken,
-        );
-      } catch {
-        // Persist locally as fallback if API is not yet available
-        localStorage.setItem('lethe_kyc_completed', 'true');
-      }
-    } else {
-      localStorage.setItem('lethe_kyc_completed', 'true');
+    if (!userId) {
+      toast.error('You must be signed in to complete onboarding.');
+      return;
+    }
+    try {
+      const timezone = data.timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone;
+      await apiFetch(
+        `/api/trial/users/${userId}/profile`,
+        {
+          method: 'PUT',
+          body: JSON.stringify({
+            user: {
+              location: data.city ?? '',
+              timezone,
+              matchingEnabled: true,
+            },
+            preferences: {
+              introText: data.intro,
+              interests: [...data.hobbies],
+              objectives: [...data.objectives].map((i) => OBJECTIVE_LABELS[i]).filter(Boolean),
+              matchIntent: [...data.objectives].map((i) => OBJECTIVE_LABELS[i]).filter(Boolean),
+              preferredUserTypes: [...data.meetWho].map((i) => WHO_LABELS[i]).filter(Boolean),
+              preferredLocations: [...data.meetWhere]
+                .map((i) => WHERE_LABELS[i])
+                .filter((l) => l && l !== 'Anywhere in the world'),
+            },
+            availability: [],
+          }),
+        },
+        accessToken,
+      );
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Could not save your profile. Please try again.');
+      return;
     }
 
     if (onComplete) onComplete();

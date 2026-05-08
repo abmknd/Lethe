@@ -2,10 +2,9 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { X, Check, MapPin, Zap } from 'lucide-react';
 import LetheLogo from '../imports/LetheLogo';
-import { listTrialUsers, listUserRecommendations, respondToRecommendation } from './trial/api';
-import type { TrialUser, TrialRecommendation } from './trial/types';
-
-const USER_ID_KEY = 'lethe_trial_user_id';
+import { listUserRecommendations, respondToRecommendation } from './trial/api';
+import type { TrialRecommendation } from './trial/types';
+import { useAuth } from './context/AuthContext';
 
 function initials(name: string) {
   return name.split(' ').map(p => p[0] ?? '').join('').slice(0, 2).toUpperCase();
@@ -13,8 +12,11 @@ function initials(name: string) {
 
 export default function ConnectPage() {
   const navigate = useNavigate();
-  const [users, setUsers] = useState<TrialUser[]>([]);
-  const [selectedUserId, setSelectedUserId] = useState('');
+  const { user, getAccessToken } = useAuth();
+  const userId = user?.id ?? '';
+  const selfDisplayName = (user?.user_metadata?.name as string | undefined)
+    ?? user?.email?.split('@')[0]
+    ?? '';
   const [recommendations, setRecommendations] = useState<TrialRecommendation[]>([]);
   const [currentIdx, setCurrentIdx] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
@@ -27,23 +29,21 @@ export default function ConnectPage() {
   const [activeTab, setActiveTab] = useState<'suggestions' | 'matches'>('suggestions');
 
   useEffect(() => {
-    listTrialUsers().then(fetched => {
-      setUsers(fetched);
-      const saved = localStorage.getItem(USER_ID_KEY);
-      const id = (saved && fetched.some(u => u.id === saved)) ? saved : (fetched[0]?.id ?? '');
-      setSelectedUserId(id);
-    }).catch(() => {});
-  }, []);
-
-  useEffect(() => {
-    if (!selectedUserId) return;
+    if (!userId) return;
     setIsLoading(true);
     setCurrentIdx(0);
-    listUserRecommendations(selectedUserId, 'pending_review')
-      .then(setRecommendations)
-      .catch(() => setRecommendations([]))
-      .finally(() => setIsLoading(false));
-  }, [selectedUserId]);
+    (async () => {
+      const token = await getAccessToken();
+      try {
+        const recs = await listUserRecommendations(userId, 'pending_review', token);
+        setRecommendations(recs);
+      } catch {
+        setRecommendations([]);
+      } finally {
+        setIsLoading(false);
+      }
+    })();
+  }, [userId, getAccessToken]);
 
   useEffect(() => {
     if (recommendations[currentIdx]) {
@@ -55,16 +55,12 @@ export default function ConnectPage() {
   const rec = recommendations[currentIdx];
   const isComplete = !isLoading && currentIdx >= recommendations.length;
 
-  const selectUser = (id: string) => {
-    localStorage.setItem(USER_ID_KEY, id);
-    setSelectedUserId(id);
-  };
-
   const handlePass = async () => {
     if (isAnimating || !rec) return;
     setIsAnimating(true);
     setProfileFade(true);
-    try { await respondToRecommendation({ recommendationId: rec.id, userId: selectedUserId, decision: 'pass' }); } catch {}
+    const token = await getAccessToken();
+    try { await respondToRecommendation({ recommendationId: rec.id, userId, decision: 'pass' }, token); } catch {}
     setTimeout(() => { setCurrentIdx(i => i + 1); setProfileFade(false); setIsAnimating(false); }, 300);
   };
 
@@ -72,7 +68,8 @@ export default function ConnectPage() {
     if (isAnimating || !rec) return;
     setIsAnimating(true);
     setShowMatchFlash(true);
-    try { await respondToRecommendation({ recommendationId: rec.id, userId: selectedUserId, decision: 'accept' }); } catch {}
+    const token = await getAccessToken();
+    try { await respondToRecommendation({ recommendationId: rec.id, userId, decision: 'accept' }, token); } catch {}
     setTimeout(() => { setShowMatchFlash(false); setCurrentIdx(i => i + 1); setIsAnimating(false); }, 2000);
   };
 
@@ -99,22 +96,11 @@ export default function ConnectPage() {
           Lethe
         </button>
         <div className="flex items-center gap-3">
-          {users.length > 0 && (
-            <select
-              value={selectedUserId}
-              onChange={e => selectUser(e.target.value)}
-              className="text-[11px] bg-[#0b0e0b] border border-white/[0.12] rounded-[8px] px-2 py-1 text-white/[0.52] tracking-[0.04em] outline-none"
-            >
-              {users.map(u => (
-                <option key={u.id} value={u.id}>{u.displayName}</option>
-              ))}
-            </select>
-          )}
           <button
             onClick={() => navigate('/profile')}
             className="w-8 h-8 rounded-full bg-gradient-to-br from-[#1a2a1a] to-[#0d150d] border-[1.5px] border-[#ADFF2F]/[0.22] flex items-center justify-center text-[11px] font-semibold text-[#ADFF2F]/70 font-['Cormorant_Garamond']"
           >
-            {initials(users.find(u => u.id === selectedUserId)?.displayName ?? '?')}
+            {initials(selfDisplayName || '?')}
           </button>
         </div>
       </nav>

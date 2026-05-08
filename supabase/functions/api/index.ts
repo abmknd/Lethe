@@ -4,10 +4,12 @@
 // from the project root. Run `supabase functions serve` from the project root.
 
 import { corsPreflightResponse, json } from "../_shared/cors.ts";
-import { repository } from "../_shared/repository.ts";
+import { repository, toPublicProfile } from "../_shared/repository.ts";
+import { AuthError, requireAuth, requireSelf } from "../_shared/auth.ts";
 
 import { normalizeProfilePayload, RECOMMENDATION_STATUSES, OUTCOME_STATUSES, nowIso } from "../../../mvp/domain/models.mjs";
 import { EVENT_TYPES } from "../../../mvp/domain/events.mjs";
+import { checkProfileCompleteness } from "../../../mvp/domain/completeness.mjs";
 
 const { randomUUID } = crypto;
 
@@ -39,11 +41,15 @@ Deno.serve(async (req: Request): Promise<Response> => {
   const path = getPath(url);
 
   try {
-    // ── health ───────────────────────────────────────────────────────────────
+    // ── health (open) ────────────────────────────────────────────────────────
 
     if (req.method === "GET" && path === "/api/trial/health") {
       return json({ ok: true });
     }
+
+    // ── auth gate (everything below requires a valid Supabase JWT) ──────────
+
+    const auth = await requireAuth(req);
 
     // ── users ─────────────────────────────────────────────────────────────────
 
@@ -51,9 +57,22 @@ Deno.serve(async (req: Request): Promise<Response> => {
       return json({ users: await repository.listUsers() });
     }
 
+    const userPublicProfileMatch = path.match(/^\/api\/trial\/users\/([^/]+)\/profile\/public$/);
+    if (userPublicProfileMatch && req.method === "GET") {
+      const idOrHandle = decodeURIComponent(userPublicProfileMatch[1]);
+      let profile = await repository.getUserProfile(idOrHandle);
+      if (!profile) {
+        const byHandle = await repository.getUserByHandle(idOrHandle);
+        if (byHandle) profile = await repository.getUserProfile(byHandle.id);
+      }
+      if (!profile) return json({ error: "User not found." }, 404);
+      return json({ profile: toPublicProfile(profile) });
+    }
+
     const userProfileMatch = path.match(/^\/api\/trial\/users\/([^/]+)\/profile$/);
     if (userProfileMatch) {
       const userId = decodeURIComponent(userProfileMatch[1]);
+      requireSelf(auth, userId);
 
       if (req.method === "GET") {
         const profile = await repository.getUserProfile(userId);
@@ -76,6 +95,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
     const userContextMatch = path.match(/^\/api\/trial\/users\/([^/]+)\/context$/);
     if (userContextMatch && req.method === "GET") {
       const userId = decodeURIComponent(userContextMatch[1]);
+      requireSelf(auth, userId);
       const profile = await repository.getUserProfile(userId);
       if (!profile) return json({ error: "User not found." }, 404);
       return json({ context: profile });
@@ -84,12 +104,23 @@ Deno.serve(async (req: Request): Promise<Response> => {
     const userRecsMatch = path.match(/^\/api\/trial\/users\/([^/]+)\/recommendations$/);
     if (userRecsMatch && req.method === "GET") {
       const userId = decodeURIComponent(userRecsMatch[1]);
+      requireSelf(auth, userId);
       const status = url.searchParams.get("status") ?? undefined;
       const recommendations = await repository.listRecommendationsForUser(userId, { status });
       return json({ recommendations });
     }
 
-    // ── admin ─────────────────────────────────────────────────────────────────
+    const userCompletenessMatch = path.match(/^\/api\/trial\/users\/([^/]+)\/completeness$/);
+    if (userCompletenessMatch && req.method === "GET") {
+      const userId = decodeURIComponent(userCompletenessMatch[1]);
+      requireSelf(auth, userId);
+      const profile = await repository.getUserProfile(userId);
+      if (!profile) return json({ error: "User not found." }, 404);
+      const result = checkProfileCompleteness(profile);
+      return json({ completeness: { userId, ...result } });
+    }
+
+    // ── admin (TODO: admin role auth — out of scope for ticket #1) ───────────
 
     if (req.method === "GET" && path === "/api/trial/admin/recommendations") {
       const status = url.searchParams.get("status") ?? "pending_review";
@@ -185,7 +216,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
       const recommendation = await repository.getRecommendationById(recommendationId);
       if (!recommendation) return json({ error: "Recommendation not found." }, 404);
-      if (recommendation.userId !== body.userId) {
+      if (recommendation.userId !== auth.userId) {
         return json({ error: "User is not allowed to respond to this recommendation." }, 403);
       }
 
@@ -207,8 +238,8 @@ Deno.serve(async (req: Request): Promise<Response> => {
       await repository.appendEvents([{
         id: `evt_${randomUUID()}`,
         eventType: decision === "accept" ? EVENT_TYPES.USER_ACCEPT : EVENT_TYPES.USER_PASS,
-        actorUserId: body.userId as string,
-        targetUserId: body.userId as string,
+        actorUserId: auth.userId,
+        targetUserId: auth.userId,
         recommendationId,
         payload: { decision, candidateUserId: recommendation.candidateUserId },
         createdAt: nowIso(),
@@ -229,6 +260,9 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
       const recommendation = await repository.getRecommendationById(recommendationId);
       if (!recommendation) return json({ error: "Recommendation not found." }, 404);
+      if (recommendation.userId !== auth.userId) {
+        return json({ error: "User is not allowed to update this recommendation." }, 403);
+      }
 
       const outcome = await repository.upsertOutcome({
         id: `outcome_${randomUUID()}`,
@@ -245,7 +279,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
       await repository.appendEvents([{
         id: `evt_${randomUUID()}`,
         eventType,
-        actorUserId: body.actorUserId as string ?? null,
+        actorUserId: auth.userId,
         targetUserId: recommendation.userId,
         recommendationId,
         payload: { outcomeStatus: status, notes: body.notes ?? null },
@@ -305,6 +339,9 @@ Deno.serve(async (req: Request): Promise<Response> => {
     return json({ error: "Route not found." }, 404);
 
   } catch (error) {
+    if (error instanceof AuthError) {
+      return json({ error: error.message }, error.statusCode);
+    }
     const message = error instanceof Error ? error.message : "Unexpected error.";
     return json({ error: message }, statusCodeFromError(error));
   }

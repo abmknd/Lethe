@@ -7,6 +7,7 @@ import type {
   TrialCepResponse,
   TrialEvent,
   TrialMeeting,
+  TrialPublicProfile,
   TrialRecommendation,
   TrialUser,
   UserContextResponse,
@@ -15,13 +16,16 @@ import type {
 
 const API_BASE = (import.meta.env.VITE_TRIAL_API_BASE_URL as string | undefined) ?? 'http://localhost:8787';
 
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
+async function request<T>(path: string, init?: RequestInit, token?: string): Promise<T> {
+  const headers: Record<string, string> = {
+    'content-type': 'application/json',
+    ...(init?.headers as Record<string, string> | undefined),
+  };
+  if (token) headers['authorization'] = `Bearer ${token}`;
+
   const response = await fetch(`${API_BASE}${path}`, {
-    headers: {
-      'content-type': 'application/json',
-      ...(init?.headers ?? {}),
-    },
     ...init,
+    headers,
   });
 
   const body = (await response.json()) as { error?: string } & T;
@@ -43,30 +47,52 @@ export async function initializeTrialData(options?: { reset?: boolean; seed?: bo
   });
 }
 
-export async function listTrialUsers() {
-  const result = await request<{ users: TrialUser[] }>('/api/trial/users');
+export async function listTrialUsers(token?: string) {
+  const result = await request<{ users: TrialUser[] }>('/api/trial/users', undefined, token);
   return result.users;
 }
 
-export async function getTrialUserProfile(userId: string) {
-  const result = await request<{ profile: TrialUserProfile }>(`/api/trial/users/${encodeURIComponent(userId)}/profile`);
+export async function getTrialUserProfile(userId: string, token?: string) {
+  const result = await request<{ profile: TrialUserProfile }>(
+    `/api/trial/users/${encodeURIComponent(userId)}/profile`,
+    undefined,
+    token,
+  );
   return result.profile;
 }
 
-export async function getTrialUserContext(userId: string) {
-  const result = await request<{ context: UserContextResponse }>(`/api/trial/users/${encodeURIComponent(userId)}/context`);
+export async function getTrialUserPublicProfile(idOrHandle: string, token?: string) {
+  const result = await request<{ profile: TrialPublicProfile }>(
+    `/api/trial/users/${encodeURIComponent(idOrHandle)}/profile/public`,
+    undefined,
+    token,
+  );
+  return result.profile;
+}
+
+export async function getTrialUserContext(userId: string, token?: string) {
+  const result = await request<{ context: UserContextResponse }>(
+    `/api/trial/users/${encodeURIComponent(userId)}/context`,
+    undefined,
+    token,
+  );
   return result.context;
 }
 
-export async function saveTrialUserProfile(userId: string, profile: Omit<TrialUserProfile, 'updatedAt'>) {
-  const result = await request<{ profile: TrialUserProfile }>(`/api/trial/users/${encodeURIComponent(userId)}/profile`, {
-    method: 'PUT',
-    body: JSON.stringify(profile),
-  });
+export async function saveTrialUserProfile(
+  userId: string,
+  profile: Omit<TrialUserProfile, 'updatedAt'>,
+  token?: string,
+) {
+  const result = await request<{ profile: TrialUserProfile }>(
+    `/api/trial/users/${encodeURIComponent(userId)}/profile`,
+    { method: 'PUT', body: JSON.stringify(profile) },
+    token,
+  );
   return result.profile;
 }
 
-export async function runWeeklyMatching(maxRecommendationsPerUser = 5) {
+export async function runWeeklyMatching(maxRecommendationsPerUser = 5, token?: string) {
   return request<{
     ok: boolean;
     runId: string;
@@ -80,20 +106,24 @@ export async function runWeeklyMatching(maxRecommendationsPerUser = 5) {
   }>('/api/trial/matching/run-weekly', {
     method: 'POST',
     body: JSON.stringify({ maxRecommendationsPerUser }),
-  });
+  }, token);
 }
 
-export async function listUserRecommendations(userId: string, status?: string) {
+export async function listUserRecommendations(userId: string, status?: string, token?: string) {
   const qs = status ? `?status=${encodeURIComponent(status)}` : '';
   const result = await request<{ recommendations: TrialRecommendation[] }>(
     `/api/trial/users/${encodeURIComponent(userId)}/recommendations${qs}`,
+    undefined,
+    token,
   );
   return result.recommendations;
 }
 
-export async function listAdminRecommendations(status = 'pending_review') {
+export async function listAdminRecommendations(status = 'pending_review', token?: string) {
   const result = await request<{ recommendations: TrialAdminRecommendation[] }>(
     `/api/trial/admin/recommendations?status=${encodeURIComponent(status)}`,
+    undefined,
+    token,
   );
   return result.recommendations;
 }
@@ -103,7 +133,7 @@ export async function submitAdminDecision(params: {
   adminId: string;
   decision: 'approve' | 'reject';
   rationale: string;
-}) {
+}, token?: string) {
   return request<{ ok: boolean }>(
     `/api/trial/admin/recommendations/${encodeURIComponent(params.recommendationId)}/decision`,
     {
@@ -114,19 +144,24 @@ export async function submitAdminDecision(params: {
         rationale: params.rationale ?? null,
       }),
     },
+    token,
   );
 }
 
-export async function getAdminRecommendationContext(recommendationId: string) {
+export async function getAdminRecommendationContext(recommendationId: string, token?: string) {
   const result = await request<{ context: TrialAdminRecommendationContext }>(
     `/api/trial/admin/recommendations/${encodeURIComponent(recommendationId)}/context`,
+    undefined,
+    token,
   );
   return result.context;
 }
 
-export async function getRecommendationParticipantsContext(recommendationId: string) {
+export async function getRecommendationParticipantsContext(recommendationId: string, token?: string) {
   const result = await request<{ context: RecommendationParticipantsContextResponse }>(
     `/api/trial/recommendations/${encodeURIComponent(recommendationId)}/participants-context`,
+    undefined,
+    token,
   );
   return result.context;
 }
@@ -135,14 +170,14 @@ export async function respondToRecommendation(params: {
   recommendationId: string;
   userId: string;
   decision: 'accept' | 'pass';
-}) {
+}, token?: string) {
   return request<{ ok: boolean }>(`/api/trial/recommendations/${encodeURIComponent(params.recommendationId)}/respond`, {
     method: 'POST',
     body: JSON.stringify({
       userId: params.userId,
       decision: params.decision,
     }),
-  });
+  }, token);
 }
 
 export async function updateFollowThrough(params: {
@@ -150,7 +185,7 @@ export async function updateFollowThrough(params: {
   actorUserId: string;
   status: 'intro_sent' | 'meeting_scheduled' | 'completed' | 'no_follow_through';
   notes?: string;
-}) {
+}, token?: string) {
   return request<{ ok: boolean }>(`/api/trial/recommendations/${encodeURIComponent(params.recommendationId)}/follow-through`, {
     method: 'POST',
     body: JSON.stringify({
@@ -158,7 +193,7 @@ export async function updateFollowThrough(params: {
       status: params.status,
       notes: params.notes ?? null,
     }),
-  });
+  }, token);
 }
 
 export async function saveRecommendationMeeting(params: {
@@ -169,7 +204,7 @@ export async function saveRecommendationMeeting(params: {
   scheduledAt?: string | null;
   status?: string;
   notes?: string;
-}) {
+}, token?: string) {
   return request<{ ok: boolean; meeting: TrialMeeting }>(
     `/api/trial/recommendations/${encodeURIComponent(params.recommendationId)}/meeting`,
     {
@@ -183,6 +218,7 @@ export async function saveRecommendationMeeting(params: {
         notes: params.notes ?? null,
       }),
     },
+    token,
   );
 }
 
@@ -191,7 +227,7 @@ export async function updateRecommendationMeetingStatus(params: {
   actorUserId: string;
   status: string;
   notes?: string;
-}) {
+}, token?: string) {
   return request<{ ok: boolean; meeting: TrialMeeting }>(
     `/api/trial/recommendations/${encodeURIComponent(params.recommendationId)}/meeting/status`,
     {
@@ -202,10 +238,11 @@ export async function updateRecommendationMeetingStatus(params: {
         notes: params.notes ?? null,
       }),
     },
+    token,
   );
 }
 
-export async function listTrialEvents(filters?: { userId?: string; eventType?: string; recommendationId?: string; limit?: number }) {
+export async function listTrialEvents(filters?: { userId?: string; eventType?: string; recommendationId?: string; limit?: number }, token?: string) {
   const params = new URLSearchParams();
   if (filters?.userId) {
     params.set('userId', filters.userId);
@@ -221,31 +258,33 @@ export async function listTrialEvents(filters?: { userId?: string; eventType?: s
   }
 
   const qs = params.toString();
-  const result = await request<{ events: TrialEvent[] }>(`/api/trial/events${qs ? `?${qs}` : ''}`);
+  const result = await request<{ events: TrialEvent[] }>(`/api/trial/events${qs ? `?${qs}` : ''}`, undefined, token);
   return result.events;
 }
 
-export async function getUserCep(userId: string): Promise<TrialCepResponse> {
-  return request<TrialCepResponse>(`/api/trial/users/${encodeURIComponent(userId)}/cep`);
+export async function getUserCep(userId: string, token?: string): Promise<TrialCepResponse> {
+  return request<TrialCepResponse>(`/api/trial/users/${encodeURIComponent(userId)}/cep`, undefined, token);
 }
 
-export async function saveUserCep(userId: string, focusText: string): Promise<TrialCepEntry> {
+export async function saveUserCep(userId: string, focusText: string, token?: string): Promise<TrialCepEntry> {
   const result = await request<{ cep: TrialCepEntry }>(`/api/trial/users/${encodeURIComponent(userId)}/cep`, {
     method: 'PUT',
     body: JSON.stringify({ focusText }),
-  });
+  }, token);
   return result.cep;
 }
 
-export async function clearUserCep(userId: string): Promise<void> {
+export async function clearUserCep(userId: string, token?: string): Promise<void> {
   await request<{ ok: boolean }>(`/api/trial/users/${encodeURIComponent(userId)}/cep`, {
     method: 'DELETE',
-  });
+  }, token);
 }
 
-export async function getUserCompleteness(userId: string): Promise<TrialCompletenessResult> {
+export async function getUserCompleteness(userId: string, token?: string): Promise<TrialCompletenessResult> {
   const result = await request<{ completeness: TrialCompletenessResult }>(
     `/api/trial/users/${encodeURIComponent(userId)}/completeness`,
+    undefined,
+    token,
   );
   return result.completeness;
 }

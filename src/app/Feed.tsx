@@ -16,8 +16,7 @@ import { useState, useMemo, useEffect, useRef } from "react";
 import { useNavigate } from "react-router";
 import LetheLogo from "../imports/LetheLogo";
 import { useAuth } from "./context/AuthContext";
-import { supabase } from "../lib/supabase";
-import { apiFetch } from "../lib/api";
+import { getUserCompleteness } from "./trial/api";
 
 const avatarUrl1 = "https://images.unsplash.com/photo-1762522921456-cdfe882d36c3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx5b3VuZyUyMHByb2Zlc3Npb25hbCUyMHdvbWFuJTIwcG9ydHJhaXR8ZW58MXx8fHwxNzcyMzI5MzMwfDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral";
 const avatarUrl2 = "https://images.unsplash.com/photo-1532272278764-53cd1fe53f72?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx5b3VuZyUyMHByb2Zlc3Npb25hbCUyMG1hbiUyMHBvcnRyYWl0fGVufDF8fHx8MTc3MjM0NDQxOXww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral";
@@ -34,21 +33,11 @@ const postImage3 = "https://images.unsplash.com/photo-1767911287119-cd9ae9c55afa
 const postImage4 = "https://images.unsplash.com/photo-1667987189392-06fcc377cade?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxkYXJrJTIwbW9vZHklMjBuYXR1cmV8ZW58MXx8fHwxNzcyMjE1NzEzfDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral";
 const postImage5 = "https://images.unsplash.com/photo-1694473799096-a915b576511f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtaW5pbWFsaXN0JTIwc3Vuc2V0JTIwbGFuZHNjYXBlfGVufDF8fHx8MTc3MjI5NzM0MXww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral";
 
-/**
- * Feed Component
- * 
- * KYC Modal Logic:
- * - Shows 3 seconds after first visit to Feed (from onboarding)
- * - Stored in localStorage when completed (persists across sessions)
- * - Stored in sessionStorage when shown (prevents re-showing after "Later" click)
- * 
- * To test KYC modal again:
- * - Open browser console and run: localStorage.removeItem('lethe_kyc_completed'); sessionStorage.removeItem('lethe_kyc_shown');
- * - Then refresh the page
- */
+// KYC modal opens when /completeness reports the signed-in user is not yet eligible.
+// Backend is the single source of truth — no localStorage gating.
 export default function Feed() {
   const { theme } = useTheme();
-  const { user } = useAuth();
+  const { user, getAccessToken } = useAuth();
   const [activePage, setActivePage] = useState<"posts" | "matches">("posts");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [matchesTab, setMatchesTab] = useState<"suggestions" | "recent" | "upcoming">("suggestions");
@@ -62,46 +51,36 @@ export default function Feed() {
   const fadedZoneStartRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
-  // Show KYC modal if the user has no profile yet (check API, fall back to localStorage)
   useEffect(() => {
-    const kycShownThisSession = sessionStorage.getItem('lethe_kyc_shown');
-    if (kycShownThisSession) return;
+    if (!user?.id) return;
+    let cancelled = false;
+    let timer: ReturnType<typeof setTimeout> | null = null;
 
     (async () => {
-      if (user?.id) {
-        try {
-          const { data: { session } } = await supabase.auth.getSession();
-          const token = session?.access_token;
-          const data = await apiFetch(`/api/trial/users/${user.id}/profile`, undefined, token) as Record<string, unknown>;
-          const profile = data.profile as Record<string, unknown> | undefined;
-          if (profile) return; // Profile exists — KYC already done
-          setKycAccessToken(token);
-          setTimeout(() => {
-            setIsKYCModalOpen(true);
-            sessionStorage.setItem('lethe_kyc_shown', 'true');
-          }, 3000);
-        } catch {
-          // API not yet available — fall back to localStorage
-          const kycCompleted = localStorage.getItem('lethe_kyc_completed');
-          if (!kycCompleted) {
-            setTimeout(() => {
-              setIsKYCModalOpen(true);
-              sessionStorage.setItem('lethe_kyc_shown', 'true');
-            }, 3000);
-          }
-        }
-      } else {
-        // No auth yet — fall back to localStorage
-        const kycCompleted = localStorage.getItem('lethe_kyc_completed');
-        if (!kycCompleted) {
-          setTimeout(() => {
-            setIsKYCModalOpen(true);
-            sessionStorage.setItem('lethe_kyc_shown', 'true');
-          }, 3000);
-        }
+      const token = await getAccessToken();
+      try {
+        const result = await getUserCompleteness(user.id, token);
+        if (cancelled) return;
+        if (result.isEligible) return;
+        setKycAccessToken(token);
+        timer = setTimeout(() => {
+          if (!cancelled) setIsKYCModalOpen(true);
+        }, 3000);
+      } catch {
+        // Profile doesn't exist yet (404) — first login, treat as needing KYC.
+        if (cancelled) return;
+        setKycAccessToken(token);
+        timer = setTimeout(() => {
+          if (!cancelled) setIsKYCModalOpen(true);
+        }, 3000);
       }
     })();
-  }, [user?.id]);
+
+    return () => {
+      cancelled = true;
+      if (timer) clearTimeout(timer);
+    };
+  }, [user?.id, getAccessToken]);
 
   // Handle KYC modal close
   const handleKYCClose = () => {
