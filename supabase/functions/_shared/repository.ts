@@ -55,6 +55,30 @@ export interface UserProfile {
   availability: AvailabilitySlot[];
 }
 
+export interface PublicProfile {
+  id: string;
+  name: string;
+  handle: string | null;
+  location: string | null;
+  bio: string;
+  introText: string;
+  interests: string[];
+  objectives: string[];
+}
+
+export function toPublicProfile(profile: UserProfile): PublicProfile {
+  return {
+    id: profile.user.id,
+    name: profile.user.name,
+    handle: profile.user.handle,
+    location: profile.user.location,
+    bio: profile.user.bio,
+    introText: profile.preferences?.introText ?? "",
+    interests: profile.preferences?.interests ?? [],
+    objectives: profile.preferences?.objectives ?? [],
+  };
+}
+
 export interface Recommendation {
   id: string;
   runId: string;
@@ -141,6 +165,17 @@ export class PostgresRepository {
       SELECT id, name, handle, email, location, bio,
              matching_enabled, timezone, is_active, created_at, updated_at
       FROM users WHERE id = ${userId}
+    `;
+    return row ? mapUser(row) : null;
+  }
+
+  async getUserByHandle(handle: string): Promise<User | null> {
+    const normalized = handle.startsWith("@") ? handle.slice(1) : handle;
+    const [row] = await sql`
+      SELECT id, name, handle, email, location, bio,
+             matching_enabled, timezone, is_active, created_at, updated_at
+      FROM users WHERE handle = ${normalized} OR handle = ${"@" + normalized}
+      LIMIT 1
     `;
     return row ? mapUser(row) : null;
   }

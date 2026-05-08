@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { MessageCircle, UserPlus } from 'lucide-react';
 import svgPaths from "../imports/svg-mzo5g4s9h6";
@@ -7,203 +7,86 @@ import svgPathsRing from "../imports/svg-gaju7ne3wq";
 import GenderIcon from "../imports/Gender";
 import LetheLogo from "../imports/LetheLogo";
 import { PostCard } from './components/PostCard';
+import { useAuth } from './context/AuthContext';
+import { getTrialUserPublicProfile } from './trial/api';
+import type { TrialPublicProfile } from './trial/types';
 
-// Mock user data - in production this would come from API/database
-const mockUsers: { [key: string]: any } = {
-  'elena.voss': {
-    username: 'elena.voss',
-    name: 'Elena Voss',
-    handle: '@elena.voss',
-    pronouns: 'She / Her',
-    occupation: 'Product Designer',
-    location: 'Berlin, Germany',
-    avatar: 'https://images.unsplash.com/photo-1762522921456-cdfe882d36c3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx5b3VuZyUyMHByb2Zlc3Npb25hbCUyMHdvbWFuJTIwcG9ydHJhaXR8ZW58MXx8fHwxNzcyMzI5MzMwfDA&ixlib=rb-4.1.0&q=80&w=1080',
-    bio: 'I build at the intersection of design and systems thinking. Happiest in rooms where someone disagrees with me. Currently focused on ethical design frameworks for emerging tech.',
-    isMatch: true,
-    isFollowing: false,
-    stats: {
-      followers: 284,
-      following: 521,
-      posts: 1603,
-      faded: 5499,
-    },
-    matches: {
-      count: 6,
-      avatars: [
-        'https://images.unsplash.com/photo-1532272278764-53cd1fe53f72?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx5b3VuZyUyMHByb2Zlc3Npb25hbCUyMG1hbiUyMHBvcnRyYWl0fGVufDF8fHx8MTc3MjM0NDQxOXww&ixlib=rb-4.1.0&q=80&w=1080',
-        'https://images.unsplash.com/photo-1770363757711-aa4db84d308d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3b21hbiUyMHBvcnRyYWl0JTIwY29uZmlkZW50JTIwcHJvZmVzc2lvbmFsfGVufDF8fHx8MTc3MjM0NjA0MHww&ixlib=rb-4.1.0&q=80&w=1080',
-        'https://images.unsplash.com/photo-1629507208649-70919ca33793?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtYW4lMjBwb3J0cmFpdCUyMGJ1c2luZXNzJTIwcHJvZmVzc2lvbmFsfGVufDF8fHx8MTc3MjM0NjA0MHww&ixlib=rb-4.1.0&q=80&w=1080',
-      ],
-    },
-    meetings: 8,
-    posts: [
-      {
-        avatar: 'https://images.unsplash.com/photo-1762522921456-cdfe882d36c3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx5b3VuZyUyMHByb2Zlc3Npb25hbCUyMHdvbWFuJTIwcG9ydHJhaXR8ZW58MXx8fHwxNzcyMzI5MzMwfDA&ixlib=rb-4.1.0&q=80&w=1080',
-        username: 'elena.voss',
-        timestamp: "2h",
-        text: "There's a peculiar weight to forgotten things. Not the absence of memory, but the presence of its echo. What we lose shapes us as much as what we keep.",
-        status: "flowing" as const,
-        image: 'https://images.unsplash.com/photo-1635248677595-17a15f7a1972?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb250ZW1wbGF0aXZlJTIwbmF0dXJlJTIwYmxhY2slMjB3aGl0ZXxlbnwxfHx8fDE3NzIyODU1NDB8MA&ixlib=rb-4.1.0&q=80&w=1080',
-        halfLifeProgress: 85,
-        isFollowing: false,
-      },
-      {
-        avatar: 'https://images.unsplash.com/photo-1762522921456-cdfe882d36c3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx5b3VuZyUyMHByb2Zlc3Npb25hbCUyMHdvbWFuJTIwcG9ydHJhaXR8ZW58MXx8fHwxNzcyMzI5MzMwfDA&ixlib=rb-4.1.0&q=80&w=1080',
-        username: 'elena.voss',
-        timestamp: "5h",
-        text: "Sometimes the most profound connections happen in silence, when words would only dilute the moment.",
-        status: "flowing" as const,
-        halfLifeProgress: 78,
-        isFollowing: false,
-      },
-      {
-        avatar: 'https://images.unsplash.com/photo-1762522921456-cdfe882d36c3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx5b3VuZyUyMHByb2Zlc3Npb25hbCUyMHdvbWFuJTIwcG9ydHJhaXR8ZW58MXx8fHwxNzcyMzI5MzMwfDA&ixlib=rb-4.1.0&q=80&w=1080',
-        username: 'elena.voss',
-        timestamp: "1d",
-        text: "Found myself thinking about the architecture of memory. How we build rooms for certain moments but not others.",
-        status: "flowing" as const,
-        halfLifeProgress: 42,
-        isFollowing: false,
-      },
-    ],
-  },
-  'marcus.chen': {
-    username: 'marcus.chen',
-    name: 'Marcus Chen',
-    handle: '@marcus.chen',
-    pronouns: 'He / Him',
-    occupation: 'Senior Engineer',
-    location: 'San Francisco, CA',
-    avatar: 'https://images.unsplash.com/photo-1532272278764-53cd1fe53f72?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx5b3VuZyUyMHByb2Zlc3Npb25hbCUyMG1hbiUyMHBvcnRyYWl0fGVufDF8fHx8MTc3MjM0NDQxOXww&ixlib=rb-4.1.0&q=80&w=1080',
-    bio: 'Building something I can\'t talk about yet. Previously distributed systems at a place you\'ve heard of. I think in systems and ship in sprints.',
-    isMatch: false,
-    isFollowing: true,
-    stats: {
-      followers: 512,
-      following: 298,
-      posts: 842,
-      faded: 3201,
-    },
-    matches: {
-      count: 4,
-      avatars: [
-        'https://images.unsplash.com/photo-1762522921456-cdfe882d36c3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx5b3VuZyUyMHByb2Zlc3Npb25hbCUyMHdvbWFuJTIwcG9ydHJhaXR8ZW58MXx8fHwxNzcyMzI5MzMwfDA&ixlib=rb-4.1.0&q=80&w=1080',
-        'https://images.unsplash.com/photo-1770363757711-aa4db84d308d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3b21hbiUyMHBvcnRyYWl0JTIwY29uZmlkZW50JTIwcHJvZmVzc2lvbmFsfGVufDF8fHx8MTc3MjM0NjA0MHww&ixlib=rb-4.1.0&q=80&w=1080',
-      ],
-    },
-    meetings: 5,
-    posts: [
-      {
-        avatar: 'https://images.unsplash.com/photo-1532272278764-53cd1fe53f72?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx5b3VuZyUyMHByb2Zlc3Npb25hbCUyMG1hbiUyMHBvcnRyYWl0fGVufDF8fHx8MTc3MjM0NDQxOXww&ixlib=rb-4.1.0&q=80&w=1080',
-        username: 'marcus.chen',
-        timestamp: "4h",
-        text: "The distance between who we were and who we are becomes clearest in silence.",
-        status: "flowing" as const,
-        halfLifeProgress: 81,
-        isFollowing: true,
-      },
-      {
-        avatar: 'https://images.unsplash.com/photo-1532272278764-53cd1fe53f72?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx5b3VuZyUyMHByb2Zlc3Npb25hbCUyMG1hbiUyMHBvcnRyYWl0fGVufDF8fHx8MTc3MjM0NDQxOXww&ixlib=rb-4.1.0&q=80&w=1080',
-        username: 'marcus.chen',
-        timestamp: "1d",
-        text: "Watched someone return a library book today. Made me think about all the borrowed things we eventually give back.",
-        status: "flowing" as const,
-        halfLifeProgress: 44,
-        isFollowing: true,
-      },
-    ],
-  },
-  'sophia.martinez': {
-    username: 'sophia.martinez',
-    name: 'Sophia Martinez',
-    handle: '@sophia.martinez',
-    pronouns: 'She / Her',
-    occupation: 'Research Scientist',
-    location: 'London, UK',
-    avatar: 'https://images.unsplash.com/photo-1770363757711-aa4db84d308d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3b21hbiUyMHBvcnRyYWl0JTIwY29uZmlkZW50JTIwcHJvZmVzc2lvbmFsfGVufDF8fHx8MTc3MjM0NjA0MHww&ixlib=rb-4.1.0&q=80&w=1080',
-    bio: 'Researcher by training, creative by habit. I like conversations that go somewhere unexpected. Currently studying how memory shapes decision-making.',
-    isMatch: true,
-    isFollowing: true,
-    stats: {
-      followers: 412,
-      following: 367,
-      posts: 1205,
-      faded: 4128,
-    },
-    matches: {
-      count: 7,
-      avatars: [
-        'https://images.unsplash.com/photo-1532272278764-53cd1fe53f72?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx5b3VuZyUyMHByb2Zlc3Npb25hbCUyMG1hbiUyMHBvcnRyYWl0fGVufDF8fHx8MTc3MjM0NDQxOXww&ixlib=rb-4.1.0&q=80&w=1080',
-        'https://images.unsplash.com/photo-1629507208649-70919ca33793?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtYW4lMjBwb3J0cmFpdCUyMGJ1c2luZXNzJTIwcHJvZmVzc2lvbmFsfGVufDF8fHx8MTc3MjM0NjA0MHww&ixlib=rb-4.1.0&q=80&w=1080',
-      ],
-    },
-    meetings: 12,
-    posts: [
-      {
-        avatar: 'https://images.unsplash.com/photo-1770363757711-aa4db84d308d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3b21hbiUyMHBvcnRyYWl0JTIwY29uZmlkZW50JTIwcHJvZmVzc2lvbmFsfGVufDF8fHx8MTc3MjM0NjA0MHww&ixlib=rb-4.1.0&q=80&w=1080',
-        username: 'sophia.martinez',
-        timestamp: "3h",
-        text: "Some bridges are meant to be crossed only once. That doesn't make them any less important.",
-        status: "flowing" as const,
-        image: 'https://images.unsplash.com/photo-1694473799096-a915b576511f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtaW5pbWFsaXN0JTIwc3Vuc2V0JTIwbGFuZHNjYXBlfGVufDF8fHx8MTc3MjI5NzM0MXww&ixlib=rb-4.1.0&q=80&w=1080',
-        halfLifeProgress: 83,
-        isFollowing: true,
-      },
-    ],
-  },
-  'david.park': {
-    username: 'david.park',
-    name: 'David Park',
-    handle: '@david.park',
-    pronouns: 'He / Him',
-    occupation: 'Lead Designer',
-    location: 'Seattle, WA',
-    avatar: 'https://images.unsplash.com/photo-1629507208649-70919ca33793?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtYW4lMjBwb3J0cmFpdCUyMGJ1c2luZXNzJTIwcHJvZmVzc2lvbmFsfGVufDF8fHx8MTc3MjM0NjA0MHww&ixlib=rb-4.1.0&q=80&w=1080',
-    bio: 'Product designer obsessed with meaningful experiences. I\'m here to find someone who appreciates thoughtful silence as much as great conversation.',
+function initials(name: string) {
+  return name.split(' ').map((p) => p[0] ?? '').join('').slice(0, 2).toUpperCase();
+}
+
+interface DisplayUser {
+  username: string;
+  name: string;
+  handle: string;
+  pronouns: string;
+  occupation: string;
+  location: string;
+  avatar: string | null;
+  bio: string;
+  isMatch: boolean;
+  isFollowing: boolean;
+  stats: { followers: number; following: number; posts: number; faded: number };
+  matches: { count: number; avatars: string[] };
+  meetings: number;
+  posts: never[];
+}
+
+function toDisplayUser(profile: TrialPublicProfile, fallbackUsername: string): DisplayUser {
+  return {
+    username: profile.handle ?? fallbackUsername,
+    name: profile.name,
+    handle: profile.handle ? (profile.handle.startsWith('@') ? profile.handle : `@${profile.handle}`) : '',
+    pronouns: '',
+    occupation: '',
+    location: profile.location ?? '',
+    avatar: null,
+    bio: profile.bio || profile.introText || '',
     isMatch: false,
     isFollowing: false,
-    stats: {
-      followers: 623,
-      following: 411,
-      posts: 934,
-      faded: 2876,
-    },
-    matches: {
-      count: 3,
-      avatars: [
-        'https://images.unsplash.com/photo-1762522921456-cdfe882d36c3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx5b3VuZyUyMHByb2Zlc3Npb25hbCUyMHdvbWFuJTIwcG9ydHJhaXR8ZW58MXx8fHwxNzcyMzI5MzMwfDA&ixlib=rb-4.1.0&q=80&w=1080',
-      ],
-    },
-    meetings: 6,
-    posts: [
-      {
-        avatar: 'https://images.unsplash.com/photo-1629507208649-70919ca33793?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtYW4lMjBwb3J0cmFpdCUyMGJ1c2luZXNzJTIwcHJvZmVzc2lvbmFsfGVufDF8fHx8MTc3MjM0NjA0MHww&ixlib=rb-4.1.0&q=80&w=1080',
-        username: 'david.park',
-        timestamp: "6h",
-        text: "Silence isn't empty. It's full of answers we're not yet ready to hear.",
-        status: "flowing" as const,
-        halfLifeProgress: 76,
-        isFollowing: false,
-      },
-    ],
-  },
-};
+    stats: { followers: 0, following: 0, posts: 0, faded: 0 },
+    matches: { count: 0, avatars: [] },
+    meetings: 0,
+    posts: [],
+  };
+}
 
 export default function OtherUserProfilePage() {
   const navigate = useNavigate();
   const { username } = useParams<{ username: string }>();
+  const { getAccessToken } = useAuth();
   const [activeTab, setActiveTab] = useState<'all' | 'faded' | 'echoes'>('all');
   const [isFollowing, setIsFollowing] = useState(false);
+  const [user, setUser] = useState<DisplayUser | null>(null);
+  const [loadState, setLoadState] = useState<'loading' | 'ready' | 'not-found'>('loading');
 
-  // Get user data from mock (in production, fetch from API)
-  const user = username ? mockUsers[username] : null;
+  useEffect(() => {
+    if (!username) {
+      setLoadState('not-found');
+      return;
+    }
+    setLoadState('loading');
+    (async () => {
+      const token = await getAccessToken();
+      try {
+        const profile = await getTrialUserPublicProfile(username, token);
+        setUser(toDisplayUser(profile, username));
+        setLoadState('ready');
+      } catch {
+        setLoadState('not-found');
+      }
+    })();
+  }, [username, getAccessToken]);
 
-  // Initialize following state from user data
-  if (user && isFollowing !== user.isFollowing) {
-    setIsFollowing(user.isFollowing);
+  if (loadState === 'loading') {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-[13px] text-white/[0.25]">Loading…</div>
+      </div>
+    );
   }
 
-  if (!user) {
+  if (loadState === 'not-found' || !user) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-center">
@@ -268,11 +151,17 @@ export default function OtherUserProfilePage() {
               <div className="flex-shrink-0">
                 <div className="w-[115px] h-[115px] relative">
                   {/* Profile Image */}
-                  <img 
-                    src={user.avatar} 
-                    alt={user.name} 
-                    className="w-[115px] h-[115px] rounded-full object-cover relative z-10"
-                  />
+                  {user.avatar ? (
+                    <img
+                      src={user.avatar}
+                      alt={user.name}
+                      className="w-[115px] h-[115px] rounded-full object-cover relative z-10"
+                    />
+                  ) : (
+                    <div className="w-[115px] h-[115px] rounded-full relative z-10 bg-[#1a2a1a] border border-[#ADFF2F]/[0.15] flex items-center justify-center text-[36px] font-semibold text-[#ADFF2F]/60 font-['Cormorant_Garamond']">
+                      {initials(user.name || '?')}
+                    </div>
+                  )}
                   {/* Green Dashed Ring */}
                   <div className="absolute inset-0 z-0">
                     <div className="relative size-full">

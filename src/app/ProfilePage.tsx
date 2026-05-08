@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { ChevronLeft, MessageCircle, Share2, Plus, MoreVertical } from 'lucide-react';
 import svgPaths from "../imports/svg-mzo5g4s9h6";
@@ -18,6 +18,10 @@ import TrashIcon from "../imports/Trash2";
 import ArcticonsTetherfi from "../imports/ArcticonsTetherfi";
 import { PostOptionsMenu } from "./components/PostOptionsMenu";
 import { EditProfileModal, type ProfileData } from "./components/EditProfileModal";
+import { useAuth } from "./context/AuthContext";
+import { getTrialUserProfile, saveTrialUserProfile } from "./trial/api";
+import type { TrialUserProfile } from "./trial/types";
+import { toast } from "sonner";
 
 // Profile page component for Lethe app
 type TabType = 'all' | 'faded' | 'echoes';
@@ -144,12 +148,15 @@ const mockPosts: Post[] = [
 export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState<TabType>('all');
   const navigate = useNavigate();
+  const { user, getAccessToken } = useAuth();
   const [isEditProfileModalOpen, setIsEditProfileModalOpen] = useState(false);
+  const [profileLocation, setProfileLocation] = useState('');
+  const [loadedProfile, setLoadedProfile] = useState<TrialUserProfile | null>(null);
   const [profileData, setProfileData] = useState<ProfileData>({
-    name: "A. Fitch",
-    handle: "@alabaster.f",
-    bio: "Writing about the spaces between things. Product at Tempo. Thinking about memory and what we owe the future.",
-    pronouns: "He / Him / His",
+    name: "",
+    handle: "",
+    bio: "",
+    pronouns: "",
     avatarUrl: imgAvatar,
     socialLinks: {
       linkedin: "",
@@ -160,8 +167,54 @@ export default function ProfilePage() {
     },
   });
 
-  const handleProfileSave = (data: ProfileData) => {
+  useEffect(() => {
+    if (!user?.id) return;
+    (async () => {
+      const token = await getAccessToken();
+      try {
+        const profile = await getTrialUserProfile(user.id, token);
+        setLoadedProfile(profile);
+        setProfileData((prev) => ({
+          ...prev,
+          name: profile.user.displayName || prev.name,
+          handle: profile.user.handle || prev.handle,
+          bio: (profile.user as { bio?: string }).bio ?? prev.bio,
+        }));
+        setProfileLocation(profile.user.location || '');
+      } catch {
+        // First login — leave empty defaults; the KYC flow will populate.
+      }
+    })();
+  }, [user?.id, getAccessToken]);
+
+  const handleProfileSave = async (data: ProfileData) => {
     setProfileData(data);
+    if (!user?.id) return;
+    try {
+      const token = await getAccessToken();
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      await saveTrialUserProfile(
+        user.id,
+        {
+          user: {
+            ...(loadedProfile?.user ?? {}),
+            id: user.id,
+            displayName: data.name,
+            handle: data.handle,
+            email: user.email ?? loadedProfile?.user.email ?? '',
+            bio: data.bio,
+            location: profileLocation,
+            timezone: loadedProfile?.user.timezone ?? timezone,
+          } as never,
+          preferences: (loadedProfile?.preferences ?? {}) as never,
+          availability: loadedProfile?.availability ?? [],
+        },
+        token,
+      );
+      toast.success('Profile saved');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to save profile');
+    }
   };
 
   return (
@@ -225,10 +278,10 @@ export default function ProfilePage() {
               <div className="flex flex-col h-[115px]">
                 <div className="flex flex-col gap-[4px] mb-[12px]">
                   <h1 className="font-['Cormorant_Garamond'] text-[22px] leading-[26.4px] text-[rgba(255,255,255,0.88)]">
-                    A. Fitch
+                    {profileData.name || '—'}
                   </h1>
                   <p className="font-['Inter'] text-[13px] leading-[19.5px] tracking-[0.52px] text-[rgba(255,255,255,0.25)]">
-                    @alabaster.f
+                    {profileData.handle ? (profileData.handle.startsWith('@') ? profileData.handle : `@${profileData.handle}`) : ''}
                   </p>
                 </div>
 
@@ -262,7 +315,7 @@ export default function ProfilePage() {
                       </svg>
                     </div>
                     <p className="font-['Inter'] text-[13px] leading-[19.5px] tracking-[0.52px] text-[rgba(255,255,255,0.25)]">
-                      Frankfurt, Kentucky
+                      {profileLocation || '—'}
                     </p>
                   </div>
 
@@ -271,7 +324,7 @@ export default function ProfilePage() {
                       <GenderIcon />
                     </div>
                     <p className="font-['Inter'] text-[13px] leading-[19.5px] tracking-[0.52px] text-[rgba(255,255,255,0.25)]">
-                      He/Him/His
+                      {profileData.pronouns || '—'}
                     </p>
                   </div>
                   </div>
@@ -349,7 +402,7 @@ export default function ProfilePage() {
                     bio
                   </p>
                   <p className="font-['Cormorant_Garamond'] text-[14px] leading-[25.5px] text-[rgba(255,255,255,0.4)]">
-                    Writing about the spaces between things. Product at Tempo. Thinking about memory and what we owe the future.
+                    {profileData.bio || '—'}
                   </p>
                 </div>
 

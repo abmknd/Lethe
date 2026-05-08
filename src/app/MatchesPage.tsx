@@ -2,10 +2,9 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { MapPin, Check } from 'lucide-react';
 import LetheLogo from '../imports/LetheLogo';
-import { listTrialUsers, listUserRecommendations } from './trial/api';
-import type { TrialUser, TrialRecommendation } from './trial/types';
-
-const USER_ID_KEY = 'lethe_trial_user_id';
+import { listUserRecommendations } from './trial/api';
+import type { TrialRecommendation } from './trial/types';
+import { useAuth } from './context/AuthContext';
 
 function initials(name: string) {
   return name.split(' ').map(p => p[0] ?? '').join('').slice(0, 2).toUpperCase();
@@ -20,33 +19,26 @@ const FOLLOW_THROUGH_LABELS: Record<string, string> = {
 
 export default function MatchesPage() {
   const navigate = useNavigate();
-  const [users, setUsers] = useState<TrialUser[]>([]);
-  const [selectedUserId, setSelectedUserId] = useState('');
+  const { user, getAccessToken } = useAuth();
+  const userId = user?.id ?? '';
   const [matches, setMatches] = useState<TrialRecommendation[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    listTrialUsers().then(fetched => {
-      setUsers(fetched);
-      const saved = localStorage.getItem(USER_ID_KEY);
-      const id = (saved && fetched.some(u => u.id === saved)) ? saved : (fetched[0]?.id ?? '');
-      setSelectedUserId(id);
-    }).catch(() => {});
-  }, []);
-
-  useEffect(() => {
-    if (!selectedUserId) return;
+    if (!userId) return;
     setIsLoading(true);
-    listUserRecommendations(selectedUserId, 'accepted')
-      .then(setMatches)
-      .catch(() => setMatches([]))
-      .finally(() => setIsLoading(false));
-  }, [selectedUserId]);
-
-  const selectUser = (id: string) => {
-    localStorage.setItem(USER_ID_KEY, id);
-    setSelectedUserId(id);
-  };
+    (async () => {
+      const token = await getAccessToken();
+      try {
+        const recs = await listUserRecommendations(userId, 'accepted', token);
+        setMatches(recs);
+      } catch {
+        setMatches([]);
+      } finally {
+        setIsLoading(false);
+      }
+    })();
+  }, [userId, getAccessToken]);
 
   return (
     <div className="min-h-screen bg-[#050705] text-white/[0.88] font-['Inter'] flex flex-col">
@@ -59,17 +51,6 @@ export default function MatchesPage() {
           <LetheLogo className="w-[15px] h-[15px] opacity-55" />
           Lethe
         </button>
-        {users.length > 0 && (
-          <select
-            value={selectedUserId}
-            onChange={e => selectUser(e.target.value)}
-            className="text-[11px] bg-[#0b0e0b] border border-white/[0.12] rounded-[8px] px-2 py-1 text-white/[0.52] tracking-[0.04em] outline-none"
-          >
-            {users.map(u => (
-              <option key={u.id} value={u.id}>{u.displayName}</option>
-            ))}
-          </select>
-        )}
       </nav>
 
       {/* Tabs */}

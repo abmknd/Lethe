@@ -61,6 +61,17 @@ export interface TrialUserProfile {
   updatedAt?: string;
 }
 
+export interface TrialPublicProfile {
+  id: string;
+  name: string;
+  handle: string | null;
+  location: string | null;
+  bio: string;
+  introText: string;
+  interests: string[];
+  objectives: string[];
+}
+
 export interface TrialRecommendation {
   id: string;
   runId: string;
