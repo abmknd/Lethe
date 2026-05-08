@@ -63,10 +63,10 @@ npm run demo:smoke      # wipe, reseed, smoke check, then start servers
 ## Branch model
 
 ```
-feature/* → demo → main
+feature/* → mvp → demo/main
 ```
 
-`demo` is the integration branch. All work lands here first via PR. `main` is promoted from `demo` at milestone checkpoints.
+`mvp` is the Stage 2 integration branch. MVP work lands there by PR from a feature branch. `demo` is refreshed intentionally from `mvp` for stable demo cuts; `main` is promoted only at milestone checkpoints.
 
 ---
 
