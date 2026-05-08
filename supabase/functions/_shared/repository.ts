@@ -180,6 +180,66 @@ export class PostgresRepository {
     return row ? mapUser(row) : null;
   }
 
+  /**
+   * Resolve a Supabase Auth UUID to the trial users.id (TEXT). On first sight,
+   * provisions a stub users row + empty preferences row so authenticated routes
+   * can immediately read/write self profile and KYC can fill it in.
+   *
+   * The new row uses id = authId (TEXT-stored UUID) so URL :id lookups against
+   * the same authenticated user resolve trivially. Distinct from seeded users
+   * (id = "user_abi", auth_id = NULL), which never go through this path.
+   */
+  async findOrCreateUserByAuthId(
+    authId: string,
+    name: string,
+    email: string | null,
+  ): Promise<string> {
+    const [existing] = await sql`SELECT id FROM users WHERE auth_id = ${authId} LIMIT 1`;
+    if (existing) return existing.id as string;
+
+    const now = new Date().toISOString();
+    const id = authId;
+    const prefId = `pref_${authId}`;
+
+    await sql.begin(async (tx) => {
+      await tx`
+        INSERT INTO users (
+          id, auth_id, name, email, bio,
+          matching_enabled, timezone, is_active, created_at, updated_at
+        ) VALUES (
+          ${id}, ${authId}, ${name}, ${email}, '',
+          TRUE, 'UTC', TRUE, ${now}, ${now}
+        )
+        ON CONFLICT (id) DO NOTHING
+      `;
+      await tx`
+        INSERT INTO preferences (
+          id, user_id, match_intent, offers, asks, preferred_locations,
+          user_type, preferred_user_types, interests, objectives,
+          intro_text, meeting_format, local_only, blocked_user_ids,
+          created_at, updated_at
+        ) VALUES (
+          ${prefId}, ${id},
+          ${JSON.stringify([])}::jsonb,
+          ${JSON.stringify([])}::jsonb,
+          ${JSON.stringify([])}::jsonb,
+          ${JSON.stringify([])}::jsonb,
+          '',
+          ${JSON.stringify([])}::jsonb,
+          ${JSON.stringify([])}::jsonb,
+          ${JSON.stringify([])}::jsonb,
+          '', 'video', FALSE,
+          ${JSON.stringify([])}::jsonb,
+          ${now}, ${now}
+        )
+        ON CONFLICT (user_id) DO NOTHING
+      `;
+    });
+
+    const [row] = await sql`SELECT id FROM users WHERE auth_id = ${authId} LIMIT 1`;
+    return (row?.id as string) ?? id;
+  }
+
   async getUserProfile(userId: string): Promise<UserProfile | null> {
     const [userRow] = await sql`
       SELECT id, name, handle, email, location, bio,

@@ -1,13 +1,16 @@
-// Supabase JWT verification for Edge Function routes.
-// Resolves the bearer token to a session userId. Throws AuthError on failure.
+// Supabase JWT verification + trial users.id resolution for Edge Function routes.
+// Verifies the bearer token, then resolves (or provisions on first login) the
+// trial users.id (TEXT) keyed off auth.users.id (UUID via users.auth_id).
 
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { repository } from "./repository.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
 
 export interface AuthContext {
-  userId: string;
+  authId: string;   // Supabase Auth UUID (auth.users.id)
+  userId: string;   // Trial users.id (TEXT) — resolved via users.auth_id
   email: string | null;
   token: string;
 }
@@ -32,7 +35,15 @@ export async function requireAuth(req: Request): Promise<AuthContext> {
   const { data, error } = await client.auth.getUser(token);
   if (error || !data?.user) throw new AuthError(401, "Invalid or expired session.");
 
-  return { userId: data.user.id, email: data.user.email ?? null, token };
+  const authId = data.user.id;
+  const email = data.user.email ?? null;
+  const name = (data.user.user_metadata?.name as string | undefined)
+    ?? email?.split("@")[0]
+    ?? "New user";
+
+  const userId = await repository.findOrCreateUserByAuthId(authId, name, email);
+
+  return { authId, userId, email, token };
 }
 
 export function requireSelf(auth: AuthContext, userId: string): void {
