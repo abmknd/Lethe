@@ -72,7 +72,8 @@ export default function OtherUserProfilePage() {
         const profile = await getTrialUserPublicProfile(username, token);
         setUser(toDisplayUser(profile, username));
         setLoadState('ready');
-      } catch {
+      } catch (err) {
+        console.error('[OtherUserProfilePage] failed to load profile for', username, err);
         setLoadState('not-found');
       }
     })();
