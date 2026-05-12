@@ -155,6 +155,31 @@ export class SqliteTrialRepository extends UserRepository {
     };
   }
 
+  getUserByHandle(handle) {
+    const normalized = handle.startsWith('@') ? handle.slice(1) : handle;
+    const row = this.db
+      .prepare(
+        `SELECT id, name, handle, email, location, bio, matching_enabled, timezone, is_active, created_at, updated_at
+         FROM users WHERE handle = ? OR handle = ? LIMIT 1`,
+      )
+      .get(normalized, '@' + normalized);
+    if (!row) return null;
+    return {
+      id: row.id,
+      name: row.name,
+      displayName: row.name,
+      handle: row.handle,
+      email: row.email,
+      location: row.location,
+      bio: row.bio,
+      matchingEnabled: Boolean(row.matching_enabled),
+      timezone: row.timezone,
+      isActive: Boolean(row.is_active),
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
+    };
+  }
+
   upsertUser(user) {
     const now = nowIso();
 

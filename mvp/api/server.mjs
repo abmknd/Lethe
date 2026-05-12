@@ -88,6 +88,33 @@ export function createTrialApiServer({ services, dbPath }) {
         return;
       }
 
+      const userPublicProfileMatch = path.match(/^\/api\/trial\/users\/([^/]+)\/profile\/public$/);
+      if (userPublicProfileMatch && req.method === 'GET') {
+        const idOrHandle = decodeURIComponent(userPublicProfileMatch[1]);
+        let profile = services.onboarding.getUserProfile(idOrHandle);
+        if (!profile) {
+          const byHandle = services.onboarding.getUserByHandle(idOrHandle);
+          if (byHandle) profile = services.onboarding.getUserProfile(byHandle.id);
+        }
+        if (!profile) {
+          sendJson(res, 404, { error: 'User not found.' });
+          return;
+        }
+        sendJson(res, 200, {
+          profile: {
+            id: profile.user.id,
+            name: profile.user.name,
+            handle: profile.user.handle,
+            location: profile.user.location ?? null,
+            bio: profile.user.bio ?? '',
+            introText: profile.preferences?.introText ?? '',
+            interests: profile.preferences?.interests ?? [],
+            objectives: profile.preferences?.objectives ?? [],
+          },
+        });
+        return;
+      }
+
       const userProfileMatch = path.match(/^\/api\/trial\/users\/([^/]+)\/profile$/);
       if (userProfileMatch) {
         const userId = decodeURIComponent(userProfileMatch[1]);
