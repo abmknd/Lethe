@@ -893,6 +893,26 @@ export class SqliteTrialRepository extends UserRepository {
       });
   }
 
+  updateRecommendationInsightText(recommendationId, insightText, updatedAt = nowIso()) {
+    this.db
+      .prepare(
+        `UPDATE recommendations
+         SET insight_text = :insightText, updated_at = :updatedAt
+         WHERE id = :recommendationId`,
+      )
+      .run({ recommendationId, insightText, updatedAt });
+  }
+
+  listRecommendationsWithEmptyInsight() {
+    return this.db
+      .prepare(
+        `SELECT id, source_user_id, target_user_id
+         FROM recommendations
+         WHERE insight_text = '' OR insight_text IS NULL`,
+      )
+      .all();
+  }
+
   updateRecommendationStatus(recommendationId, status, updatedAt = nowIso()) {
     this.db
       .prepare(

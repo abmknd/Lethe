@@ -11,6 +11,14 @@ export class RecommendationService {
     return this.repository.listRecommendationsForUser(userId, { status });
   }
 
+  getRecommendation(recommendationId) {
+    return this.repository.getRecommendationById(recommendationId);
+  }
+
+  updateInsightText(recommendationId, insightText) {
+    this.repository.updateRecommendationInsightText(recommendationId, insightText);
+  }
+
   respondToRecommendation({ recommendationId, userId, decision }) {
     const normalizedDecision = String(decision ?? '').toLowerCase();
     if (!['accept', 'pass'].includes(normalizedDecision)) {

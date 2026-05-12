@@ -275,6 +275,32 @@ export function createTrialApiServer({ services, dbPath }) {
         return;
       }
 
+      const insightMatch = path.match(/^\/api\/trial\/recommendations\/([^/]+)\/insight$/);
+      if (insightMatch && req.method === 'POST') {
+        const recommendationId = decodeURIComponent(insightMatch[1]);
+        const apiKey = process.env.ANTHROPIC_API_KEY;
+        if (!apiKey) {
+          sendJson(res, 422, { error: 'ANTHROPIC_API_KEY not configured.' });
+          return;
+        }
+        const rec = services.recommendations.getRecommendation(recommendationId);
+        if (!rec) {
+          sendJson(res, 404, { error: 'Recommendation not found.' });
+          return;
+        }
+        const sourceProfile = services.onboarding.getUserProfile(rec.userId);
+        const candidateProfile = services.onboarding.getUserProfile(rec.candidateUserId);
+        if (!sourceProfile || !candidateProfile) {
+          sendJson(res, 404, { error: 'Profile not found.' });
+          return;
+        }
+        const { generateInsightTextLlm } = await import('../context/insight-generation-llm.mjs');
+        const insightText = await generateInsightTextLlm(sourceProfile, candidateProfile, {}, apiKey);
+        services.recommendations.updateInsightText(recommendationId, insightText);
+        sendJson(res, 200, { ok: true, insightText });
+        return;
+      }
+
       const followThroughMatch = path.match(/^\/api\/trial\/recommendations\/([^/]+)\/follow-through$/);
       if (followThroughMatch && req.method === 'POST') {
         const recommendationId = decodeURIComponent(followThroughMatch[1]);

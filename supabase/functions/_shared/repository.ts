@@ -540,6 +540,10 @@ export class PostgresRepository {
     return result.count > 0;
   }
 
+  async updateRecommendationInsightText(id: string, insightText: string): Promise<void> {
+    await sql`UPDATE recommendations SET insight_text = ${insightText}, updated_at = ${nowIso()} WHERE id = ${id}`;
+  }
+
   // ── admin decisions ────────────────────────────────────────────────────────
 
   async recordAdminDecision(decision: {
