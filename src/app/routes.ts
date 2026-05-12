@@ -54,7 +54,7 @@ export const router = createBrowserRouter([
         ],
       },
       {
-        path: "trial",
+        path: "mvp",
         Component: TrialLayout,
         children: [
           {

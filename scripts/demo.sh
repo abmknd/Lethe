@@ -50,7 +50,7 @@ for arg in "$@"; do
       echo ""
       echo "URLs once running:"
       echo "  Frontend  →  http://localhost:5173"
-      echo "  Trial UI  →  http://localhost:5173/trial"
+      echo "  MVP UI    →  http://localhost:5173/mvp"
       echo "  API       →  http://localhost:8787"
       exit 0
       ;;
@@ -130,10 +130,10 @@ echo ""
 echo -e "${BOLD}${GREEN}  Ready.${RESET}"
 echo ""
 echo -e "  ${BOLD}Frontend${RESET}   →  http://localhost:5173"
-echo -e "  ${BOLD}Trial UI${RESET}   →  http://localhost:5173/trial"
+echo -e "  ${BOLD}MVP UI${RESET}     →  http://localhost:5173/mvp"
 echo -e "  ${BOLD}API${RESET}        →  http://localhost:8787"
 echo ""
-echo -e "${DIM}  Demo path: /trial → onboarding → connect → admin → events${RESET}"
+echo -e "${DIM}  Demo path: /mvp → onboarding → connect → admin → events${RESET}"
 echo -e "${DIM}  Press Ctrl+C to stop both servers.${RESET}"
 echo ""
 
