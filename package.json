@@ -12,6 +12,7 @@
     "trial:init": "node scripts/init-trial-data.mjs",
     "trial:init:reset": "node scripts/init-trial-data.mjs --reset",
     "trial:run-weekly": "node scripts/run-weekly-matching.mjs",
+    "trial:generate-insights": "node scripts/generate-insights.mjs",
     "trial:report:weekly": "node scripts/trial-weekly-report.mjs",
     "trial:smoke": "node scripts/trial-smoke-check.mjs",
     "trial:test:backend": "node --test mvp/tests/**/*.test.mjs",
@@ -21,6 +22,7 @@
     "build": "vite build"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.95.2",
     "@emotion/react": "11.14.0",
     "@emotion/styled": "11.14.1",
     "@mui/icons-material": "7.3.5",

@@ -13,6 +13,10 @@ export class OnboardingService {
     return this.repository.getUserProfile(userId);
   }
 
+  getUserByHandle(handle) {
+    return this.repository.getUserByHandle(handle);
+  }
+
   saveUserProfile(payload) {
     const normalized = normalizeProfilePayload(payload);
 

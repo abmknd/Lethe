@@ -205,6 +205,67 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
     // ── recommendations ───────────────────────────────────────────────────────
 
+    const insightMatch = path.match(/^\/api\/trial\/recommendations\/([^/]+)\/insight$/);
+    if (insightMatch && req.method === "POST") {
+      const recommendationId = decodeURIComponent(insightMatch[1]);
+      const anthropicKey = Deno.env.get("ANTHROPIC_API_KEY");
+      if (!anthropicKey) return json({ error: "ANTHROPIC_API_KEY not configured." }, 422);
+
+      const rec = await repository.getRecommendationById(recommendationId);
+      if (!rec) return json({ error: "Recommendation not found." }, 404);
+
+      const sourceProfile = await repository.getUserProfile(rec.userId);
+      const candidateProfile = await repository.getUserProfile(rec.candidateUserId);
+      if (!sourceProfile || !candidateProfile) return json({ error: "Profile not found." }, 404);
+
+      const src = sourceProfile.user;
+      const srcP = sourceProfile.preferences ?? {};
+      const cnd = candidateProfile.user;
+      const cndP = candidateProfile.preferences ?? {};
+
+      const profileContext = [
+        `Person A: ${src.displayName ?? src.name}`,
+        src.location ? `  Location: ${src.location}` : null,
+        srcP.userType ? `  Role: ${srcP.userType}` : null,
+        srcP.asks?.length ? `  Looking for: ${(srcP.asks as string[]).slice(0, 3).join(", ")}` : null,
+        srcP.offers?.length ? `  Can offer: ${(srcP.offers as string[]).slice(0, 3).join(", ")}` : null,
+        srcP.introText ? `  Bio: ${(srcP.introText as string).slice(0, 150)}` : null,
+        "",
+        `Person B: ${cnd.displayName ?? cnd.name}`,
+        cnd.location ? `  Location: ${cnd.location}` : null,
+        cndP.userType ? `  Role: ${cndP.userType}` : null,
+        cndP.asks?.length ? `  Looking for: ${(cndP.asks as string[]).slice(0, 3).join(", ")}` : null,
+        cndP.offers?.length ? `  Can offer: ${(cndP.offers as string[]).slice(0, 3).join(", ")}` : null,
+        cndP.introText ? `  Bio: ${(cndP.introText as string).slice(0, 150)}` : null,
+      ].filter(Boolean).join("\n");
+
+      const anthropicRes = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "x-api-key": anthropicKey,
+          "anthropic-version": "2023-06-01",
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "claude-haiku-4-5-20251001",
+          max_tokens: 200,
+          system:
+            "You write concise, specific introductions explaining why two professionals should meet. " +
+            "Write exactly 2–3 sentences. Be concrete — name the actual asks, offers, or shared context. " +
+            "No fluff, no generic praise. Do not start with \"I\" or mention Lethe.",
+          messages: [{ role: "user", content: `Write a 2–3 sentence explanation of why these two people should meet:\n\n${profileContext}` }],
+        }),
+      });
+
+      if (!anthropicRes.ok) return json({ error: "Insight generation failed." }, 502);
+      const anthropicBody = await anthropicRes.json() as { content: Array<{ type: string; text: string }> };
+      const insightText = anthropicBody.content[0]?.type === "text" ? anthropicBody.content[0].text.trim() : "";
+      if (!insightText) return json({ error: "Empty insight returned." }, 502);
+
+      await repository.updateRecommendationInsightText(recommendationId, insightText);
+      return json({ ok: true, insightText });
+    }
+
     const participantsContextMatch = path.match(/^\/api\/trial\/recommendations\/([^/]+)\/participants-context$/);
     if (participantsContextMatch && req.method === "GET") {
       const recommendationId = decodeURIComponent(participantsContextMatch[1]);

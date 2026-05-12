@@ -88,6 +88,33 @@ export function createTrialApiServer({ services, dbPath }) {
         return;
       }
 
+      const userPublicProfileMatch = path.match(/^\/api\/trial\/users\/([^/]+)\/profile\/public$/);
+      if (userPublicProfileMatch && req.method === 'GET') {
+        const idOrHandle = decodeURIComponent(userPublicProfileMatch[1]);
+        let profile = services.onboarding.getUserProfile(idOrHandle);
+        if (!profile) {
+          const byHandle = services.onboarding.getUserByHandle(idOrHandle);
+          if (byHandle) profile = services.onboarding.getUserProfile(byHandle.id);
+        }
+        if (!profile) {
+          sendJson(res, 404, { error: 'User not found.' });
+          return;
+        }
+        sendJson(res, 200, {
+          profile: {
+            id: profile.user.id,
+            name: profile.user.name,
+            handle: profile.user.handle,
+            location: profile.user.location ?? null,
+            bio: profile.user.bio ?? '',
+            introText: profile.preferences?.introText ?? '',
+            interests: profile.preferences?.interests ?? [],
+            objectives: profile.preferences?.objectives ?? [],
+          },
+        });
+        return;
+      }
+
       const userProfileMatch = path.match(/^\/api\/trial\/users\/([^/]+)\/profile$/);
       if (userProfileMatch) {
         const userId = decodeURIComponent(userProfileMatch[1]);
@@ -245,6 +272,32 @@ export function createTrialApiServer({ services, dbPath }) {
         });
 
         sendJson(res, 200, { ok: true, meeting });
+        return;
+      }
+
+      const insightMatch = path.match(/^\/api\/trial\/recommendations\/([^/]+)\/insight$/);
+      if (insightMatch && req.method === 'POST') {
+        const recommendationId = decodeURIComponent(insightMatch[1]);
+        const apiKey = process.env.ANTHROPIC_API_KEY;
+        if (!apiKey) {
+          sendJson(res, 422, { error: 'ANTHROPIC_API_KEY not configured.' });
+          return;
+        }
+        const rec = services.recommendations.getRecommendation(recommendationId);
+        if (!rec) {
+          sendJson(res, 404, { error: 'Recommendation not found.' });
+          return;
+        }
+        const sourceProfile = services.onboarding.getUserProfile(rec.userId);
+        const candidateProfile = services.onboarding.getUserProfile(rec.candidateUserId);
+        if (!sourceProfile || !candidateProfile) {
+          sendJson(res, 404, { error: 'Profile not found.' });
+          return;
+        }
+        const { generateInsightTextLlm } = await import('../context/insight-generation-llm.mjs');
+        const insightText = await generateInsightTextLlm(sourceProfile, candidateProfile, {}, apiKey);
+        services.recommendations.updateInsightText(recommendationId, insightText);
+        sendJson(res, 200, { ok: true, insightText });
         return;
       }
 
