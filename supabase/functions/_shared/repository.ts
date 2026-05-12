@@ -111,6 +111,7 @@ export interface Recommendation {
   rank: number;
   score: number;
   whyMatched: string;
+  insightText: string | null;
   status: string;
   createdAt: string;
   updatedAt: string;
@@ -192,6 +193,7 @@ function mapRecommendation(row: Record<string, unknown>): Recommendation {
     rank: row.rank as number,
     score: row.score as number,
     whyMatched: row.why_matched as string,
+    insightText: (row.insight_text as string | null) ?? null,
     status: row.status as string,
     createdAt: row.created_at as string,
     updatedAt: row.updated_at as string,

@@ -196,6 +196,28 @@ export function createTrialApiServer({ services, dbPath }) {
           rationale: body.rationale,
         });
 
+        if (result.decision === 'approve' || result.decision === 'approved') {
+          const { sendIntroEmails } = await import('../services/email-service.mjs');
+          const rec = services.recommendations.getRecommendation(recommendationId);
+          const requesterProfile = rec ? services.onboarding.getUserProfile(rec.userId) : null;
+          const candidateProfile = rec ? services.onboarding.getUserProfile(rec.candidateUserId) : null;
+          if (requesterProfile && candidateProfile) {
+            const emailResult = await sendIntroEmails({
+              requesterProfile,
+              candidateProfile,
+              insightText: rec.insightText ?? null,
+            });
+            if (emailResult.ok) {
+              services.recommendations.updateFollowThrough({
+                recommendationId,
+                actorUserId: body.adminId ?? 'admin_trial',
+                status: 'intro_sent',
+                notes: null,
+              });
+            }
+          }
+        }
+
         sendJson(res, 200, { ok: true, ...result });
         return;
       }
