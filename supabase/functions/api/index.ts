@@ -11,6 +11,15 @@ import { normalizeProfilePayload, RECOMMENDATION_STATUSES, OUTCOME_STATUSES, now
 import { EVENT_TYPES } from "../../../mvp/domain/events.mjs";
 import { checkProfileCompleteness } from "../../../mvp/domain/completeness.mjs";
 
+const MEETING_OUTCOME_MAP: Record<string, string> = {
+  scheduled: OUTCOME_STATUSES.MEETING_SCHEDULED,
+  ready: OUTCOME_STATUSES.MEETING_SCHEDULED,
+  in_progress: OUTCOME_STATUSES.MEETING_SCHEDULED,
+  completed: OUTCOME_STATUSES.COMPLETED,
+  cancelled: OUTCOME_STATUSES.NO_FOLLOW_THROUGH,
+  failed: OUTCOME_STATUSES.NO_FOLLOW_THROUGH,
+};
+
 const { randomUUID } = crypto;
 
 function getPath(url: URL): string {
@@ -334,6 +343,84 @@ Deno.serve(async (req: Request): Promise<Response> => {
           events: eventCounts,
         },
       });
+    }
+
+    // ── weekly_cep ────────────────────────────────────────────────────────────
+
+    const cepMatch = path.match(/^\/api\/trial\/users\/([^/]+)\/cep$/);
+    if (cepMatch) {
+      const userId = decodeURIComponent(cepMatch[1]);
+      requireSelf(auth, userId);
+
+      if (req.method === "GET") {
+        const cep = await repository.getCep(userId);
+        return json({ cep: cep?.isActive ? cep : null, isActive: cep?.isActive ?? false });
+      }
+
+      if (req.method === "PUT") {
+        const body = await readJsonBody(req);
+        const focusText = String(body.focusText ?? "").trim();
+        if (!focusText) return json({ error: "focusText is required." }, 400);
+        const cep = await repository.upsertCep(userId, focusText);
+        return json({ cep });
+      }
+
+      if (req.method === "DELETE") {
+        await repository.deleteCep(userId);
+        return json({ ok: true });
+      }
+    }
+
+    // ── meetings ──────────────────────────────────────────────────────────────
+
+    const meetingMatch = path.match(/^\/api\/trial\/recommendations\/([^/]+)\/meeting$/);
+    if (meetingMatch) {
+      const recommendationId = decodeURIComponent(meetingMatch[1]);
+
+      const recommendation = await repository.getRecommendationById(recommendationId);
+      if (!recommendation) return json({ error: "Recommendation not found." }, 404);
+      if (recommendation.userId !== auth.userId) {
+        return json({ error: "Forbidden: not your recommendation." }, 403);
+      }
+
+      if (req.method === "GET") {
+        const meeting = await repository.getMeetingForRecommendation(recommendationId);
+        return json({ meeting });
+      }
+
+      if (req.method === "PUT") {
+        const body = await readJsonBody(req);
+        const status = String(body.status ?? "scheduled");
+        const meeting = await repository.upsertMeeting({
+          recommendationId,
+          provider: body.provider as string | undefined,
+          meetingUrl: body.meetingUrl as string | undefined,
+          scheduledAt: body.scheduledAt as string | null | undefined,
+          status,
+          metadata: body.metadata as Record<string, unknown> | undefined,
+        });
+
+        const outcomeStatus = MEETING_OUTCOME_MAP[status] ?? OUTCOME_STATUSES.MEETING_SCHEDULED;
+        await repository.upsertOutcome({
+          id: `outcome_${randomUUID()}`,
+          recommendationId,
+          outcomeStatus,
+          notes: body.notes as string ?? null,
+          updatedAt: nowIso(),
+        });
+
+        await repository.appendEvents([{
+          id: `evt_${randomUUID()}`,
+          eventType: EVENT_TYPES.MEETING_STATUS_UPDATED ?? "MEETING_STATUS_UPDATED",
+          actorUserId: auth.userId,
+          targetUserId: recommendation.candidateUserId,
+          recommendationId,
+          payload: { status, meetingUrl: body.meetingUrl ?? null },
+          createdAt: nowIso(),
+        }]);
+
+        return json({ meeting });
+      }
     }
 
     return json({ error: "Route not found." }, 404);
