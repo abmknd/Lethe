@@ -79,6 +79,30 @@ export function toPublicProfile(profile: UserProfile): PublicProfile {
   };
 }
 
+export interface CepEntry {
+  id: string;
+  userId: string;
+  focusText: string;
+  createdAt: string;
+  expiresAt: string;
+  isActive: boolean;
+}
+
+export interface Meeting {
+  id: string;
+  recommendationId: string;
+  provider: string;
+  externalMeetingId: string | null;
+  meetingUrl: string;
+  scheduledAt: string | null;
+  startedAt: string | null;
+  endedAt: string | null;
+  status: string;
+  metadata: Record<string, unknown>;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface Recommendation {
   id: string;
   runId: string;
@@ -127,6 +151,35 @@ function mapPreferences(row: Record<string, unknown>): Preferences {
     meetingFormat: row.meeting_format as string,
     localOnly: row.local_only as boolean,
     blockedUserIds: (row.blocked_user_ids as string[]) ?? [],
+  };
+}
+
+function mapCepEntry(row: Record<string, unknown>): CepEntry {
+  const expiresAt = row.expires_at as string;
+  return {
+    id: row.id as string,
+    userId: row.user_id as string,
+    focusText: row.focus_text as string,
+    createdAt: row.created_at as string,
+    expiresAt,
+    isActive: new Date(expiresAt) > new Date(),
+  };
+}
+
+function mapMeeting(row: Record<string, unknown>): Meeting {
+  return {
+    id: row.id as string,
+    recommendationId: row.recommendation_id as string,
+    provider: row.provider as string,
+    externalMeetingId: row.external_meeting_id as string | null,
+    meetingUrl: row.meeting_url as string,
+    scheduledAt: row.scheduled_at as string | null,
+    startedAt: row.started_at as string | null,
+    endedAt: row.ended_at as string | null,
+    status: row.status as string,
+    metadata: (row.metadata as Record<string, unknown>) ?? {},
+    createdAt: row.created_at as string,
+    updatedAt: row.updated_at as string,
   };
 }
 
@@ -612,6 +665,88 @@ export class PostgresRepository {
 
   async getRecommendationParticipantsContext(recommendationId: string): Promise<unknown> {
     return this.getRecommendationContext(recommendationId);
+  }
+
+  // ── weekly_cep ─────────────────────────────────────────────────────────────
+
+  async getCep(userId: string): Promise<CepEntry | null> {
+    const [row] = await sql`
+      SELECT * FROM weekly_cep WHERE user_id = ${userId} LIMIT 1
+    `;
+    return row ? mapCepEntry(row) : null;
+  }
+
+  async upsertCep(userId: string, focusText: string): Promise<CepEntry> {
+    const now = new Date().toISOString();
+    const expiresAt = new Date(Date.now() + 7 * 86_400_000).toISOString();
+    const id = `cep_${crypto.randomUUID()}`;
+    const [row] = await sql`
+      INSERT INTO weekly_cep (id, user_id, focus_text, created_at, expires_at)
+      VALUES (${id}, ${userId}, ${focusText}, ${now}, ${expiresAt})
+      ON CONFLICT (user_id) DO UPDATE SET
+        focus_text = EXCLUDED.focus_text,
+        created_at = EXCLUDED.created_at,
+        expires_at = EXCLUDED.expires_at
+      RETURNING *
+    `;
+    return mapCepEntry(row);
+  }
+
+  async deleteCep(userId: string): Promise<void> {
+    await sql`DELETE FROM weekly_cep WHERE user_id = ${userId}`;
+  }
+
+  // ── meetings ───────────────────────────────────────────────────────────────
+
+  async getMeetingForRecommendation(recommendationId: string): Promise<Meeting | null> {
+    const [row] = await sql`
+      SELECT * FROM meetings WHERE recommendation_id = ${recommendationId} LIMIT 1
+    `;
+    return row ? mapMeeting(row) : null;
+  }
+
+  async upsertMeeting(data: {
+    recommendationId: string;
+    provider?: string;
+    meetingUrl?: string;
+    scheduledAt?: string | null;
+    status?: string;
+    metadata?: Record<string, unknown>;
+  }): Promise<Meeting> {
+    const now = new Date().toISOString();
+    const id = `mtg_${crypto.randomUUID()}`;
+    const [row] = await sql`
+      INSERT INTO meetings (
+        id, recommendation_id, provider, meeting_url,
+        scheduled_at, status, metadata, created_at, updated_at
+      ) VALUES (
+        ${id}, ${data.recommendationId},
+        ${data.provider ?? 'manual_link'},
+        ${data.meetingUrl ?? ''},
+        ${data.scheduledAt ?? null},
+        ${data.status ?? 'scheduled'},
+        ${JSON.stringify(data.metadata ?? {})}::jsonb,
+        ${now}, ${now}
+      )
+      ON CONFLICT (recommendation_id) DO UPDATE SET
+        meeting_url  = COALESCE(EXCLUDED.meeting_url, meetings.meeting_url),
+        scheduled_at = COALESCE(EXCLUDED.scheduled_at, meetings.scheduled_at),
+        status       = EXCLUDED.status,
+        metadata     = EXCLUDED.metadata,
+        updated_at   = EXCLUDED.updated_at
+      RETURNING *
+    `;
+    return mapMeeting(row);
+  }
+
+  async updateMeetingStatus(recommendationId: string, status: string): Promise<Meeting | null> {
+    const [row] = await sql`
+      UPDATE meetings
+      SET status = ${status}, updated_at = ${new Date().toISOString()}
+      WHERE recommendation_id = ${recommendationId}
+      RETURNING *
+    `;
+    return row ? mapMeeting(row) : null;
   }
 
   // ── transaction helper ─────────────────────────────────────────────────────

@@ -85,6 +85,43 @@ CREATE POLICY "events: read own"
   ON events FOR SELECT
   USING (user_id = lethe_user_id());
 
+-- ── meetings ──────────────────────────────────────────────────────────────────
+-- Users may read meetings linked to their own recommendations.
+-- Create and status updates go through Edge Functions (service key).
+
+ALTER TABLE meetings ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "meetings: read via own recommendation"
+  ON meetings FOR SELECT
+  USING (
+    recommendation_id IN (
+      SELECT id FROM recommendations WHERE source_user_id = lethe_user_id()
+    )
+  );
+
+-- ── weekly_cep ────────────────────────────────────────────────────────────────
+-- Users own their CEP entry: read, write, and delete scoped to their user id.
+-- The upsert (submit/replace) goes through the same Edge Function as reads,
+-- so INSERT and UPDATE are both permitted here.
+
+ALTER TABLE weekly_cep ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "weekly_cep: read own"
+  ON weekly_cep FOR SELECT
+  USING (user_id = lethe_user_id());
+
+CREATE POLICY "weekly_cep: write own"
+  ON weekly_cep FOR INSERT
+  WITH CHECK (user_id = lethe_user_id());
+
+CREATE POLICY "weekly_cep: update own"
+  ON weekly_cep FOR UPDATE
+  USING (user_id = lethe_user_id());
+
+CREATE POLICY "weekly_cep: delete own"
+  ON weekly_cep FOR DELETE
+  USING (user_id = lethe_user_id());
+
 -- ── admin tables: service role only ──────────────────────────────────────────
 -- admin_decisions and recommendation_runs are write-only via service role.
 -- Authenticated users have no direct access — admin review goes through Edge Functions
