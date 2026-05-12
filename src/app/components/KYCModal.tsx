@@ -12,7 +12,7 @@ import { Step9FinishRegistration } from './kyc/Step9FinishRegistration';
 import { Step10Verify } from './kyc/Step10Verify';
 import { KYCDone } from './kyc/KYCDone';
 import { KYCPaused } from './kyc/KYCPaused';
-import { apiFetch } from '../../lib/api';
+import { saveTrialUserProfile } from '../trial/api';
 import { toast } from 'sonner';
 
 const OBJECTIVE_LABELS = [
@@ -119,29 +119,27 @@ export function KYCModal({ isOpen, onClose, onComplete, userId, accessToken }: K
     }
     try {
       const timezone = data.timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone;
-      await apiFetch(
-        `/api/trial/users/${userId}/profile`,
+      await saveTrialUserProfile(
+        userId,
         {
-          method: 'PUT',
-          body: JSON.stringify({
-            user: {
-              location: data.city ?? '',
-              timezone,
-              matchingEnabled: true,
-            },
-            preferences: {
-              introText: data.intro,
-              interests: [...data.hobbies],
-              objectives: [...data.objectives].map((i) => OBJECTIVE_LABELS[i]).filter(Boolean),
-              matchIntent: [...data.objectives].map((i) => OBJECTIVE_LABELS[i]).filter(Boolean),
-              preferredUserTypes: [...data.meetWho].map((i) => WHO_LABELS[i]).filter(Boolean),
-              preferredLocations: [...data.meetWhere]
-                .map((i) => WHERE_LABELS[i])
-                .filter((l) => l && l !== 'Anywhere in the world'),
-            },
-            availability: [],
-          }),
-        },
+          user: {
+            id: userId,
+            location: data.city ?? '',
+            timezone,
+            matchingEnabled: true,
+          },
+          preferences: {
+            introText: data.intro,
+            interests: [...data.hobbies],
+            objectives: [...data.objectives].map((i) => OBJECTIVE_LABELS[i]).filter(Boolean),
+            matchIntent: [...data.objectives].map((i) => OBJECTIVE_LABELS[i]).filter(Boolean),
+            preferredUserTypes: [...data.meetWho].map((i) => WHO_LABELS[i]).filter(Boolean),
+            preferredLocations: [...data.meetWhere]
+              .map((i) => WHERE_LABELS[i])
+              .filter((l) => l && l !== 'Anywhere in the world'),
+          },
+          availability: [],
+        } as never,
         accessToken,
       );
     } catch (err) {

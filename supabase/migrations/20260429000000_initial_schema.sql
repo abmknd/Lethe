@@ -29,7 +29,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS users_auth_id_idx ON users(auth_id) WHERE auth
 CREATE TABLE IF NOT EXISTS preferences (
   id                   TEXT PRIMARY KEY,
   user_id              TEXT NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
-  match_intent         TEXT NOT NULL,
+  match_intent         JSONB NOT NULL DEFAULT '[]',
   offers               JSONB NOT NULL DEFAULT '[]',
   asks                 JSONB NOT NULL DEFAULT '[]',
   preferred_locations  JSONB NOT NULL DEFAULT '[]',
