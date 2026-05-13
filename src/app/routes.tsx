@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router";
+import { createBrowserRouter, Navigate } from "react-router";
 import Root from "./Root";
 import OnboardingFlow from "./OnboardingFlow";
 import Feed from "./Feed";
@@ -54,7 +54,7 @@ export const router = createBrowserRouter([
         ],
       },
       {
-        path: "trial",
+        path: "mvp",
         Component: TrialLayout,
         children: [
           {
@@ -79,6 +79,8 @@ export const router = createBrowserRouter([
           },
         ],
       },
+      { path: "trial", element: <Navigate to="/mvp" replace /> },
+      { path: "trial/*", element: <Navigate to="/mvp" replace /> },
       {
         path: "*",
         Component: NotFound

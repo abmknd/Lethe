@@ -178,7 +178,7 @@ export default function TrialAdminPage() {
 
                 <div className="mt-3">
                   <a
-                    href={`/trial/events?recommendationId=${encodeURIComponent(row.id)}&userId=${encodeURIComponent(row.userId)}`}
+                    href={`/mvp/events?recommendationId=${encodeURIComponent(row.id)}&userId=${encodeURIComponent(row.userId)}`}
                     className="text-xs text-[#9fe4ff] hover:text-[#b9ecff] underline underline-offset-2"
                   >
                     View events

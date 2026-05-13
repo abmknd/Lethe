@@ -147,7 +147,7 @@ export default function ConnectPage() {
               ? 'Loading recommendations…'
               : recommendations.length > 0
               ? <><strong className="text-[rgba(173,255,47,0.85)] font-semibold">{recommendations.length} suggestions</strong> ready for review.</>
-              : 'No approved suggestions yet — run the weekly matcher from the trial home.'}
+              : 'No approved suggestions yet — run the weekly matcher from the MVP home.'}
           </div>
         </div>
         {!isLoading && recommendations.length > 0 && (
@@ -228,7 +228,7 @@ export default function ConnectPage() {
                 <>
                   <p className="font-['Cormorant_Garamond'] text-[20px] italic text-white/[0.88]">No suggestions yet.</p>
                   <p className="text-[13px] font-light text-white/[0.52] leading-[1.7] max-w-[260px]">
-                    Run the weekly matcher from the trial home to generate recommendations.
+                    Run the weekly matcher from the MVP home to generate recommendations.
                   </p>
                 </>
               ) : (

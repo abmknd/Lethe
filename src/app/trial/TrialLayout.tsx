@@ -13,23 +13,23 @@ export default function TrialLayout() {
       <header className="border-b border-white/10">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
           <div>
-            <p className="text-[11px] uppercase tracking-[0.2em] text-white/45">Lethe trial slice</p>
+            <p className="text-[11px] uppercase tracking-[0.2em] text-white/45">Lethe MVP</p>
             <h1 className="text-lg font-semibold">Local-first / production-portable MVP loop</h1>
           </div>
           <nav className="flex items-center gap-2">
-            <NavLink to="/trial" end className={linkClass}>
+            <NavLink to="/mvp" end className={linkClass}>
               Home
             </NavLink>
-            <NavLink to="/trial/onboarding" className={linkClass}>
+            <NavLink to="/mvp/onboarding" className={linkClass}>
               Onboarding
             </NavLink>
-            <NavLink to="/trial/connect" className={linkClass}>
+            <NavLink to="/mvp/connect" className={linkClass}>
               Recommendations
             </NavLink>
-            <NavLink to="/trial/admin" className={linkClass}>
+            <NavLink to="/mvp/admin" className={linkClass}>
               Admin
             </NavLink>
-            <NavLink to="/trial/events" className={linkClass}>
+            <NavLink to="/mvp/events" className={linkClass}>
               Events
             </NavLink>
           </nav>

@@ -31,8 +31,8 @@ Installs dependencies, seeds the local SQLite database, and starts both servers.
 | Surface | URL |
 |---|---|
 | Product UI | http://localhost:5173 |
-| Trial (real data) | http://localhost:5173/trial |
-| Trial API | http://localhost:8787 |
+| MVP loop | http://localhost:5173/mvp |
+| API | http://localhost:8787 |
 
 Press **Ctrl+C** to stop.
 

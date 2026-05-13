@@ -6,6 +6,7 @@
 import { corsPreflightResponse, json } from "../_shared/cors.ts";
 import { repository, toPublicProfile } from "../_shared/repository.ts";
 import { AuthError, requireAuth, requireSelf } from "../_shared/auth.ts";
+import { sendIntroEmails } from "../_shared/email.ts";
 
 import { normalizeProfilePayload, RECOMMENDATION_STATUSES, OUTCOME_STATUSES, nowIso } from "../../../mvp/domain/models.mjs";
 import { EVENT_TYPES } from "../../../mvp/domain/events.mjs";
@@ -191,6 +192,38 @@ Deno.serve(async (req: Request): Promise<Response> => {
         payload: { decision: normalizedDecision, rationale, candidateUserId: recommendation.candidateUserId },
         createdAt: nowIso(),
       }]);
+
+      if (newStatus === RECOMMENDATION_STATUSES.APPROVED) {
+        const [requesterProfile, candidateProfile] = await Promise.all([
+          repository.getUserProfile(recommendation.userId),
+          repository.getUserProfile(recommendation.candidateUserId),
+        ]);
+        if (requesterProfile && candidateProfile) {
+          const emailResult = await sendIntroEmails({
+            requesterProfile,
+            candidateProfile,
+            insightText: recommendation.insightText ?? null,
+          });
+          if (emailResult.ok) {
+            await repository.upsertOutcome({
+              id: `outcome_${randomUUID()}`,
+              recommendationId,
+              outcomeStatus: OUTCOME_STATUSES.INTRO_SENT,
+              notes: null,
+              updatedAt: nowIso(),
+            });
+            await repository.appendEvents([{
+              id: `evt_${randomUUID()}`,
+              eventType: EVENT_TYPES.INTRO_SENT,
+              actorUserId: adminId,
+              targetUserId: recommendation.userId,
+              recommendationId,
+              payload: { emailIds: emailResult.ids },
+              createdAt: nowIso(),
+            }]);
+          }
+        }
+      }
 
       return json({ ok: true, recommendationId, status: newStatus, decision: normalizedDecision, rationale });
     }
