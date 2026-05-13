@@ -6,7 +6,10 @@
 
 import postgres from "npm:postgres";
 
-const sql = postgres(Deno.env.get("DATABASE_URL")!, { ssl: "require" });
+const sql = postgres(
+  Deno.env.get("DATABASE_URL") ?? Deno.env.get("SUPABASE_DB_URL")!,
+  { ssl: "require" },
+);
 
 // ── types ─────────────────────────────────────────────────────────────────────
 
