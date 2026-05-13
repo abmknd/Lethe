@@ -27,50 +27,60 @@ ALTER TABLE recommendation_runs ENABLE ROW LEVEL SECURITY;
 -- No INSERT policy — users are created by the service role during onboarding.
 -- Authenticated users may read and update their own row only.
 
+DROP POLICY IF EXISTS "users: read own profile" ON users;
 CREATE POLICY "users: read own profile"
   ON users FOR SELECT
   USING (auth_id = auth.uid());
 
+DROP POLICY IF EXISTS "users: update own profile" ON users;
 CREATE POLICY "users: update own profile"
   ON users FOR UPDATE
   USING (auth_id = auth.uid());
 
 -- ── preferences ───────────────────────────────────────────────────────────────
 
+DROP POLICY IF EXISTS "preferences: read own" ON preferences;
 CREATE POLICY "preferences: read own"
   ON preferences FOR SELECT
   USING (user_id = lethe_user_id());
 
+DROP POLICY IF EXISTS "preferences: write own" ON preferences;
 CREATE POLICY "preferences: write own"
   ON preferences FOR INSERT
   WITH CHECK (user_id = lethe_user_id());
 
+DROP POLICY IF EXISTS "preferences: update own" ON preferences;
 CREATE POLICY "preferences: update own"
   ON preferences FOR UPDATE
   USING (user_id = lethe_user_id());
 
 -- ── availability_slots ────────────────────────────────────────────────────────
 
+DROP POLICY IF EXISTS "availability: read own" ON availability_slots;
 CREATE POLICY "availability: read own"
   ON availability_slots FOR SELECT
   USING (user_id = lethe_user_id());
 
+DROP POLICY IF EXISTS "availability: write own" ON availability_slots;
 CREATE POLICY "availability: write own"
   ON availability_slots FOR INSERT
   WITH CHECK (user_id = lethe_user_id());
 
+DROP POLICY IF EXISTS "availability: delete own" ON availability_slots;
 CREATE POLICY "availability: delete own"
   ON availability_slots FOR DELETE
   USING (user_id = lethe_user_id());
 
 -- ── recommendations ───────────────────────────────────────────────────────────
 
+DROP POLICY IF EXISTS "recommendations: read own" ON recommendations;
 CREATE POLICY "recommendations: read own"
   ON recommendations FOR SELECT
   USING (source_user_id = lethe_user_id());
 
 -- ── outcomes ──────────────────────────────────────────────────────────────────
 
+DROP POLICY IF EXISTS "outcomes: read via own recommendation" ON outcomes;
 CREATE POLICY "outcomes: read via own recommendation"
   ON outcomes FOR SELECT
   USING (
@@ -81,6 +91,7 @@ CREATE POLICY "outcomes: read via own recommendation"
 
 -- ── events ────────────────────────────────────────────────────────────────────
 
+DROP POLICY IF EXISTS "events: read own" ON events;
 CREATE POLICY "events: read own"
   ON events FOR SELECT
   USING (user_id = lethe_user_id());
@@ -91,6 +102,7 @@ CREATE POLICY "events: read own"
 
 ALTER TABLE meetings ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "meetings: read via own recommendation" ON meetings;
 CREATE POLICY "meetings: read via own recommendation"
   ON meetings FOR SELECT
   USING (
@@ -106,18 +118,22 @@ CREATE POLICY "meetings: read via own recommendation"
 
 ALTER TABLE weekly_cep ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "weekly_cep: read own" ON weekly_cep;
 CREATE POLICY "weekly_cep: read own"
   ON weekly_cep FOR SELECT
   USING (user_id = lethe_user_id());
 
+DROP POLICY IF EXISTS "weekly_cep: write own" ON weekly_cep;
 CREATE POLICY "weekly_cep: write own"
   ON weekly_cep FOR INSERT
   WITH CHECK (user_id = lethe_user_id());
 
+DROP POLICY IF EXISTS "weekly_cep: update own" ON weekly_cep;
 CREATE POLICY "weekly_cep: update own"
   ON weekly_cep FOR UPDATE
   USING (user_id = lethe_user_id());
 
+DROP POLICY IF EXISTS "weekly_cep: delete own" ON weekly_cep;
 CREATE POLICY "weekly_cep: delete own"
   ON weekly_cep FOR DELETE
   USING (user_id = lethe_user_id());
@@ -127,10 +143,12 @@ CREATE POLICY "weekly_cep: delete own"
 -- Authenticated users have no direct access — admin review goes through Edge Functions
 -- that run with the service key.
 
+DROP POLICY IF EXISTS "admin_decisions: no direct user access" ON admin_decisions;
 CREATE POLICY "admin_decisions: no direct user access"
   ON admin_decisions FOR ALL
   USING (false);
 
+DROP POLICY IF EXISTS "recommendation_runs: no direct user access" ON recommendation_runs;
 CREATE POLICY "recommendation_runs: no direct user access"
   ON recommendation_runs FOR ALL
   USING (false);
