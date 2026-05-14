@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { ArrowRight, ChevronLeft } from "lucide-react";
 import ReletheLogo from "../../imports/ReletheLogo";
 

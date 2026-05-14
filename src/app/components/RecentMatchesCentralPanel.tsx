@@ -1,4 +1,4 @@
-﻿import { Star } from "lucide-react";
+import { Star } from "lucide-react";
 
 interface Match {
   id: string;

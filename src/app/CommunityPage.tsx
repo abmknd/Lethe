@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { ChevronLeft, Search, Share2, MoreVertical, Image as ImageIcon, FileText, Heart, MessageCircle, Smile, Pin, User, Activity, AlertTriangle, LogOut, Volume2, Plus } from 'lucide-react';
 import { AvatarDropdown } from './components/AvatarDropdown';

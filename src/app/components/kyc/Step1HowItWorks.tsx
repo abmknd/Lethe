@@ -1,4 +1,4 @@
-﻿import { Zap, Eye, Clock, Play } from 'lucide-react';
+import { Zap, Eye, Clock, Play } from 'lucide-react';
 import { useState, useRef } from 'react';
 
 interface Step1Props {

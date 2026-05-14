@@ -1,4 +1,4 @@
-﻿import { ImageWithFallback } from "./figma/ImageWithFallback";
+import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { MessageCircle, Share, MoreVertical } from "lucide-react";
 import { Tooltip } from "./Tooltip";
 import ArcticonsTetherfi from "../../imports/ArcticonsTetherfi";

@@ -1,4 +1,4 @@
-﻿import { useState, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { ChevronLeft, MessageCircle, Share2, Plus, MoreVertical } from 'lucide-react';
 import svgPaths from "../imports/svg-mzo5g4s9h6";

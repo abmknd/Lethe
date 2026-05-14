@@ -1,4 +1,4 @@
-﻿import svgPaths from "./svg-36cmsi1215";
+import svgPaths from "./svg-36cmsi1215";
 import imgImageWithFallback1 from "figma:asset/8c692006a4e235a1e390f04abab516d1cc8c4603.png";
 import imgImageWithFallback2 from "figma:asset/91b749ae2ed39b38d6b09e9ebf9089bb1282ea00.png";
 import imgImageWithFallback3 from "figma:asset/ae452150c9e875ae34875f023d350bff334f8b87.png";

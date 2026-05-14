@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { ChevronLeft } from 'lucide-react';
 import { Step1HowItWorks } from './kyc/Step1HowItWorks';
 import { Step2Location } from './kyc/Step2Location';

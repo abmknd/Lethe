@@ -1,4 +1,4 @@
-﻿import { FeedFilters } from "./components/FeedFilters";
+import { FeedFilters } from "./components/FeedFilters";
 import { AvatarDropdown } from "./components/AvatarDropdown";
 import { PageNav } from "./components/PageNav";
 import { CreatePostModal } from "./components/CreatePostModal";

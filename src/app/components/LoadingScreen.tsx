@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 export function LoadingScreen({ userName }: { userName: string }) {
   const [progress, setProgress] = useState(0);

@@ -1,4 +1,4 @@
-﻿import svgPaths from "./svg-bscr8z4k3d";
+import svgPaths from "./svg-bscr8z4k3d";
 
 function Group() {
   return (
