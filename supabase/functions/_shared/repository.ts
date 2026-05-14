@@ -6,7 +6,10 @@
 
 import postgres from "npm:postgres";
 
-const sql = postgres(Deno.env.get("DATABASE_URL")!, { ssl: "require" });
+const sql = postgres(
+  Deno.env.get("DATABASE_URL") ?? Deno.env.get("SUPABASE_DB_URL")!,
+  { ssl: "require" },
+);
 
 // ── types ─────────────────────────────────────────────────────────────────────
 
@@ -342,7 +345,9 @@ export class PostgresRepository {
           ${user.isActive as boolean ?? true}, ${user.createdAt as string}, ${user.updatedAt as string}
         )
         ON CONFLICT (id) DO UPDATE SET
-          name = EXCLUDED.name, handle = EXCLUDED.handle, email = EXCLUDED.email,
+          name = CASE WHEN EXCLUDED.name <> '' THEN EXCLUDED.name ELSE users.name END,
+          handle = COALESCE(NULLIF(EXCLUDED.handle, ''), users.handle),
+          email = COALESCE(EXCLUDED.email, users.email),
           location = EXCLUDED.location, bio = EXCLUDED.bio,
           matching_enabled = EXCLUDED.matching_enabled, timezone = EXCLUDED.timezone,
           is_active = EXCLUDED.is_active, updated_at = EXCLUDED.updated_at
