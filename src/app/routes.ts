@@ -13,7 +13,7 @@ import CommunitiesPage from "./CommunitiesPage";
 import CommunityPage from "./CommunityPage";
 import NotFound from "./NotFound";
 
-// Router configuration for Lethe app
+// Router configuration for Relethe app
 export const router = createBrowserRouter([
   {
     path: "/",

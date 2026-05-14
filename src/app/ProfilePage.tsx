@@ -11,7 +11,7 @@ import imgFriend3 from "../assets/dba0c83f5f7a5668ec5a87de35c3d9ced174c343.png";
 import imgPost1 from "../assets/8f8487078257ce2c7db83e0c3005b1e39ee814cd.png";
 import imgPost2 from "../assets/fe98c07725f02b23548275ef00b42b5d401a7e57.png";
 import imgPost3 from "../assets/ad4f4c674c88db29136842902b4279a695b867c1.png";
-import LetheLogo from "../imports/LetheLogo";
+import ReletheLogo from "../imports/ReletheLogo";
 import GenderIcon from "../imports/Gender";
 import BarChartIcon from "../imports/BarChart3";
 import TrashIcon from "../imports/Trash2";
@@ -19,7 +19,7 @@ import ArcticonsTetherfi from "../imports/ArcticonsTetherfi";
 import { PostOptionsMenu } from "./components/PostOptionsMenu";
 import { EditProfileModal, type ProfileData } from "./components/EditProfileModal";
 
-// Profile page component for Lethe app
+// Profile page component for Relethe app
 type TabType = 'all' | 'faded' | 'echoes';
 
 const avatarUrlCurrent = imgAvatar;
@@ -175,9 +175,9 @@ export default function ProfilePage() {
             className="flex items-center gap-2 text-white text-sm tracking-[0.3em] uppercase font-light font-display hover:opacity-70 cursor-pointer transition-opacity"
           >
             <div className="w-5 h-5">
-              <LetheLogo />
+              <ReletheLogo />
             </div>
-            LETHE
+            RELETHE
           </button>
 
           {/* Back Button */}

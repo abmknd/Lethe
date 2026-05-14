@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { X, Check, MapPin, Zap } from 'lucide-react';
-import LetheLogo from '../imports/LetheLogo';
+import ReletheLogo from '../imports/ReletheLogo';
 
 // Persona data with 10 suggestions
 const suggestions = [
@@ -97,7 +97,7 @@ const suggestions = [
     commonInterests: ['UX Research', 'Complexity Theory', 'Design Systems', 'Open Source'],
     insights: [
       "You both contributed to the <strong>same open-source design toolkit</strong> in the past year.",
-      "They've cited your Lethe posts <strong>in two separate research threads</strong> — they know your work.",
+      "They've cited your Relethe posts <strong>in two separate research threads</strong> — they know your work.",
       "Both of you list <strong>complexity theory</strong> as a non-work obsession nobody asks about.",
     ]
   },
@@ -129,7 +129,7 @@ const suggestions = [
     commonInterests: ['African Tech Ecosystem', 'B2B SaaS', 'Calm Companies', 'Lagos Scene'],
     insights: [
       "You're both based in Lagos and have <strong>attended the same 3 events</strong> without ever meeting.",
-      "He quoted you in a post last month <strong>without knowing your Lethe handle</strong>.",
+      "He quoted you in a post last month <strong>without knowing your Relethe handle</strong>.",
       "You both believe in <strong>calm companies</strong> — and have each written about it independently.",
     ]
   },
@@ -146,7 +146,7 @@ const suggestions = [
     insights: [
       "You both follow the same <strong>generative art community</strong> and bookmarked the same 12 projects.",
       "She's looking for a <strong>design-thinking collaborator</strong> — your profile matched her brief exactly.",
-      "Both of you are most active on Lethe <strong>between midnight and 3am</strong>.",
+      "Both of you are most active on Relethe <strong>between midnight and 3am</strong>.",
     ]
   },
   {
@@ -233,8 +233,8 @@ export default function ConnectPage() {
           onClick={() => navigate('/feed')}
           className="font-['Cormorant_Garamond'] text-[13px] tracking-[0.32em] uppercase text-white/[0.52] flex items-center gap-[9px] hover:text-white/70 transition-colors"
         >
-          <LetheLogo className="w-[15px] h-[15px] opacity-55" />
-          Lethe
+          <ReletheLogo className="w-[15px] h-[15px] opacity-55" />
+          Relethe
         </button>
         <button onClick={() => navigate('/profile')} className="w-8 h-8 rounded-full bg-gradient-to-br from-[#1a2a1a] to-[#0d150d] border-[1.5px] border-[#ADFF2F]/[0.22] overflow-hidden">
           <img
@@ -397,14 +397,14 @@ export default function ConnectPage() {
         {!isComplete && (
           <div className="w-[420px] min-w-[400px] flex-shrink-0 flex flex-col bg-transparent overflow-y-auto">
             <div className="bg-[#0b0e0b] border border-white/[0.07] rounded-2xl overflow-hidden flex flex-col">
-              {/* Lethe summary */}
+              {/* Relethe summary */}
               <div className={`rounded-none bg-[rgba(173,255,47,0.03)] border-none border-b-0 overflow-hidden transition-opacity duration-[220ms] ${profileFade ? 'opacity-0' : 'opacity-100'}`}>
                 <div className="flex items-center gap-[10px] px-4 pt-[13px] pb-[10px]">
                   <div className="w-[26px] h-[26px] rounded-[7px] bg-[rgba(173,255,47,0.08)] border border-[rgba(173,255,47,0.12)] flex items-center justify-center flex-shrink-0 text-[rgba(173,255,47,0.6)]">
                     <Zap size={12} strokeWidth={1.5} />
                   </div>
                   <div>
-                    <div className="text-[10px] font-semibold tracking-[0.16em] uppercase text-[rgba(173,255,47,0.65)]">Lethe summary</div>
+                    <div className="text-[10px] font-semibold tracking-[0.16em] uppercase text-[rgba(173,255,47,0.65)]">Relethe summary</div>
                     <div className="text-[10px] font-light text-white/[0.25] mt-[1px]">
                       What you and {currentSuggestion.name.split(' ')[0]} have in common
                     </div>
@@ -497,7 +497,7 @@ export default function ConnectPage() {
         </div>
         <div className="font-['Cormorant_Garamond'] text-[22px] italic text-white/[0.88]">Match set.</div>
         <div className="text-[12px] font-light text-white/[0.52] text-center max-w-[220px] leading-[1.65]">
-          Lethe will handle the introduction when the time is right.
+          Relethe will handle the introduction when the time is right.
         </div>
       </div>
 

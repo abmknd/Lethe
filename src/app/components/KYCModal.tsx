@@ -95,7 +95,7 @@ export function KYCModal({ isOpen, onClose, onComplete }: KYCModalProps) {
 
   const handleFinish = () => {
     // Mark KYC as completed in localStorage
-    localStorage.setItem('lethe_kyc_completed', 'true');
+    localStorage.setItem('relethe_kyc_completed', 'true');
     
     // Call optional completion callback
     if (onComplete) {

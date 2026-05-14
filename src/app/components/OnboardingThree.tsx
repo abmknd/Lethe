@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
-import LetheLogo from "../../imports/LetheLogo";
+import ReletheLogo from "../../imports/ReletheLogo";
 
 export function OnboardingThree({ onContinue, onBack, onNext }: { onContinue: () => void; onBack: () => void; onNext: () => void }) {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
@@ -124,10 +124,10 @@ export function OnboardingThree({ onContinue, onBack, onNext }: { onContinue: ()
         {/* Wordmark */}
         <div className="pt-4 flex items-center gap-2">
           <div className="w-5 h-5">
-            <LetheLogo />
+            <ReletheLogo />
           </div>
           <h1 className="text-[#6B6B6B] text-[11px] tracking-[0.35em] uppercase font-light font-display">
-            LETHE
+            RELETHE
           </h1>
         </div>
 

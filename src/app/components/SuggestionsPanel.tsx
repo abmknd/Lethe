@@ -50,7 +50,7 @@ export function SuggestionsPanel() {
       {users.map((user) => (
         <div
           key={user.id}
-          className="bg-lethe-surface rounded-2xl border border-lethe-line overflow-hidden transition-colors duration-300"
+          className="bg-relethe-surface rounded-2xl border border-relethe-line overflow-hidden transition-colors duration-300"
         >
           {/* Full-width portrait */}
           <div className="relative w-full aspect-square">
@@ -65,17 +65,17 @@ export function SuggestionsPanel() {
           <div className="p-5">
             {/* Name + username */}
             <div className="mb-3">
-              <div className="text-lethe-fg text-[length:var(--lethe-text-md)] font-light font-sans tracking-wide mb-0.5">
+              <div className="text-relethe-fg text-[length:var(--relethe-text-md)] font-light font-sans tracking-wide mb-0.5">
                 {user.name}
               </div>
-              <div className="text-lethe-muted text-[length:var(--lethe-text-sm)] tracking-wider font-light font-sans">
+              <div className="text-relethe-muted text-[length:var(--relethe-text-sm)] tracking-wider font-light font-sans">
                 {user.username}
               </div>
             </div>
 
             {/* Summary */}
             <p
-              className="text-lethe-dim text-[length:var(--lethe-text-sm)] font-sans leading-relaxed mb-4"
+              className="text-relethe-dim text-[length:var(--relethe-text-sm)] font-sans leading-relaxed mb-4"
               style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}
             >
               {user.summary}
@@ -86,7 +86,7 @@ export function SuggestionsPanel() {
               {user.interests.map((interest, idx) => (
                 <span
                   key={idx}
-                  className="text-lethe-muted text-[length:var(--lethe-text-sm)] font-sans px-2 py-1 rounded-full tracking-wider font-light bg-lethe-raised"
+                  className="text-relethe-muted text-[length:var(--relethe-text-sm)] font-sans px-2 py-1 rounded-full tracking-wider font-light bg-relethe-raised"
                 >
                   {interest}
                 </span>
@@ -94,18 +94,18 @@ export function SuggestionsPanel() {
             </div>
 
             {/* Divider */}
-            <div className="border-t border-lethe-line -mx-5 mb-4" />
+            <div className="border-t border-relethe-line -mx-5 mb-4" />
 
             {/* Action buttons */}
             <div className="flex gap-2">
               <button
                 onClick={() => toggleUser(user.id)}
-                className="text-lethe-dim text-[length:var(--lethe-text-sm)] font-sans px-4 py-1.5 rounded-full transition-colors duration-300 flex-1 border border-lethe-line-subtle tracking-wider font-light bg-lethe-subtle"
+                className="text-relethe-dim text-[length:var(--relethe-text-sm)] font-sans px-4 py-1.5 rounded-full transition-colors duration-300 flex-1 border border-relethe-line-subtle tracking-wider font-light bg-relethe-subtle"
               >
                 Match
               </button>
               <button
-                className="text-lethe-dim text-[length:var(--lethe-text-sm)] font-sans px-4 py-1.5 rounded-full transition-colors duration-300 flex-1 border border-lethe-line-subtle tracking-wider font-light bg-lethe-subtle"
+                className="text-relethe-dim text-[length:var(--relethe-text-sm)] font-sans px-4 py-1.5 rounded-full transition-colors duration-300 flex-1 border border-relethe-line-subtle tracking-wider font-light bg-relethe-subtle"
               >
                 Pass
               </button>
