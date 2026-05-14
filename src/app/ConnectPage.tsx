@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { X, Check, MapPin, Zap } from 'lucide-react';
 import ReletheLogo from '../imports/ReletheLogo';

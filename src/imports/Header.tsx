@@ -1,4 +1,4 @@
-﻿import svgPaths from "./svg-lr1ae9x9de";
+import svgPaths from "./svg-lr1ae9x9de";
 import imgImg from "figma:asset/8c692006a4e235a1e390f04abab516d1cc8c4603.png";
 
 function Group() {

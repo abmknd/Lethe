@@ -1,4 +1,4 @@
-﻿import { Image, FileText, Plus } from "lucide-react";
+import { Image, FileText, Plus } from "lucide-react";
 import { useState } from "react";
 
 interface CreatePostCardProps {

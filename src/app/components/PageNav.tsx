@@ -1,4 +1,4 @@
-﻿interface PageNavProps {
+interface PageNavProps {
   activePage: "posts" | "matches";
   onPageChange: (page: "posts" | "matches") => void;
 }

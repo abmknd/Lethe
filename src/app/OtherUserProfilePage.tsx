@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { MessageCircle, UserPlus } from 'lucide-react';
 import svgPaths from "../imports/svg-mzo5g4s9h6";

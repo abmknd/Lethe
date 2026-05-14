@@ -1,4 +1,4 @@
-﻿import { Lock } from 'lucide-react';
+import { Lock } from 'lucide-react';
 import { KYCData } from '../KYCModal';
 import ReletheLogo from '../../../imports/ReletheLogo';
 

@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useRef, FormEvent } from "react";
+import { useState, useEffect, useRef, FormEvent } from "react";
 import { useNavigate } from "react-router";
 import { createPortal } from "react-dom";
 import gsap from "gsap";
