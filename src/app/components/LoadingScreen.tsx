@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 
 export function LoadingScreen({ userName }: { userName: string }) {
   const [progress, setProgress] = useState(0);
@@ -26,7 +26,7 @@ export function LoadingScreen({ userName }: { userName: string }) {
         {/* Wordmark */}
         <div className="pt-4">
           <h1 className="text-[#6B6B6B] text-[11px] tracking-[0.35em] uppercase font-light font-display">
-            LETHE
+            RELETHE
           </h1>
         </div>
 

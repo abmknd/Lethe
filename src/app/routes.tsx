@@ -24,7 +24,7 @@ import TrialEventsPage from "./trial/TrialEventsPage";
 const baseUrl = import.meta.env.BASE_URL;
 const routerOptions = baseUrl === "/" ? undefined : { basename: baseUrl.replace(/\/$/, "") };
 
-// Router configuration for Lethe app
+// Router configuration for Relethe app
 export const router = createBrowserRouter([
   {
     path: "/",

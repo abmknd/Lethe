@@ -1,8 +1,8 @@
-import svgPaths from "./svg-plojt05elt";
+﻿import svgPaths from "./svg-plojt05elt";
 
-export default function LetheLogo() {
+export default function ReletheLogo() {
   return (
-    <div className="relative size-full" data-name="Lethe-logo">
+    <div className="relative size-full" data-name="Relethe-logo">
       <svg className="absolute block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 747 813">
         <g id="Group">
           <path d={svgPaths.pd11a540} fill="var(--fill-0, white)" id="Vector" />

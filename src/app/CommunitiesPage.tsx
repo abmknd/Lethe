@@ -1,9 +1,9 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { Grid, List, Users, MessageCircle, Bell, Search } from 'lucide-react';
 import { AvatarDropdown } from './components/AvatarDropdown';
 import imgAvatar from "../assets/8c692006a4e235a1e390f04abab516d1cc8c4603.png";
-import LetheLogo from '../imports/LetheLogo';
+import ReletheLogo from '../imports/ReletheLogo';
 
 type ViewType = 'grid' | 'list';
 type TabType = 'my' | 'invites';
@@ -107,10 +107,10 @@ export default function CommunitiesPage() {
       <nav className="h-14 flex items-center justify-between px-8 bg-[#000000] border-b border-[#1a1a1a] flex-shrink-0">
         <div className="flex items-center gap-2">
           <div className="w-5 h-5">
-            <LetheLogo />
+            <ReletheLogo />
           </div>
           <div className="font-['Cormorant_Garamond'] text-[14px] font-normal text-white tracking-[0.3em] uppercase leading-[1.4]">
-            LETHE
+            RELETHE
           </div>
         </div>
         <AvatarDropdown avatarUrl={imgAvatar} />

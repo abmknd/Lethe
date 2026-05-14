@@ -1,4 +1,4 @@
-import svgPaths from "./svg-lr1ae9x9de";
+﻿import svgPaths from "./svg-lr1ae9x9de";
 import imgImg from "figma:asset/8c692006a4e235a1e390f04abab516d1cc8c4603.png";
 
 function Group() {
@@ -59,7 +59,7 @@ function Button() {
     <div className="h-[20px] relative shrink-0 w-[103.7px]" data-name="button">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid relative size-full">
         <Div />
-        <p className="-translate-x-1/2 absolute font-['Cormorant_Garamond'] leading-[20px] left-[66px] not-italic text-[14px] text-center text-white top-[-1.2px] tracking-[4.2px] uppercase whitespace-nowrap">LETHE</p>
+        <p className="-translate-x-1/2 absolute font-['Cormorant_Garamond'] leading-[20px] left-[66px] not-italic text-[14px] text-center text-white top-[-1.2px] tracking-[4.2px] uppercase whitespace-nowrap">RELETHE</p>
       </div>
     </div>
   );

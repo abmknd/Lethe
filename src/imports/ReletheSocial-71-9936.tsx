@@ -1,4 +1,4 @@
-import svgPaths from "./svg-vphjhyxmy9";
+﻿import svgPaths from "./svg-wvkfcqxjmc";
 import imgImageWithFallback1 from "figma:asset/8c692006a4e235a1e390f04abab516d1cc8c4603.png";
 import imgImageWithFallback2 from "figma:asset/91b749ae2ed39b38d6b09e9ebf9089bb1282ea00.png";
 import imgImageWithFallback3 from "figma:asset/ae452150c9e875ae34875f023d350bff334f8b87.png";
@@ -7,7 +7,7 @@ import imgImageWithFallback5 from "figma:asset/2591f4817f9f3d01035056e695035d975
 import imgRectangle from "figma:asset/8f8487078257ce2c7db83e0c3005b1e39ee814cd.png";
 import imgGeneratedImage3 from "figma:asset/fe98c07725f02b23548275ef00b42b5d401a7e57.png";
 import imgRectangle1 from "figma:asset/ad4f4c674c88db29136842902b4279a695b867c1.png";
-import { imgImageWithFallback } from "./svg-03555";
+import { imgImageWithFallback } from "./svg-jk3ft";
 
 function Container() {
   return <div className="absolute h-[223px] left-[48px] top-[60px] w-[1100px]" data-name="Container" />;
@@ -3274,7 +3274,7 @@ function Span25() {
   return (
     <div className="relative shrink-0" data-name="span">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex items-start relative">
-        <p className="font-['Cormorant_Garamond'] leading-[22px] not-italic relative shrink-0 text-[22px] text-[rgba(255,255,255,0.9)] whitespace-nowrap">284</p>
+        <p className="font-['Cormorant_Garamond'] leading-[22px] not-italic relative shrink-0 text-[22px] text-[rgba(255,255,255,0.9)] whitespace-nowrap">1,603</p>
       </div>
     </div>
   );
@@ -3305,7 +3305,7 @@ function Span27() {
   return (
     <div className="relative shrink-0" data-name="span">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex items-start relative">
-        <p className="font-['Cormorant_Garamond'] leading-[22px] not-italic relative shrink-0 text-[22px] text-[rgba(255,255,255,0.9)] whitespace-nowrap">84</p>
+        <p className="font-['Cormorant_Garamond'] leading-[22px] not-italic relative shrink-0 text-[22px] text-[rgba(255,255,255,0.9)] whitespace-nowrap">5,499</p>
       </div>
     </div>
   );
@@ -3962,50 +3962,7 @@ function Button45() {
     <div className="h-[20px] relative shrink-0 w-[103.7px]" data-name="button">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid relative size-full">
         <Div19 />
-        <p className="-translate-x-1/2 absolute font-['Cormorant_Garamond'] leading-[20px] left-[66px] not-italic text-[14px] text-center text-white top-[-1.2px] tracking-[4.2px] uppercase whitespace-nowrap">LETHE</p>
-      </div>
-    </div>
-  );
-}
-
-function Button46() {
-  return (
-    <div className="h-[28.5px] relative shrink-0 w-[56.725px]" data-name="button">
-      <div className="bg-clip-padding border-0 border-[transparent] border-solid relative size-full">
-        <p className="-translate-x-1/2 absolute font-['Inter:Medium',sans-serif] font-medium leading-[16.5px] left-[28px] not-italic text-[#3a3a3a] text-[11px] text-center top-[6.6px] tracking-[2.75px] whitespace-nowrap">POST</p>
-      </div>
-    </div>
-  );
-}
-
-function Button47() {
-  return (
-    <div className="h-[28.5px] relative shrink-0 w-[90.275px]" data-name="button">
-      <div className="bg-clip-padding border-0 border-[transparent] border-solid relative size-full">
-        <p className="-translate-x-1/2 absolute font-['Inter:Medium',sans-serif] font-medium leading-[16.5px] left-[45px] not-italic text-[11px] text-center text-white top-[6.6px] tracking-[2.75px] whitespace-nowrap">CONNECT</p>
-      </div>
-    </div>
-  );
-}
-
-function Container132() {
-  return (
-    <div className="h-[28.5px] relative shrink-0 w-[179px]" data-name="Container">
-      <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex gap-[32px] items-start relative size-full">
-        <Button46 />
-        <Button47 />
-      </div>
-    </div>
-  );
-}
-
-function Container131() {
-  return (
-    <div className="flex-[1_0_0] h-[28.5px] min-h-px min-w-px relative" data-name="Container">
-      <div className="flex flex-row justify-center size-full">
-        <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex items-start justify-center relative size-full">
-          <Container132 />
-        </div>
+        <p className="-translate-x-1/2 absolute font-['Cormorant_Garamond'] leading-[20px] left-[66px] not-italic text-[14px] text-center text-white top-[-1.2px] tracking-[4.2px] uppercase whitespace-nowrap">RELETHE</p>
       </div>
     </div>
   );
@@ -4033,7 +3990,7 @@ function Span42() {
   );
 }
 
-function Button48() {
+function Button46() {
   return (
     <div className="flex-[1_0_0] min-h-px min-w-px relative" data-name="button">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex gap-[12px] h-full items-center relative">
@@ -4044,11 +4001,11 @@ function Button48() {
   );
 }
 
-function Container133() {
+function Container131() {
   return (
     <div className="h-[16.5px] relative shrink-0 w-[103px]" data-name="Container">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex flex-col items-end justify-center relative size-full">
-        <Button48 />
+        <Button46 />
       </div>
     </div>
   );
@@ -4060,14 +4017,13 @@ function Div18() {
       <div aria-hidden="true" className="absolute border-b-[0.8px] border-black border-solid inset-0 pointer-events-none" />
       <Button45 />
       <Container131 />
-      <Container133 />
     </div>
   );
 }
 
-export default function LetheSocial() {
+export default function ReletheSocial() {
   return (
-    <div className="bg-white relative size-full" data-name="Lethe Social">
+    <div className="bg-white relative size-full" data-name="Relethe Social">
       <Body />
       <Div18 />
     </div>

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { MapPin, Check } from 'lucide-react';
-import LetheLogo from '../imports/LetheLogo';
+import ReletheLogo from '../imports/ReletheLogo';
 import { listUserRecommendations } from './trial/api';
 import type { TrialRecommendation } from './trial/types';
 import { useAuth } from './context/AuthContext';
@@ -48,8 +48,8 @@ export default function MatchesPage() {
           onClick={() => navigate('/feed')}
           className="font-['Cormorant_Garamond'] text-[13px] tracking-[0.32em] uppercase text-white/[0.52] flex items-center gap-[9px] hover:text-white/70 transition-colors"
         >
-          <LetheLogo className="w-[15px] h-[15px] opacity-55" />
-          Lethe
+          <ReletheLogo className="w-[15px] h-[15px] opacity-55" />
+          Relethe
         </button>
       </nav>
 

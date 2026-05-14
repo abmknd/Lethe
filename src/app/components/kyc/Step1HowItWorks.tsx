@@ -1,4 +1,4 @@
-import { Zap, Eye, Clock, Play } from 'lucide-react';
+﻿import { Zap, Eye, Clock, Play } from 'lucide-react';
 import { useState, useRef } from 'react';
 
 interface Step1Props {
@@ -47,7 +47,7 @@ export function Step1HowItWorks({ isActive, direction }: Step1Props) {
         <em className="not-italic text-[#7FFF00]">worth meeting.</em>
       </h1>
       <p className="text-[15px] font-light leading-[1.75] text-white/45 mb-8">
-        Lethe's matching is different. Here's what to expect.
+        Relethe's matching is different. Here's what to expect.
       </p>
 
       <div className="flex flex-col gap-[1px]">
@@ -61,7 +61,7 @@ export function Step1HowItWorks({ isActive, direction }: Step1Props) {
               One match, every week
             </div>
             <div className="text-[14px] font-light leading-[1.7] text-white/45">
-              Lethe finds one person worth talking to and makes the introduction. Not a hundred maybes — one considered yes.
+              Relethe finds one person worth talking to and makes the introduction. Not a hundred maybes — one considered yes.
             </div>
           </div>
         </div>

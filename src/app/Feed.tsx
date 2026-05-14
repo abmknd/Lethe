@@ -14,7 +14,7 @@ import { ToggleLeft, ToggleRight } from "lucide-react";
 import { useTheme } from "./context/ThemeContext";
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useNavigate } from "react-router";
-import LetheLogo from "../imports/LetheLogo";
+import ReletheLogo from "../imports/ReletheLogo";
 import { useAuth } from "./context/AuthContext";
 import { getUserCompleteness } from "./trial/api";
 
@@ -905,7 +905,7 @@ export default function Feed() {
             className={`flex items-center gap-2 ${text} text-sm tracking-[0.3em] uppercase font-light font-display transition-colors duration-300 hover:opacity-70 cursor-pointer`}
           >
             <div className="w-5 h-5">
-              <LetheLogo />
+              <ReletheLogo />
             </div>
             LETHE
           </button>
