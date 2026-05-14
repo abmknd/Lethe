@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Check, Zap } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import svgPaths from "../../imports/svg-mzo5g4s9h6";

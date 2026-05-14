@@ -1,4 +1,4 @@
-﻿import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Search, Plus, User, MoreHorizontal, Paperclip, Send } from 'lucide-react';
 import { AvatarDropdown } from './components/AvatarDropdown';
 import ReletheLogo from '../imports/ReletheLogo';

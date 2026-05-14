@@ -1,4 +1,4 @@
-﻿import svgPaths from "./svg-plojt05elt";
+import svgPaths from "./svg-plojt05elt";
 
 export default function ReletheLogo() {
   return (

@@ -1,4 +1,4 @@
-﻿import { Tooltip } from "./Tooltip";
+import { Tooltip } from "./Tooltip";
 
 interface MatchesNavProps {
   activeTab: "suggestions" | "recent" | "upcoming";
