@@ -15,6 +15,8 @@ export default function LandingPage() {
   const [email2, setEmail2] = useState("");
   const [showHeroSuccess, setShowHeroSuccess] = useState(false);
   const [showSignupSuccess, setShowSignupSuccess] = useState(false);
+  const [showHeroDuplicate, setShowHeroDuplicate] = useState(false);
+  const [showSignupDuplicate, setShowSignupDuplicate] = useState(false);
   const [isSubmitting1, setIsSubmitting1] = useState(false);
   const [isSubmitting2, setIsSubmitting2] = useState(false);
   const [showDemoOverlay, setShowDemoOverlay] = useState(false);
@@ -38,15 +40,39 @@ export default function LandingPage() {
 
   const navigate = useNavigate();
 
+  const getCountry = async (): Promise<string | null> => {
+    try {
+      const res = await fetch("https://ipapi.co/json/");
+      const data = await res.json();
+      return (data.country_name as string) ?? null;
+    } catch {
+      return null;
+    }
+  };
+
+  const sendConfirmationEmail = async (email: string) => {
+    try {
+      await supabase.functions.invoke("send-confirmation", { body: { email } });
+    } catch {
+      // silently fail — confirmation email is best-effort
+    }
+  };
+
   const handleHeroSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!email1) return;
     setIsSubmitting1(true);
-    const { error } = await supabase.from("waitlist").insert({ email: email1 });
-    if (error && error.code !== "23505") {
-      setIsSubmitting1(false);
+    const country = await getCountry();
+    const { error } = await supabase.from("waitlist").insert({ email: email1, country });
+    if (error) {
+      if (error.code === "23505") {
+        setShowHeroDuplicate(true);
+      } else {
+        setIsSubmitting1(false);
+      }
       return;
     }
+    await sendConfirmationEmail(email1);
     setShowHeroSuccess(true);
   };
 
@@ -54,11 +80,17 @@ export default function LandingPage() {
     e.preventDefault();
     if (!email2) return;
     setIsSubmitting2(true);
-    const { error } = await supabase.from("waitlist").insert({ email: email2 });
-    if (error && error.code !== "23505") {
-      setIsSubmitting2(false);
+    const country = await getCountry();
+    const { error } = await supabase.from("waitlist").insert({ email: email2, country });
+    if (error) {
+      if (error.code === "23505") {
+        setShowSignupDuplicate(true);
+      } else {
+        setIsSubmitting2(false);
+      }
       return;
     }
+    await sendConfirmationEmail(email2);
     setShowSignupSuccess(true);
   };
 
@@ -1133,7 +1165,7 @@ export default function LandingPage() {
         <p className="relethe-hero-sub">
           Up to five introductions a week, matched to who you actually are. A daily feed that ends. A network that compounds the longer you show up.
         </p>
-        {!showHeroSuccess ? (
+        {!showHeroSuccess && !showHeroDuplicate ? (
           <form className="relethe-hero-form" onSubmit={handleHeroSubmit}>
             <input
               type="email"
@@ -1148,6 +1180,11 @@ export default function LandingPage() {
               {!isSubmitting1 && <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" strokeWidth={1.5} />}
             </button>
           </form>
+        ) : showHeroDuplicate ? (
+          <div className="relethe-form-success">
+            <p className="relethe-form-success-title">{"You're already on the list."}</p>
+            <p className="relethe-form-success-sub">We'll reach out when the first batch opens.</p>
+          </div>
         ) : (
           <div className="relethe-form-success">
             <p className="relethe-form-success-title">
@@ -1707,7 +1744,7 @@ export default function LandingPage() {
         <p className="relethe-signup-sub relethe-reveal">
           Relethe is in private beta. Be among the first to meet people who actually move the needle on how you think, work, and live.
         </p>
-        {!showSignupSuccess ? (
+        {!showSignupSuccess && !showSignupDuplicate ? (
           <form className="relethe-signup-form relethe-reveal" onSubmit={handleSignupSubmit}>
             <input
               type="email"
@@ -1722,6 +1759,11 @@ export default function LandingPage() {
               {!isSubmitting2 && <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" strokeWidth={1.5} />}
             </button>
           </form>
+        ) : showSignupDuplicate ? (
+          <div className="relethe-form-success">
+            <p className="relethe-form-success-title">{"You're already on the list."}</p>
+            <p className="relethe-form-success-sub">We'll reach out when the first batch opens.</p>
+          </div>
         ) : (
           <div className="relethe-form-success">
             <p className="relethe-form-success-title">
