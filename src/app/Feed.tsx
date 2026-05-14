@@ -1,4 +1,4 @@
-import { FeedFilters } from "./components/FeedFilters";
+﻿import { FeedFilters } from "./components/FeedFilters";
 import { AvatarDropdown } from "./components/AvatarDropdown";
 import { PageNav } from "./components/PageNav";
 import { CreatePostModal } from "./components/CreatePostModal";
@@ -14,7 +14,7 @@ import { ToggleLeft, ToggleRight } from "lucide-react";
 import { useTheme } from "./context/ThemeContext";
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useNavigate } from "react-router";
-import LetheLogo from "../imports/LetheLogo";
+import ReletheLogo from "../imports/ReletheLogo";
 
 const avatarUrl1 = "https://images.unsplash.com/photo-1762522921456-cdfe882d36c3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx5b3VuZyUyMHByb2Zlc3Npb25hbCUyMHdvbWFuJTIwcG9ydHJhaXR8ZW58MXx8fHwxNzcyMzI5MzMwfDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral";
 const avatarUrl2 = "https://images.unsplash.com/photo-1532272278764-53cd1fe53f72?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx5b3VuZyUyMHByb2Zlc3Npb25hbCUyMG1hbiUyMHBvcnRyYWl0fGVufDF8fHx8MTc3MjM0NDQxOXww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral";
@@ -40,7 +40,7 @@ const postImage5 = "https://images.unsplash.com/photo-1694473799096-a915b576511f
  * - Stored in sessionStorage when shown (prevents re-showing after "Later" click)
  * 
  * To test KYC modal again:
- * - Open browser console and run: localStorage.removeItem('lethe_kyc_completed'); sessionStorage.removeItem('lethe_kyc_shown');
+ * - Open browser console and run: localStorage.removeItem('relethe_kyc_completed'); sessionStorage.removeItem('relethe_kyc_shown');
  * - Then refresh the page
  */
 export default function Feed() {
@@ -61,8 +61,8 @@ export default function Feed() {
   useEffect(() => {
     // TEMPORARY: Always show KYC for testing purposes
     // TODO: Re-enable storage checks for production
-    // const kycCompleted = localStorage.getItem('lethe_kyc_completed');
-    // const kycShownThisSession = sessionStorage.getItem('lethe_kyc_shown');
+    // const kycCompleted = localStorage.getItem('relethe_kyc_completed');
+    // const kycShownThisSession = sessionStorage.getItem('relethe_kyc_shown');
     
     console.log('🔍 KYC Check: Always showing for testing');
     
@@ -70,7 +70,7 @@ export default function Feed() {
     console.log('✅ KYC will show in 3 seconds...');
     const timer = setTimeout(() => {
       setIsKYCModalOpen(true);
-      // sessionStorage.setItem('lethe_kyc_shown', 'true');
+      // sessionStorage.setItem('relethe_kyc_shown', 'true');
     }, 3000);
 
     return () => clearTimeout(timer);
@@ -899,9 +899,9 @@ export default function Feed() {
             className={`flex items-center gap-2 ${text} text-sm tracking-[0.3em] uppercase font-light font-display transition-colors duration-300 hover:opacity-70 cursor-pointer`}
           >
             <div className="w-5 h-5">
-              <LetheLogo />
+              <ReletheLogo />
             </div>
-            LETHE
+            RELETHE
           </button>
 
           {/* Page Navigation */}

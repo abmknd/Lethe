@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { ChevronLeft } from 'lucide-react';
 import { Step1HowItWorks } from './kyc/Step1HowItWorks';
 import { Step2Location } from './kyc/Step2Location';
@@ -95,7 +95,7 @@ export function KYCModal({ isOpen, onClose, onComplete }: KYCModalProps) {
 
   const handleFinish = () => {
     // Mark KYC as completed in localStorage
-    localStorage.setItem('lethe_kyc_completed', 'true');
+    localStorage.setItem('relethe_kyc_completed', 'true');
     
     // Call optional completion callback
     if (onComplete) {

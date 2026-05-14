@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { 
   User, Calendar, Target, Bell, 
   Upload, X, Plus, ChevronDown, Heart, 
   MessageCircle, Users, Globe, Check
 } from 'lucide-react';
-import LetheLogo from '../imports/LetheLogo';
+import ReletheLogo from '../imports/ReletheLogo';
 import svgPathsBack from "../imports/svg-9x8xqlgryp";
 import GoogleCalendarIcon from '../imports/Container-120-16';
 import GoogleIcon from '../imports/Container-120-20';
@@ -38,7 +38,7 @@ export default function SettingsPage() {
   const [isDirty, setIsDirty] = useState(false);
   
   // Account state
-  const [email, setEmail] = useState('abiola@lethe.io');
+  const [email, setEmail] = useState('abiola@relethe.io');
   const [location, setLocation] = useState('Lagos, Nigeria');
   const [languages, setLanguages] = useState(['English', 'French']);
   const [languageInput, setLanguageInput] = useState('');
@@ -112,7 +112,7 @@ export default function SettingsPage() {
       icon: <Users size={14} strokeWidth={1.5} />,
       items: [
         { title: 'New suggestions', desc: 'Your weekly suggestions are ready', email: true, push: true },
-        { title: 'Introduction set', desc: 'When Lethe schedules your introduction', email: true, push: true },
+        { title: 'Introduction set', desc: 'When Relethe schedules your introduction', email: true, push: true },
         { title: 'Meeting reminder', desc: '24 hours before a scheduled meeting', email: true, push: true },
       ]
     },
@@ -122,7 +122,7 @@ export default function SettingsPage() {
       icon: <Globe size={14} strokeWidth={1.5} />,
       items: [
         { title: 'Community invites', desc: 'When you get invited to an exclusive community', email: true, push: true },
-        { title: 'Lethe updates', desc: 'Product news and feature announcements', email: true, push: true },
+        { title: 'Relethe updates', desc: 'Product news and feature announcements', email: true, push: true },
       ]
     },
   ]);
@@ -285,9 +285,9 @@ export default function SettingsPage() {
             className="flex items-center gap-2 text-white text-sm tracking-[0.3em] uppercase font-light font-display hover:opacity-70 cursor-pointer transition-opacity"
           >
             <div className="w-5 h-5">
-              <LetheLogo />
+              <ReletheLogo />
             </div>
-            LETHE
+            RELETHE
           </button>
 
           {/* Back Button */}
@@ -703,7 +703,7 @@ export default function SettingsPage() {
                     Goals
                   </h2>
                   <p className="text-[12px] font-light text-white/[0.25] leading-[1.6]">
-                    Help Lethe understand what you're looking for. This is never shared publicly.
+                    Help Relethe understand what you're looking for. This is never shared publicly.
                   </p>
                 </div>
 
@@ -711,7 +711,7 @@ export default function SettingsPage() {
                 <div className="px-7 py-[22px] border-b border-white/[0.07]">
                   <div className="flex items-start justify-between">
                     <div>
-                      <div className="text-[13px] font-medium text-white/88">Chat with Lethe AI</div>
+                      <div className="text-[13px] font-medium text-white/88">Chat with Relethe AI</div>
                       <div className="text-[12px] font-light text-white/[0.25] mt-[2px]">Fine-tune your matches</div>
                     </div>
                   </div>
@@ -721,7 +721,7 @@ export default function SettingsPage() {
                       <ul className="space-y-[5px]">
                         <li className="flex items-center gap-2 text-[12px] font-light text-white/[0.25]">
                           <div className="w-[3px] h-[3px] rounded-full bg-[#7FFF00]/40 flex-shrink-0" />
-                          Chat with Lethe AI to fine-tune who you meet
+                          Chat with Relethe AI to fine-tune who you meet
                         </li>
                         <li className="flex items-center gap-2 text-[12px] font-light text-white/[0.25]">
                           <div className="w-[3px] h-[3px] rounded-full bg-[#7FFF00]/40 flex-shrink-0" />
@@ -775,7 +775,7 @@ export default function SettingsPage() {
                       className="w-full h-[90px] bg-black border border-white/[0.12] rounded-[10px] px-[14px] py-[11px] text-[13px] font-light text-white/88 outline-none transition-colors focus:border-[#7FFF00]/30 placeholder:text-white/[0.25] resize-none leading-[1.65]"
                     />
                     <div className="text-[12px] text-white/[0.25] mt-[6px] font-light">
-                      This is what Lethe uses when introducing you — different from your public bio.
+                      This is what Relethe uses when introducing you — different from your public bio.
                     </div>
                   </div>
 
@@ -923,7 +923,7 @@ export default function SettingsPage() {
                     Notifications
                   </h2>
                   <p className="text-[12px] font-light text-white/[0.25] leading-[1.6]">
-                    Choose what Lethe notifies you about and how.
+                    Choose what Relethe notifies you about and how.
                   </p>
                 </div>
 

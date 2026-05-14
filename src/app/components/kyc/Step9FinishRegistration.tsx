@@ -1,6 +1,6 @@
-import { Lock } from 'lucide-react';
+﻿import { Lock } from 'lucide-react';
 import { KYCData } from '../KYCModal';
-import LetheLogo from '../../../imports/LetheLogo';
+import ReletheLogo from '../../../imports/ReletheLogo';
 
 interface Step9Props {
   isActive: boolean;
@@ -38,10 +38,10 @@ export function Step9FinishRegistration({ isActive, direction, onContinueToVerif
 
       {/* Connection Graphic */}
       <div className="flex items-center justify-center gap-6 mb-10">
-        {/* Lethe Logo */}
+        {/* Relethe Logo */}
         <div className="w-[64px] h-[64px] bg-white/[0.08] rounded-full flex items-center justify-center border border-white/[0.12]">
           <div className="w-9 h-9">
-            <LetheLogo />
+            <ReletheLogo />
           </div>
         </div>
 
