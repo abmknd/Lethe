@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Search, Plus, User, MoreHorizontal, Paperclip, Send } from 'lucide-react';
 import { AvatarDropdown } from './components/AvatarDropdown';
-import LetheLogo from '../imports/LetheLogo';
+import ReletheLogo from '../imports/ReletheLogo';
 import { useNavigate } from 'react-router';
 
 const avatarUrlCurrent = "https://images.unsplash.com/photo-1683815251677-8df20f826622?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjBwb3J0cmFpdCUyMHBlcnNvbnxlbnwxfHx8fDE3NzIyMTAxNTB8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral";
@@ -63,7 +63,7 @@ const mockThreads: Record<number, Message[]> = {
     { mine: true, text: "Maybe that's the problem — we're trying to defend time within a system that's designed to consume it.", time: "Yesterday, 4:15 PM" },
   ],
   3: [
-    { mine: false, text: "Hi Iris, Lethe introduced us this week! I build at the intersection of AI and healthcare.", time: "3 days ago", date: "3 days ago" },
+    { mine: false, text: "Hi Iris, Relethe introduced us this week! I build at the intersection of AI and healthcare.", time: "3 days ago", date: "3 days ago" },
     { mine: true, text: "Hi Elena! That intersection is fascinating. What's the hardest problem you're working on right now?", time: "3 days ago" },
     { mine: false, text: "Right now it's around consent and data dignity. How do you build systems that respect patient autonomy while still being useful?", time: "3 days ago" },
     { mine: false, text: "Everyone wants to 'revolutionize healthcare' but most solutions treat patients like data sources rather than people.", time: "3 days ago" },
@@ -77,7 +77,7 @@ const mockThreads: Record<number, Message[]> = {
     { mine: false, text: "I read your post about memory — really resonant. The idea of posts aging like memory does is beautiful.", time: "1 week ago", date: "1 week ago" },
     { mine: true, text: "That was one of those posts I almost didn't publish. Glad it landed.", time: "1 week ago" },
     { mine: false, text: "I think the best ones always feel that way. There's something about vulnerability that makes ideas stick.", time: "1 week ago" },
-    { mine: false, text: "Have you ever considered writing more about the philosophy behind Lethe? The decay mechanic is such a powerful metaphor.", time: "1 week ago" },
+    { mine: false, text: "Have you ever considered writing more about the philosophy behind Relethe? The decay mechanic is such a powerful metaphor.", time: "1 week ago" },
     { mine: true, text: "I've thought about it. Part of me wants to let it speak for itself, you know? Let people discover their own meanings in it.", time: "1 week ago" },
     { mine: true, text: "But maybe there's value in articulating the intention behind it.", time: "1 week ago" },
     { mine: false, text: "I get that. Sometimes the ambiguity is the point. But I'd read anything you wrote about it.", time: "1 week ago" },
@@ -186,9 +186,9 @@ export default function MessagesPage() {
             className="flex items-center gap-2 text-white text-sm tracking-[0.3em] uppercase font-light font-display transition-colors duration-300 hover:opacity-70 cursor-pointer"
           >
             <div className="w-5 h-5">
-              <LetheLogo />
+              <ReletheLogo />
             </div>
-            LETHE
+            RELETHE
           </button>
 
           {/* Right Actions */}
@@ -348,7 +348,7 @@ export default function MessagesPage() {
                   <div className="flex items-center gap-[10px] px-[14px] py-[10px] bg-[#7FFF00]/[0.05] border border-[#7FFF00]/12 rounded-[10px]">
                     <User size={14} className="text-[#7FFF00]/50 flex-shrink-0" strokeWidth={1.5} />
                     <p className="font-['Inter'] text-[12px] font-light text-[#7FFF00]/65 leading-[1.5]">
-                      <strong className="font-medium text-[#7FFF00]/85">Lethe match</strong> — You two were introduced this week. Your meeting is scheduled for Thursday at 3pm.
+                      <strong className="font-medium text-[#7FFF00]/85">Relethe match</strong> — You two were introduced this week. Your meeting is scheduled for Thursday at 3pm.
                     </p>
                   </div>
                 </div>

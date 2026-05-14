@@ -11,10 +11,10 @@ interface Match {
 }
 
 const STATUS_COLOR: Record<Match["status"], string> = {
-  met:           "text-lethe-status-met",
-  upcoming:      "text-lethe-status-upcoming",
-  cancelled:     "text-lethe-status-cancelled",
-  "didn't meet": "text-lethe-muted",
+  met:           "text-relethe-status-met",
+  upcoming:      "text-relethe-status-upcoming",
+  cancelled:     "text-relethe-status-cancelled",
+  "didn't meet": "text-relethe-muted",
 };
 
 export function RecentMatchesCentralPanel() {
@@ -65,20 +65,20 @@ export function RecentMatchesCentralPanel() {
       {sortedMatches.map((match) => (
         <div
           key={match.id}
-          className="bg-lethe-surface rounded-2xl border border-lethe-line p-5 transition-colors duration-300"
+          className="bg-relethe-surface rounded-2xl border border-relethe-line p-5 transition-colors duration-300"
         >
           {/* Header */}
           <div className="flex items-center gap-3 mb-3">
             <img
               src={match.avatar}
               alt={match.name}
-              className="w-10 h-10 rounded-full object-cover flex-shrink-0 bg-lethe-raised ring-1 ring-lethe-line-subtle"
+              className="w-10 h-10 rounded-full object-cover flex-shrink-0 bg-relethe-raised ring-1 ring-relethe-line-subtle"
             />
             <div className="flex-1 min-w-0">
-              <div className="text-lethe-fg text-[length:var(--lethe-text-md)] font-light font-sans tracking-wide mb-0.5">
+              <div className="text-relethe-fg text-[length:var(--relethe-text-md)] font-light font-sans tracking-wide mb-0.5">
                 {match.name}
               </div>
-              <div className="text-lethe-muted text-[length:var(--lethe-text-sm)] tracking-wider font-light font-sans">
+              <div className="text-relethe-muted text-[length:var(--relethe-text-sm)] tracking-wider font-light font-sans">
                 @{match.username}
               </div>
             </div>
@@ -86,14 +86,14 @@ export function RecentMatchesCentralPanel() {
 
           {/* Date + status */}
           <div className="mb-4 space-y-1.5">
-            <div className="text-[length:var(--lethe-text-sm)] font-sans">
-              <span className="text-lethe-muted">Meeting date: </span>
-              <span className="text-lethe-muted">{match.scheduledDate}</span>
+            <div className="text-[length:var(--relethe-text-sm)] font-sans">
+              <span className="text-relethe-muted">Meeting date: </span>
+              <span className="text-relethe-muted">{match.scheduledDate}</span>
             </div>
-            <div className="text-[length:var(--lethe-text-sm)] font-sans flex items-center gap-1.5">
-              <span className="text-lethe-muted">Meeting status:</span>
+            <div className="text-[length:var(--relethe-text-sm)] font-sans flex items-center gap-1.5">
+              <span className="text-relethe-muted">Meeting status:</span>
               <span
-                className={`text-[length:var(--lethe-text-sm)] font-sans px-2 py-1 rounded-full tracking-wide font-light bg-lethe-raised ${STATUS_COLOR[match.status]}`}
+                className={`text-[length:var(--relethe-text-sm)] font-sans px-2 py-1 rounded-full tracking-wide font-light bg-relethe-raised ${STATUS_COLOR[match.status]}`}
               >
                 {match.status}
               </span>
@@ -105,7 +105,7 @@ export function RecentMatchesCentralPanel() {
             {[1, 2, 3, 4, 5].map((i) => (
               <Star
                 key={i}
-                className="w-3.5 h-3.5 text-lethe-muted"
+                className="w-3.5 h-3.5 text-relethe-muted"
                 strokeWidth={1.5}
                 fill={i <= match.rating ? "currentColor" : "none"}
               />
@@ -113,14 +113,14 @@ export function RecentMatchesCentralPanel() {
           </div>
 
           {/* Divider */}
-          <div className="border-t border-lethe-line -mx-5 mb-4" />
+          <div className="border-t border-relethe-line -mx-5 mb-4" />
 
           {/* Action buttons */}
           <div className="flex gap-2">
-            <button className="text-lethe-dim text-[length:var(--lethe-text-sm)] font-sans px-4 py-1.5 rounded-full transition-colors duration-300 flex-1 border border-lethe-line-subtle tracking-wider font-light bg-lethe-subtle">
+            <button className="text-relethe-dim text-[length:var(--relethe-text-sm)] font-sans px-4 py-1.5 rounded-full transition-colors duration-300 flex-1 border border-relethe-line-subtle tracking-wider font-light bg-relethe-subtle">
               Message
             </button>
-            <button className="text-lethe-dim text-[length:var(--lethe-text-sm)] font-sans px-4 py-1.5 rounded-full transition-colors duration-300 flex-1 border border-lethe-line-subtle tracking-wider font-light bg-lethe-subtle">
+            <button className="text-relethe-dim text-[length:var(--relethe-text-sm)] font-sans px-4 py-1.5 rounded-full transition-colors duration-300 flex-1 border border-relethe-line-subtle tracking-wider font-light bg-relethe-subtle">
               Reschedule
             </button>
           </div>

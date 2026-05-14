@@ -1,4 +1,4 @@
-import svgPaths from "./svg-vphjhyxmy9";
+import svgPaths from "./svg-36cmsi1215";
 import imgImageWithFallback1 from "figma:asset/8c692006a4e235a1e390f04abab516d1cc8c4603.png";
 import imgImageWithFallback2 from "figma:asset/91b749ae2ed39b38d6b09e9ebf9089bb1282ea00.png";
 import imgImageWithFallback3 from "figma:asset/ae452150c9e875ae34875f023d350bff334f8b87.png";
@@ -7,7 +7,7 @@ import imgImageWithFallback5 from "figma:asset/2591f4817f9f3d01035056e695035d975
 import imgRectangle from "figma:asset/8f8487078257ce2c7db83e0c3005b1e39ee814cd.png";
 import imgGeneratedImage3 from "figma:asset/fe98c07725f02b23548275ef00b42b5d401a7e57.png";
 import imgRectangle1 from "figma:asset/ad4f4c674c88db29136842902b4279a695b867c1.png";
-import { imgImageWithFallback } from "./svg-03555";
+import { imgImageWithFallback } from "./svg-ml2jo";
 
 function Container() {
   return <div className="absolute h-[223px] left-[48px] top-[60px] w-[1100px]" data-name="Container" />;
@@ -274,52 +274,12 @@ function Container10() {
   );
 }
 
-function Span() {
-  return (
-    <div className="absolute h-[16.5px] left-0 top-[4.75px] w-[196.55px]" data-name="span">
-      <p className="absolute font-['Inter:Light',sans-serif] font-light leading-[16.5px] left-0 not-italic text-[#6b6b6b] text-[11px] top-[0.6px] tracking-[2.2px] uppercase whitespace-nowrap">{`You've paused matching`}</p>
-    </div>
-  );
-}
-
-function Span1() {
-  return <div className="bg-white rounded-[26843500px] shrink-0 size-[16px]" data-name="span" />;
-}
-
-function Button4() {
-  return (
-    <div className="absolute bg-[#2a2a2a] content-stretch flex h-[26px] items-center left-0 pl-[4px] rounded-[26843500px] top-0 w-[54px]" data-name="button">
-      <Span1 />
-    </div>
-  );
-}
-
-function Container12() {
-  return (
-    <div className="absolute h-[26px] left-[208.55px] top-0 w-[54px]" data-name="Container">
-      <Button4 />
-    </div>
-  );
-}
-
-function Container11() {
-  return (
-    <div className="h-[26px] relative shrink-0 w-[262.55px]" data-name="Container">
-      <div className="bg-clip-padding border-0 border-[transparent] border-solid relative size-full">
-        <Span />
-        <Container12 />
-      </div>
-    </div>
-  );
-}
-
 function Container9() {
   return (
     <div className="h-[38.1px] relative shrink-0 w-full" data-name="Container">
       <div className="flex flex-row items-center size-full">
-        <div className="content-stretch flex items-center justify-between relative size-full">
+        <div className="content-stretch flex items-center relative size-full">
           <Container10 />
-          <Container11 />
         </div>
       </div>
     </div>
@@ -337,7 +297,7 @@ function ImageWithFallback1() {
   );
 }
 
-function Span2() {
+function Span() {
   return (
     <div className="h-[22.5px] relative shrink-0 w-[77.162px]" data-name="span">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid relative size-full">
@@ -347,7 +307,7 @@ function Span2() {
   );
 }
 
-function Span3() {
+function Span1() {
   return (
     <div className="h-[19.5px] relative shrink-0 w-[14.25px]" data-name="span">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid relative size-full">
@@ -357,18 +317,18 @@ function Span3() {
   );
 }
 
-function Container19() {
+function Container17() {
   return (
     <div className="h-[22.5px] relative shrink-0 w-[227.463px]" data-name="Container">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex gap-[10px] items-start relative size-full">
-        <Span2 />
-        <Span3 />
+        <Span />
+        <Span1 />
       </div>
     </div>
   );
 }
 
-function Container20() {
+function Container18() {
   return (
     <div className="h-[19.5px] relative shrink-0 w-full" data-name="Container">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid relative size-full">
@@ -378,21 +338,21 @@ function Container20() {
   );
 }
 
-function Container18() {
+function Container16() {
   return (
     <div className="h-[44px] relative shrink-0 w-[227.463px]" data-name="Container">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex flex-col gap-[2px] items-start relative size-full">
-        <Container19 />
-        <Container20 />
+        <Container17 />
+        <Container18 />
       </div>
     </div>
   );
 }
 
-function Container17() {
+function Container15() {
   return (
     <div className="content-stretch flex flex-col h-[44px] items-start justify-between relative shrink-0 w-[227.463px]" data-name="Container">
-      <Container18 />
+      <Container16 />
     </div>
   );
 }
@@ -401,7 +361,7 @@ function Frame() {
   return (
     <div className="content-stretch flex gap-[12px] items-start relative shrink-0">
       <ImageWithFallback1 />
-      <Container17 />
+      <Container15 />
     </div>
   );
 }
@@ -434,7 +394,7 @@ function MoreVertical() {
   );
 }
 
-function Button5() {
+function Button4() {
   return (
     <div className="flex-[1_0_0] h-[16px] min-h-px min-w-px relative" data-name="button">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex flex-col items-start relative size-full">
@@ -444,19 +404,19 @@ function Button5() {
   );
 }
 
-function Container21() {
+function Container19() {
   return (
     <div className="content-stretch flex items-center relative shrink-0 size-[16px]" data-name="Container">
-      <Button5 />
+      <Button4 />
     </div>
   );
 }
 
-function Container16() {
+function Container14() {
   return (
     <div className="content-stretch flex items-start justify-between relative shrink-0 w-full" data-name="Container">
       <Frame />
-      <Container21 />
+      <Container19 />
     </div>
   );
 }
@@ -485,7 +445,7 @@ function MessageCircle() {
   );
 }
 
-function Button6() {
+function Button5() {
   return (
     <div className="absolute content-stretch flex items-center left-0 size-[18px] top-0" data-name="button">
       <MessageCircle />
@@ -537,7 +497,7 @@ function Div2() {
   );
 }
 
-function Button7() {
+function Button6() {
   return (
     <div className="flex-[1_0_0] h-[18px] min-h-px min-w-px relative" data-name="button">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid relative size-full">
@@ -547,20 +507,20 @@ function Button7() {
   );
 }
 
-function Container24() {
+function Container22() {
   return (
     <div className="absolute content-stretch flex items-start left-[38px] size-[18px] top-0" data-name="Container">
-      <Button7 />
+      <Button6 />
     </div>
   );
 }
 
-function Container23() {
+function Container21() {
   return (
     <div className="h-[18px] relative shrink-0 w-[56px]" data-name="Container">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid relative size-full">
-        <Button6 />
-        <Container24 />
+        <Button5 />
+        <Container22 />
       </div>
     </div>
   );
@@ -612,7 +572,7 @@ function Share() {
   );
 }
 
-function Button8() {
+function Button7() {
   return (
     <div className="flex-[1_0_0] h-[18px] min-h-px min-w-px relative" data-name="button">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex items-center relative size-full">
@@ -622,11 +582,11 @@ function Button8() {
   );
 }
 
-function Container26() {
+function Container24() {
   return (
     <div className="relative shrink-0 size-[18px]" data-name="Container">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex items-center relative size-full">
-        <Button8 />
+        <Button7 />
       </div>
     </div>
   );
@@ -647,28 +607,28 @@ function BarChart() {
   );
 }
 
-function Container25() {
+function Container23() {
   return (
     <div className="relative shrink-0" data-name="Container">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex gap-[20px] items-center relative">
         <Trash />
-        <Container26 />
+        <Container24 />
         <BarChart />
       </div>
     </div>
   );
 }
 
-function Container22() {
+function Container20() {
   return (
     <div className="content-stretch flex h-[18px] items-center justify-between relative shrink-0 w-full" data-name="Container">
+      <Container21 />
       <Container23 />
-      <Container25 />
     </div>
   );
 }
 
-function Container27() {
+function Container25() {
   return <div className="absolute h-0 left-[20px] top-[80.2px] w-[581px]" data-name="Container" />;
 }
 
@@ -676,10 +636,10 @@ function Div1() {
   return (
     <div className="relative shrink-0 w-full" data-name="div">
       <div className="content-stretch flex flex-col gap-[16px] items-start p-[20px] relative w-full">
-        <Container16 />
+        <Container14 />
         <P2 />
-        <Container22 />
-        <Container27 />
+        <Container20 />
+        <Container25 />
       </div>
     </div>
   );
@@ -696,7 +656,7 @@ function Article() {
   );
 }
 
-function Container15() {
+function Container13() {
   return (
     <div className="content-stretch flex flex-col items-start relative shrink-0 w-full" data-name="Container">
       <Article />
@@ -731,7 +691,7 @@ function ImageWithFallback3() {
   );
 }
 
-function Span4() {
+function Span2() {
   return (
     <div className="h-[22.5px] relative shrink-0 w-[77.162px]" data-name="span">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid relative size-full">
@@ -741,7 +701,7 @@ function Span4() {
   );
 }
 
-function Span5() {
+function Span3() {
   return (
     <div className="h-[19.5px] relative shrink-0 w-[14.25px]" data-name="span">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid relative size-full">
@@ -751,18 +711,18 @@ function Span5() {
   );
 }
 
-function Container32() {
+function Container30() {
   return (
     <div className="h-[22.5px] relative shrink-0 w-[227.463px]" data-name="Container">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex gap-[10px] items-start relative size-full">
-        <Span4 />
-        <Span5 />
+        <Span2 />
+        <Span3 />
       </div>
     </div>
   );
 }
 
-function Container33() {
+function Container31() {
   return (
     <div className="h-[19.5px] relative shrink-0 w-full" data-name="Container">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid relative size-full">
@@ -772,21 +732,21 @@ function Container33() {
   );
 }
 
-function Container31() {
+function Container29() {
   return (
     <div className="h-[44px] relative shrink-0 w-[227.463px]" data-name="Container">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex flex-col gap-[2px] items-start relative size-full">
-        <Container32 />
-        <Container33 />
+        <Container30 />
+        <Container31 />
       </div>
     </div>
   );
 }
 
-function Container30() {
+function Container28() {
   return (
     <div className="content-stretch flex flex-col h-[44px] items-start justify-between relative shrink-0 w-[227.463px]" data-name="Container">
-      <Container31 />
+      <Container29 />
     </div>
   );
 }
@@ -795,7 +755,7 @@ function Frame3() {
   return (
     <div className="content-stretch flex gap-[12px] items-start relative shrink-0">
       <ImageWithFallback3 />
-      <Container30 />
+      <Container28 />
     </div>
   );
 }
@@ -828,7 +788,7 @@ function MoreVertical1() {
   );
 }
 
-function Button9() {
+function Button8() {
   return (
     <div className="flex-[1_0_0] h-[16px] min-h-px min-w-px relative" data-name="button">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex flex-col items-start relative size-full">
@@ -838,19 +798,19 @@ function Button9() {
   );
 }
 
-function Container34() {
+function Container32() {
   return (
     <div className="content-stretch flex items-center relative shrink-0 size-[16px]" data-name="Container">
-      <Button9 />
+      <Button8 />
     </div>
   );
 }
 
-function Container29() {
+function Container27() {
   return (
     <div className="content-stretch flex items-start justify-between relative shrink-0 w-full" data-name="Container">
       <Frame3 />
-      <Container34 />
+      <Container32 />
     </div>
   );
 }
@@ -879,7 +839,7 @@ function MessageCircle1() {
   );
 }
 
-function Button10() {
+function Button9() {
   return (
     <div className="absolute content-stretch flex items-center left-0 size-[18px] top-0" data-name="button">
       <MessageCircle1 />
@@ -931,7 +891,7 @@ function Div5() {
   );
 }
 
-function Button11() {
+function Button10() {
   return (
     <div className="flex-[1_0_0] h-[18px] min-h-px min-w-px relative" data-name="button">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid relative size-full">
@@ -941,20 +901,20 @@ function Button11() {
   );
 }
 
-function Container37() {
+function Container35() {
   return (
     <div className="absolute content-stretch flex items-start left-[38px] size-[18px] top-0" data-name="Container">
-      <Button11 />
+      <Button10 />
     </div>
   );
 }
 
-function Container36() {
+function Container34() {
   return (
     <div className="h-[18px] relative shrink-0 w-[56px]" data-name="Container">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid relative size-full">
-        <Button10 />
-        <Container37 />
+        <Button9 />
+        <Container35 />
       </div>
     </div>
   );
@@ -1006,7 +966,7 @@ function Share1() {
   );
 }
 
-function Button12() {
+function Button11() {
   return (
     <div className="flex-[1_0_0] h-[18px] min-h-px min-w-px relative" data-name="button">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex items-center relative size-full">
@@ -1016,11 +976,11 @@ function Button12() {
   );
 }
 
-function Container39() {
+function Container37() {
   return (
     <div className="relative shrink-0 size-[18px]" data-name="Container">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex items-center relative size-full">
-        <Button12 />
+        <Button11 />
       </div>
     </div>
   );
@@ -1041,28 +1001,28 @@ function BarChart1() {
   );
 }
 
-function Container38() {
+function Container36() {
   return (
     <div className="relative shrink-0" data-name="Container">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex gap-[20px] items-center relative">
         <Trash1 />
-        <Container39 />
+        <Container37 />
         <BarChart1 />
       </div>
     </div>
   );
 }
 
-function Container35() {
+function Container33() {
   return (
     <div className="content-stretch flex h-[18px] items-center justify-between relative shrink-0 w-full" data-name="Container">
+      <Container34 />
       <Container36 />
-      <Container38 />
     </div>
   );
 }
 
-function Container40() {
+function Container38() {
   return <div className="absolute h-0 left-[20px] top-[80.2px] w-[581px]" data-name="Container" />;
 }
 
@@ -1070,10 +1030,10 @@ function Div4() {
   return (
     <div className="relative shrink-0 w-full" data-name="div">
       <div className="content-stretch flex flex-col gap-[16px] items-start p-[20px] relative w-full">
-        <Container29 />
+        <Container27 />
         <P3 />
-        <Container35 />
-        <Container40 />
+        <Container33 />
+        <Container38 />
       </div>
     </div>
   );
@@ -1091,7 +1051,7 @@ function Article1() {
   );
 }
 
-function Container28() {
+function Container26() {
   return (
     <div className="content-stretch flex flex-col items-start relative shrink-0 w-full" data-name="Container">
       <Article1 />
@@ -1110,7 +1070,7 @@ function ImageWithFallback4() {
   );
 }
 
-function Span6() {
+function Span4() {
   return (
     <div className="h-[22.5px] relative shrink-0 w-[77.162px]" data-name="span">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid relative size-full">
@@ -1120,7 +1080,7 @@ function Span6() {
   );
 }
 
-function Span7() {
+function Span5() {
   return (
     <div className="h-[19.5px] relative shrink-0 w-[14.25px]" data-name="span">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid relative size-full">
@@ -1130,18 +1090,18 @@ function Span7() {
   );
 }
 
-function Container45() {
+function Container43() {
   return (
     <div className="h-[22.5px] relative shrink-0 w-[227.463px]" data-name="Container">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex gap-[10px] items-start relative size-full">
-        <Span6 />
-        <Span7 />
+        <Span4 />
+        <Span5 />
       </div>
     </div>
   );
 }
 
-function Container46() {
+function Container44() {
   return (
     <div className="h-[19.5px] relative shrink-0 w-full" data-name="Container">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid relative size-full">
@@ -1151,21 +1111,21 @@ function Container46() {
   );
 }
 
-function Container44() {
+function Container42() {
   return (
     <div className="h-[44px] relative shrink-0 w-[227.463px]" data-name="Container">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex flex-col gap-[2px] items-start relative size-full">
-        <Container45 />
-        <Container46 />
+        <Container43 />
+        <Container44 />
       </div>
     </div>
   );
 }
 
-function Container43() {
+function Container41() {
   return (
     <div className="content-stretch flex flex-col h-[44px] items-start justify-between relative shrink-0 w-[227.463px]" data-name="Container">
-      <Container44 />
+      <Container42 />
     </div>
   );
 }
@@ -1174,7 +1134,7 @@ function Frame4() {
   return (
     <div className="content-stretch flex gap-[12px] items-start relative shrink-0">
       <ImageWithFallback4 />
-      <Container43 />
+      <Container41 />
     </div>
   );
 }
@@ -1207,7 +1167,7 @@ function MoreVertical2() {
   );
 }
 
-function Button13() {
+function Button12() {
   return (
     <div className="flex-[1_0_0] h-[16px] min-h-px min-w-px relative" data-name="button">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex flex-col items-start relative size-full">
@@ -1217,19 +1177,19 @@ function Button13() {
   );
 }
 
-function Container47() {
+function Container45() {
   return (
     <div className="content-stretch flex items-center relative shrink-0 size-[16px]" data-name="Container">
-      <Button13 />
+      <Button12 />
     </div>
   );
 }
 
-function Container42() {
+function Container40() {
   return (
     <div className="content-stretch flex items-start justify-between relative shrink-0 w-full" data-name="Container">
       <Frame4 />
-      <Container47 />
+      <Container45 />
     </div>
   );
 }
@@ -1258,7 +1218,7 @@ function MessageCircle2() {
   );
 }
 
-function Button14() {
+function Button13() {
   return (
     <div className="absolute content-stretch flex items-center left-0 size-[18px] top-0" data-name="button">
       <MessageCircle2 />
@@ -1310,7 +1270,7 @@ function Div7() {
   );
 }
 
-function Button15() {
+function Button14() {
   return (
     <div className="flex-[1_0_0] h-[18px] min-h-px min-w-px relative" data-name="button">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid relative size-full">
@@ -1320,20 +1280,20 @@ function Button15() {
   );
 }
 
-function Container50() {
+function Container48() {
   return (
     <div className="absolute content-stretch flex items-start left-[38px] size-[18px] top-0" data-name="Container">
-      <Button15 />
+      <Button14 />
     </div>
   );
 }
 
-function Container49() {
+function Container47() {
   return (
     <div className="h-[18px] relative shrink-0 w-[56px]" data-name="Container">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid relative size-full">
-        <Button14 />
-        <Container50 />
+        <Button13 />
+        <Container48 />
       </div>
     </div>
   );
@@ -1385,7 +1345,7 @@ function Share2() {
   );
 }
 
-function Button16() {
+function Button15() {
   return (
     <div className="flex-[1_0_0] h-[18px] min-h-px min-w-px relative" data-name="button">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex items-center relative size-full">
@@ -1395,11 +1355,11 @@ function Button16() {
   );
 }
 
-function Container52() {
+function Container50() {
   return (
     <div className="relative shrink-0 size-[18px]" data-name="Container">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex items-center relative size-full">
-        <Button16 />
+        <Button15 />
       </div>
     </div>
   );
@@ -1420,28 +1380,28 @@ function BarChart2() {
   );
 }
 
-function Container51() {
+function Container49() {
   return (
     <div className="relative shrink-0" data-name="Container">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex gap-[20px] items-center relative">
         <Trash2 />
-        <Container52 />
+        <Container50 />
         <BarChart2 />
       </div>
     </div>
   );
 }
 
-function Container48() {
+function Container46() {
   return (
     <div className="content-stretch flex h-[18px] items-center justify-between relative shrink-0 w-full" data-name="Container">
+      <Container47 />
       <Container49 />
-      <Container51 />
     </div>
   );
 }
 
-function Container53() {
+function Container51() {
   return <div className="absolute h-0 left-[20px] top-[80.2px] w-[581px]" data-name="Container" />;
 }
 
@@ -1449,10 +1409,10 @@ function Div6() {
   return (
     <div className="relative shrink-0 w-full" data-name="div">
       <div className="content-stretch flex flex-col gap-[16px] items-start p-[20px] relative w-full">
-        <Container42 />
+        <Container40 />
         <P4 />
-        <Container48 />
-        <Container53 />
+        <Container46 />
+        <Container51 />
       </div>
     </div>
   );
@@ -1469,7 +1429,7 @@ function Article2() {
   );
 }
 
-function Container41() {
+function Container39() {
   return (
     <div className="content-stretch flex flex-col items-start relative shrink-0 w-full" data-name="Container">
       <Article2 />
@@ -1488,7 +1448,7 @@ function ImageWithFallback5() {
   );
 }
 
-function Span8() {
+function Span6() {
   return (
     <div className="h-[22.5px] relative shrink-0 w-[77.162px]" data-name="span">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid relative size-full">
@@ -1498,7 +1458,7 @@ function Span8() {
   );
 }
 
-function Span9() {
+function Span7() {
   return (
     <div className="h-[19.5px] relative shrink-0 w-[14.25px]" data-name="span">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid relative size-full">
@@ -1508,18 +1468,18 @@ function Span9() {
   );
 }
 
-function Container58() {
+function Container56() {
   return (
     <div className="h-[22.5px] relative shrink-0 w-[227.463px]" data-name="Container">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex gap-[10px] items-start relative size-full">
-        <Span8 />
-        <Span9 />
+        <Span6 />
+        <Span7 />
       </div>
     </div>
   );
 }
 
-function Container59() {
+function Container57() {
   return (
     <div className="h-[19.5px] relative shrink-0 w-full" data-name="Container">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid relative size-full">
@@ -1529,21 +1489,21 @@ function Container59() {
   );
 }
 
-function Container57() {
+function Container55() {
   return (
     <div className="h-[44px] relative shrink-0 w-[227.463px]" data-name="Container">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex flex-col gap-[2px] items-start relative size-full">
-        <Container58 />
-        <Container59 />
+        <Container56 />
+        <Container57 />
       </div>
     </div>
   );
 }
 
-function Container56() {
+function Container54() {
   return (
     <div className="content-stretch flex flex-col h-[44px] items-start justify-between relative shrink-0 w-[227.463px]" data-name="Container">
-      <Container57 />
+      <Container55 />
     </div>
   );
 }
@@ -1552,7 +1512,7 @@ function Frame5() {
   return (
     <div className="content-stretch flex gap-[12px] items-start relative shrink-0">
       <ImageWithFallback5 />
-      <Container56 />
+      <Container54 />
     </div>
   );
 }
@@ -1585,7 +1545,7 @@ function MoreVertical3() {
   );
 }
 
-function Button17() {
+function Button16() {
   return (
     <div className="flex-[1_0_0] h-[16px] min-h-px min-w-px relative" data-name="button">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex flex-col items-start relative size-full">
@@ -1595,28 +1555,28 @@ function Button17() {
   );
 }
 
-function Container60() {
+function Container58() {
   return (
     <div className="content-stretch flex items-center relative shrink-0 size-[16px]" data-name="Container">
-      <Button17 />
+      <Button16 />
     </div>
   );
 }
 
-function Container55() {
+function Container53() {
   return (
     <div className="content-stretch flex items-start justify-between relative shrink-0 w-full" data-name="Container">
       <Frame5 />
-      <Container60 />
+      <Container58 />
     </div>
   );
 }
 
-function Container63() {
+function Container61() {
   return <div className="absolute bg-[#c93] left-[10.8px] rounded-[26843500px] size-[4px] top-[9.55px]" data-name="Container" />;
 }
 
-function Span10() {
+function Span8() {
   return (
     <div className="absolute h-[13.5px] left-[20.8px] top-[4.8px] w-[102.563px]" data-name="span">
       <p className="absolute font-['Inter:Light',sans-serif] font-light leading-[13.5px] left-0 not-italic text-[#c93] text-[9px] top-[-0.2px] tracking-[1.8px] uppercase whitespace-nowrap">FADING IN 9mins</p>
@@ -1624,22 +1584,22 @@ function Span10() {
   );
 }
 
-function Container62() {
+function Container60() {
   return (
     <div className="bg-[#0a0a0a] h-[24px] relative rounded-[26843500px] shrink-0 w-[134.163px]" data-name="Container">
       <div aria-hidden="true" className="absolute border-[#1a1a1a] border-[0.8px] border-solid inset-0 pointer-events-none rounded-[26843500px]" />
       <div className="bg-clip-padding border-0 border-[transparent] border-solid relative size-full">
-        <Container63 />
-        <Span10 />
+        <Container61 />
+        <Span8 />
       </div>
     </div>
   );
 }
 
-function Container61() {
+function Container59() {
   return (
     <div className="content-stretch flex items-center relative shrink-0 w-full" data-name="Container">
-      <Container62 />
+      <Container60 />
     </div>
   );
 }
@@ -1668,7 +1628,7 @@ function MessageCircle3() {
   );
 }
 
-function Button18() {
+function Button17() {
   return (
     <div className="absolute content-stretch flex items-center left-0 size-[18px] top-0" data-name="button">
       <MessageCircle3 />
@@ -1720,7 +1680,7 @@ function Div9() {
   );
 }
 
-function Button19() {
+function Button18() {
   return (
     <div className="flex-[1_0_0] h-[18px] min-h-px min-w-px relative" data-name="button">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid relative size-full">
@@ -1730,20 +1690,20 @@ function Button19() {
   );
 }
 
-function Container66() {
+function Container64() {
   return (
     <div className="absolute content-stretch flex items-start left-[38px] size-[18px] top-0" data-name="Container">
-      <Button19 />
+      <Button18 />
     </div>
   );
 }
 
-function Container65() {
+function Container63() {
   return (
     <div className="h-[18px] relative shrink-0 w-[56px]" data-name="Container">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid relative size-full">
-        <Button18 />
-        <Container66 />
+        <Button17 />
+        <Container64 />
       </div>
     </div>
   );
@@ -1795,7 +1755,7 @@ function Share3() {
   );
 }
 
-function Button20() {
+function Button19() {
   return (
     <div className="flex-[1_0_0] h-[18px] min-h-px min-w-px relative" data-name="button">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex items-center relative size-full">
@@ -1805,11 +1765,11 @@ function Button20() {
   );
 }
 
-function Container68() {
+function Container66() {
   return (
     <div className="relative shrink-0 size-[18px]" data-name="Container">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex items-center relative size-full">
-        <Button20 />
+        <Button19 />
       </div>
     </div>
   );
@@ -1830,28 +1790,28 @@ function BarChart3() {
   );
 }
 
-function Container67() {
+function Container65() {
   return (
     <div className="relative shrink-0" data-name="Container">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex gap-[20px] items-center relative">
         <Trash3 />
-        <Container68 />
+        <Container66 />
         <BarChart3 />
       </div>
     </div>
   );
 }
 
-function Container64() {
+function Container62() {
   return (
     <div className="content-stretch flex h-[18px] items-center justify-between relative shrink-0 w-full" data-name="Container">
+      <Container63 />
       <Container65 />
-      <Container67 />
     </div>
   );
 }
 
-function Container69() {
+function Container67() {
   return <div className="absolute h-0 left-[20px] top-[80.2px] w-[581px]" data-name="Container" />;
 }
 
@@ -1859,11 +1819,11 @@ function Div8() {
   return (
     <div className="relative shrink-0 w-full" data-name="div">
       <div className="content-stretch flex flex-col gap-[16px] items-start p-[20px] relative w-full">
-        <Container55 />
-        <Container61 />
+        <Container53 />
+        <Container59 />
         <P5 />
-        <Container64 />
-        <Container69 />
+        <Container62 />
+        <Container67 />
       </div>
     </div>
   );
@@ -1880,7 +1840,7 @@ function Article3() {
   );
 }
 
-function Container54() {
+function Container52() {
   return (
     <div className="content-stretch flex flex-col items-start relative shrink-0 w-full" data-name="Container">
       <Article3 />
@@ -1915,7 +1875,7 @@ function ImageWithFallback7() {
   );
 }
 
-function Span11() {
+function Span9() {
   return (
     <div className="h-[22.5px] relative shrink-0 w-[77.162px]" data-name="span">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid relative size-full">
@@ -1925,7 +1885,7 @@ function Span11() {
   );
 }
 
-function Span12() {
+function Span10() {
   return (
     <div className="h-[19.5px] relative shrink-0 w-[14.25px]" data-name="span">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid relative size-full">
@@ -1935,18 +1895,18 @@ function Span12() {
   );
 }
 
-function Container74() {
+function Container72() {
   return (
     <div className="h-[22.5px] relative shrink-0 w-[227.463px]" data-name="Container">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex gap-[10px] items-start relative size-full">
-        <Span11 />
-        <Span12 />
+        <Span9 />
+        <Span10 />
       </div>
     </div>
   );
 }
 
-function Container75() {
+function Container73() {
   return (
     <div className="h-[19.5px] relative shrink-0 w-full" data-name="Container">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid relative size-full">
@@ -1956,21 +1916,21 @@ function Container75() {
   );
 }
 
-function Container73() {
+function Container71() {
   return (
     <div className="h-[44px] relative shrink-0 w-[227.463px]" data-name="Container">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex flex-col gap-[2px] items-start relative size-full">
-        <Container74 />
-        <Container75 />
+        <Container72 />
+        <Container73 />
       </div>
     </div>
   );
 }
 
-function Container72() {
+function Container70() {
   return (
     <div className="content-stretch flex flex-col h-[44px] items-start justify-between relative shrink-0 w-[227.463px]" data-name="Container">
-      <Container73 />
+      <Container71 />
     </div>
   );
 }
@@ -1979,7 +1939,7 @@ function Frame6() {
   return (
     <div className="content-stretch flex gap-[12px] items-start relative shrink-0">
       <ImageWithFallback7 />
-      <Container72 />
+      <Container70 />
     </div>
   );
 }
@@ -2012,7 +1972,7 @@ function MoreVertical4() {
   );
 }
 
-function Button21() {
+function Button20() {
   return (
     <div className="flex-[1_0_0] h-[16px] min-h-px min-w-px relative" data-name="button">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex flex-col items-start relative size-full">
@@ -2022,28 +1982,28 @@ function Button21() {
   );
 }
 
-function Container76() {
+function Container74() {
   return (
     <div className="content-stretch flex items-center relative shrink-0 size-[16px]" data-name="Container">
-      <Button21 />
+      <Button20 />
     </div>
   );
 }
 
-function Container71() {
+function Container69() {
   return (
     <div className="content-stretch flex items-start justify-between relative shrink-0 w-full" data-name="Container">
       <Frame6 />
-      <Container76 />
+      <Container74 />
     </div>
   );
 }
 
-function Container79() {
+function Container77() {
   return <div className="absolute bg-[#c93] left-[10.8px] rounded-[26843500px] size-[4px] top-[9.55px]" data-name="Container" />;
 }
 
-function Span13() {
+function Span11() {
   return (
     <div className="absolute h-[13.5px] left-[20.8px] top-[4.8px] w-[102.563px]" data-name="span">
       <p className="absolute font-['Inter:Light',sans-serif] font-light leading-[13.5px] left-0 not-italic text-[#c93] text-[9px] top-[-0.2px] tracking-[1.8px] uppercase whitespace-nowrap">FADING IN 9mins</p>
@@ -2051,22 +2011,22 @@ function Span13() {
   );
 }
 
-function Container78() {
+function Container76() {
   return (
     <div className="bg-[#0a0a0a] h-[24px] relative rounded-[26843500px] shrink-0 w-[134.163px]" data-name="Container">
       <div aria-hidden="true" className="absolute border-[#1a1a1a] border-[0.8px] border-solid inset-0 pointer-events-none rounded-[26843500px]" />
       <div className="bg-clip-padding border-0 border-[transparent] border-solid relative size-full">
-        <Container79 />
-        <Span13 />
+        <Container77 />
+        <Span11 />
       </div>
     </div>
   );
 }
 
-function Container77() {
+function Container75() {
   return (
     <div className="content-stretch flex gap-[340px] items-center relative shrink-0 w-full" data-name="Container">
-      <Container78 />
+      <Container76 />
     </div>
   );
 }
@@ -2095,7 +2055,7 @@ function MessageCircle4() {
   );
 }
 
-function Button22() {
+function Button21() {
   return (
     <div className="absolute content-stretch flex items-center left-0 size-[18px] top-0" data-name="button">
       <MessageCircle4 />
@@ -2147,7 +2107,7 @@ function Div12() {
   );
 }
 
-function Button23() {
+function Button22() {
   return (
     <div className="flex-[1_0_0] h-[18px] min-h-px min-w-px relative" data-name="button">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid relative size-full">
@@ -2157,20 +2117,20 @@ function Button23() {
   );
 }
 
-function Container82() {
+function Container80() {
   return (
     <div className="absolute content-stretch flex items-start left-[38px] size-[18px] top-0" data-name="Container">
-      <Button23 />
+      <Button22 />
     </div>
   );
 }
 
-function Container81() {
+function Container79() {
   return (
     <div className="h-[18px] relative shrink-0 w-[56px]" data-name="Container">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid relative size-full">
-        <Button22 />
-        <Container82 />
+        <Button21 />
+        <Container80 />
       </div>
     </div>
   );
@@ -2222,7 +2182,7 @@ function Share4() {
   );
 }
 
-function Button24() {
+function Button23() {
   return (
     <div className="flex-[1_0_0] h-[18px] min-h-px min-w-px relative" data-name="button">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex items-center relative size-full">
@@ -2232,11 +2192,11 @@ function Button24() {
   );
 }
 
-function Container84() {
+function Container82() {
   return (
     <div className="relative shrink-0 size-[18px]" data-name="Container">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex items-center relative size-full">
-        <Button24 />
+        <Button23 />
       </div>
     </div>
   );
@@ -2257,28 +2217,28 @@ function BarChart4() {
   );
 }
 
-function Container83() {
+function Container81() {
   return (
     <div className="relative shrink-0" data-name="Container">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex gap-[20px] items-center relative">
         <Trash4 />
-        <Container84 />
+        <Container82 />
         <BarChart4 />
       </div>
     </div>
   );
 }
 
-function Container80() {
+function Container78() {
   return (
     <div className="content-stretch flex h-[18px] items-center justify-between relative shrink-0 w-full" data-name="Container">
+      <Container79 />
       <Container81 />
-      <Container83 />
     </div>
   );
 }
 
-function Container85() {
+function Container83() {
   return <div className="absolute h-0 left-[20px] top-[80.2px] w-[581px]" data-name="Container" />;
 }
 
@@ -2286,11 +2246,11 @@ function Div11() {
   return (
     <div className="relative shrink-0 w-full" data-name="div">
       <div className="content-stretch flex flex-col gap-[16px] items-start p-[20px] relative w-full">
-        <Container71 />
-        <Container77 />
+        <Container69 />
+        <Container75 />
         <P6 />
-        <Container80 />
-        <Container85 />
+        <Container78 />
+        <Container83 />
       </div>
     </div>
   );
@@ -2308,7 +2268,7 @@ function Article4() {
   );
 }
 
-function Container70() {
+function Container68() {
   return (
     <div className="content-stretch flex flex-col items-start relative shrink-0 w-full" data-name="Container">
       <Article4 />
@@ -2327,7 +2287,7 @@ function ImageWithFallback8() {
   );
 }
 
-function Span14() {
+function Span12() {
   return (
     <div className="h-[22.5px] relative shrink-0 w-[77.162px]" data-name="span">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid relative size-full">
@@ -2337,7 +2297,7 @@ function Span14() {
   );
 }
 
-function Span15() {
+function Span13() {
   return (
     <div className="h-[19.5px] relative shrink-0 w-[14.25px]" data-name="span">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid relative size-full">
@@ -2347,18 +2307,18 @@ function Span15() {
   );
 }
 
-function Container90() {
+function Container88() {
   return (
     <div className="h-[22.5px] relative shrink-0 w-[227.463px]" data-name="Container">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex gap-[10px] items-start relative size-full">
-        <Span14 />
-        <Span15 />
+        <Span12 />
+        <Span13 />
       </div>
     </div>
   );
 }
 
-function Container91() {
+function Container89() {
   return (
     <div className="h-[19.5px] relative shrink-0 w-full" data-name="Container">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid relative size-full">
@@ -2368,21 +2328,21 @@ function Container91() {
   );
 }
 
-function Container89() {
+function Container87() {
   return (
     <div className="h-[44px] relative shrink-0 w-[227.463px]" data-name="Container">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex flex-col gap-[2px] items-start relative size-full">
-        <Container90 />
-        <Container91 />
+        <Container88 />
+        <Container89 />
       </div>
     </div>
   );
 }
 
-function Container88() {
+function Container86() {
   return (
     <div className="content-stretch flex flex-col h-[44px] items-start justify-between relative shrink-0 w-[227.463px]" data-name="Container">
-      <Container89 />
+      <Container87 />
     </div>
   );
 }
@@ -2391,7 +2351,7 @@ function Frame7() {
   return (
     <div className="content-stretch flex gap-[12px] items-start relative shrink-0">
       <ImageWithFallback8 />
-      <Container88 />
+      <Container86 />
     </div>
   );
 }
@@ -2424,7 +2384,7 @@ function MoreVertical5() {
   );
 }
 
-function Button25() {
+function Button24() {
   return (
     <div className="flex-[1_0_0] h-[16px] min-h-px min-w-px relative" data-name="button">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex flex-col items-start relative size-full">
@@ -2434,28 +2394,28 @@ function Button25() {
   );
 }
 
-function Container92() {
+function Container90() {
   return (
     <div className="content-stretch flex items-center relative shrink-0 size-[16px]" data-name="Container">
-      <Button25 />
+      <Button24 />
     </div>
   );
 }
 
-function Container87() {
+function Container85() {
   return (
     <div className="content-stretch flex items-start justify-between relative shrink-0 w-full" data-name="Container">
       <Frame7 />
-      <Container92 />
+      <Container90 />
     </div>
   );
 }
 
-function Container95() {
+function Container93() {
   return <div className="absolute bg-[#6b6b6b] left-[10.8px] rounded-[26843500px] size-[4px] top-[9.55px]" data-name="Container" />;
 }
 
-function Span16() {
+function Span14() {
   return (
     <div className="absolute h-[13.5px] left-[20.8px] top-[4.8px] w-[37.85px]" data-name="span">
       <p className="absolute font-['Inter:Light',sans-serif] font-light leading-[13.5px] left-0 not-italic text-[#6b6b6b] text-[9px] top-[-0.2px] tracking-[1.8px] uppercase whitespace-nowrap">FADED</p>
@@ -2463,22 +2423,22 @@ function Span16() {
   );
 }
 
-function Container94() {
+function Container92() {
   return (
     <div className="bg-[#0a0a0a] h-[23.1px] relative rounded-[26843500px] shrink-0 w-[69.45px]" data-name="Container">
       <div aria-hidden="true" className="absolute border-[#1a1a1a] border-[0.8px] border-solid inset-0 pointer-events-none rounded-[26843500px]" />
       <div className="bg-clip-padding border-0 border-[transparent] border-solid relative size-full">
-        <Container95 />
-        <Span16 />
+        <Container93 />
+        <Span14 />
       </div>
     </div>
   );
 }
 
-function Container93() {
+function Container91() {
   return (
     <div className="content-stretch flex items-center relative shrink-0 w-full" data-name="Container">
-      <Container94 />
+      <Container92 />
     </div>
   );
 }
@@ -2507,7 +2467,7 @@ function MessageCircle5() {
   );
 }
 
-function Button26() {
+function Button25() {
   return (
     <div className="absolute content-stretch flex items-center left-0 size-[18px] top-0" data-name="button">
       <MessageCircle5 />
@@ -2559,7 +2519,7 @@ function Div14() {
   );
 }
 
-function Button27() {
+function Button26() {
   return (
     <div className="flex-[1_0_0] h-[18px] min-h-px min-w-px relative" data-name="button">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid relative size-full">
@@ -2569,20 +2529,20 @@ function Button27() {
   );
 }
 
-function Container98() {
+function Container96() {
   return (
     <div className="absolute content-stretch flex items-start left-[38px] size-[18px] top-0" data-name="Container">
-      <Button27 />
+      <Button26 />
     </div>
   );
 }
 
-function Container97() {
+function Container95() {
   return (
     <div className="h-[18px] relative shrink-0 w-[56px]" data-name="Container">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid relative size-full">
-        <Button26 />
-        <Container98 />
+        <Button25 />
+        <Container96 />
       </div>
     </div>
   );
@@ -2633,7 +2593,7 @@ function Share5() {
   );
 }
 
-function Button28() {
+function Button27() {
   return (
     <div className="flex-[1_0_0] h-[18px] min-h-px min-w-px relative" data-name="button">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex items-center relative size-full">
@@ -2643,11 +2603,11 @@ function Button28() {
   );
 }
 
-function Container100() {
+function Container98() {
   return (
     <div className="relative shrink-0 size-[18px]" data-name="Container">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex items-center relative size-full">
-        <Button28 />
+        <Button27 />
       </div>
     </div>
   );
@@ -2669,28 +2629,28 @@ function Trash5() {
   );
 }
 
-function Container99() {
+function Container97() {
   return (
     <div className="relative shrink-0" data-name="Container">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex gap-[20px] items-center relative">
         <BarChart5 />
-        <Container100 />
+        <Container98 />
         <Trash5 />
       </div>
     </div>
   );
 }
 
-function Container96() {
+function Container94() {
   return (
     <div className="content-stretch flex h-[18px] items-center justify-between relative shrink-0 w-full" data-name="Container">
+      <Container95 />
       <Container97 />
-      <Container99 />
     </div>
   );
 }
 
-function Container101() {
+function Container99() {
   return <div className="absolute h-0 left-[20px] top-[80.2px] w-[581px]" data-name="Container" />;
 }
 
@@ -2698,11 +2658,11 @@ function Div13() {
   return (
     <div className="relative shrink-0 w-full" data-name="div">
       <div className="content-stretch flex flex-col gap-[16px] items-start p-[20px] relative w-full">
-        <Container87 />
-        <Container93 />
+        <Container85 />
+        <Container91 />
         <P7 />
-        <Container96 />
-        <Container101 />
+        <Container94 />
+        <Container99 />
       </div>
     </div>
   );
@@ -2719,7 +2679,7 @@ function Article5() {
   );
 }
 
-function Container86() {
+function Container84() {
   return (
     <div className="content-stretch flex flex-col items-start relative shrink-0 w-full" data-name="Container">
       <Article5 />
@@ -2754,7 +2714,7 @@ function ImageWithFallback10() {
   );
 }
 
-function Span17() {
+function Span15() {
   return (
     <div className="h-[22.5px] relative shrink-0 w-[77.162px]" data-name="span">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid relative size-full">
@@ -2764,7 +2724,7 @@ function Span17() {
   );
 }
 
-function Span18() {
+function Span16() {
   return (
     <div className="h-[19.5px] relative shrink-0 w-[14.25px]" data-name="span">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid relative size-full">
@@ -2774,18 +2734,18 @@ function Span18() {
   );
 }
 
-function Container106() {
+function Container104() {
   return (
     <div className="h-[22.5px] relative shrink-0 w-[227.463px]" data-name="Container">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex gap-[10px] items-start relative size-full">
-        <Span17 />
-        <Span18 />
+        <Span15 />
+        <Span16 />
       </div>
     </div>
   );
 }
 
-function Container107() {
+function Container105() {
   return (
     <div className="h-[19.5px] relative shrink-0 w-full" data-name="Container">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid relative size-full">
@@ -2795,21 +2755,21 @@ function Container107() {
   );
 }
 
-function Container105() {
+function Container103() {
   return (
     <div className="h-[44px] relative shrink-0 w-[227.463px]" data-name="Container">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex flex-col gap-[2px] items-start relative size-full">
-        <Container106 />
-        <Container107 />
+        <Container104 />
+        <Container105 />
       </div>
     </div>
   );
 }
 
-function Container104() {
+function Container102() {
   return (
     <div className="content-stretch flex flex-col h-[44px] items-start justify-between relative shrink-0 w-[227.463px]" data-name="Container">
-      <Container105 />
+      <Container103 />
     </div>
   );
 }
@@ -2818,7 +2778,7 @@ function Frame8() {
   return (
     <div className="content-stretch flex gap-[12px] items-start relative shrink-0">
       <ImageWithFallback10 />
-      <Container104 />
+      <Container102 />
     </div>
   );
 }
@@ -2851,7 +2811,7 @@ function MoreVertical6() {
   );
 }
 
-function Button29() {
+function Button28() {
   return (
     <div className="flex-[1_0_0] h-[16px] min-h-px min-w-px relative" data-name="button">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex flex-col items-start relative size-full">
@@ -2861,28 +2821,28 @@ function Button29() {
   );
 }
 
-function Container108() {
+function Container106() {
   return (
     <div className="content-stretch flex items-center relative shrink-0 size-[16px]" data-name="Container">
-      <Button29 />
+      <Button28 />
     </div>
   );
 }
 
-function Container103() {
+function Container101() {
   return (
     <div className="content-stretch flex items-start justify-between relative shrink-0 w-full" data-name="Container">
       <Frame8 />
-      <Container108 />
+      <Container106 />
     </div>
   );
 }
 
-function Container111() {
+function Container109() {
   return <div className="absolute bg-[#6b6b6b] left-[10.8px] rounded-[26843500px] size-[4px] top-[9.55px]" data-name="Container" />;
 }
 
-function Span19() {
+function Span17() {
   return (
     <div className="absolute h-[13.5px] left-[20.8px] top-[4.8px] w-[37.85px]" data-name="span">
       <p className="absolute font-['Inter:Light',sans-serif] font-light leading-[13.5px] left-0 not-italic text-[#6b6b6b] text-[9px] top-[-0.2px] tracking-[1.8px] uppercase whitespace-nowrap">FADED</p>
@@ -2890,22 +2850,22 @@ function Span19() {
   );
 }
 
-function Container110() {
+function Container108() {
   return (
     <div className="bg-[#0a0a0a] h-[23.1px] relative rounded-[26843500px] shrink-0 w-[69.45px]" data-name="Container">
       <div aria-hidden="true" className="absolute border-[#1a1a1a] border-[0.8px] border-solid inset-0 pointer-events-none rounded-[26843500px]" />
       <div className="bg-clip-padding border-0 border-[transparent] border-solid relative size-full">
-        <Container111 />
-        <Span19 />
+        <Container109 />
+        <Span17 />
       </div>
     </div>
   );
 }
 
-function Container109() {
+function Container107() {
   return (
     <div className="content-stretch flex items-center relative shrink-0 w-full" data-name="Container">
-      <Container110 />
+      <Container108 />
     </div>
   );
 }
@@ -2934,7 +2894,7 @@ function MessageCircle6() {
   );
 }
 
-function Button30() {
+function Button29() {
   return (
     <div className="absolute content-stretch flex items-center left-0 size-[18px] top-0" data-name="button">
       <MessageCircle6 />
@@ -2986,7 +2946,7 @@ function Div17() {
   );
 }
 
-function Button31() {
+function Button30() {
   return (
     <div className="flex-[1_0_0] h-[18px] min-h-px min-w-px relative" data-name="button">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid relative size-full">
@@ -2996,20 +2956,20 @@ function Button31() {
   );
 }
 
-function Container114() {
+function Container112() {
   return (
     <div className="absolute content-stretch flex items-start left-[38px] size-[18px] top-0" data-name="Container">
-      <Button31 />
+      <Button30 />
     </div>
   );
 }
 
-function Container113() {
+function Container111() {
   return (
     <div className="h-[18px] relative shrink-0 w-[56px]" data-name="Container">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid relative size-full">
-        <Button30 />
-        <Container114 />
+        <Button29 />
+        <Container112 />
       </div>
     </div>
   );
@@ -3061,7 +3021,7 @@ function Share6() {
   );
 }
 
-function Button32() {
+function Button31() {
   return (
     <div className="flex-[1_0_0] h-[18px] min-h-px min-w-px relative" data-name="button">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex items-center relative size-full">
@@ -3071,11 +3031,11 @@ function Button32() {
   );
 }
 
-function Container116() {
+function Container114() {
   return (
     <div className="relative shrink-0 size-[18px]" data-name="Container">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex items-center relative size-full">
-        <Button32 />
+        <Button31 />
       </div>
     </div>
   );
@@ -3096,28 +3056,28 @@ function BarChart6() {
   );
 }
 
-function Container115() {
+function Container113() {
   return (
     <div className="relative shrink-0" data-name="Container">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex gap-[20px] items-center relative">
         <Trash6 />
-        <Container116 />
+        <Container114 />
         <BarChart6 />
       </div>
     </div>
   );
 }
 
-function Container112() {
+function Container110() {
   return (
     <div className="content-stretch flex h-[18px] items-center justify-between relative shrink-0 w-full" data-name="Container">
+      <Container111 />
       <Container113 />
-      <Container115 />
     </div>
   );
 }
 
-function Container117() {
+function Container115() {
   return <div className="absolute h-0 left-[20px] top-[80.2px] w-[581px]" data-name="Container" />;
 }
 
@@ -3125,11 +3085,11 @@ function Div16() {
   return (
     <div className="relative shrink-0 w-full" data-name="div">
       <div className="content-stretch flex flex-col gap-[16px] items-start p-[20px] relative w-full">
-        <Container103 />
-        <Container109 />
+        <Container101 />
+        <Container107 />
         <P8 />
-        <Container112 />
-        <Container117 />
+        <Container110 />
+        <Container115 />
       </div>
     </div>
   );
@@ -3147,7 +3107,7 @@ function Article6() {
   );
 }
 
-function Container102() {
+function Container100() {
   return (
     <div className="content-stretch flex flex-col items-start relative shrink-0 w-full" data-name="Container">
       <Article6 />
@@ -3155,21 +3115,21 @@ function Container102() {
   );
 }
 
-function Container14() {
+function Container12() {
   return (
     <div className="absolute content-stretch flex flex-col gap-[20px] items-start justify-center left-0 top-[0.1px] w-[660px]" data-name="Container">
-      <Container15 />
-      <Container28 />
-      <Container41 />
-      <Container54 />
-      <Container70 />
-      <Container86 />
-      <Container102 />
+      <Container13 />
+      <Container26 />
+      <Container39 />
+      <Container52 />
+      <Container68 />
+      <Container84 />
+      <Container100 />
     </div>
   );
 }
 
-function Span20() {
+function Span18() {
   return (
     <div className="relative shrink-0" data-name="span">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex items-center justify-center relative">
@@ -3179,7 +3139,7 @@ function Span20() {
   );
 }
 
-function Container121() {
+function Container119() {
   return (
     <div className="relative shrink-0 w-full" data-name="Container">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex items-start relative w-full">
@@ -3189,26 +3149,26 @@ function Container121() {
   );
 }
 
-function Button33() {
+function Button32() {
   return (
     <div className="content-stretch flex flex-col gap-[16px] items-start relative shrink-0 w-full" data-name="button">
-      <Span20 />
-      <Container121 />
+      <Span18 />
+      <Container119 />
     </div>
   );
 }
 
-function Container120() {
+function Container118() {
   return (
     <div className="relative shrink-0 w-full" data-name="Container">
       <div className="content-stretch flex flex-col items-start p-[20px] relative w-full">
-        <Button33 />
+        <Button32 />
       </div>
     </div>
   );
 }
 
-function Span21() {
+function Span19() {
   return (
     <div className="relative shrink-0" data-name="span">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex items-start relative">
@@ -3218,11 +3178,42 @@ function Span21() {
   );
 }
 
-function Span22() {
+function Span20() {
   return (
     <div className="relative shrink-0" data-name="span">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex items-center justify-center relative">
         <p className="font-['Inter:Medium',sans-serif] font-medium leading-[15px] not-italic relative shrink-0 text-[#6b6b6b] text-[11px] tracking-[2px] uppercase whitespace-nowrap">Followers</p>
+      </div>
+    </div>
+  );
+}
+
+function Button33() {
+  return (
+    <div className="relative shrink-0 w-[160px]" data-name="button">
+      <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex flex-col gap-[8px] items-start relative w-full">
+        <Span19 />
+        <Span20 />
+      </div>
+    </div>
+  );
+}
+
+function Span21() {
+  return (
+    <div className="relative shrink-0" data-name="span">
+      <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex items-start relative">
+        <p className="font-['Cormorant_Garamond'] leading-[22px] not-italic relative shrink-0 text-[22px] text-[rgba(255,255,255,0.9)] whitespace-nowrap">521</p>
+      </div>
+    </div>
+  );
+}
+
+function Span22() {
+  return (
+    <div className="relative shrink-0" data-name="span">
+      <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex items-center justify-center relative">
+        <p className="font-['Inter:Medium',sans-serif] font-medium leading-[15px] not-italic relative shrink-0 text-[#6b6b6b] text-[11px] tracking-[2px] uppercase whitespace-nowrap">Following</p>
       </div>
     </div>
   );
@@ -3243,7 +3234,7 @@ function Span23() {
   return (
     <div className="relative shrink-0" data-name="span">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex items-start relative">
-        <p className="font-['Cormorant_Garamond'] leading-[22px] not-italic relative shrink-0 text-[22px] text-[rgba(255,255,255,0.9)] whitespace-nowrap">521</p>
+        <p className="font-['Cormorant_Garamond'] leading-[22px] not-italic relative shrink-0 text-[22px] text-[rgba(255,255,255,0.9)] whitespace-nowrap">1,603</p>
       </div>
     </div>
   );
@@ -3253,7 +3244,7 @@ function Span24() {
   return (
     <div className="relative shrink-0" data-name="span">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex items-center justify-center relative">
-        <p className="font-['Inter:Medium',sans-serif] font-medium leading-[15px] not-italic relative shrink-0 text-[#6b6b6b] text-[11px] tracking-[2px] uppercase whitespace-nowrap">Following</p>
+        <p className="font-['Inter:Medium',sans-serif] font-medium leading-[15px] not-italic relative shrink-0 text-[#6b6b6b] text-[11px] tracking-[2px] uppercase whitespace-nowrap">posts</p>
       </div>
     </div>
   );
@@ -3274,7 +3265,7 @@ function Span25() {
   return (
     <div className="relative shrink-0" data-name="span">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex items-start relative">
-        <p className="font-['Cormorant_Garamond'] leading-[22px] not-italic relative shrink-0 text-[22px] text-[rgba(255,255,255,0.9)] whitespace-nowrap">284</p>
+        <p className="font-['Cormorant_Garamond'] leading-[22px] not-italic relative shrink-0 text-[22px] text-[rgba(255,255,255,0.9)] whitespace-nowrap">5,499</p>
       </div>
     </div>
   );
@@ -3284,7 +3275,7 @@ function Span26() {
   return (
     <div className="relative shrink-0" data-name="span">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex items-center justify-center relative">
-        <p className="font-['Inter:Medium',sans-serif] font-medium leading-[15px] not-italic relative shrink-0 text-[#6b6b6b] text-[11px] tracking-[2px] uppercase whitespace-nowrap">posts</p>
+        <p className="font-['Inter:Medium',sans-serif] font-medium leading-[15px] not-italic relative shrink-0 text-[#6b6b6b] text-[11px] tracking-[2px] uppercase whitespace-nowrap">faded</p>
       </div>
     </div>
   );
@@ -3301,52 +3292,21 @@ function Button36() {
   );
 }
 
-function Span27() {
-  return (
-    <div className="relative shrink-0" data-name="span">
-      <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex items-start relative">
-        <p className="font-['Cormorant_Garamond'] leading-[22px] not-italic relative shrink-0 text-[22px] text-[rgba(255,255,255,0.9)] whitespace-nowrap">84</p>
-      </div>
-    </div>
-  );
-}
-
-function Span28() {
-  return (
-    <div className="relative shrink-0" data-name="span">
-      <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex items-center justify-center relative">
-        <p className="font-['Inter:Medium',sans-serif] font-medium leading-[15px] not-italic relative shrink-0 text-[#6b6b6b] text-[11px] tracking-[2px] uppercase whitespace-nowrap">faded</p>
-      </div>
-    </div>
-  );
-}
-
-function Button37() {
-  return (
-    <div className="relative shrink-0 w-[160px]" data-name="button">
-      <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex flex-col gap-[8px] items-start relative w-full">
-        <Span27 />
-        <Span28 />
-      </div>
-    </div>
-  );
-}
-
-function Container122() {
+function Container120() {
   return (
     <div className="bg-[#0a0a0a] relative shrink-0 w-full" data-name="Container">
       <div aria-hidden="true" className="absolute border-[rgba(255,255,255,0.07)] border-b-[0.8px] border-solid border-t-[0.8px] inset-0 pointer-events-none" />
       <div className="content-start flex flex-wrap gap-[32.00000762939453px_32px] items-start px-[20px] py-[20.8px] relative w-full">
+        <Button33 />
         <Button34 />
         <Button35 />
         <Button36 />
-        <Button37 />
       </div>
     </div>
   );
 }
 
-function Span29() {
+function Span27() {
   return (
     <div className="relative shrink-0" data-name="span">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex items-center justify-center relative">
@@ -3407,7 +3367,7 @@ function Members() {
   );
 }
 
-function Span30() {
+function Span28() {
   return (
     <div className="content-stretch flex items-end relative shrink-0" data-name="span">
       <p className="font-['Cormorant_Garamond'] leading-[22px] not-italic relative shrink-0 text-[22px] text-[rgba(255,255,255,0.9)] whitespace-nowrap">132</p>
@@ -3420,24 +3380,24 @@ function CommunityProfiles() {
     <div className="relative shrink-0" data-name="Community-profiles">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex gap-[8px] items-end relative">
         <Members />
-        <Span30 />
+        <Span28 />
       </div>
     </div>
   );
 }
 
-function Button38() {
+function Button37() {
   return (
     <div className="relative shrink-0 w-[280px]" data-name="button">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex flex-col gap-[16px] items-start relative w-full">
-        <Span29 />
+        <Span27 />
         <CommunityProfiles />
       </div>
     </div>
   );
 }
 
-function Span31() {
+function Span29() {
   return (
     <div className="relative shrink-0" data-name="span">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex items-center justify-center relative">
@@ -3498,7 +3458,7 @@ function Members1() {
   );
 }
 
-function Span32() {
+function Span30() {
   return (
     <div className="content-stretch flex items-end relative shrink-0" data-name="span">
       <p className="font-['Cormorant_Garamond'] leading-[22px] not-italic relative shrink-0 text-[22px] text-[rgba(255,255,255,0.9)] whitespace-nowrap">56</p>
@@ -3511,36 +3471,36 @@ function CommunityProfiles1() {
     <div className="relative shrink-0" data-name="Community-profiles">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex gap-[8px] items-end relative">
         <Members1 />
-        <Span32 />
+        <Span30 />
       </div>
     </div>
   );
 }
 
-function Button39() {
+function Button38() {
   return (
     <div className="relative shrink-0 w-[280px]" data-name="button">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex flex-col gap-[16px] items-start relative w-full">
-        <Span31 />
+        <Span29 />
         <CommunityProfiles1 />
       </div>
     </div>
   );
 }
 
-function Container123() {
+function Container121() {
   return (
     <div className="relative shrink-0 w-full" data-name="Container">
       <div aria-hidden="true" className="absolute border-0 border-[rgba(255,255,255,0.07)] border-solid inset-0 pointer-events-none" />
       <div className="content-start flex flex-wrap gap-[32.00000762939453px_32px] items-start p-[20px] relative w-full">
+        <Button37 />
         <Button38 />
-        <Button39 />
       </div>
     </div>
   );
 }
 
-function Span33() {
+function Span31() {
   return (
     <div className="relative shrink-0" data-name="span">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex items-center justify-center relative">
@@ -3550,7 +3510,7 @@ function Span33() {
   );
 }
 
-function Span34() {
+function Span32() {
   return (
     <div className="bg-[#1a1a1a] h-[27.5px] relative rounded-[26843500px] shrink-0 w-[103.625px]" data-name="span">
       <p className="absolute font-['Inter:Light',sans-serif] font-light leading-[19.5px] left-[8px] not-italic text-[#6b6b6b] text-[13px] top-[4.6px] tracking-[0.65px] whitespace-nowrap">social impact</p>
@@ -3558,7 +3518,7 @@ function Span34() {
   );
 }
 
-function Span35() {
+function Span33() {
   return (
     <div className="bg-[#1a1a1a] h-[27.5px] relative rounded-[26843500px] shrink-0 w-[52.925px]" data-name="span">
       <p className="absolute font-['Inter:Light',sans-serif] font-light leading-[19.5px] left-[8px] not-italic text-[#6b6b6b] text-[13px] top-[4.6px] tracking-[0.65px] whitespace-nowrap">travel</p>
@@ -3566,23 +3526,23 @@ function Span35() {
   );
 }
 
+function Span34() {
+  return (
+    <div className="bg-[#1a1a1a] h-[27.5px] relative rounded-[26843500px] shrink-0 w-[46.013px]" data-name="span">
+      <p className="absolute font-['Inter:Light',sans-serif] font-light leading-[19.5px] left-[8px] not-italic text-[#6b6b6b] text-[13px] top-[4.6px] tracking-[0.65px] whitespace-nowrap">food</p>
+    </div>
+  );
+}
+
+function Span35() {
+  return (
+    <div className="bg-[#1a1a1a] h-[27.5px] relative rounded-[26843500px] shrink-0 w-[46.013px]" data-name="span">
+      <p className="absolute font-['Inter:Light',sans-serif] font-light leading-[19.5px] left-[8px] not-italic text-[#6b6b6b] text-[13px] top-[4.6px] tracking-[0.65px] whitespace-nowrap">food</p>
+    </div>
+  );
+}
+
 function Span36() {
-  return (
-    <div className="bg-[#1a1a1a] h-[27.5px] relative rounded-[26843500px] shrink-0 w-[46.013px]" data-name="span">
-      <p className="absolute font-['Inter:Light',sans-serif] font-light leading-[19.5px] left-[8px] not-italic text-[#6b6b6b] text-[13px] top-[4.6px] tracking-[0.65px] whitespace-nowrap">food</p>
-    </div>
-  );
-}
-
-function Span37() {
-  return (
-    <div className="bg-[#1a1a1a] h-[27.5px] relative rounded-[26843500px] shrink-0 w-[46.013px]" data-name="span">
-      <p className="absolute font-['Inter:Light',sans-serif] font-light leading-[19.5px] left-[8px] not-italic text-[#6b6b6b] text-[13px] top-[4.6px] tracking-[0.65px] whitespace-nowrap">food</p>
-    </div>
-  );
-}
-
-function Span38() {
   return (
     <div className="bg-[#1a1a1a] h-[27.5px] relative rounded-[26843500px] shrink-0 w-[114.638px]" data-name="span">
       <p className="absolute font-['Inter:Light',sans-serif] font-light leading-[19.5px] left-[8px] not-italic text-[#6b6b6b] text-[13px] top-[4.6px] tracking-[0.65px] whitespace-nowrap">venture capital</p>
@@ -3590,7 +3550,7 @@ function Span38() {
   );
 }
 
-function Span39() {
+function Span37() {
   return (
     <div className="bg-[#1a1a1a] h-[27.5px] relative rounded-[26843500px] shrink-0 w-[58.188px]" data-name="span">
       <p className="absolute font-['Inter:Light',sans-serif] font-light leading-[19.5px] left-[8px] not-italic text-[#6b6b6b] text-[13px] top-[4.6px] tracking-[0.65px] whitespace-nowrap">coffee</p>
@@ -3598,7 +3558,7 @@ function Span39() {
   );
 }
 
-function Span40() {
+function Span38() {
   return (
     <div className="bg-[#1a1a1a] h-[27.5px] relative rounded-[26843500px] shrink-0 w-[60.55px]" data-name="span">
       <p className="absolute font-['Inter:Light',sans-serif] font-light leading-[19.5px] left-[8px] not-italic text-[#6b6b6b] text-[13px] top-[4.6px] tracking-[0.65px] whitespace-nowrap">fitness</p>
@@ -3606,28 +3566,28 @@ function Span40() {
   );
 }
 
-function Container125() {
+function Container123() {
   return (
     <div className="relative shrink-0 w-full" data-name="Container">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-center flex flex-wrap gap-[8px] items-center overflow-clip relative rounded-[inherit] w-full">
+        <Span32 />
+        <Span33 />
         <Span34 />
         <Span35 />
         <Span36 />
         <Span37 />
         <Span38 />
-        <Span39 />
-        <Span40 />
       </div>
     </div>
   );
 }
 
-function Button40() {
+function Button39() {
   return (
     <div className="relative shrink-0 w-full" data-name="button">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex flex-col gap-[16px] items-start relative w-full">
-        <Span33 />
-        <Container125 />
+        <Span31 />
+        <Container123 />
       </div>
     </div>
   );
@@ -3656,7 +3616,7 @@ function Add() {
   );
 }
 
-function Button41() {
+function Button40() {
   return (
     <div className="relative rounded-[26843500px] shrink-0" data-name="button">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex gap-[4px] items-center justify-center relative">
@@ -3667,30 +3627,30 @@ function Button41() {
   );
 }
 
-function Container126() {
+function Container124() {
   return (
     <div className="bg-[#0a0a0a] relative rounded-[26843500px] shrink-0" data-name="Container">
       <div aria-hidden="true" className="absolute border-[#1a1a1a] border-[0.8px] border-solid inset-0 pointer-events-none rounded-[26843500.8px]" />
       <div className="bg-clip-padding border-[0.8px] border-[transparent] border-solid content-stretch flex items-start px-[16px] py-[6px] relative">
-        <Button41 />
+        <Button40 />
       </div>
     </div>
   );
 }
 
-function Container124() {
+function Container122() {
   return (
     <div className="relative shrink-0 w-full" data-name="Container">
       <div aria-hidden="true" className="absolute border-[rgba(255,255,255,0.07)] border-solid border-t-[0.8px] inset-0 pointer-events-none" />
       <div className="content-stretch flex flex-col gap-[24px] items-start pb-[20px] pt-[20.8px] px-[20px] relative w-full">
-        <Button40 />
-        <Container126 />
+        <Button39 />
+        <Container124 />
       </div>
     </div>
   );
 }
 
-function Span41() {
+function Span39() {
   return (
     <div className="relative shrink-0" data-name="span">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex items-center justify-center relative">
@@ -3717,7 +3677,7 @@ function Linkedin() {
   );
 }
 
-function Container128() {
+function Container126() {
   return (
     <div className="content-stretch flex flex-[1_0_0] items-center min-h-px min-w-px relative" data-name="Container">
       <p className="font-['Inter:Light',sans-serif] font-light leading-[19.5px] not-italic relative shrink-0 text-[#6b6b6b] text-[13px] tracking-[0.65px] whitespace-nowrap">LinkedIn</p>
@@ -3730,7 +3690,7 @@ function CommunityProfiles2() {
     <div className="relative shrink-0 w-full" data-name="Community-profiles">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex gap-[8px] items-end relative w-full">
         <Linkedin />
-        <Container128 />
+        <Container126 />
       </div>
     </div>
   );
@@ -3754,7 +3714,7 @@ function Instagram() {
   );
 }
 
-function Container129() {
+function Container127() {
   return (
     <div className="content-stretch flex flex-[1_0_0] items-center min-h-px min-w-px relative" data-name="Container">
       <p className="font-['Inter:Light',sans-serif] font-light leading-[19.5px] not-italic relative shrink-0 text-[#6b6b6b] text-[13px] tracking-[0.65px] whitespace-nowrap">Instagram</p>
@@ -3767,13 +3727,13 @@ function CommunityProfiles3() {
     <div className="relative shrink-0 w-full" data-name="Community-profiles">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex gap-[8px] items-end relative w-full">
         <Instagram />
-        <Container129 />
+        <Container127 />
       </div>
     </div>
   );
 }
 
-function Button43() {
+function Button42() {
   return (
     <div className="relative shrink-0 w-full" data-name="button">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex flex-col gap-[10px] items-start relative w-full">
@@ -3784,12 +3744,12 @@ function Button43() {
   );
 }
 
-function Button42() {
+function Button41() {
   return (
     <div className="relative shrink-0 w-full" data-name="button">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex flex-col gap-[16px] items-start relative w-full">
-        <Span41 />
-        <Button43 />
+        <Span39 />
+        <Button42 />
       </div>
     </div>
   );
@@ -3818,7 +3778,7 @@ function Add1() {
   );
 }
 
-function Button44() {
+function Button43() {
   return (
     <div className="relative rounded-[26843500px] shrink-0" data-name="button">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex gap-[4px] items-center justify-center relative">
@@ -3829,39 +3789,39 @@ function Button44() {
   );
 }
 
-function Container130() {
+function Container128() {
   return (
     <div className="bg-[#0a0a0a] relative rounded-[26843500px] shrink-0" data-name="Container">
       <div aria-hidden="true" className="absolute border-[#1a1a1a] border-[0.8px] border-solid inset-0 pointer-events-none rounded-[26843500.8px]" />
       <div className="bg-clip-padding border-[0.8px] border-[transparent] border-solid content-stretch flex items-start px-[16px] py-[6px] relative">
-        <Button44 />
+        <Button43 />
       </div>
     </div>
   );
 }
 
-function Container127() {
+function Container125() {
   return (
     <div className="relative shrink-0 w-full" data-name="Container">
       <div aria-hidden="true" className="absolute border-[rgba(255,255,255,0.07)] border-solid border-t-[0.8px] inset-0 pointer-events-none" />
       <div className="content-stretch flex flex-col gap-[24px] items-start pb-[20px] pt-[20.8px] px-[20px] relative w-full">
-        <Button42 />
-        <Container130 />
+        <Button41 />
+        <Container128 />
       </div>
     </div>
   );
 }
 
-function Container119() {
+function Container117() {
   return (
     <div className="bg-[#0a0d0a] relative rounded-[16px] shrink-0 w-full" data-name="Container">
       <div className="overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex flex-col items-start p-[0.8px] relative w-full">
+          <Container118 />
           <Container120 />
+          <Container121 />
           <Container122 />
-          <Container123 />
-          <Container124 />
-          <Container127 />
+          <Container125 />
         </div>
       </div>
       <div aria-hidden="true" className="absolute border-[0.8px] border-[rgba(255,255,255,0.07)] border-solid inset-0 pointer-events-none rounded-[16px]" />
@@ -3869,19 +3829,19 @@ function Container119() {
   );
 }
 
-function Container118() {
+function Container116() {
   return (
     <div className="absolute content-stretch flex flex-col items-start right-0 top-0 w-[400px]" data-name="Container">
-      <Container119 />
+      <Container117 />
     </div>
   );
 }
 
-function Container13() {
+function Container11() {
   return (
     <div className="h-[2580px] relative shrink-0 w-full" data-name="Container">
-      <Container14 />
-      <Container118 />
+      <Container12 />
+      <Container116 />
     </div>
   );
 }
@@ -3890,7 +3850,7 @@ function Frame1() {
   return (
     <div className="absolute content-stretch flex flex-col gap-[40px] items-start left-[48px] top-[311px] w-[1080px]">
       <Container9 />
-      <Container13 />
+      <Container11 />
     </div>
   );
 }
@@ -3957,55 +3917,12 @@ function Div19() {
   );
 }
 
-function Button45() {
+function Button44() {
   return (
     <div className="h-[20px] relative shrink-0 w-[103.7px]" data-name="button">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid relative size-full">
         <Div19 />
-        <p className="-translate-x-1/2 absolute font-['Cormorant_Garamond'] leading-[20px] left-[66px] not-italic text-[14px] text-center text-white top-[-1.2px] tracking-[4.2px] uppercase whitespace-nowrap">LETHE</p>
-      </div>
-    </div>
-  );
-}
-
-function Button46() {
-  return (
-    <div className="h-[28.5px] relative shrink-0 w-[56.725px]" data-name="button">
-      <div className="bg-clip-padding border-0 border-[transparent] border-solid relative size-full">
-        <p className="-translate-x-1/2 absolute font-['Inter:Medium',sans-serif] font-medium leading-[16.5px] left-[28px] not-italic text-[#3a3a3a] text-[11px] text-center top-[6.6px] tracking-[2.75px] whitespace-nowrap">POST</p>
-      </div>
-    </div>
-  );
-}
-
-function Button47() {
-  return (
-    <div className="h-[28.5px] relative shrink-0 w-[90.275px]" data-name="button">
-      <div className="bg-clip-padding border-0 border-[transparent] border-solid relative size-full">
-        <p className="-translate-x-1/2 absolute font-['Inter:Medium',sans-serif] font-medium leading-[16.5px] left-[45px] not-italic text-[11px] text-center text-white top-[6.6px] tracking-[2.75px] whitespace-nowrap">CONNECT</p>
-      </div>
-    </div>
-  );
-}
-
-function Container132() {
-  return (
-    <div className="h-[28.5px] relative shrink-0 w-[179px]" data-name="Container">
-      <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex gap-[32px] items-start relative size-full">
-        <Button46 />
-        <Button47 />
-      </div>
-    </div>
-  );
-}
-
-function Container131() {
-  return (
-    <div className="flex-[1_0_0] h-[28.5px] min-h-px min-w-px relative" data-name="Container">
-      <div className="flex flex-row justify-center size-full">
-        <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex items-start justify-center relative size-full">
-          <Container132 />
-        </div>
+        <p className="-translate-x-1/2 absolute font-['Cormorant_Garamond'] leading-[20px] left-[66px] not-italic text-[14px] text-center text-white top-[-1.2px] tracking-[4.2px] uppercase whitespace-nowrap">RELETHE</p>
       </div>
     </div>
   );
@@ -4023,7 +3940,7 @@ function ArrowLeft() {
   );
 }
 
-function Span42() {
+function Span40() {
   return (
     <div className="relative shrink-0" data-name="span">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex items-center justify-center relative">
@@ -4033,22 +3950,22 @@ function Span42() {
   );
 }
 
-function Button48() {
+function Button45() {
   return (
     <div className="flex-[1_0_0] min-h-px min-w-px relative" data-name="button">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex gap-[12px] h-full items-center relative">
         <ArrowLeft />
-        <Span42 />
+        <Span40 />
       </div>
     </div>
   );
 }
 
-function Container133() {
+function Container129() {
   return (
     <div className="h-[16.5px] relative shrink-0 w-[103px]" data-name="Container">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex flex-col items-end justify-center relative size-full">
-        <Button48 />
+        <Button45 />
       </div>
     </div>
   );
@@ -4058,16 +3975,15 @@ function Div18() {
   return (
     <div className="absolute bg-black content-stretch flex h-[56px] items-center justify-between left-0 pb-[0.8px] px-[40px] top-0 w-[1178px]" data-name="div">
       <div aria-hidden="true" className="absolute border-b-[0.8px] border-black border-solid inset-0 pointer-events-none" />
-      <Button45 />
-      <Container131 />
-      <Container133 />
+      <Button44 />
+      <Container129 />
     </div>
   );
 }
 
-export default function LetheSocial() {
+export default function ReletheSocial() {
   return (
-    <div className="bg-white relative size-full" data-name="Lethe Social">
+    <div className="bg-white relative size-full" data-name="Relethe Social">
       <Body />
       <Div18 />
     </div>

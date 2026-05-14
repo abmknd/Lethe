@@ -1,4 +1,4 @@
-import svgPaths from "./svg-36cmsi1215";
+import svgPaths from "./svg-mzo5g4s9h6";
 import imgImageWithFallback1 from "figma:asset/8c692006a4e235a1e390f04abab516d1cc8c4603.png";
 import imgImageWithFallback2 from "figma:asset/91b749ae2ed39b38d6b09e9ebf9089bb1282ea00.png";
 import imgImageWithFallback3 from "figma:asset/ae452150c9e875ae34875f023d350bff334f8b87.png";
@@ -7,7 +7,7 @@ import imgImageWithFallback5 from "figma:asset/2591f4817f9f3d01035056e695035d975
 import imgRectangle from "figma:asset/8f8487078257ce2c7db83e0c3005b1e39ee814cd.png";
 import imgGeneratedImage3 from "figma:asset/fe98c07725f02b23548275ef00b42b5d401a7e57.png";
 import imgRectangle1 from "figma:asset/ad4f4c674c88db29136842902b4279a695b867c1.png";
-import { imgImageWithFallback } from "./svg-ml2jo";
+import { imgImageWithFallback } from "./svg-03d6m";
 
 function Container() {
   return <div className="absolute h-[223px] left-[48px] top-[60px] w-[1100px]" data-name="Container" />;
@@ -3922,7 +3922,7 @@ function Button44() {
     <div className="h-[20px] relative shrink-0 w-[103.7px]" data-name="button">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid relative size-full">
         <Div19 />
-        <p className="-translate-x-1/2 absolute font-['Cormorant_Garamond'] leading-[20px] left-[66px] not-italic text-[14px] text-center text-white top-[-1.2px] tracking-[4.2px] uppercase whitespace-nowrap">LETHE</p>
+        <p className="-translate-x-1/2 absolute font-['Cormorant_Garamond'] leading-[20px] left-[66px] not-italic text-[14px] text-center text-white top-[-1.2px] tracking-[4.2px] uppercase whitespace-nowrap">RELETHE</p>
       </div>
     </div>
   );
@@ -3981,9 +3981,9 @@ function Div18() {
   );
 }
 
-export default function LetheSocial() {
+export default function ReletheSocial() {
   return (
-    <div className="bg-white relative size-full" data-name="Lethe Social">
+    <div className="bg-white relative size-full" data-name="Relethe Social">
       <Body />
       <Div18 />
     </div>
