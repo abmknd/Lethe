@@ -5,6 +5,7 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig(({ command }) => ({
   base: '/',
+  envPrefix: ['VITE_', 'NEXT_PUBLIC_'],
   plugins: [
     react(),
     tailwindcss(),
