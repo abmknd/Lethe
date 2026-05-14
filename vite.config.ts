@@ -7,6 +7,7 @@ const TRIAL_API_PORT = process.env.LETHE_TRIAL_API_PORT ?? '8787';
 
 export default defineConfig(({ command }) => ({
   base: '/',
+  envPrefix: ['VITE_', 'NEXT_PUBLIC_'],
   plugins: [
     react(),
     tailwindcss(),

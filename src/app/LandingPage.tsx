@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, FormEvent } from "react";
+import { supabase } from "../lib/supabase";
 import { useNavigate } from "react-router";
 import { createPortal } from "react-dom";
 import gsap from "gsap";
@@ -37,19 +38,14 @@ export default function LandingPage() {
 
   const navigate = useNavigate();
 
-  const MC_URL = "https://gmail.us22.list-manage.com/subscribe/post?u=c4d6d5b0d24bc275d3ce10296&id=e6473f0143&f_id=00b2c2e1f0";
-
   const handleHeroSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!email1) return;
     setIsSubmitting1(true);
-    const fd = new URLSearchParams();
-    fd.append("EMAIL", email1);
-    fd.append("b_c4d6d5b0d24bc275d3ce10296_e6473f0143", "");
-    try {
-      await fetch(MC_URL, { method: "POST", mode: "no-cors", body: fd });
-    } catch (_) {
-      // no-cors opaque response — treat as success
+    const { error } = await supabase.from("waitlist").insert({ email: email1 });
+    if (error && error.code !== "23505") {
+      setIsSubmitting1(false);
+      return;
     }
     setShowHeroSuccess(true);
   };
@@ -58,13 +54,10 @@ export default function LandingPage() {
     e.preventDefault();
     if (!email2) return;
     setIsSubmitting2(true);
-    const fd = new URLSearchParams();
-    fd.append("EMAIL", email2);
-    fd.append("b_c4d6d5b0d24bc275d3ce10296_e6473f0143", "");
-    try {
-      await fetch(MC_URL, { method: "POST", mode: "no-cors", body: fd });
-    } catch (_) {
-      // no-cors opaque response — treat as success
+    const { error } = await supabase.from("waitlist").insert({ email: email2 });
+    if (error && error.code !== "23505") {
+      setIsSubmitting2(false);
+      return;
     }
     setShowSignupSuccess(true);
   };
