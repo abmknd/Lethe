@@ -1,9 +1,9 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { ChevronLeft, Search, Share2, MoreVertical, Image as ImageIcon, FileText, Heart, MessageCircle, Smile, Pin, User, Activity, AlertTriangle, LogOut, Volume2, Plus } from 'lucide-react';
 import { AvatarDropdown } from './components/AvatarDropdown';
 import imgAvatar from "../assets/8c692006a4e235a1e390f04abab516d1cc8c4603.png";
-import LetheLogo from '../imports/LetheLogo';
+import ReletheLogo from '../imports/ReletheLogo';
 import Reaction from '../imports/Reaction';
 import ComposeCard from '../imports/Container-169-248';
 import OptionsButton from '../imports/Button-169-259';

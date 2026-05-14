@@ -1,5 +1,5 @@
-/* ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-   Lethe Design System â Colors & Type
+﻿/* ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+   Relethe Design System â Colors & Type
    v2 â Three-font system. Dark is the brand. Light is functional.
    ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
    Font system (3 fonts, non-overlapping roles):
@@ -23,26 +23,26 @@
   --font-sans:    'Inter', system-ui, -apple-system, sans-serif; /* all body, UI, forms */
   --font-mono:    'DM Mono', ui-monospace, 'SF Mono', monospace; /* eyebrows, buttons, meta, code */
 
-  /* âââ Lethe Primitive Palette âââââââââââââââââââââââââââââââ */
-  --lethe-chartreuse:         #7FFF00;   /* primary accent â dark mode only */
-  --lethe-chartreuse-bright:  #ADFF2F;   /* glow + ripple variant â dark mode only */
-  --lethe-chartreuse-pale:    #DFFF00;   /* confetti / highlight â dark mode only */
-  --lethe-chartreuse-dim:     #5D9F00;   /* interactive accent in light mode (WCAG AA) */
+  /* âââ Relethe Primitive Palette âââââââââââââââââââââââââââââââ */
+  --relethe-chartreuse:         #7FFF00;   /* primary accent â dark mode only */
+  --relethe-chartreuse-bright:  #ADFF2F;   /* glow + ripple variant â dark mode only */
+  --relethe-chartreuse-pale:    #DFFF00;   /* confetti / highlight â dark mode only */
+  --relethe-chartreuse-dim:     #5D9F00;   /* interactive accent in light mode (WCAG AA) */
 
-  --lethe-black:        #000000;
-  --lethe-ink:          #050705;   /* true page background (landing) */
-  --lethe-ink-2:        #0a0d0a;   /* cards on ink */
-  --lethe-ink-3:        #020402;   /* deep wells / story sections */
+  --relethe-black:        #000000;
+  --relethe-ink:          #050705;   /* true page background (landing) */
+  --relethe-ink-2:        #0a0d0a;   /* cards on ink */
+  --relethe-ink-3:        #020402;   /* deep wells / story sections */
 
-  --lethe-grey-dark:    #3A3A3A;
-  --lethe-grey:         #6B6B6B;
-  --lethe-grey-light:   #9B9B9B;
-  --lethe-paper:        #FFFFFF;
-  --lethe-paper-2:      #F8F8F8;
-  --lethe-paper-3:      #EFEFEF;
+  --relethe-grey-dark:    #3A3A3A;
+  --relethe-grey:         #6B6B6B;
+  --relethe-grey-light:   #9B9B9B;
+  --relethe-paper:        #FFFFFF;
+  --relethe-paper-2:      #F8F8F8;
+  --relethe-paper-3:      #EFEFEF;
 
   /* âââ Semantic tokens (DARK â default, brand standard) âââââââ */
-  --bg:            var(--lethe-ink);
+  --bg:            var(--relethe-ink);
   --bg-raised:     #0a0a0a;           /* cards / panels */
   --bg-elevated:   #1a1a1a;           /* dropdowns, modals */
   --bg-subtle:     #0f0f0f;
@@ -59,8 +59,8 @@
   --line-dim:      #3A3A3A;
 
   /* Accent â full chartreuse in dark mode */
-  --accent:        var(--lethe-chartreuse);
-  --accent-bright: var(--lethe-chartreuse-bright);
+  --accent:        var(--relethe-chartreuse);
+  --accent-bright: var(--relethe-chartreuse-bright);
   --accent-bg:     rgba(127,255,0,0.06);
   --accent-border: rgba(127,255,0,0.22);
   --accent-text:   rgba(127,255,0,0.85);
@@ -178,8 +178,8 @@
   --line-dim:     #D0D0D0;
 
   /* Interactive accent only â not for decoration */
-  --accent:        var(--lethe-chartreuse-dim); /* #5D9F00 */
-  --accent-bright: var(--lethe-chartreuse-dim);
+  --accent:        var(--relethe-chartreuse-dim); /* #5D9F00 */
+  --accent-bright: var(--relethe-chartreuse-dim);
 
   /* Decorative accent tokens suppressed in light mode */
   --accent-bg:     transparent;

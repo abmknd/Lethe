@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lethe — Communities</title>
+<title>Relethe — Communities</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
@@ -134,7 +134,7 @@ body::after{content:'';position:fixed;inset:0;opacity:.018;pointer-events:none;z
 <nav class="l-nav">
   <a href="#" class="l-nav-logo">
     <svg width="15" height="15" viewBox="0 0 32 32" fill="none" style="opacity:.55"><circle cx="16" cy="16" r="13" stroke="rgba(255,255,255,0.5)" stroke-width="1.5"/><path d="M8 16 Q16 7 24 16 Q16 25 8 16Z" stroke="rgba(255,255,255,0.5)" stroke-width="1.5" fill="none"/></svg>
-    Lethe
+    Relethe
   </a>
   <div class="l-avatar"><img src="https://images.unsplash.com/photo-1683815251677-8df20f826622?w=80&q=80&fit=crop" alt="You"></div>
 </nav>
@@ -252,7 +252,7 @@ function renderCard(c){
     return '<div class="l-comm-member-ava"><img src="'+a+'" alt=""></div>';
   }).join('');
 
-  return '<div class="l-comm-card" onclick="window.location=\'lethe-community.html\'" style="cursor:none">'
+  return '<div class="l-comm-card" onclick="window.location=\'relethe-community.html\'" style="cursor:none">'
     +'<div class="l-comm-card-banner">'
     +'<img class="l-comm-card-banner-img" src="'+c.banner+'" alt="" loading="lazy">'
     +'<div class="l-comm-card-banner-overlay"></div>'
@@ -276,7 +276,7 @@ function renderCard(c){
 }
 
 function renderInviteCard(c){
-  return '<div class="l-comm-card" onclick="window.location=\'lethe-community.html\'" style="cursor:none">'
+  return '<div class="l-comm-card" onclick="window.location=\'relethe-community.html\'" style="cursor:none">'
     +'<div class="l-comm-card-banner">'
     +'<img class="l-comm-card-banner-img" src="'+c.banner+'" alt="" loading="lazy">'
     +'<div class="l-comm-card-banner-overlay"></div>'

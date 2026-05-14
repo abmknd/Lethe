@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lethe — Settings</title>
+<title>Relethe — Settings</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
@@ -256,7 +256,7 @@ body::after{content:'';position:fixed;inset:0;opacity:.018;pointer-events:none;z
 <nav class="l-nav">
   <a href="#" class="l-nav-logo">
     <svg width="15" height="15" viewBox="0 0 32 32" fill="none" style="opacity:.55"><circle cx="16" cy="16" r="13" stroke="rgba(255,255,255,0.5)" stroke-width="1.5"/><path d="M8 16 Q16 7 24 16 Q16 25 8 16Z" stroke="rgba(255,255,255,0.5)" stroke-width="1.5" fill="none"/></svg>
-    Lethe
+    Relethe
   </a>
   <div class="l-nav-right">
     <div class="l-nav-back">
@@ -331,7 +331,7 @@ var panels={
         <div class="l-field">
           <label class="l-field-label">Email address</label>
           <div class="l-input-row">
-            <input class="l-input" type="email" value="cyon@lethe.app" oninput="markDirty()">
+            <input class="l-input" type="email" value="cyon@relethe.app" oninput="markDirty()">
             <div class="l-input-tag">verified</div>
           </div>
         </div>
@@ -443,7 +443,7 @@ var panels={
     <div class="l-panel-card">
       <div class="l-panel-header">
         <div class="l-panel-title">Goals</div>
-        <div class="l-panel-sub">Help Lethe understand what you're looking for. This is never shared publicly.</div>
+        <div class="l-panel-sub">Help Relethe understand what you're looking for. This is never shared publicly.</div>
       </div>
       <div class="l-panel-section">
         <div class="l-field" style="margin-bottom:0">
@@ -460,7 +460,7 @@ var panels={
         <div class="l-field">
           <label class="l-field-label">How would you like to be introduced?</label>
           <textarea class="l-input l-textarea" oninput="markDirty()" placeholder="e.g. I'm a product designer exploring the intersection of AI and human communication...">I'm a product designer exploring the intersection of AI and human communication. Looking for people working on hard problems who think out loud.</textarea>
-          <div style="font-size:10px;color:var(--ghost);margin-top:6px;font-weight:300">This is what Lethe uses when introducing you — different from your public bio.</div>
+          <div style="font-size:10px;color:var(--ghost);margin-top:6px;font-weight:300">This is what Relethe uses when introducing you — different from your public bio.</div>
         </div>
         <div class="l-field">
           <label class="l-field-label">Your goals</label>
@@ -529,7 +529,7 @@ var panels={
     <div class="l-panel-card">
       <div class="l-panel-header">
         <div class="l-panel-title">Notifications</div>
-        <div class="l-panel-sub">Choose what Lethe notifies you about and how.</div>
+        <div class="l-panel-sub">Choose what Relethe notifies you about and how.</div>
       </div>
       `+[
         {id:'engagement',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>',title:'Engagement',items:[
@@ -544,12 +544,12 @@ var panels={
         ]},
         {id:'matches',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>',title:'Match updates',items:[
           {title:'New suggestions',desc:'Your weekly suggestions are ready'},
-          {title:'Introduction set',desc:'When Lethe schedules your introduction'},
+          {title:'Introduction set',desc:'When Relethe schedules your introduction'},
           {title:'Meeting reminder',desc:'24 hours before a scheduled meeting'},
         ]},
         {id:'community',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>',title:'Community',items:[
           {title:'Community invites',desc:'When you get invited to an exclusive community'},
-          {title:'Lethe updates',desc:'Product news and feature announcements'},
+          {title:'Relethe updates',desc:'Product news and feature announcements'},
         ]},
       ].map(function(group,gi){return `
       <div class="l-panel-section`+(gi===3?' last':'')+`">

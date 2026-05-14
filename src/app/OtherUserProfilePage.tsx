@@ -1,11 +1,11 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { MessageCircle, UserPlus } from 'lucide-react';
 import svgPaths from "../imports/svg-mzo5g4s9h6";
 import svgPathsBack from "../imports/svg-9x8xqlgryp";
 import svgPathsRing from "../imports/svg-gaju7ne3wq";
 import GenderIcon from "../imports/Gender";
-import LetheLogo from "../imports/LetheLogo";
+import ReletheLogo from "../imports/ReletheLogo";
 import { PostCard } from './components/PostCard';
 
 // Mock user data - in production this would come from API/database
@@ -240,9 +240,9 @@ export default function OtherUserProfilePage() {
             className="flex items-center gap-2 text-white text-sm tracking-[0.3em] uppercase font-light font-display hover:opacity-70 cursor-pointer transition-opacity"
           >
             <div className="w-5 h-5">
-              <LetheLogo />
+              <ReletheLogo />
             </div>
-            LETHE
+            RELETHE
           </button>
 
           {/* Back Button */}

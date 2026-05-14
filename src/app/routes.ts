@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router";
+﻿import { createBrowserRouter } from "react-router";
 import Root from "./Root";
 import OnboardingFlow from "./OnboardingFlow";
 import Feed from "./Feed";
@@ -13,7 +13,7 @@ import CommunitiesPage from "./CommunitiesPage";
 import CommunityPage from "./CommunityPage";
 import NotFound from "./NotFound";
 
-// Router configuration for Lethe app
+// Router configuration for Relethe app
 export const router = createBrowserRouter([
   {
     path: "/",

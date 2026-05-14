@@ -1,4 +1,4 @@
-interface PageNavProps {
+﻿interface PageNavProps {
   activePage: "posts" | "matches";
   onPageChange: (page: "posts" | "matches") => void;
 }
@@ -17,8 +17,8 @@ export function PageNav({ activePage, onPageChange }: PageNavProps) {
           <button
             key={tab.id}
             onClick={() => onPageChange(tab.id)}
-            className={`px-2 py-1.5 text-[length:var(--lethe-text-xs)] tracking-[length:var(--lethe-tracking-wide)] font-sans transition-all duration-300 hover:opacity-70 ${
-              isActive ? "text-lethe-fg" : "text-lethe-line-dim"
+            className={`px-2 py-1.5 text-[length:var(--relethe-text-xs)] tracking-[length:var(--relethe-tracking-wide)] font-sans transition-all duration-300 hover:opacity-70 ${
+              isActive ? "text-relethe-fg" : "text-relethe-line-dim"
             }`}
           >
             {tab.label}
