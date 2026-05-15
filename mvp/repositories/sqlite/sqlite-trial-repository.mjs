@@ -76,6 +76,33 @@ function mapMeeting(row) {
   };
 }
 
+function mapConnectionReadiness(row) {
+  if (!row) {
+    return null;
+  }
+
+  return {
+    id: row.id,
+    userId: row.user_id,
+    provider: row.provider,
+    testedAt: row.tested_at,
+    expiresAt: row.expires_at,
+    status: row.status,
+    score: row.score ?? null,
+    latencyMs: row.latency_ms ?? null,
+    jitterMs: row.jitter_ms ?? null,
+    packetLossPct: row.packet_loss_pct ?? null,
+    uploadKbps: row.upload_kbps ?? null,
+    downloadKbps: row.download_kbps ?? null,
+    canUseCamera: Boolean(row.can_use_camera),
+    canUseMic: Boolean(row.can_use_mic),
+    deviceWarnings: parseJson(row.device_warnings, []),
+    recommendation: row.recommendation ?? '',
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
 /**
  * SQLite adapter for trial repositories.
  * Storage-specific details stay here; services consume repository methods only.
@@ -1305,6 +1332,111 @@ export class SqliteTrialRepository extends UserRepository {
     }
 
     return this.getMeetingByRecommendationId(recommendationId);
+  }
+
+  getConnectionReadinessByUserId(userId) {
+    const row = this.db
+      .prepare(
+        `
+        SELECT *
+        FROM connection_readiness
+        WHERE user_id = :userId
+      `,
+      )
+      .get({ userId });
+
+    return mapConnectionReadiness(row);
+  }
+
+  upsertConnectionReadiness(userId, readiness) {
+    const existing = this.getConnectionReadinessByUserId(userId);
+    const now = readiness.updatedAt ?? nowIso();
+    const id = existing?.id ?? readiness.id ?? `readiness_${randomUUID()}`;
+    const createdAt = existing?.createdAt ?? readiness.createdAt ?? now;
+
+    this.db
+      .prepare(
+        `
+        INSERT INTO connection_readiness (
+          id,
+          user_id,
+          provider,
+          tested_at,
+          expires_at,
+          status,
+          score,
+          latency_ms,
+          jitter_ms,
+          packet_loss_pct,
+          upload_kbps,
+          download_kbps,
+          can_use_camera,
+          can_use_mic,
+          device_warnings,
+          recommendation,
+          created_at,
+          updated_at
+        )
+        VALUES (
+          :id,
+          :userId,
+          :provider,
+          :testedAt,
+          :expiresAt,
+          :status,
+          :score,
+          :latencyMs,
+          :jitterMs,
+          :packetLossPct,
+          :uploadKbps,
+          :downloadKbps,
+          :canUseCamera,
+          :canUseMic,
+          :deviceWarnings,
+          :recommendation,
+          :createdAt,
+          :updatedAt
+        )
+        ON CONFLICT(user_id) DO UPDATE SET
+          provider = excluded.provider,
+          tested_at = excluded.tested_at,
+          expires_at = excluded.expires_at,
+          status = excluded.status,
+          score = excluded.score,
+          latency_ms = excluded.latency_ms,
+          jitter_ms = excluded.jitter_ms,
+          packet_loss_pct = excluded.packet_loss_pct,
+          upload_kbps = excluded.upload_kbps,
+          download_kbps = excluded.download_kbps,
+          can_use_camera = excluded.can_use_camera,
+          can_use_mic = excluded.can_use_mic,
+          device_warnings = excluded.device_warnings,
+          recommendation = excluded.recommendation,
+          updated_at = excluded.updated_at
+      `,
+      )
+      .run({
+        id,
+        userId,
+        provider: readiness.provider,
+        testedAt: readiness.testedAt,
+        expiresAt: readiness.expiresAt,
+        status: readiness.status,
+        score: readiness.score,
+        latencyMs: readiness.latencyMs,
+        jitterMs: readiness.jitterMs,
+        packetLossPct: readiness.packetLossPct,
+        uploadKbps: readiness.uploadKbps,
+        downloadKbps: readiness.downloadKbps,
+        canUseCamera: readiness.canUseCamera ? 1 : 0,
+        canUseMic: readiness.canUseMic ? 1 : 0,
+        deviceWarnings: JSON.stringify(readiness.deviceWarnings ?? []),
+        recommendation: readiness.recommendation ?? '',
+        createdAt,
+        updatedAt: now,
+      });
+
+    return this.getConnectionReadinessByUserId(userId);
   }
 
   upsertCep(userId, { id, focusText, createdAt, expiresAt }) {

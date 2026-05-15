@@ -8,7 +8,16 @@ import { repository, toPublicProfile } from "../_shared/repository.ts";
 import { AuthError, requireAuth, requireSelf } from "../_shared/auth.ts";
 import { sendIntroEmails } from "../_shared/email.ts";
 
-import { normalizeProfilePayload, RECOMMENDATION_STATUSES, OUTCOME_STATUSES, nowIso } from "../../../mvp/domain/models.mjs";
+import {
+  normalizeProfilePayload,
+  normalizeConnectionReadiness,
+  readinessExpiresAt,
+  isReadinessActive,
+  RECOMMENDATION_STATUSES,
+  OUTCOME_STATUSES,
+  READINESS_STATUSES,
+  nowIso,
+} from "../../../mvp/domain/models.mjs";
 import { EVENT_TYPES } from "../../../mvp/domain/events.mjs";
 import { checkProfileCompleteness } from "../../../mvp/domain/completeness.mjs";
 
@@ -22,6 +31,17 @@ const MEETING_OUTCOME_MAP: Record<string, string> = {
 };
 
 const { randomUUID } = crypto;
+
+function readinessRecommendation(readiness: { status: string; recommendation?: string }): string {
+  if (readiness.recommendation) return readiness.recommendation;
+  if (readiness.status === READINESS_STATUSES.EXCELLENT || readiness.status === READINESS_STATUSES.GOOD) {
+    return "Ready for video.";
+  }
+  if (readiness.status === READINESS_STATUSES.MEDIUM) return "Audio-first recommended.";
+  if (readiness.status === READINESS_STATUSES.LOW) return "Test again before joining; audio-first recommended.";
+  if (readiness.status === READINESS_STATUSES.FAILED) return "Resolve device or network issues before joining.";
+  return "Untested recently.";
+}
 
 function getPath(url: URL): string {
   return url.pathname.replace(/\/+$/, "") || "/";
@@ -128,6 +148,73 @@ Deno.serve(async (req: Request): Promise<Response> => {
       if (!profile) return json({ error: "User not found." }, 404);
       const result = checkProfileCompleteness(profile);
       return json({ completeness: { userId, ...result } });
+    }
+
+    const userReadinessMatch = path.match(/^\/api\/trial\/users\/([^/]+)\/meeting-readiness$/);
+    if (userReadinessMatch && req.method === "GET") {
+      const userId = decodeURIComponent(userReadinessMatch[1]);
+      requireSelf(auth, userId);
+      const readiness = await repository.getConnectionReadiness(userId);
+      const active = readiness ? isReadinessActive(readiness) : false;
+      return json({
+        readiness,
+        isActive: active,
+        displayStatus: active ? readiness?.status : READINESS_STATUSES.UNKNOWN,
+      });
+    }
+
+    if (req.method === "POST" && path === "/api/trial/meeting-readiness/start") {
+      const body = await readJsonBody(req);
+      const userId = String(body.userId ?? "");
+      requireSelf(auth, userId);
+      const now = nowIso();
+      const readiness = await repository.upsertConnectionReadiness(userId, {
+        provider: String(body.provider ?? "manual_link"),
+        testedAt: now,
+        expiresAt: readinessExpiresAt(now, "join"),
+        status: READINESS_STATUSES.UNKNOWN,
+        canUseCamera: false,
+        canUseMic: false,
+        deviceWarnings: [],
+        recommendation: "Readiness check started.",
+      });
+      await repository.appendEvents([{
+        id: `evt_${randomUUID()}`,
+        eventType: EVENT_TYPES.MEETING_READINESS_STARTED ?? "meeting_readiness_started",
+        actorUserId: userId,
+        targetUserId: userId,
+        payload: { provider: readiness.provider },
+        createdAt: now,
+      }]);
+      return json({ readiness, isActive: isReadinessActive(readiness), displayStatus: readiness.status });
+    }
+
+    if (req.method === "POST" && path === "/api/trial/meeting-readiness/result") {
+      const body = await readJsonBody(req);
+      const userId = String(body.userId ?? "");
+      requireSelf(auth, userId);
+      const normalized = normalizeConnectionReadiness({
+        ...body,
+        expiresAt: body.expiresAt ?? readinessExpiresAt((body.testedAt as string | undefined) ?? nowIso(), "scheduling"),
+      });
+      const readiness = await repository.upsertConnectionReadiness(userId, {
+        ...normalized,
+        recommendation: readinessRecommendation(normalized),
+      });
+      await repository.appendEvents([{
+        id: `evt_${randomUUID()}`,
+        eventType: EVENT_TYPES.MEETING_READINESS_RECORDED ?? "meeting_readiness_recorded",
+        actorUserId: userId,
+        targetUserId: userId,
+        payload: {
+          provider: readiness.provider,
+          status: readiness.status,
+          score: readiness.score,
+          recommendation: readiness.recommendation,
+        },
+        createdAt: nowIso(),
+      }]);
+      return json({ readiness, isActive: isReadinessActive(readiness), displayStatus: readiness.status });
     }
 
     // ── admin (TODO: admin role auth — out of scope for ticket #1) ───────────

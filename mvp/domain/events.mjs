@@ -8,6 +8,8 @@ export const EVENT_TYPES = Object.freeze({
   FOLLOW_THROUGH_UPDATED: 'follow_through_updated',
   MEETING_CREATED: 'meeting_created',
   MEETING_STATUS_UPDATED: 'meeting_status_updated',
+  MEETING_READINESS_STARTED: 'meeting_readiness_started',
+  MEETING_READINESS_RECORDED: 'meeting_readiness_recorded',
 });
 
 export const EVENT_TYPE_VALUES = Object.freeze(Object.values(EVENT_TYPES));

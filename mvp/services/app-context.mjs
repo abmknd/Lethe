@@ -11,6 +11,7 @@ import { ProfileContextService } from './profile-context-service.mjs';
 import { MeetingService } from './meeting-service.mjs';
 import { CepService } from './cep-service.mjs';
 import { CompletenessService } from './completeness-service.mjs';
+import { MeetingReadinessService } from './meeting-readiness-service.mjs';
 
 export function createTrialAppContext({ dbPath } = {}) {
   const resolvedDbPath = dbPath || process.env.LETHE_TRIAL_DB_PATH || resolveDefaultDbPath();
@@ -35,6 +36,7 @@ export function createTrialAppContext({ dbPath } = {}) {
     weeklyReport: new WeeklyReportService({ repository }),
     profileContext: new ProfileContextService({ repository }),
     meetings: new MeetingService({ repository }),
+    meetingReadiness: new MeetingReadinessService({ repository }),
     cep: cepService,
     completeness: completenessService,
   };

@@ -67,6 +67,8 @@ const RUN_ID      = `run_rls_test_${TS}`;
 const REC_ID      = `rec_rls_test_${TS}`;
 const MEETING_ID  = `meeting_rls_test_${TS}`;
 const EVENT_ID    = `evt_rls_test_${TS}`;
+const ALICE_READINESS_ID = `readiness_rls_test_alice_${TS}`;
+const BOB_READINESS_ID = `readiness_rls_test_bob_${TS}`;
 const ALICE_CEP_ID = `cep_rls_test_alice_${TS}`;
 const BOB_CEP_ID   = `cep_rls_test_bob_${TS}`;
 const nowIso      = () => new Date().toISOString();
@@ -175,6 +177,28 @@ async function setup() {
   });
   if (meetingErr) throw new Error(`Insert meeting: ${meetingErr.message}`);
 
+  for (const [id, userId, status] of [
+    [ALICE_READINESS_ID, ALICE_ID, "good"],
+    [BOB_READINESS_ID, BOB_ID, "low"],
+  ]) {
+    const { error } = await admin.from("connection_readiness").insert({
+      id,
+      user_id: userId,
+      provider: "manual_link",
+      tested_at: now,
+      expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+      status,
+      score: status === "good" ? 82 : 42,
+      can_use_camera: true,
+      can_use_mic: true,
+      device_warnings: [],
+      recommendation: status === "good" ? "Ready for video." : "Audio-first recommended.",
+      created_at: now,
+      updated_at: now,
+    });
+    if (error) throw new Error(`Insert connection_readiness ${userId}: ${error.message}`);
+  }
+
   for (const [id, userId, focusText] of [
     [ALICE_CEP_ID, ALICE_ID, "Alice RLS focus"],
     [BOB_CEP_ID, BOB_ID, "Bob RLS focus"],
@@ -200,6 +224,7 @@ async function setup() {
 
 async function teardown(aliceAuthId, bobAuthId) {
   await admin.from("events").delete().eq("id", EVENT_ID);
+  await admin.from("connection_readiness").delete().in("id", [ALICE_READINESS_ID, BOB_READINESS_ID]);
   await admin.from("weekly_cep").delete().in("id", [ALICE_CEP_ID, BOB_CEP_ID]);
   await admin.from("meetings").delete().eq("id", MEETING_ID);
   await admin.from("recommendations").delete().eq("id", REC_ID);
@@ -315,6 +340,37 @@ async function runTests({ alice, bob }) {
     bobEvents?.length === 0,
     "Bob sees no events (none targeted at him)",
   );
+
+  // ── connection_readiness ───────────────────────────────────────────────────
+
+  console.log("\nconnection_readiness");
+
+  const { data: aliceReadiness } = await alice.from("connection_readiness").select("user_id, status");
+  assert(
+    aliceReadiness?.length === 1 && aliceReadiness[0].user_id === ALICE_ID,
+    "Alice can read only her own readiness entry",
+    `got: ${JSON.stringify(aliceReadiness)}`,
+  );
+
+  const { data: bobReadinessViaAlice } =
+    await alice.from("connection_readiness").select("user_id").eq("user_id", BOB_ID);
+  assert(bobReadinessViaAlice?.length === 0, "Alice cannot read Bob's readiness entry");
+
+  const { error: insertReadinessErr } = await alice.from("connection_readiness").insert({
+    id: `readiness_bad_${Date.now()}`,
+    user_id: ALICE_ID,
+    provider: "manual_link",
+    tested_at: nowIso(),
+    expires_at: new Date(Date.now() + 1000).toISOString(),
+    status: "good",
+    can_use_camera: true,
+    can_use_mic: true,
+    device_warnings: [],
+    recommendation: "bad write",
+    created_at: nowIso(),
+    updated_at: nowIso(),
+  });
+  assert(insertReadinessErr != null, "Alice cannot write readiness directly");
 
   // ── weekly_cep ─────────────────────────────────────────────────────────────
 

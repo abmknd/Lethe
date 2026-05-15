@@ -134,6 +134,31 @@ CREATE TABLE IF NOT EXISTS meetings (
 CREATE INDEX IF NOT EXISTS idx_meetings_recommendation ON meetings(recommendation_id);
 CREATE INDEX IF NOT EXISTS idx_meetings_status ON meetings(status);
 
+CREATE TABLE IF NOT EXISTS connection_readiness (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL UNIQUE,
+  provider TEXT NOT NULL DEFAULT 'manual_link',
+  tested_at TEXT NOT NULL,
+  expires_at TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'unknown',
+  score REAL,
+  latency_ms REAL,
+  jitter_ms REAL,
+  packet_loss_pct REAL,
+  upload_kbps REAL,
+  download_kbps REAL,
+  can_use_camera INTEGER NOT NULL DEFAULT 0,
+  can_use_mic INTEGER NOT NULL DEFAULT 0,
+  device_warnings TEXT NOT NULL DEFAULT '[]',
+  recommendation TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_connection_readiness_user ON connection_readiness(user_id);
+CREATE INDEX IF NOT EXISTS idx_connection_readiness_expires ON connection_readiness(expires_at);
+
 CREATE TABLE IF NOT EXISTS weekly_cep (
   id TEXT PRIMARY KEY,
   user_id TEXT NOT NULL UNIQUE,

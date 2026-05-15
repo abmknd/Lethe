@@ -7,6 +7,8 @@ import type {
   TrialCepResponse,
   TrialEvent,
   TrialMeeting,
+  TrialMeetingReadinessResponse,
+  TrialMeetingReadinessStatus,
   TrialPublicProfile,
   TrialRecommendation,
   TrialUser,
@@ -287,4 +289,49 @@ export async function getUserCompleteness(userId: string, token?: string): Promi
     token,
   );
   return result.completeness;
+}
+
+export async function getUserMeetingReadiness(userId: string, token?: string): Promise<TrialMeetingReadinessResponse> {
+  return request<TrialMeetingReadinessResponse>(
+    `/api/trial/users/${encodeURIComponent(userId)}/meeting-readiness`,
+    undefined,
+    token,
+  );
+}
+
+export async function startMeetingReadiness(params: {
+  userId: string;
+  provider?: string;
+}, token?: string): Promise<TrialMeetingReadinessResponse> {
+  return request<TrialMeetingReadinessResponse>('/api/trial/meeting-readiness/start', {
+    method: 'POST',
+    body: JSON.stringify({
+      userId: params.userId,
+      provider: params.provider ?? 'manual_link',
+    }),
+  }, token);
+}
+
+export async function saveMeetingReadinessResult(params: {
+  userId: string;
+  provider?: string;
+  status: TrialMeetingReadinessStatus;
+  score?: number | null;
+  latencyMs?: number | null;
+  jitterMs?: number | null;
+  packetLossPct?: number | null;
+  uploadKbps?: number | null;
+  downloadKbps?: number | null;
+  canUseCamera: boolean;
+  canUseMic: boolean;
+  deviceWarnings?: string[];
+  recommendation?: string;
+}, token?: string): Promise<TrialMeetingReadinessResponse> {
+  return request<TrialMeetingReadinessResponse>('/api/trial/meeting-readiness/result', {
+    method: 'POST',
+    body: JSON.stringify({
+      provider: params.provider ?? 'manual_link',
+      ...params,
+    }),
+  }, token);
 }
