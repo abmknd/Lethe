@@ -7,6 +7,9 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ArrowRight } from "lucide-react";
 import demoThumb from "../assets/a70a950bf7228e76ca10f85df8f58e89c216f662.png";
 import ReletheLogo from "../imports/ReletheLogo";
+import DiagnosticSection from "./components/DiagnosticSection";
+import FoundingCohort from "./components/FoundingCohort";
+import FoundingMember from "./components/FoundingMember";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -22,6 +25,7 @@ export default function LandingPage() {
   const [showDemoOverlay, setShowDemoOverlay] = useState(false);
   const [demoCode, setDemoCode] = useState("");
   const [demoCodeError, setDemoCodeError] = useState(false);
+  const [diagnosticEmail, setDiagnosticEmail] = useState<string | null>(null);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const cursorDotRef = useRef<HTMLDivElement>(null);
@@ -625,9 +629,10 @@ export default function LandingPage() {
         }
         .relethe-hero-h1 em { font-style: normal; color: var(--ch); }
         .relethe-hero-h2 {
-          font-size: clamp(40px, 6vw, 72px);
-          font-weight: 300; line-height: 1.0; letter-spacing: -.03em;
-          color: rgba(255,255,255,0.28); margin-bottom: 40px; opacity: 0;
+          font-size: clamp(17px, 2vw, 22px);
+          font-weight: 300; font-style: italic; line-height: 1.55; letter-spacing: .01em;
+          color: rgba(255,255,255,0.5); margin-bottom: 40px; opacity: 0;
+          max-width: 580px;
         }
         .relethe-hero-sub {
           font-size: clamp(15px, 1.8vw, 18px); font-weight: 300;
@@ -1160,8 +1165,8 @@ export default function LandingPage() {
       {/* HERO */}
       <section id="relethe-hero">
         <p className="relethe-hero-eyebrow">Private beta — limited access</p>
-        <h1 className="relethe-hero-h1">Networking without</h1>
-        <h2 className="relethe-hero-h2">the performance.</h2>
+        <h1 className="relethe-hero-h1">You should be more intentional about meeting people.</h1>
+        <h2 className="relethe-hero-h2">Everything you dream of achieving lies within the unexplored gap in your network.</h2>
         <p className="relethe-hero-sub">
           Up to five introductions a week, matched to who you actually are. A daily feed that ends. A network that compounds the longer you show up.
         </p>
@@ -1253,6 +1258,10 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+
+      <DiagnosticSection onEmailSubmitted={setDiagnosticEmail} />
+      <FoundingCohort />
+      <FoundingMember diagnosticEmail={diagnosticEmail} />
 
       {/* DEMO */}
       <section id="relethe-demo">
