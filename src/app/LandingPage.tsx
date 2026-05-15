@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef, FormEvent } from "react";
 import { supabase } from "../lib/supabase";
 import { useNavigate } from "react-router";
-import { createPortal } from "react-dom";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ArrowRight } from "lucide-react";
@@ -22,9 +21,6 @@ export default function LandingPage() {
   const [showSignupDuplicate, setShowSignupDuplicate] = useState(false);
   const [isSubmitting1, setIsSubmitting1] = useState(false);
   const [isSubmitting2, setIsSubmitting2] = useState(false);
-  const [showDemoOverlay, setShowDemoOverlay] = useState(false);
-  const [demoCode, setDemoCode] = useState("");
-  const [demoCodeError, setDemoCodeError] = useState(false);
   const [diagnosticEmail, setDiagnosticEmail] = useState<string | null>(null);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -118,6 +114,7 @@ export default function LandingPage() {
 
   // Water canvas effect
   useEffect(() => {
+    if (window.matchMedia('(pointer: coarse)').matches) return;
     const cvs = canvasRef.current;
     if (!cvs) return;
     const ctx = cvs.getContext("2d");
@@ -192,6 +189,7 @@ export default function LandingPage() {
 
     window.addEventListener("mousemove", handleMouseMove);
 
+    let rafId: number;
     function loop() {
       if (!ctx) return;
       ctx.clearRect(0, 0, W, H);
@@ -221,19 +219,28 @@ export default function LandingPage() {
         r.draw(ctx);
       });
 
-      requestAnimationFrame(loop);
+      rafId = requestAnimationFrame(loop);
     }
+
+    const handleVisibility = () => {
+      if (document.hidden) cancelAnimationFrame(rafId);
+      else rafId = requestAnimationFrame(loop);
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
 
     loop();
 
     return () => {
       window.removeEventListener("resize", resize);
       window.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener('visibilitychange', handleVisibility);
+      cancelAnimationFrame(rafId);
     };
   }, []);
 
   // Custom cursor
   useEffect(() => {
+    if (window.matchMedia('(pointer: coarse)').matches) return;
     const dot = cursorDotRef.current;
     const ring = cursorRingRef.current;
     if (!dot || !ring) return;
@@ -291,12 +298,17 @@ export default function LandingPage() {
 
   // GSAP Hero animations
   useEffect(() => {
-    gsap.to(".relethe-hero-eyebrow", { opacity: 1, y: 0, duration: 0.8, delay: 0.2 });
-    gsap.to(".relethe-hero-h1", { opacity: 1, y: 0, duration: 0.9, delay: 0.35 });
-    gsap.to(".relethe-hero-h2", { opacity: 1, y: 0, duration: 0.9, delay: 0.5 });
-    gsap.to(".relethe-hero-sub", { opacity: 1, y: 0, duration: 0.9, delay: 0.65 });
-    gsap.to(".relethe-hero-form", { opacity: 1, y: 0, duration: 0.9, delay: 0.8 });
-    gsap.to(".relethe-hero-meta", { opacity: 1, y: 0, duration: 0.9, delay: 0.95 });
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      gsap.to(".relethe-hero-eyebrow", { opacity: 1, y: 0, duration: 0.8, delay: 0.2 });
+      gsap.to(".relethe-hero-h1", { opacity: 1, y: 0, duration: 0.9, delay: 0.35 });
+      gsap.to(".relethe-hero-h2", { opacity: 1, y: 0, duration: 0.9, delay: 0.5 });
+      gsap.to(".relethe-hero-sub", { opacity: 1, y: 0, duration: 0.9, delay: 0.65 });
+      gsap.to(".relethe-hero-form", { opacity: 1, y: 0, duration: 0.9, delay: 0.8 });
+      gsap.to(".relethe-hero-meta", { opacity: 1, y: 0, duration: 0.9, delay: 0.95 });
+    } else {
+      document.querySelectorAll('.relethe-hero-eyebrow, .relethe-hero-h1, .relethe-hero-h2, .relethe-hero-sub, .relethe-hero-form, .relethe-hero-meta')
+        .forEach(el => { (el as HTMLElement).style.opacity = '1'; });
+    }
   }, []);
 
 
@@ -325,11 +337,17 @@ export default function LandingPage() {
         l1: "Networking without",
         l2: "the performance.",
         l3: null,
-        l4: "We live and Relethe live.",
+        l4: "Your network should compound the longer you show up.",
       },
     ];
     let storyIdx = 0;
+    let paused = false;
     const refs = [ls1Ref, ls2Ref, ls3Ref, ls4Ref];
+    const storySection = document.getElementById('relethe-story');
+    if (storySection) {
+      storySection.addEventListener('mouseenter', () => { paused = true; });
+      storySection.addEventListener('mouseleave', () => { paused = false; });
+    }
 
     function typeText(
       el: HTMLSpanElement,
@@ -368,8 +386,8 @@ export default function LandingPage() {
       function next() {
         if (idx >= 4) {
           setTimeout(() => {
-            storyIdx++;
-            playStory();
+            if (!paused) { storyIdx++; playStory(); }
+            else { setTimeout(() => { storyIdx++; playStory(); }, 500); }
           }, 3200);
           return;
         }
@@ -404,7 +422,7 @@ export default function LandingPage() {
           if (e.isIntersecting) e.target.classList.add("visible");
         });
       },
-      { threshold: 0.12 }
+      { threshold: 0.05 }
     );
     document.querySelectorAll(".relethe-reveal").forEach((el) => obs.observe(el));
 
@@ -521,11 +539,11 @@ export default function LandingPage() {
           --dark2: #0a0d0a;
           --border: rgba(255,255,255,0.07);
           --text: rgba(255,255,255,0.88);
-          --dim: rgba(255,255,255,0.42);
-          --ghost: rgba(255,255,255,0.16);
+          --dim: rgba(255,255,255,0.60);
+          --ghost: rgba(255,255,255,0.28);
           --serif: 'Cormorant Garamond', serif;
           --mono: 'DM Mono', monospace;
-          --sans-serif: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+          --sans-serif: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         }
         html { scroll-behavior: smooth; }
         body {
@@ -626,8 +644,10 @@ export default function LandingPage() {
           font-weight: 300; font-style: italic;
           line-height: 1.0; letter-spacing: -.03em;
           color: rgba(255,255,255,0.92); margin-bottom: 8px; opacity: 0;
+          max-width: 800px; margin-left: auto; margin-right: auto;
         }
         .relethe-hero-h1 em { font-style: normal; color: var(--ch); }
+        .relethe-hero-h1-dim { color: var(--dim); display: block; }
         .relethe-hero-h2 {
           font-size: clamp(17px, 2vw, 22px);
           font-weight: 300; font-style: italic; line-height: 1.55; letter-spacing: .01em;
@@ -648,7 +668,7 @@ export default function LandingPage() {
         }
         .relethe-hero-form input {
           flex: 1; background: transparent; border: none; outline: none;
-          font-family: var(--mono); font-size: 13px; letter-spacing: .04em;
+          font-family: var(--mono); font-size: 16px; letter-spacing: .04em;
           color: var(--text); padding: 12px 18px;
         }
         .relethe-hero-form input::placeholder { color: var(--ghost); }
@@ -888,7 +908,7 @@ export default function LandingPage() {
           flex: 1; background: rgba(255,255,255,0.04);
           border: 1px solid rgba(255,255,255,0.12);
           border-radius: 22px; padding: 12px 20px;
-          font-family: var(--mono); font-size: 12px; letter-spacing: .06em;
+          font-family: var(--mono); font-size: 16px; letter-spacing: .06em;
           color: var(--text); outline: none;
           transition: border-color .2s;
         }
@@ -1054,7 +1074,7 @@ export default function LandingPage() {
           background:rgba(255,255,255,0.04); border:1px solid var(--border);
           border-radius:28px; overflow:hidden; padding:5px; position:relative; z-index:1;
         }
-        .relethe-signup-form input { flex:1; background:transparent; border:none; outline:none; font-family:var(--mono); font-size:13px; letter-spacing:.04em; color:var(--text); padding:12px 18px; }
+        .relethe-signup-form input { flex:1; background:transparent; border:none; outline:none; font-family:var(--mono); font-size:16px; letter-spacing:.04em; color:var(--text); padding:12px 18px; }
         .relethe-signup-form input::placeholder { color:var(--ghost); }
         .relethe-signup-form button { font-family:var(--mono); font-size:11px; letter-spacing:.3em; text-transform:uppercase; color:#6B6B6B; background:transparent; border:none; border-radius:22px; padding:12px 24px; cursor:none; transition:all .3s; white-space:nowrap; display: flex; align-items: center; gap: 8px; }
         .relethe-signup-form button:hover { color:var(--ch); }
@@ -1106,6 +1126,56 @@ export default function LandingPage() {
           .relethe-nav-links { gap: 20px; font-size: 10px; }
           .relethe-see-header { flex-direction: column; align-items: flex-start; gap: 20px; }
         }
+
+        /* ── Cards fade wrapper ── */
+        .relethe-cards-fade-wrapper { position: relative; overflow: hidden; }
+        .relethe-cards-fade-wrapper::after {
+          content: ''; position: absolute; top: 0; right: 0;
+          width: 80px; height: 100%;
+          background: linear-gradient(to right, transparent, var(--dark));
+          pointer-events: none; z-index: 2;
+        }
+
+        /* ── Typewriter static fallback ── */
+        .relethe-story-line:empty::before { content: '\\00a0'; display: block; }
+
+        /* ── Mobile ── */
+        @media (max-width: 640px) {
+          #relethe-hero    { padding: 100px 24px 80px; }
+          #relethe-story   { padding: 80px 24px; }
+          #relethe-how     { padding: 80px 24px; }
+          #relethe-demo    { padding: 80px 24px; }
+          #relethe-see     { padding: 80px 0; }
+          #relethe-signup  { padding: 100px 24px; }
+          .relethe-footer  { padding: 40px 24px; flex-direction: column; align-items: flex-start; gap: 20px; }
+          .relethe-footer-tag { display: none; }
+          .relethe-see-header { padding: 0 24px; }
+          .relethe-nav-links a { display: none; }
+          .relethe-nav-links { gap: 0; }
+          .relethe-hero-form {
+            flex-direction: column; border-radius: 16px; padding: 8px; gap: 8px;
+          }
+          .relethe-hero-form input { padding: 14px 16px; text-align: center; }
+          .relethe-hero-form button { width: 100%; justify-content: center; padding: 14px 24px; border-radius: 12px; }
+          .relethe-signup-form {
+            flex-direction: column; border-radius: 16px; padding: 8px; gap: 8px;
+          }
+          .relethe-signup-form input { padding: 14px 16px; text-align: center; }
+          .relethe-signup-form button { width: 100%; justify-content: center; padding: 14px 24px; border-radius: 12px; }
+          .relethe-step { padding: 32px 24px; }
+          .relethe-step:first-child { border-radius: 16px 16px 0 0; }
+          .relethe-step:last-child  { border-radius: 0 0 16px 16px; }
+          .relethe-product-card { width: 280px; }
+          .relethe-cards-track  { padding: 32px 24px 48px; }
+          .relethe-section-label { margin-bottom: 32px; }
+        }
+
+        /* ── Reduced motion ── */
+        @media (prefers-reduced-motion: reduce) {
+          .relethe-reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+          .diagnostic-organism { animation: none !important; }
+          .relethe-cursor-blink { animation: none !important; opacity: 1; }
+        }
       `}</style>
 
       <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -1121,16 +1191,16 @@ export default function LandingPage() {
 
       {/* NAV */}
       <nav className="relethe-nav">
-        <button
-          onClick={() => window.location.href = '#relethe-hero'}
-          className="flex items-center gap-2 text-white text-sm tracking-[0.3em] uppercase font-light font-display transition-colors duration-300 hover:opacity-70 cursor-pointer bg-transparent border-0"
-          style={{ padding: 0 }}
+        <a
+          href="/"
+          className="relethe-nav-logo flex items-center gap-2"
+          style={{ textDecoration: 'none' }}
         >
           <div className="w-5 h-5">
             <ReletheLogo />
           </div>
           RELETHE
-        </button>
+        </a>
         <div className="relethe-nav-links">
           <a href="#relethe-how">HOW IT WORKS</a>
           <a href="#relethe-see">THE PRODUCT</a>
@@ -1145,8 +1215,8 @@ export default function LandingPage() {
               color: '#7FFF00',
               paddingLeft: '1.5rem',
               paddingRight: '1.5rem',
-              paddingTop: '0.625rem',
-              paddingBottom: '0.625rem',
+              paddingTop: '11px',
+              paddingBottom: '11px',
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.backgroundColor = 'rgba(127, 255, 0, 0.15)';
@@ -1165,7 +1235,10 @@ export default function LandingPage() {
       {/* HERO */}
       <section id="relethe-hero">
         <p className="relethe-hero-eyebrow">Private beta — limited access</p>
-        <h1 className="relethe-hero-h1">You should be more intentional about meeting people.</h1>
+        <h1 className="relethe-hero-h1">
+          You should be more intentional
+          <span className="relethe-hero-h1-dim"> about meeting people.</span>
+        </h1>
         <h2 className="relethe-hero-h2">Everything you dream of achieving lies within the unexplored gap in your network.</h2>
         <p className="relethe-hero-sub">
           Up to five introductions a week, matched to who you actually are. A daily feed that ends. A network that compounds the longer you show up.
@@ -1208,6 +1281,14 @@ export default function LandingPage() {
               {"You're now on the list."}
             </p>
             <p className="relethe-form-success-sub">We'll be in touch when the first batch opens.</p>
+            <a
+              href="https://twitter.com/intent/tweet?text=Just joined the Relethe waitlist. Networking without the performance. relethe.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ fontFamily: 'var(--mono)', fontSize: '11px', letterSpacing: '.2em', textTransform: 'uppercase', color: 'var(--ch)', textDecoration: 'none', marginTop: '12px', display: 'inline-block' }}
+            >
+              Share on X →
+            </a>
           </div>
         )}
         <div className="relethe-hero-meta">
@@ -1273,7 +1354,7 @@ export default function LandingPage() {
               ref={thumbRef}
               className="relethe-demo-thumb"
               src={demoThumb}
-              alt="Relethe demo"
+              alt="Relethe product demo showing the matching interface and daily feed"
             />
             <div
               className="relethe-play-overlay"
@@ -1308,77 +1389,10 @@ export default function LandingPage() {
         </div>
         <button
           className="relethe-view-demo-btn"
-          onClick={() => setShowDemoOverlay(true)}
+          onClick={() => navigate("/feed")}
         >
           View full demo
         </button>
-        {showDemoOverlay && createPortal(
-          <div style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            width: '100vw',
-            height: '100vh',
-            backgroundColor: '#0a0a0a',
-            zIndex: 99999,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            overflow: 'hidden',
-            cursor: 'none',
-          }}>
-            <button
-              onClick={() => { setShowDemoOverlay(false); window.scrollTo(0, 0); }}
-              style={{
-                position: 'absolute',
-                top: '24px',
-                right: '32px',
-                width: '48px',
-                height: '48px',
-                borderRadius: '50%',
-                background: 'transparent',
-                border: '1.5px solid #ADFF2F',
-                color: '#ADFF2F',
-                fontSize: '20px',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >×</button>
-            <div className="relethe-demo-overlay-inner">
-              <h2 className="relethe-demo-overlay-h">Restricted to Admin.</h2>
-              <p className="relethe-demo-overlay-sub">Enter the access code to continue.</p>
-              <form
-                className="relethe-demo-overlay-form"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  if (demoCode.trim().toLowerCase() === "relethelive") {
-                    setShowDemoOverlay(false);
-                    setDemoCode("");
-                    setDemoCodeError(false);
-                    navigate("/feed");
-                  } else {
-                    setDemoCodeError(true);
-                  }
-                }}
-              >
-                <input
-                  type="text"
-                  placeholder="Access code"
-                  value={demoCode}
-                  autoComplete="off"
-                  autoFocus
-                  onChange={(e) => { setDemoCode(e.target.value); setDemoCodeError(false); }}
-                />
-                <button type="submit">Enter</button>
-              </form>
-              <p className="relethe-demo-overlay-error">{demoCodeError ? "That's not it." : ""}</p>
-            </div>
-          </div>,
-          document.body
-        )}
       </section>
 
       {/* SEE IT */}
@@ -1391,6 +1405,7 @@ export default function LandingPage() {
           </h2>
           <p className="relethe-scroll-hint-h">Drag to explore</p>
         </div>
+        <div className="relethe-cards-fade-wrapper">
         <div className="relethe-cards-track" ref={cardsTrackRef}>
           {/* Card 1: Connect */}
           <div className="relethe-product-card">
@@ -1744,14 +1759,15 @@ export default function LandingPage() {
             </div>
           </div>
         </div>
+        </div>
       </section>
 
       {/* SIGNUP */}
       <section id="relethe-signup">
         <p className="relethe-signup-pre relethe-reveal">Private beta</p>
-        <h2 className="relethe-signup-h relethe-reveal">Connect differently.</h2>
+        <h2 className="relethe-signup-h relethe-reveal">Your seat is still open.</h2>
         <p className="relethe-signup-sub relethe-reveal">
-          Relethe is in private beta. Be among the first to meet people who actually move the needle on how you think, work, and live.
+          Relethe is in private beta. The founding cohort shapes how the matching engine learns. Join before it closes.
         </p>
         {!showSignupSuccess && !showSignupDuplicate ? (
           <form className="relethe-signup-form relethe-reveal" onSubmit={handleSignupSubmit}>
@@ -1791,6 +1807,14 @@ export default function LandingPage() {
               {"You're now on the list."}
             </p>
             <p className="relethe-form-success-sub">We'll be in touch when the first batch opens.</p>
+            <a
+              href="https://twitter.com/intent/tweet?text=Just joined the Relethe waitlist. Networking without the performance. relethe.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ fontFamily: 'var(--mono)', fontSize: '11px', letterSpacing: '.2em', textTransform: 'uppercase', color: 'var(--ch)', textDecoration: 'none', marginTop: '12px', display: 'inline-block' }}
+            >
+              Share on X →
+            </a>
           </div>
         )}
         <p className="relethe-signup-note relethe-reveal">
@@ -1804,7 +1828,7 @@ export default function LandingPage() {
         <span className="relethe-footer-tag">
           Networking without the performance.
         </span>
-        <a href="#" className="relethe-footer-link">
+        <a href="https://www.linkedin.com/company/relethe" target="_blank" rel="noopener noreferrer" className="relethe-footer-link" style={{ padding: '12px 0', display: 'inline-block' }}>
           LinkedIn ↗
         </a>
       </footer>

@@ -1,3 +1,4 @@
+// TODO: Replace placeholder profiles with real founding cohort members before launch
 const MEMBERS = [
   {
     name: "Marcus Webb",
@@ -52,6 +53,21 @@ const MEMBERS = [
     initials: "RF",
     role: "Organizational psychologist, executive coach · Paris, France",
     intent: "Looking to meet first-time founders navigating leadership for the first time.",
+  },
+];
+
+const BENEFITS = [
+  {
+    label: "Priority placement",
+    detail: "Founding members surface first in the matching queue when the engine activates.",
+  },
+  {
+    label: "Your handle reserved",
+    detail: "Your relethe.com/handle is locked to you before the public launch.",
+  },
+  {
+    label: "CEP at activation",
+    detail: "Founding cohort members receive the first Contextual Entry Profile when matchmaking begins.",
   },
 ];
 
@@ -137,12 +153,47 @@ export default function FoundingCohort() {
           padding-top: 12px;
           margin-top: 2px;
         }
+        .cohort-divider {
+          border: none;
+          border-top: 1px solid rgba(255,255,255,0.07);
+          margin: 56px 0;
+        }
+        .cohort-benefits-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 16px;
+        }
+        .cohort-benefit-tab {
+          background: rgba(255,255,255,0.025);
+          border: 1px solid rgba(255,255,255,0.07);
+          border-radius: 16px;
+          padding: 28px 24px;
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+        }
+        .cohort-benefit-label {
+          font-family: 'DM Mono', monospace;
+          font-size: 11px;
+          letter-spacing: .18em;
+          text-transform: uppercase;
+          color: rgba(127,255,0,0.7);
+        }
+        .cohort-benefit-detail {
+          font-family: 'Cormorant Garamond', serif;
+          font-size: 15px;
+          font-weight: 300;
+          line-height: 1.65;
+          color: rgba(255,255,255,0.48);
+        }
         @media (max-width: 968px) {
           .cohort-grid { grid-template-columns: repeat(2, 1fr); }
+          .cohort-benefits-grid { grid-template-columns: repeat(2, 1fr); }
           .cohort-section { padding: 80px 24px; }
         }
         @media (max-width: 640px) {
           .cohort-grid { grid-template-columns: 1fr; }
+          .cohort-benefits-grid { grid-template-columns: 1fr; }
         }
       `}</style>
 
@@ -150,7 +201,7 @@ export default function FoundingCohort() {
         className="cohort-section"
         style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}
       >
-        <h2 className="cohort-heading relethe-reveal">Who's already here</h2>
+        <h2 className="cohort-heading relethe-reveal">You'll be in good company</h2>
         <div className="cohort-grid">
           {MEMBERS.map((m, i) => (
             <div
@@ -167,6 +218,17 @@ export default function FoundingCohort() {
                 </div>
               </div>
               <p className="cohort-intent">"{m.intent}"</p>
+            </div>
+          ))}
+        </div>
+
+        <hr className="cohort-divider" />
+
+        <div className="cohort-benefits-grid">
+          {BENEFITS.map((b) => (
+            <div key={b.label} className="cohort-benefit-tab relethe-reveal">
+              <p className="cohort-benefit-label">{b.label}</p>
+              <p className="cohort-benefit-detail">{b.detail}</p>
             </div>
           ))}
         </div>
