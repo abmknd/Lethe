@@ -7,6 +7,14 @@ interface Props {
 
 export default function DiagnosticSection({ onEmailSubmitted }: Props) {
   const [modalOpen, setModalOpen] = useState(false);
+  const [completed, setCompleted] = useState(false);
+  const [modalKey, setModalKey] = useState(0);
+
+  const handleReset = () => {
+    setModalKey((k) => k + 1);
+    setCompleted(false);
+    setModalOpen(true);
+  };
 
   return (
     <>
@@ -47,7 +55,15 @@ export default function DiagnosticSection({ onEmailSubmitted }: Props) {
           line-height: 1.7;
           color: rgba(255,255,255,0.42);
           max-width: 520px;
-          margin-bottom: 44px;
+          margin-bottom: 16px;
+        }
+        .diagnostic-time-hint {
+          font-family: 'DM Mono', monospace;
+          font-size: 10px;
+          letter-spacing: .18em;
+          text-transform: uppercase;
+          color: rgba(255,255,255,0.22);
+          margin-bottom: 36px;
         }
         .diag-cta-btn {
           font-family: 'DM Mono', monospace;
@@ -66,6 +82,42 @@ export default function DiagnosticSection({ onEmailSubmitted }: Props) {
           gap: 10px;
         }
         .diag-cta-btn:hover { background: rgba(127,255,0,1); }
+        .diag-complete-state {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 12px;
+        }
+        .diag-complete-label {
+          font-family: 'DM Mono', monospace;
+          font-size: 10px;
+          letter-spacing: .3em;
+          text-transform: uppercase;
+          color: rgba(127,255,0,0.6);
+        }
+        .diag-complete-msg {
+          font-family: 'Cormorant Garamond', serif;
+          font-size: clamp(15px, 1.8vw, 18px);
+          font-weight: 300;
+          font-style: italic;
+          color: rgba(255,255,255,0.45);
+          max-width: 420px;
+          line-height: 1.65;
+        }
+        .diag-explore-again {
+          font-family: 'DM Mono', monospace;
+          font-size: 11px;
+          letter-spacing: .18em;
+          text-transform: uppercase;
+          color: rgba(127,255,0,0.65);
+          background: transparent;
+          border: none;
+          cursor: none;
+          transition: color .2s;
+          margin-top: 4px;
+          padding: 12px;
+        }
+        .diag-explore-again:hover { color: rgba(127,255,0,1); }
         @media (max-width: 640px) {
           .diag-section { padding: 80px 24px; }
         }
@@ -79,24 +131,42 @@ export default function DiagnosticSection({ onEmailSubmitted }: Props) {
         <p className="diag-section-sub relethe-reveal">
           Same. But now, you can explore what lies in wait before you face it.
         </p>
-        <button
-          className="diag-cta-btn relethe-reveal"
-          onClick={() => setModalOpen(true)}
-        >
-          Explore the Unknown
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <path d="M2 7h10M8 3l4 4-4 4" stroke="#050705" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </button>
+        <p className="diagnostic-time-hint relethe-reveal">
+          5 questions · 2 minutes · your match profile at the end
+        </p>
+
+        {completed ? (
+          <div className="diag-complete-state relethe-reveal">
+            <p className="diag-complete-label">Network Diagnostic Complete</p>
+            <p className="diag-complete-msg">
+              Your match profile has been built. Join the founding cohort to activate it.
+            </p>
+            <button className="diag-explore-again" onClick={handleReset}>
+              Explore again →
+            </button>
+          </div>
+        ) : (
+          <button
+            className="diag-cta-btn relethe-reveal"
+            onClick={() => setModalOpen(true)}
+          >
+            Explore the Unknown
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M2 7h10M8 3l4 4-4 4" stroke="#050705" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+        )}
       </section>
 
       <DiagnosticModal
+        key={modalKey}
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
         onEmailSubmitted={(em) => {
           onEmailSubmitted(em);
           setModalOpen(false);
         }}
+        onComplete={() => setCompleted(true)}
       />
     </>
   );

@@ -9,6 +9,7 @@ interface Props {
   isOpen: boolean;
   onClose: () => void;
   onEmailSubmitted: (email: string) => void;
+  onComplete?: () => void;
 }
 
 const PROGRESS = [9, 18, 27, 36, 45, 55, 64, 82, 91, 100];
@@ -201,6 +202,17 @@ function computeArchetype(answers: Record<string, string>): Archetype {
   return q5Tie[answers.q5] ?? "signal_seeker";
 }
 
+function OrganismSVG() {
+  return (
+    <svg className="diagnostic-organism" width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="18" cy="18" rx="10" ry="14" stroke="rgba(127,255,0,0.55)" strokeWidth="1" />
+      <ellipse cx="18" cy="18" rx="14" ry="9" stroke="rgba(127,255,0,0.35)" strokeWidth="1" />
+      <circle cx="18" cy="18" r="3.5" fill="rgba(127,255,0,0.45)" />
+      <circle cx="18" cy="18" r="1.5" fill="rgba(127,255,0,0.9)" />
+    </svg>
+  );
+}
+
 function Waveform() {
   const heights = [6, 10, 16, 12, 20, 14, 18, 10, 14, 8, 16, 10];
   return (
@@ -246,7 +258,7 @@ function PulseRings() {
 
 const OPT_KEYS = ["A", "B", "C", "D"];
 
-export default function DiagnosticModal({ isOpen, onClose, onEmailSubmitted }: Props) {
+export default function DiagnosticModal({ isOpen, onClose, onEmailSubmitted, onComplete }: Props) {
   const [step, setStep] = useState(0);
   const [freetext, setFreetext] = useState("");
   const [community, setCommunity] = useState<Community>("independents");
@@ -313,39 +325,37 @@ export default function DiagnosticModal({ isOpen, onClose, onEmailSubmitted }: P
     justifyContent: "flex-start", overflowY: "auto", cursor: "none",
   };
 
-  const card: React.CSSProperties = {
-    width: "100%", maxWidth: 640, margin: "0 auto",
-    padding: "80px 32px 48px",
-    display: "flex", flexDirection: "column", alignItems: "center",
-    minHeight: "100vh",
-  };
-
   return createPortal(
     <>
       <style>{`
         @keyframes diagWave { 0% { transform: scaleY(0.4); } 100% { transform: scaleY(1.1); } }
         @keyframes diagPulse { 0% { opacity: 0.12; transform: scale(0.9); } 100% { opacity: 0.35; transform: scale(1.05); } }
-        .diag-opt { width: 100%; padding: 14px 20px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.09); border-radius: 10px; cursor: none; display: flex; align-items: flex-start; gap: 14px; transition: border-color .18s, background .18s; text-align: left; }
+        @keyframes organism-breathe { 0%,100% { transform: scale(1); opacity: 0.75; } 50% { transform: scale(1.06); opacity: 1; } }
+        .diagnostic-organism { animation: organism-breathe 2.8s cubic-bezier(0.4,0,0.6,1) infinite; }
+        .diag-opt { width: 100%; min-height: 52px; padding: 14px 16px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.09); border-radius: 10px; cursor: none; display: flex; align-items: flex-start; gap: 14px; transition: border-color .18s, background .18s; text-align: left; }
         .diag-opt:hover { border-color: rgba(127,255,0,0.35); background: rgba(127,255,0,0.04); }
         .diag-opt:active { border-color: rgba(127,255,0,0.6); background: rgba(127,255,0,0.08); }
         .diag-close { position: fixed; top: 20px; right: 24px; width: 40px; height: 40px; border-radius: 50%; background: transparent; border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.4); font-size: 18px; display: flex; align-items: center; justify-content: center; cursor: none; transition: border-color .2s, color .2s; z-index: 99999; }
         .diag-close:hover { border-color: rgba(255,255,255,0.3); color: rgba(255,255,255,0.75); }
-        .diag-input { width: 100%; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 13px 18px; font-family: 'DM Mono', monospace; font-size: 13px; color: rgba(255,255,255,0.88); outline: none; transition: border-color .2s; }
+        .diag-input { width: 100%; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 13px 18px; font-family: 'DM Mono', monospace; font-size: 16px; color: rgba(255,255,255,0.88); outline: none; transition: border-color .2s; }
         .diag-input:focus { border-color: rgba(127,255,0,0.35); }
         .diag-input::placeholder { color: rgba(255,255,255,0.18); }
         .diag-btn-primary { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: #050705; background: rgba(127,255,0,0.88); border: none; border-radius: 22px; padding: 13px 28px; cursor: none; transition: background .2s; width: 100%; }
         .diag-btn-primary:hover { background: rgba(127,255,0,1); }
         .diag-btn-primary:disabled { opacity: 0.5; }
-        .diag-back { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: rgba(255,255,255,0.25); background: transparent; border: none; cursor: none; transition: color .2s; margin-top: 24px; }
+        .diag-back { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: rgba(255,255,255,0.25); background: transparent; border: none; cursor: none; transition: color .2s; margin-top: 24px; padding: 16px; }
         .diag-back:hover { color: rgba(255,255,255,0.5); }
         .diag-section-title { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: .3em; text-transform: uppercase; color: rgba(127,255,0,0.5); margin-bottom: 4px; }
         .diag-result-section-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: .28em; text-transform: uppercase; color: rgba(127,255,0,0.45); margin-bottom: 8px; display: block; }
+        @media (max-width: 640px) {
+          .diag-card-inner { width: calc(100% - 32px) !important; padding: 24px !important; }
+        }
       `}</style>
 
       <div style={overlay}>
         <button className="diag-close" onClick={onClose}>×</button>
 
-        <div style={card}>
+        <div className="diag-card-inner" style={{ width: "100%", maxWidth: 640, margin: "0 auto", padding: "80px 32px 48px", display: "flex", flexDirection: "column", alignItems: "center", minHeight: "100vh" }}>
           {/* Progress bar */}
           <div style={{ width: "100%", maxWidth: 480, marginBottom: 40 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
@@ -474,8 +484,9 @@ export default function DiagnosticModal({ isOpen, onClose, onEmailSubmitted }: P
               </p>
 
               {/* Teaser chip */}
-              <div style={{ background: "rgba(245,158,11,0.12)", border: "1px solid rgba(245,158,11,0.2)", borderRadius: 8, padding: "10px 16px", width: "100%", textAlign: "center" }}>
-                <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 11, letterSpacing: ".1em", color: "#FCD34D" }}>
+              <div style={{ background: "rgba(127,255,0,0.08)", border: "1px solid rgba(127,255,0,0.35)", borderRadius: 12, padding: "14px 20px", width: "100%", display: "flex", alignItems: "center", gap: 14 }}>
+                <OrganismSVG />
+                <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 11, letterSpacing: ".1em", color: "rgba(127,255,0,0.85)", lineHeight: 1.5 }}>
                   {TEASER[archetype]}
                 </span>
               </div>
@@ -550,7 +561,7 @@ export default function DiagnosticModal({ isOpen, onClose, onEmailSubmitted }: P
 
               <button
                 className="diag-btn-primary"
-                onClick={onClose}
+                onClick={() => { onComplete?.(); onClose(); }}
                 style={{ width: "auto", paddingLeft: 40, paddingRight: 40 }}
               >
                 Close
