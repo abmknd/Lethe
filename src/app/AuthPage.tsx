@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router";
 import { Mail, ArrowRight } from "lucide-react";
-import LetheLogo from "../imports/LetheLogo";
+import ReletheLogo from "../imports/ReletheLogo";
 import { useAuth } from "./context/AuthContext";
 
 type Stage = "input" | "sent" | "error";
@@ -50,7 +50,7 @@ export default function AuthPage() {
       padding: "32px 24px",
     }}>
       <div style={{ marginBottom: 48 }}>
-        <LetheLogo />
+        <ReletheLogo />
       </div>
 
       <div style={{

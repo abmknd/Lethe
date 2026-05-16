@@ -1,6 +1,6 @@
-# Lethe
+# Relethe
 
-Lethe is a deliberately slow, curated professional intro platform. Content decays over time. Connections are earned through a weekly matching loop with human-in-the-loop review — not instant follows.
+Relethe is a deliberately slow, curated professional intro platform. Content decays over time. Connections are earned through a weekly matching loop with human-in-the-loop review — not instant follows.
 
 **Status:** Trial complete and accepted. Now building Stage 2 / MVP for first real users.
 
@@ -20,8 +20,8 @@ Lethe is a deliberately slow, curated professional intro platform. Content decay
 ## Quick start (local demo)
 
 ```bash
-git clone https://github.com/abmknd/lethe.git
-cd lethe
+git clone https://github.com/abmknd/relethe.git
+cd relethe
 git checkout demo
 npm run demo
 ```

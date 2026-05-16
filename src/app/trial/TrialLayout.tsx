@@ -13,7 +13,7 @@ export default function TrialLayout() {
       <header className="border-b border-white/10">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
           <div>
-            <p className="text-[11px] uppercase tracking-[0.2em] text-white/45">Lethe MVP</p>
+            <p className="text-[11px] uppercase tracking-[0.2em] text-white/45">Relethe MVP</p>
             <h1 className="text-lg font-semibold">Local-first / production-portable MVP loop</h1>
           </div>
           <nav className="flex items-center gap-2">

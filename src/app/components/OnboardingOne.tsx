@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { ChevronRight, ArrowRight } from "lucide-react";
-import LetheLogo from "../../imports/LetheLogo";
+import ReletheLogo from "../../imports/ReletheLogo";
 
 export function OnboardingOne({ onContinue, onNext }: { onContinue: () => void; onNext: () => void }) {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
@@ -99,10 +99,10 @@ export function OnboardingOne({ onContinue, onNext }: { onContinue: () => void; 
         {/* Wordmark */}
         <div className="pt-4 flex items-center gap-2">
           <div className="w-5 h-5 opacity-60">
-            <LetheLogo />
+            <ReletheLogo />
           </div>
           <h1 className="text-white text-[11px] tracking-[0.35em] uppercase font-light font-display opacity-60">
-            LETHE
+            RELETHE
           </h1>
         </div>
 
@@ -124,7 +124,7 @@ export function OnboardingOne({ onContinue, onNext }: { onContinue: () => void; 
               The person who posted three years ago is a stranger to who you are today. Yet{" "}
               <span className="text-white font-normal">the internet remembers everything</span> — and forgives nothing.
             </p>
-            <p className="text-[#6B6B6B]">Lethe was built on a different belief.</p>
+            <p className="text-[#6B6B6B]">Relethe was built on a different belief.</p>
           </div>
         </div>
 

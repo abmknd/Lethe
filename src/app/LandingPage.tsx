@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef, FormEvent } from "react";
+import { supabase } from "../lib/supabase";
 import { useNavigate } from "react-router";
 import { createPortal } from "react-dom";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ArrowRight } from "lucide-react";
 import demoThumb from "../assets/a70a950bf7228e76ca10f85df8f58e89c216f662.png";
-import LetheLogo from "../imports/LetheLogo";
+import ReletheLogo from "../imports/ReletheLogo";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -37,19 +38,14 @@ export default function LandingPage() {
 
   const navigate = useNavigate();
 
-  const MC_URL = "https://gmail.us22.list-manage.com/subscribe/post?u=c4d6d5b0d24bc275d3ce10296&id=e6473f0143&f_id=00b2c2e1f0";
-
   const handleHeroSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!email1) return;
     setIsSubmitting1(true);
-    const fd = new URLSearchParams();
-    fd.append("EMAIL", email1);
-    fd.append("b_c4d6d5b0d24bc275d3ce10296_e6473f0143", "");
-    try {
-      await fetch(MC_URL, { method: "POST", mode: "no-cors", body: fd });
-    } catch (_) {
-      // no-cors opaque response — treat as success
+    const { error } = await supabase.from("waitlist").insert({ email: email1 });
+    if (error && error.code !== "23505") {
+      setIsSubmitting1(false);
+      return;
     }
     setShowHeroSuccess(true);
   };
@@ -58,13 +54,10 @@ export default function LandingPage() {
     e.preventDefault();
     if (!email2) return;
     setIsSubmitting2(true);
-    const fd = new URLSearchParams();
-    fd.append("EMAIL", email2);
-    fd.append("b_c4d6d5b0d24bc275d3ce10296_e6473f0143", "");
-    try {
-      await fetch(MC_URL, { method: "POST", mode: "no-cors", body: fd });
-    } catch (_) {
-      // no-cors opaque response — treat as success
+    const { error } = await supabase.from("waitlist").insert({ email: email2 });
+    if (error && error.code !== "23505") {
+      setIsSubmitting2(false);
+      return;
     }
     setShowSignupSuccess(true);
   };
@@ -244,7 +237,7 @@ export default function LandingPage() {
     };
 
     const interactives = document.querySelectorAll(
-      "a,button,input,.lethe-product-card,.lethe-demo-card"
+      "a,button,input,.relethe-product-card,.relethe-demo-card"
     );
     interactives.forEach((el) => {
       el.addEventListener("mouseenter", handleMouseEnter);
@@ -262,12 +255,12 @@ export default function LandingPage() {
 
   // GSAP Hero animations
   useEffect(() => {
-    gsap.to(".lethe-hero-eyebrow", { opacity: 1, y: 0, duration: 0.8, delay: 0.2 });
-    gsap.to(".lethe-hero-h1", { opacity: 1, y: 0, duration: 0.9, delay: 0.35 });
-    gsap.to(".lethe-hero-h2", { opacity: 1, y: 0, duration: 0.9, delay: 0.5 });
-    gsap.to(".lethe-hero-sub", { opacity: 1, y: 0, duration: 0.9, delay: 0.65 });
-    gsap.to(".lethe-hero-form", { opacity: 1, y: 0, duration: 0.9, delay: 0.8 });
-    gsap.to(".lethe-hero-meta", { opacity: 1, y: 0, duration: 0.9, delay: 0.95 });
+    gsap.to(".relethe-hero-eyebrow", { opacity: 1, y: 0, duration: 0.8, delay: 0.2 });
+    gsap.to(".relethe-hero-h1", { opacity: 1, y: 0, duration: 0.9, delay: 0.35 });
+    gsap.to(".relethe-hero-h2", { opacity: 1, y: 0, duration: 0.9, delay: 0.5 });
+    gsap.to(".relethe-hero-sub", { opacity: 1, y: 0, duration: 0.9, delay: 0.65 });
+    gsap.to(".relethe-hero-form", { opacity: 1, y: 0, duration: 0.9, delay: 0.8 });
+    gsap.to(".relethe-hero-meta", { opacity: 1, y: 0, duration: 0.9, delay: 0.95 });
   }, []);
 
 
@@ -277,7 +270,7 @@ export default function LandingPage() {
       {
         l1: "Most platforms are built",
         l2: "to keep you scrolling.",
-        l3: "Lethe is built to send you home.",
+        l3: "Relethe is built to send you home.",
         l4: null,
       },
       {
@@ -296,7 +289,7 @@ export default function LandingPage() {
         l1: "Networking without",
         l2: "the performance.",
         l3: null,
-        l4: "We live and Lethe live.",
+        l4: "We live and Relethe live.",
       },
     ];
     let storyIdx = 0;
@@ -314,7 +307,7 @@ export default function LandingPage() {
       }
       let i = 0;
       const cursor = document.createElement("span");
-      cursor.className = "lethe-cursor-blink";
+      cursor.className = "relethe-cursor-blink";
       el.appendChild(cursor);
       const t = setInterval(() => {
         cursor.before(text[i]);
@@ -356,7 +349,7 @@ export default function LandingPage() {
     }
 
     ScrollTrigger.create({
-      trigger: "#lethe-story",
+      trigger: "#relethe-story",
       start: "top 70%",
       once: true,
       onEnter: playStory,
@@ -377,7 +370,7 @@ export default function LandingPage() {
       },
       { threshold: 0.12 }
     );
-    document.querySelectorAll(".lethe-reveal").forEach((el) => obs.observe(el));
+    document.querySelectorAll(".relethe-reveal").forEach((el) => obs.observe(el));
 
     return () => obs.disconnect();
   }, []);
@@ -389,7 +382,7 @@ export default function LandingPage() {
 
     const tl = gsap.timeline({
       scrollTrigger: {
-        trigger: "#lethe-demo",
+        trigger: "#relethe-demo",
         start: "top bottom",
         end: "bottom top",
         scrub: 1.5,
@@ -442,7 +435,7 @@ export default function LandingPage() {
     };
 
     const handleScroll = () => {
-      const cards = track.querySelectorAll(".lethe-product-card");
+      const cards = track.querySelectorAll(".relethe-product-card");
       const center = track.scrollLeft + track.offsetWidth / 2;
       cards.forEach((card) => {
         const el = card as HTMLElement;
@@ -508,39 +501,39 @@ export default function LandingPage() {
         }
 
         /* ── Custom cursor ── */
-        #lethe-cur-dot {
+        #relethe-cur-dot {
           position: fixed; width: 5px; height: 5px;
           background: rgba(173,255,47,0.85); border-radius: 50%;
           pointer-events: none; z-index: 100001;
           transform: translate(-50%,-50%);
           mix-blend-mode: screen; transition: width .22s, height .22s;
         }
-        #lethe-cur-ring {
+        #relethe-cur-ring {
           position: fixed; width: 32px; height: 32px;
           border: 1px solid rgba(173,255,47,0.2); border-radius: 50%;
           pointer-events: none; z-index: 100000;
           transform: translate(-50%,-50%);
           transition: width .3s, height .3s, border-color .3s;
         }
-        #lethe-cur-dot.hover  { width: 10px; height: 10px; }
-        #lethe-cur-ring.hover { width: 48px; height: 48px; border-color: rgba(173,255,47,0.4); }
+        #relethe-cur-dot.hover  { width: 10px; height: 10px; }
+        #relethe-cur-ring.hover { width: 48px; height: 48px; border-color: rgba(173,255,47,0.4); }
 
         /* ── Water canvas ── */
-        #lethe-water-canvas {
+        #relethe-water-canvas {
           position: fixed; inset: 0;
           width: 100%; height: 100%;
           z-index: 0; pointer-events: none;
         }
 
         /* ── Noise overlay ── */
-        .lethe-noise {
+        .relethe-noise {
           position: fixed; inset: 0; opacity: 0.022; pointer-events: none; z-index: 2;
           background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
           background-size: 200px;
         }
 
         /* ── NAV ── */
-        .lethe-nav {
+        .relethe-nav {
           position: fixed; top: 0; left: 0; right: 0; z-index: 100;
           height: 56px; padding: 0 16px;
           display: flex; align-items: center; justify-content: space-between;
@@ -548,24 +541,24 @@ export default function LandingPage() {
           border-bottom: 1px solid var(--border);
         }
         @media (min-width: 640px) {
-          .lethe-nav { padding: 0 40px; }
+          .relethe-nav { padding: 0 40px; }
         }
-        .lethe-nav-logo {
+        .relethe-nav-logo {
           font-family: var(--serif); font-size: 14px; font-weight: 300;
           letter-spacing: .3em; text-transform: uppercase;
           color: var(--text); text-decoration: none;
           transition: opacity .3s;
         }
-        .lethe-nav-logo:hover { opacity: 0.7; }
-        .lethe-nav-links { display: flex; align-items: center; gap: 32px; }
-        .lethe-nav-links a {
+        .relethe-nav-logo:hover { opacity: 0.7; }
+        .relethe-nav-links { display: flex; align-items: center; gap: 32px; }
+        .relethe-nav-links a {
           font-family: var(--sans-serif); font-size: 11px; letter-spacing: .25em;
           text-transform: uppercase; color: var(--dim);
           text-decoration: none; transition: opacity .3s;
           padding: 6px 8px;
         }
-        .lethe-nav-links a:hover { opacity: 0.7; }
-        .lethe-nav-cta {
+        .relethe-nav-links a:hover { opacity: 0.7; }
+        .relethe-nav-cta {
           font-family: var(--sans-serif); font-size: 11px; letter-spacing: .2em;
           text-transform: uppercase; color: var(--ch); font-weight: 300;
           background: transparent; border: 1px solid var(--ch); border-radius: 9999px;
@@ -573,13 +566,13 @@ export default function LandingPage() {
           text-decoration: none; transition: all .3s;
           display: inline-block;
         }
-        .lethe-nav-cta:hover { 
+        .relethe-nav-cta:hover { 
           background: rgba(127, 255, 0, 0.15); 
           color: var(--ch);
         }
 
         /* ── HERO ── */
-        #lethe-hero {
+        #relethe-hero {
           min-height: 100vh;
           display: flex; flex-direction: column;
           align-items: center; justify-content: center;
@@ -587,77 +580,77 @@ export default function LandingPage() {
           position: relative; overflow: hidden;
           text-align: center; z-index: 3;
         }
-        .lethe-hero-eyebrow {
+        .relethe-hero-eyebrow {
           font-family: var(--mono); font-size: 11px; letter-spacing: .32em;
           text-transform: uppercase; color: rgba(173,255,47,0.55);
           margin-bottom: 32px; opacity: 0;
         }
-        .lethe-hero-h1 {
+        .relethe-hero-h1 {
           font-size: clamp(40px, 6vw, 72px);
           font-weight: 300; font-style: italic;
           line-height: 1.0; letter-spacing: -.03em;
           color: rgba(255,255,255,0.92); margin-bottom: 8px; opacity: 0;
         }
-        .lethe-hero-h1 em { font-style: normal; color: var(--ch); }
-        .lethe-hero-h2 {
+        .relethe-hero-h1 em { font-style: normal; color: var(--ch); }
+        .relethe-hero-h2 {
           font-size: clamp(40px, 6vw, 72px);
           font-weight: 300; line-height: 1.0; letter-spacing: -.03em;
           color: rgba(255,255,255,0.28); margin-bottom: 40px; opacity: 0;
         }
-        .lethe-hero-sub {
+        .relethe-hero-sub {
           font-size: clamp(15px, 1.8vw, 18px); font-weight: 300;
           line-height: 1.75; letter-spacing: .02em;
           color: var(--dim); max-width: 540px; margin-bottom: 52px; opacity: 0;
         }
-        .lethe-hero-sub em { color: rgba(255,255,255,0.62); font-style: italic; }
-        .lethe-hero-form {
+        .relethe-hero-sub em { color: rgba(255,255,255,0.62); font-style: italic; }
+        .relethe-hero-form {
           display: flex; max-width: 460px; width: 100%;
           background: rgba(255,255,255,0.04);
           border: 1px solid var(--border); border-radius: 28px;
           overflow: hidden; padding: 5px; opacity: 0;
         }
-        .lethe-hero-form input {
+        .relethe-hero-form input {
           flex: 1; background: transparent; border: none; outline: none;
           font-family: var(--mono); font-size: 13px; letter-spacing: .04em;
           color: var(--text); padding: 12px 18px;
         }
-        .lethe-hero-form input::placeholder { color: var(--ghost); }
-        .lethe-hero-form button {
+        .relethe-hero-form input::placeholder { color: var(--ghost); }
+        .relethe-hero-form button {
           font-family: var(--mono); font-size: 11px; letter-spacing: .3em;
           text-transform: uppercase; color: #6B6B6B;
           background: transparent; border: none; border-radius: 22px;
           padding: 12px 24px; cursor: none; transition: all .3s; white-space: nowrap;
           display: flex; align-items: center; gap: 8px;
         }
-        .lethe-hero-form button:hover { color: var(--ch); }
-        .lethe-hero-meta {
+        .relethe-hero-form button:hover { color: var(--ch); }
+        .relethe-hero-meta {
           margin-top: 22px; display: flex; flex-direction: column;
           align-items: center; gap: 24px; opacity: 0;
         }
-        .lethe-waitlist {
+        .relethe-waitlist {
           font-family: var(--mono); font-size: 11px;
           letter-spacing: .14em; color: var(--ghost);
         }
-        .lethe-waitlist span { color: rgba(173,255,47,0.5); }
-        .lethe-scroll-hint {
+        .relethe-waitlist span { color: rgba(173,255,47,0.5); }
+        .relethe-scroll-hint {
           display: flex; flex-direction: column; align-items: center; gap: 8px;
         }
-        .lethe-scroll-hint span {
+        .relethe-scroll-hint span {
           font-family: var(--mono); font-size: 10px; letter-spacing: .22em;
           text-transform: uppercase; color: var(--ghost);
         }
-        .lethe-scroll-line {
+        .relethe-scroll-line {
           width: 1px; height: 36px;
           background: linear-gradient(to bottom, rgba(173,255,47,0.4), transparent);
-          animation: letheScrollDrop 2s ease-in-out infinite;
+          animation: reletheScrollDrop 2s ease-in-out infinite;
         }
-        @keyframes letheScrollDrop {
+        @keyframes reletheScrollDrop {
           0%, 100% { opacity: 0; transform: scaleY(0); transform-origin: top; }
           40%, 60%  { opacity: 1; transform: scaleY(1); }
         }
 
         /* ── STORY (typewriter section) ── */
-        #lethe-story {
+        #relethe-story {
           padding: 140px 48px;
           display: flex; align-items: center; justify-content: center;
           background: #020402;
@@ -666,92 +659,92 @@ export default function LandingPage() {
           position: relative; overflow: hidden; z-index: 3;
           min-height: 60vh;
         }
-        .lethe-story-inner { max-width: 860px; text-align: center; }
-        .lethe-story-line {
+        .relethe-story-inner { max-width: 860px; text-align: center; }
+        .relethe-story-line {
           display: block; min-height: 1.4em;
           font-size: clamp(24px, 3.2vw, 44px);
           font-weight: 300; line-height: 1.35; letter-spacing: -.01em;
           margin-bottom: 8px;
         }
-        .lethe-story-line.dim    { color: rgba(255,255,255,0.22); }
-        .lethe-story-line.bright { color: rgba(255,255,255,0.88); }
-        .lethe-story-line.accent { color: var(--ch); font-style: italic; }
-        .lethe-story-line.small  { font-size: clamp(15px, 1.8vw, 20px); color: var(--dim); font-style: italic; margin-top: 8px; }
-        .lethe-cursor-blink {
+        .relethe-story-line.dim    { color: rgba(255,255,255,0.22); }
+        .relethe-story-line.bright { color: rgba(255,255,255,0.88); }
+        .relethe-story-line.accent { color: var(--ch); font-style: italic; }
+        .relethe-story-line.small  { font-size: clamp(15px, 1.8vw, 20px); color: var(--dim); font-style: italic; margin-top: 8px; }
+        .relethe-cursor-blink {
           display: inline-block; width: 2px; height: 1em;
           background: var(--ch); margin-left: 3px; vertical-align: middle;
-          animation: letheBlink .8s step-end infinite;
+          animation: reletheBlink .8s step-end infinite;
         }
-        @keyframes letheBlink { 0%,100%{opacity:1} 50%{opacity:0} }
+        @keyframes reletheBlink { 0%,100%{opacity:1} 50%{opacity:0} }
 
         /* ── HOW IT WORKS ── */
-        #lethe-how {
+        #relethe-how {
           padding: 120px 48px;
           max-width: 1200px; margin: 0 auto;
           position: relative; z-index: 3;
         }
-        .lethe-section-label {
+        .relethe-section-label {
           font-family: var(--mono); font-size: 11px; letter-spacing: .3em;
           text-transform: uppercase; color: rgba(173,255,47,0.5);
           margin-bottom: 64px; display: block;
         }
-        .lethe-steps {
+        .relethe-steps {
           display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px;
         }
-        .lethe-step {
+        .relethe-step {
           padding: 48px 40px;
           background: rgba(255,255,255,0.025);
           border: 1px solid var(--border);
           position: relative; overflow: hidden;
           transition: background .3s;
         }
-        .lethe-step:first-child { border-radius: 20px 0 0 20px; }
-        .lethe-step:last-child  { border-radius: 0 20px 20px 0; }
-        .lethe-step:hover { background: rgba(255,255,255,0.042); }
-        .lethe-step::before {
+        .relethe-step:first-child { border-radius: 20px 0 0 20px; }
+        .relethe-step:last-child  { border-radius: 0 20px 20px 0; }
+        .relethe-step:hover { background: rgba(255,255,255,0.042); }
+        .relethe-step::before {
           content: ''; position: absolute; inset: 0; opacity: 0;
           background: radial-gradient(circle at 30% 30%, rgba(173,255,47,0.06), transparent 60%);
           transition: opacity .4s;
         }
-        .lethe-step:hover::before { opacity: 1; }
-        .lethe-step-num {
+        .relethe-step:hover::before { opacity: 1; }
+        .relethe-step-num {
           font-family: var(--mono); font-size: 11px; letter-spacing: .2em;
           color: rgba(173,255,47,0.4); margin-bottom: 28px; display: block;
         }
-        .lethe-step-title {
+        .relethe-step-title {
           font-size: 28px; font-weight: 300; font-style: italic;
           color: var(--text); margin-bottom: 16px; line-height: 1.2;
         }
-        .lethe-step-body {
+        .relethe-step-body {
           font-size: 15px; font-weight: 300; line-height: 1.85;
           color: var(--dim); letter-spacing: .02em;
         }
-        .lethe-step-body strong { color: rgba(255,255,255,0.65); font-weight: 400; }
+        .relethe-step-body strong { color: rgba(255,255,255,0.65); font-weight: 400; }
 
         /* ── DEMO ── */
-        #lethe-demo {
+        #relethe-demo {
           padding: 120px 48px;
           display: flex; flex-direction: column; align-items: center;
           position: relative; z-index: 3;
         }
-        .lethe-demo-label {
+        .relethe-demo-label {
           font-family: var(--mono); font-size: 11px; letter-spacing: .3em;
           text-transform: uppercase; color: rgba(173,255,47,0.5);
           margin-bottom: 24px;
         }
-        .lethe-demo-title {
+        .relethe-demo-title {
           font-size: clamp(32px, 4vw, 56px); font-weight: 300; font-style: italic;
           line-height: 1.1; letter-spacing: -.02em; color: var(--text);
           margin-bottom: 56px; text-align: center;
         }
-        .lethe-demo-wrap {
+        .relethe-demo-wrap {
           width: 100%; max-width: 900px;
           position: relative;
           will-change: transform;
           perspective: 1200px;
           transform-style: preserve-3d;
         }
-        .lethe-demo-card {
+        .relethe-demo-card {
           position: relative;
           border-radius: 20px; overflow: hidden;
           border: 1px solid rgba(255,255,255,0.1);
@@ -762,47 +755,47 @@ export default function LandingPage() {
           cursor: none;
           transition: box-shadow .4s;
         }
-        .lethe-demo-card:hover {
+        .relethe-demo-card:hover {
           box-shadow:
             0 48px 120px rgba(0,0,0,0.8),
             0 0 0 1px rgba(173,255,47,0.12),
             0 0 100px rgba(173,255,47,0.1);
         }
-        .lethe-demo-thumb {
+        .relethe-demo-thumb {
           width: 100%; display: block;
           aspect-ratio: 16/9; object-fit: cover;
           background: #0a0d0a;
         }
-        .lethe-play-overlay {
+        .relethe-play-overlay {
           position: absolute; inset: 0;
           display: flex; align-items: center; justify-content: center;
           background: rgba(2,4,2,0.3);
           transition: background .3s;
         }
-        .lethe-play-overlay:hover { background: rgba(2,4,2,0.15); }
-        .lethe-play-btn {
+        .relethe-play-overlay:hover { background: rgba(2,4,2,0.15); }
+        .relethe-play-btn {
           width: 72px; height: 72px; border-radius: 50%;
           background: rgba(173,255,47,0.12);
           border: 1.5px solid rgba(173,255,47,0.4);
           display: flex; align-items: center; justify-content: center;
           transition: all .35s; backdrop-filter: blur(8px);
         }
-        .lethe-play-overlay:hover .lethe-play-btn {
+        .relethe-play-overlay:hover .relethe-play-btn {
           background: rgba(173,255,47,0.22);
           border-color: rgba(173,255,47,0.7);
           transform: scale(1.1);
         }
-        .lethe-play-btn svg { margin-left: 4px; width: 24px; height: 24px; }
-        .lethe-demo-card::before {
+        .relethe-play-btn svg { margin-left: 4px; width: 24px; height: 24px; }
+        .relethe-demo-card::before {
           content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 2;
           border-radius: 20px;
           background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, transparent 40%, transparent 60%, rgba(0,0,0,0.2) 100%);
         }
-        .lethe-demo-video {
+        .relethe-demo-video {
           display: none; width: 100%; aspect-ratio: 16/9;
         }
 
-        .lethe-view-demo-btn {
+        .relethe-view-demo-btn {
           display: inline-block; margin-top: 24px;
           font-family: var(--mono); font-size: 11px; letter-spacing: .2em;
           text-transform: uppercase; color: rgba(173,255,47,0.4);
@@ -810,51 +803,51 @@ export default function LandingPage() {
           border-radius: 22px; padding: 12px 28px; cursor: none;
           transition: color .25s, border-color .25s, background .25s;
         }
-        .lethe-view-demo-btn:hover {
+        .relethe-view-demo-btn:hover {
           color: rgba(173,255,47,1);
           border-color: rgba(173,255,47,0.8);
           background: rgba(173,255,47,0.08);
         }
 
-        .lethe-demo-overlay {
+        .relethe-demo-overlay {
           position: fixed; inset: 0; z-index: 10000;
           background: #0a0a0a; opacity: 1; backdrop-filter: none;
           display: flex; flex-direction: column;
           align-items: center; justify-content: center;
           padding: 40px 24px;
         }
-        .lethe-demo-overlay-close {
+        .relethe-demo-overlay-close {
           position: absolute; top: 24px; right: 32px;
           font-family: var(--mono); font-size: 20px; line-height: 1;
           color: rgba(255,255,255,0.35); background: transparent; border: none;
           cursor: none; transition: color .2s; padding: 8px;
         }
-        .lethe-demo-overlay-close:hover { color: rgba(255,255,255,0.75); }
-        .lethe-demo-overlay-glow {
+        .relethe-demo-overlay-close:hover { color: rgba(255,255,255,0.75); }
+        .relethe-demo-overlay-glow {
           position: absolute; width: 480px; height: 480px;
           border-radius: 50%;
           background: radial-gradient(circle, rgba(173,255,47,0.07) 0%, transparent 70%);
           pointer-events: none;
         }
-        .lethe-demo-overlay-inner {
+        .relethe-demo-overlay-inner {
           position: relative; z-index: 1;
           display: flex; flex-direction: column; align-items: center; gap: 0;
           max-width: 400px; width: 100%; text-align: center;
         }
-        .lethe-demo-overlay-h {
+        .relethe-demo-overlay-h {
           font-family: var(--serif); font-size: clamp(28px,4vw,42px);
           font-weight: 300; font-style: italic; line-height: 1.1;
           color: var(--text); margin-bottom: 14px;
         }
-        .lethe-demo-overlay-sub {
+        .relethe-demo-overlay-sub {
           font-family: var(--mono); font-size: 12px; letter-spacing: .08em;
           color: var(--dim); margin-bottom: 36px;
         }
-        .lethe-demo-overlay-form {
+        .relethe-demo-overlay-form {
           display: flex; gap: 10px; width: 100%; max-width: 360px;
           margin-bottom: 14px;
         }
-        .lethe-demo-overlay-form input {
+        .relethe-demo-overlay-form input {
           flex: 1; background: rgba(255,255,255,0.04);
           border: 1px solid rgba(255,255,255,0.12);
           border-radius: 22px; padding: 12px 20px;
@@ -862,57 +855,57 @@ export default function LandingPage() {
           color: var(--text); outline: none;
           transition: border-color .2s;
         }
-        .lethe-demo-overlay-form input::placeholder { color: var(--ghost); }
-        .lethe-demo-overlay-form input:focus { border-color: rgba(173,255,47,0.35); }
-        .lethe-demo-overlay-form button {
+        .relethe-demo-overlay-form input::placeholder { color: var(--ghost); }
+        .relethe-demo-overlay-form input:focus { border-color: rgba(173,255,47,0.35); }
+        .relethe-demo-overlay-form button {
           font-family: var(--mono); font-size: 11px; letter-spacing: .2em;
           text-transform: uppercase; color: #050705;
           background: rgba(173,255,47,0.85); border: none;
           border-radius: 22px; padding: 12px 22px;
           cursor: none; transition: background .2s; white-space: nowrap;
         }
-        .lethe-demo-overlay-form button:hover { background: rgba(173,255,47,1); }
-        .lethe-demo-overlay-error {
+        .relethe-demo-overlay-form button:hover { background: rgba(173,255,47,1); }
+        .relethe-demo-overlay-error {
           font-family: var(--mono); font-size: 11px; letter-spacing: .06em;
           color: rgba(220,80,80,0.75); min-height: 16px;
         }
 
         /* ── SEE IT ── */
-        #lethe-see {
+        #relethe-see {
           padding: 120px 0;
           overflow: hidden;
           position: relative; z-index: 3;
         }
-        .lethe-see-header {
+        .relethe-see-header {
           padding: 0 48px; margin-bottom: 64px;
           display: flex; align-items: flex-end; justify-content: space-between;
         }
-        .lethe-see-title {
+        .relethe-see-title {
           font-size: clamp(36px, 5vw, 64px); font-weight: 300; font-style: italic;
           line-height: 1.1; letter-spacing: -.02em; color: var(--text);
         }
-        .lethe-see-title em { color: var(--ch); font-style: normal; }
-        .lethe-scroll-hint-h {
+        .relethe-see-title em { color: var(--ch); font-style: normal; }
+        .relethe-scroll-hint-h {
           font-family: var(--mono); font-size: 11px; letter-spacing: .18em;
           text-transform: uppercase; color: var(--ghost);
           display: flex; align-items: center; gap: 12px; padding-bottom: 8px;
         }
-        .lethe-scroll-hint-h::after {
+        .relethe-scroll-hint-h::after {
           content: '→'; font-size: 16px; color: rgba(173,255,47,0.5);
-          animation: letheNudge 2s ease-in-out infinite;
+          animation: reletheNudge 2s ease-in-out infinite;
         }
-        @keyframes letheNudge { 0%,100%{transform:translateX(0)} 50%{transform:translateX(6px)} }
+        @keyframes reletheNudge { 0%,100%{transform:translateX(0)} 50%{transform:translateX(6px)} }
 
-        .lethe-cards-track {
+        .relethe-cards-track {
           display: flex; gap: 20px;
           padding: 40px 48px 60px;
           overflow-x: auto; overflow-y: visible;
           scrollbar-width: none; cursor: grab;
         }
-        .lethe-cards-track::-webkit-scrollbar { display: none; }
-        .lethe-cards-track.dragging { cursor: grabbing; }
+        .relethe-cards-track::-webkit-scrollbar { display: none; }
+        .relethe-cards-track.dragging { cursor: grabbing; }
 
-        .lethe-product-card {
+        .relethe-product-card {
           flex-shrink: 0; width: 320px;
           background: var(--dark2);
           border: 1px solid var(--border);
@@ -920,90 +913,90 @@ export default function LandingPage() {
           transition: transform .4s cubic-bezier(0.16,1,0.3,1), box-shadow .4s;
           transform-origin: bottom center;
         }
-        .lethe-product-card:hover {
+        .relethe-product-card:hover {
           transform: translateY(-12px) scale(1.02);
           box-shadow: 0 32px 80px rgba(0,0,0,0.6), 0 0 40px rgba(173,255,47,0.06);
           border-color: rgba(173,255,47,0.15);
         }
-        .lethe-card-screen {
+        .relethe-card-screen {
           width: 100%; height: 220px;
           background: #0d120d; position: relative; overflow: hidden;
         }
 
         /* Screen mockups */
-        .lethe-screen-feed { background: linear-gradient(180deg,#080d08,#050705); padding: 16px; }
-        .lethe-mock-nav { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
-        .lethe-mock-logo { width:36px; height:7px; background:rgba(255,255,255,0.5); border-radius:2px; }
-        .lethe-mock-search { width:90px; height:7px; background:rgba(255,255,255,0.1); border-radius:10px; }
-        .lethe-mock-btn { width:28px; height:7px; background:rgba(173,255,47,0.3); border-radius:10px; }
-        .lethe-mock-masonry { display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; }
-        .lethe-mock-post { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06); border-radius:6px; padding:8px; }
-        .lethe-mock-post.tall { grid-row:span 2; }
-        .lethe-mock-line { height:4px; background:rgba(255,255,255,0.12); border-radius:2px; margin-bottom:4px; }
-        .lethe-mock-line.short { width:60%; }
-        .lethe-mock-line.accent { background:rgba(173,255,47,0.25); width:40%; }
-        .lethe-mock-arc { width:14px; height:14px; border-radius:50%; border:1.5px solid rgba(173,255,47,0.5); margin-top:6px; }
+        .relethe-screen-feed { background: linear-gradient(180deg,#080d08,#050705); padding: 16px; }
+        .relethe-mock-nav { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+        .relethe-mock-logo { width:36px; height:7px; background:rgba(255,255,255,0.5); border-radius:2px; }
+        .relethe-mock-search { width:90px; height:7px; background:rgba(255,255,255,0.1); border-radius:10px; }
+        .relethe-mock-btn { width:28px; height:7px; background:rgba(173,255,47,0.3); border-radius:10px; }
+        .relethe-mock-masonry { display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; }
+        .relethe-mock-post { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06); border-radius:6px; padding:8px; }
+        .relethe-mock-post.tall { grid-row:span 2; }
+        .relethe-mock-line { height:4px; background:rgba(255,255,255,0.12); border-radius:2px; margin-bottom:4px; }
+        .relethe-mock-line.short { width:60%; }
+        .relethe-mock-line.accent { background:rgba(173,255,47,0.25); width:40%; }
+        .relethe-mock-arc { width:14px; height:14px; border-radius:50%; border:1.5px solid rgba(173,255,47,0.5); margin-top:6px; }
 
-        .lethe-screen-fading { background:linear-gradient(180deg,#080d08,#050705); padding:16px; display:flex; flex-direction:column; gap:8px; }
-        .lethe-fading-post { background:rgba(255,255,255,0.025); border:1px solid rgba(255,255,255,0.05); border-radius:8px; padding:10px; }
-        .lethe-fading-post.blur .lethe-mock-line { filter:blur(1.5px); opacity:.4; }
-        .lethe-fading-badge { font-family:var(--mono); font-size:8px; letter-spacing:.15em; color:rgba(204,153,51,0.7); margin-bottom:5px; text-transform:uppercase; }
-        .lethe-fading-badge.faded { color:rgba(255,255,255,0.2); }
+        .relethe-screen-fading { background:linear-gradient(180deg,#080d08,#050705); padding:16px; display:flex; flex-direction:column; gap:8px; }
+        .relethe-fading-post { background:rgba(255,255,255,0.025); border:1px solid rgba(255,255,255,0.05); border-radius:8px; padding:10px; }
+        .relethe-fading-post.blur .relethe-mock-line { filter:blur(1.5px); opacity:.4; }
+        .relethe-fading-badge { font-family:var(--mono); font-size:8px; letter-spacing:.15em; color:rgba(204,153,51,0.7); margin-bottom:5px; text-transform:uppercase; }
+        .relethe-fading-badge.faded { color:rgba(255,255,255,0.2); }
 
-        .lethe-screen-depth { background:linear-gradient(175deg,#0c110c,#020402); padding:24px 20px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; }
-        .lethe-depth-ripple { width:44px; height:44px; position:relative; display:flex; align-items:center; justify-content:center; }
-        .lethe-depth-ripple::before,.lethe-depth-ripple::after { content:''; position:absolute; border-radius:50%; border:1px solid rgba(173,255,47,0.2); animation:letheMockRipple 2.4s ease-out infinite; }
-        .lethe-depth-ripple::after { animation-delay:1.2s; }
-        .lethe-depth-dot { width:5px; height:5px; border-radius:50%; background:rgba(173,255,47,0.5); }
-        @keyframes letheMockRipple { 0%{width:5px;height:5px;opacity:.6} 100%{width:44px;height:44px;opacity:0} }
-        .lethe-depth-text { font-family:var(--serif); font-size:13px; font-style:italic; font-weight:300; color:rgba(255,255,255,0.7); text-align:center; line-height:1.4; }
-        .lethe-depth-btn-mock { font-family:var(--mono); font-size:8px; letter-spacing:.15em; text-transform:uppercase; color:rgba(173,255,47,0.6); border:1px solid rgba(173,255,47,0.2); padding:5px 14px; border-radius:12px; background:rgba(173,255,47,0.05); }
+        .relethe-screen-depth { background:linear-gradient(175deg,#0c110c,#020402); padding:24px 20px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; }
+        .relethe-depth-ripple { width:44px; height:44px; position:relative; display:flex; align-items:center; justify-content:center; }
+        .relethe-depth-ripple::before,.relethe-depth-ripple::after { content:''; position:absolute; border-radius:50%; border:1px solid rgba(173,255,47,0.2); animation:reletheMockRipple 2.4s ease-out infinite; }
+        .relethe-depth-ripple::after { animation-delay:1.2s; }
+        .relethe-depth-dot { width:5px; height:5px; border-radius:50%; background:rgba(173,255,47,0.5); }
+        @keyframes reletheMockRipple { 0%{width:5px;height:5px;opacity:.6} 100%{width:44px;height:44px;opacity:0} }
+        .relethe-depth-text { font-family:var(--serif); font-size:13px; font-style:italic; font-weight:300; color:rgba(255,255,255,0.7); text-align:center; line-height:1.4; }
+        .relethe-depth-btn-mock { font-family:var(--mono); font-size:8px; letter-spacing:.15em; text-transform:uppercase; color:rgba(173,255,47,0.6); border:1px solid rgba(173,255,47,0.2); padding:5px 14px; border-radius:12px; background:rgba(173,255,47,0.05); }
 
-        .lethe-screen-connect { background:linear-gradient(180deg,#080d08,#050705); padding:16px; }
-        .lethe-connect-cards { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
-        .lethe-connect-card { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:10px; overflow:hidden; }
-        .lethe-connect-img { width:100%; height:60px; background:rgba(255,255,255,0.06); }
-        .lethe-connect-info { padding:8px; }
-        .lethe-connect-name { height:5px; background:rgba(255,255,255,0.3); border-radius:2px; width:70%; margin-bottom:4px; }
-        .lethe-connect-tag { height:4px; background:rgba(173,255,47,0.2); border-radius:2px; width:45%; }
-        .lethe-connect-actions { display:flex; gap:4px; padding:6px 8px; }
-        .lethe-connect-match { flex:1; height:18px; background:rgba(255,255,255,0.08); border-radius:6px; }
-        .lethe-connect-pass  { flex:1; height:18px; background:rgba(255,255,255,0.03); border-radius:6px; border:1px solid rgba(255,255,255,0.06); }
+        .relethe-screen-connect { background:linear-gradient(180deg,#080d08,#050705); padding:16px; }
+        .relethe-connect-cards { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+        .relethe-connect-card { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:10px; overflow:hidden; }
+        .relethe-connect-img { width:100%; height:60px; background:rgba(255,255,255,0.06); }
+        .relethe-connect-info { padding:8px; }
+        .relethe-connect-name { height:5px; background:rgba(255,255,255,0.3); border-radius:2px; width:70%; margin-bottom:4px; }
+        .relethe-connect-tag { height:4px; background:rgba(173,255,47,0.2); border-radius:2px; width:45%; }
+        .relethe-connect-actions { display:flex; gap:4px; padding:6px 8px; }
+        .relethe-connect-match { flex:1; height:18px; background:rgba(255,255,255,0.08); border-radius:6px; }
+        .relethe-connect-pass  { flex:1; height:18px; background:rgba(255,255,255,0.03); border-radius:6px; border:1px solid rgba(255,255,255,0.06); }
 
-        .lethe-screen-profile { background:linear-gradient(180deg,#080d08,#050705); padding:16px; }
-        .lethe-profile-head { display:flex; align-items:center; gap:10px; margin-bottom:14px; }
-        .lethe-profile-ava { width:32px; height:32px; border-radius:50%; background:rgba(255,255,255,0.12); }
-        .lethe-profile-name-mock { height:6px; background:rgba(255,255,255,0.4); border-radius:2px; width:80px; margin-bottom:4px; }
-        .lethe-profile-handle { height:4px; background:rgba(255,255,255,0.15); border-radius:2px; width:54px; }
-        .lethe-profile-tabs { display:flex; gap:1px; margin-bottom:12px; }
-        .lethe-ptab { flex:1; height:24px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06); border-radius:4px; display:flex; align-items:center; justify-content:center; }
-        .lethe-ptab.active { background:rgba(173,255,47,0.08); border-color:rgba(173,255,47,0.18); }
-        .lethe-ptab-label { height:4px; width:40px; background:rgba(255,255,255,0.15); border-radius:2px; }
-        .lethe-ptab.active .lethe-ptab-label { background:rgba(173,255,47,0.4); }
-        .lethe-profile-posts { display:flex; flex-direction:column; gap:6px; }
-        .lethe-profile-post { background:rgba(255,255,255,0.025); border:1px solid rgba(255,255,255,0.05); border-radius:6px; padding:8px; display:flex; justify-content:space-between; align-items:flex-end; }
-        .lethe-profile-post.faded-post { opacity:.45; filter:blur(.3px); }
-        .lethe-revive-btn { font-family:var(--mono); font-size:7px; letter-spacing:.12em; text-transform:uppercase; color:rgba(173,255,47,0.6); border:1px solid rgba(173,255,47,0.2); padding:3px 8px; border-radius:8px; white-space:nowrap; }
+        .relethe-screen-profile { background:linear-gradient(180deg,#080d08,#050705); padding:16px; }
+        .relethe-profile-head { display:flex; align-items:center; gap:10px; margin-bottom:14px; }
+        .relethe-profile-ava { width:32px; height:32px; border-radius:50%; background:rgba(255,255,255,0.12); }
+        .relethe-profile-name-mock { height:6px; background:rgba(255,255,255,0.4); border-radius:2px; width:80px; margin-bottom:4px; }
+        .relethe-profile-handle { height:4px; background:rgba(255,255,255,0.15); border-radius:2px; width:54px; }
+        .relethe-profile-tabs { display:flex; gap:1px; margin-bottom:12px; }
+        .relethe-ptab { flex:1; height:24px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06); border-radius:4px; display:flex; align-items:center; justify-content:center; }
+        .relethe-ptab.active { background:rgba(173,255,47,0.08); border-color:rgba(173,255,47,0.18); }
+        .relethe-ptab-label { height:4px; width:40px; background:rgba(255,255,255,0.15); border-radius:2px; }
+        .relethe-ptab.active .relethe-ptab-label { background:rgba(173,255,47,0.4); }
+        .relethe-profile-posts { display:flex; flex-direction:column; gap:6px; }
+        .relethe-profile-post { background:rgba(255,255,255,0.025); border:1px solid rgba(255,255,255,0.05); border-radius:6px; padding:8px; display:flex; justify-content:space-between; align-items:flex-end; }
+        .relethe-profile-post.faded-post { opacity:.45; filter:blur(.3px); }
+        .relethe-revive-btn { font-family:var(--mono); font-size:7px; letter-spacing:.12em; text-transform:uppercase; color:rgba(173,255,47,0.6); border:1px solid rgba(173,255,47,0.2); padding:3px 8px; border-radius:8px; white-space:nowrap; }
 
-        .lethe-screen-matches { background:linear-gradient(180deg,#080d08,#050705); padding:16px; }
-        .lethe-matches-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
-        .lethe-matches-title-mock { height:6px; width:100px; background:rgba(255,255,255,0.3); border-radius:2px; }
-        .lethe-matches-toggle { width:28px; height:14px; border-radius:7px; background:rgba(173,255,47,0.4); }
-        .lethe-match-row { display:flex; align-items:center; gap:10px; background:rgba(255,255,255,0.025); border:1px solid rgba(255,255,255,0.05); border-radius:8px; padding:8px; margin-bottom:6px; }
-        .lethe-match-ava { width:28px; height:28px; border-radius:50%; background:rgba(255,255,255,0.1); flex-shrink:0; }
-        .lethe-match-info { flex:1; }
-        .lethe-match-name { height:5px; background:rgba(255,255,255,0.3); border-radius:2px; width:80%; margin-bottom:4px; }
-        .lethe-match-date { height:4px; background:rgba(255,255,255,0.1); border-radius:2px; width:55%; }
-        .lethe-match-status { font-family:var(--mono); font-size:7px; letter-spacing:.1em; padding:3px 7px; border-radius:8px; }
-        .lethe-match-status.upcoming { background:rgba(173,255,47,0.12); color:rgba(173,255,47,0.7); }
-        .lethe-match-status.met { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.35); }
+        .relethe-screen-matches { background:linear-gradient(180deg,#080d08,#050705); padding:16px; }
+        .relethe-matches-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+        .relethe-matches-title-mock { height:6px; width:100px; background:rgba(255,255,255,0.3); border-radius:2px; }
+        .relethe-matches-toggle { width:28px; height:14px; border-radius:7px; background:rgba(173,255,47,0.4); }
+        .relethe-match-row { display:flex; align-items:center; gap:10px; background:rgba(255,255,255,0.025); border:1px solid rgba(255,255,255,0.05); border-radius:8px; padding:8px; margin-bottom:6px; }
+        .relethe-match-ava { width:28px; height:28px; border-radius:50%; background:rgba(255,255,255,0.1); flex-shrink:0; }
+        .relethe-match-info { flex:1; }
+        .relethe-match-name { height:5px; background:rgba(255,255,255,0.3); border-radius:2px; width:80%; margin-bottom:4px; }
+        .relethe-match-date { height:4px; background:rgba(255,255,255,0.1); border-radius:2px; width:55%; }
+        .relethe-match-status { font-family:var(--mono); font-size:7px; letter-spacing:.1em; padding:3px 7px; border-radius:8px; }
+        .relethe-match-status.upcoming { background:rgba(173,255,47,0.12); color:rgba(173,255,47,0.7); }
+        .relethe-match-status.met { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.35); }
 
-        .lethe-card-label { padding:20px 22px 22px; }
-        .lethe-card-tag { font-family:var(--mono); font-size:10px; letter-spacing:.2em; text-transform:uppercase; color:rgba(173,255,47,0.45); margin-bottom:6px; display:block; }
-        .lethe-card-title { font-size:20px; font-weight:300; font-style:italic; color:rgba(255,255,255,0.82); line-height:1.2; }
+        .relethe-card-label { padding:20px 22px 22px; }
+        .relethe-card-tag { font-family:var(--mono); font-size:10px; letter-spacing:.2em; text-transform:uppercase; color:rgba(173,255,47,0.45); margin-bottom:6px; display:block; }
+        .relethe-card-title { font-size:20px; font-weight:300; font-style:italic; color:rgba(255,255,255,0.82); line-height:1.2; }
 
         /* ── SIGNUP ── */
-        #lethe-signup {
+        #relethe-signup {
           padding: 140px 48px;
           display: flex; flex-direction: column; align-items: center;
           text-align: center;
@@ -1011,70 +1004,70 @@ export default function LandingPage() {
           border-top: 1px solid var(--border);
           position: relative; overflow: hidden; z-index: 3;
         }
-        #lethe-signup::before {
+        #relethe-signup::before {
           content: ''; position: absolute; width: 500px; height: 500px; border-radius: 50%;
           background: radial-gradient(circle, rgba(173,255,47,0.06) 0%, transparent 70%);
           top: 50%; left: 50%; transform: translate(-50%,-50%); pointer-events: none;
         }
-        .lethe-signup-pre { font-family:var(--mono); font-size:11px; letter-spacing:.3em; text-transform:uppercase; color:rgba(173,255,47,0.45); margin-bottom:28px; }
-        .lethe-signup-h { font-size:clamp(36px,5vw,68px); font-weight:300; font-style:italic; line-height:1.1; letter-spacing:-.02em; color:var(--text); margin-bottom:16px; }
-        .lethe-signup-sub { font-size:15px; font-weight:300; line-height:1.7; color:var(--dim); max-width:440px; margin-bottom:52px; }
-        .lethe-signup-form {
+        .relethe-signup-pre { font-family:var(--mono); font-size:11px; letter-spacing:.3em; text-transform:uppercase; color:rgba(173,255,47,0.45); margin-bottom:28px; }
+        .relethe-signup-h { font-size:clamp(36px,5vw,68px); font-weight:300; font-style:italic; line-height:1.1; letter-spacing:-.02em; color:var(--text); margin-bottom:16px; }
+        .relethe-signup-sub { font-size:15px; font-weight:300; line-height:1.7; color:var(--dim); max-width:440px; margin-bottom:52px; }
+        .relethe-signup-form {
           display:flex; max-width:460px; width:100%;
           background:rgba(255,255,255,0.04); border:1px solid var(--border);
           border-radius:28px; overflow:hidden; padding:5px; position:relative; z-index:1;
         }
-        .lethe-signup-form input { flex:1; background:transparent; border:none; outline:none; font-family:var(--mono); font-size:13px; letter-spacing:.04em; color:var(--text); padding:12px 18px; }
-        .lethe-signup-form input::placeholder { color:var(--ghost); }
-        .lethe-signup-form button { font-family:var(--mono); font-size:11px; letter-spacing:.3em; text-transform:uppercase; color:#6B6B6B; background:transparent; border:none; border-radius:22px; padding:12px 24px; cursor:none; transition:all .3s; white-space:nowrap; display: flex; align-items: center; gap: 8px; }
-        .lethe-signup-form button:hover { color:var(--ch); }
-        .lethe-signup-note { margin-top:18px; font-family:var(--mono); font-size:11px; letter-spacing:.12em; color:var(--ghost); position:relative; z-index:1; }
-        .lethe-form-success { padding: 16px 0; display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; }
-        .lethe-form-success-title {
+        .relethe-signup-form input { flex:1; background:transparent; border:none; outline:none; font-family:var(--mono); font-size:13px; letter-spacing:.04em; color:var(--text); padding:12px 18px; }
+        .relethe-signup-form input::placeholder { color:var(--ghost); }
+        .relethe-signup-form button { font-family:var(--mono); font-size:11px; letter-spacing:.3em; text-transform:uppercase; color:#6B6B6B; background:transparent; border:none; border-radius:22px; padding:12px 24px; cursor:none; transition:all .3s; white-space:nowrap; display: flex; align-items: center; gap: 8px; }
+        .relethe-signup-form button:hover { color:var(--ch); }
+        .relethe-signup-note { margin-top:18px; font-family:var(--mono); font-size:11px; letter-spacing:.12em; color:var(--ghost); position:relative; z-index:1; }
+        .relethe-form-success { padding: 16px 0; display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; }
+        .relethe-form-success-title {
           font-family: var(--serif); font-size: 18px; font-style: italic;
           font-weight: 300; color: rgba(173,255,47,0.9); margin-bottom: 0;
           display: flex; align-items: center; justify-content: center; gap: 0; position: relative;
         }
-        .lethe-form-success-sub {
+        .relethe-form-success-sub {
           font-family: var(--mono); font-size: 12px; letter-spacing: .06em;
           color: var(--dim);
         }
-        .lethe-confetti { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 0; height: 0; pointer-events: none; }
-        .lethe-confetti span {
+        .relethe-confetti { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 0; height: 0; pointer-events: none; }
+        .relethe-confetti span {
           position: absolute; width: 4px; height: 4px; border-radius: 1px;
           top: 50%; left: 50%; margin: -2px;
-          animation: letheConfetti var(--dur, .65s) ease-out var(--delay, 0s) both;
+          animation: reletheConfetti var(--dur, .65s) ease-out var(--delay, 0s) both;
         }
-        @keyframes letheConfetti {
+        @keyframes reletheConfetti {
           0%   { transform: translate(0,0) rotate(0deg); opacity: 1; }
           100% { transform: translate(var(--tx,0px), var(--ty,-30px)) rotate(var(--rot,180deg)); opacity: 0; }
         }
 
         /* ── FOOTER ── */
-        .lethe-footer {
+        .relethe-footer {
           padding: 48px;
           display: flex; align-items: center; justify-content: space-between;
           border-top: 1px solid var(--border); position: relative; z-index: 3;
         }
-        .lethe-footer-logo { font-family:var(--serif); font-size:13px; font-weight:300; letter-spacing:.38em; text-transform:uppercase; color:var(--dim); }
-        .lethe-footer-tag { font-family:var(--serif); font-size:14px; font-style:italic; font-weight:300; color:var(--ghost); }
-        .lethe-footer-link { font-family:var(--mono); font-size:11px; letter-spacing:.15em; text-transform:uppercase; color:var(--ghost); text-decoration:none; transition:color .25s; }
-        .lethe-footer-link:hover { color:var(--dim); }
+        .relethe-footer-logo { font-family:var(--serif); font-size:13px; font-weight:300; letter-spacing:.38em; text-transform:uppercase; color:var(--dim); }
+        .relethe-footer-tag { font-family:var(--serif); font-size:14px; font-style:italic; font-weight:300; color:var(--ghost); }
+        .relethe-footer-link { font-family:var(--mono); font-size:11px; letter-spacing:.15em; text-transform:uppercase; color:var(--ghost); text-decoration:none; transition:color .25s; }
+        .relethe-footer-link:hover { color:var(--dim); }
 
         /* ── Scroll reveal ── */
-        .lethe-reveal { opacity:0; transform:translateY(28px); transition:opacity .8s ease, transform .8s ease; }
-        .lethe-reveal.visible { opacity:1; transform:translateY(0); }
-        .lethe-reveal-d1 { transition-delay:.1s; }
-        .lethe-reveal-d2 { transition-delay:.2s; }
-        .lethe-reveal-d3 { transition-delay:.3s; }
+        .relethe-reveal { opacity:0; transform:translateY(28px); transition:opacity .8s ease, transform .8s ease; }
+        .relethe-reveal.visible { opacity:1; transform:translateY(0); }
+        .relethe-reveal-d1 { transition-delay:.1s; }
+        .relethe-reveal-d2 { transition-delay:.2s; }
+        .relethe-reveal-d3 { transition-delay:.3s; }
 
         @media (max-width: 968px) {
-          .lethe-steps { grid-template-columns: 1fr; gap: 16px; }
-          .lethe-step:first-child { border-radius: 20px 20px 0 0; }
-          .lethe-step:last-child { border-radius: 0 0 20px 20px; }
-          .lethe-nav { padding: 0 24px; }
-          .lethe-nav-links { gap: 20px; font-size: 10px; }
-          .lethe-see-header { flex-direction: column; align-items: flex-start; gap: 20px; }
+          .relethe-steps { grid-template-columns: 1fr; gap: 16px; }
+          .relethe-step:first-child { border-radius: 20px 20px 0 0; }
+          .relethe-step:last-child { border-radius: 0 0 20px 20px; }
+          .relethe-nav { padding: 0 24px; }
+          .relethe-nav-links { gap: 20px; font-size: 10px; }
+          .relethe-see-header { flex-direction: column; align-items: flex-start; gap: 20px; }
         }
       `}</style>
 
@@ -1084,29 +1077,29 @@ export default function LandingPage() {
         rel="stylesheet"
       />
 
-      <canvas id="lethe-water-canvas" ref={canvasRef}></canvas>
-      <div className="lethe-noise"></div>
-      <div id="lethe-cur-dot" ref={cursorDotRef}></div>
-      <div id="lethe-cur-ring" ref={cursorRingRef}></div>
+      <canvas id="relethe-water-canvas" ref={canvasRef}></canvas>
+      <div className="relethe-noise"></div>
+      <div id="relethe-cur-dot" ref={cursorDotRef}></div>
+      <div id="relethe-cur-ring" ref={cursorRingRef}></div>
 
       {/* NAV */}
-      <nav className="lethe-nav">
+      <nav className="relethe-nav">
         <button
-          onClick={() => window.location.href = '#lethe-hero'}
+          onClick={() => window.location.href = '#relethe-hero'}
           className="flex items-center gap-2 text-white text-sm tracking-[0.3em] uppercase font-light font-display transition-colors duration-300 hover:opacity-70 cursor-pointer bg-transparent border-0"
           style={{ padding: 0 }}
         >
           <div className="w-5 h-5">
-            <LetheLogo />
+            <ReletheLogo />
           </div>
           LETHE
         </button>
-        <div className="lethe-nav-links">
-          <a href="#lethe-how">HOW IT WORKS</a>
-          <a href="#lethe-see">THE PRODUCT</a>
+        <div className="relethe-nav-links">
+          <a href="#relethe-how">HOW IT WORKS</a>
+          <a href="#relethe-see">THE PRODUCT</a>
           <button
             onClick={() => {
-              const el = document.getElementById('lethe-signup');
+              const el = document.getElementById('relethe-signup');
               el?.scrollIntoView({ behavior: 'smooth' });
             }}
             className="border rounded-full text-[11px] tracking-[0.2em] uppercase font-light font-sans transition-all duration-300"
@@ -1133,15 +1126,15 @@ export default function LandingPage() {
       </nav>
 
       {/* HERO */}
-      <section id="lethe-hero">
-        <p className="lethe-hero-eyebrow">Private beta — limited access</p>
-        <h1 className="lethe-hero-h1">Networking without</h1>
-        <h2 className="lethe-hero-h2">the performance.</h2>
-        <p className="lethe-hero-sub">
+      <section id="relethe-hero">
+        <p className="relethe-hero-eyebrow">Private beta — limited access</p>
+        <h1 className="relethe-hero-h1">Networking without</h1>
+        <h2 className="relethe-hero-h2">the performance.</h2>
+        <p className="relethe-hero-sub">
           Up to five introductions a week, matched to who you actually are. A daily feed that ends. A network that compounds the longer you show up.
         </p>
         {!showHeroSuccess ? (
-          <form className="lethe-hero-form" onSubmit={handleHeroSubmit}>
+          <form className="relethe-hero-form" onSubmit={handleHeroSubmit}>
             <input
               type="email"
               placeholder="your@email.com"
@@ -1156,9 +1149,9 @@ export default function LandingPage() {
             </button>
           </form>
         ) : (
-          <div className="lethe-form-success">
-            <p className="lethe-form-success-title">
-              <span className="lethe-confetti" aria-hidden="true">
+          <div className="relethe-form-success">
+            <p className="relethe-form-success-title">
+              <span className="relethe-confetti" aria-hidden="true">
                 {([
                   { tx: "-8px", ty: "-28px", rot: "160deg", color: "#7FFF00", delay: "0s",    dur: ".6s"  },
                   { tx: "8px",  ty: "-30px", rot: "-140deg", color: "#ADFF2F", delay: ".05s",  dur: ".65s" },
@@ -1172,52 +1165,52 @@ export default function LandingPage() {
               </span>
               {"You're now on the list."}
             </p>
-            <p className="lethe-form-success-sub">We'll be in touch when the first batch opens.</p>
+            <p className="relethe-form-success-sub">We'll be in touch when the first batch opens.</p>
           </div>
         )}
-        <div className="lethe-hero-meta">
-          <p className="lethe-waitlist">
+        <div className="relethe-hero-meta">
+          <p className="relethe-waitlist">
             Limited spots. Post-beta is invite only.
           </p>
-          <div className="lethe-scroll-hint">
+          <div className="relethe-scroll-hint">
             <span>Scroll</span>
-            <div className="lethe-scroll-line"></div>
+            <div className="relethe-scroll-line"></div>
           </div>
         </div>
       </section>
 
       {/* STORY (typewriter) */}
-      <section id="lethe-story">
-        <div className="lethe-story-inner">
-          <span className="lethe-story-line dim" ref={ls1Ref}></span>
-          <span className="lethe-story-line bright" ref={ls2Ref}></span>
-          <span className="lethe-story-line accent" ref={ls3Ref}></span>
-          <span className="lethe-story-line small" ref={ls4Ref}></span>
+      <section id="relethe-story">
+        <div className="relethe-story-inner">
+          <span className="relethe-story-line dim" ref={ls1Ref}></span>
+          <span className="relethe-story-line bright" ref={ls2Ref}></span>
+          <span className="relethe-story-line accent" ref={ls3Ref}></span>
+          <span className="relethe-story-line small" ref={ls4Ref}></span>
         </div>
       </section>
 
       {/* HOW IT WORKS */}
-      <section id="lethe-how">
-        <span className="lethe-section-label lethe-reveal">How it works</span>
-        <div className="lethe-steps">
-          <div className="lethe-step lethe-reveal lethe-reveal-d1">
-            <span className="lethe-step-num">01</span>
-            <h3 className="lethe-step-title">Get introduced</h3>
-            <p className="lethe-step-body">
-              Lethe matches you with up to five people a week based on who you actually are, not who you perform to be. <strong>The feed gives you context.</strong> The match is the point.
+      <section id="relethe-how">
+        <span className="relethe-section-label relethe-reveal">How it works</span>
+        <div className="relethe-steps">
+          <div className="relethe-step relethe-reveal relethe-reveal-d1">
+            <span className="relethe-step-num">01</span>
+            <h3 className="relethe-step-title">Get introduced</h3>
+            <p className="relethe-step-body">
+              Relethe matches you with up to five people a week based on who you actually are, not who you perform to be. <strong>The feed gives you context.</strong> The match is the point.
             </p>
           </div>
-          <div className="lethe-step lethe-reveal lethe-reveal-d2">
-            <span className="lethe-step-num">02</span>
-            <h3 className="lethe-step-title">Meet on your terms</h3>
-            <p className="lethe-step-body">
+          <div className="relethe-step relethe-reveal relethe-reveal-d2">
+            <span className="relethe-step-num">02</span>
+            <h3 className="relethe-step-title">Meet on your terms</h3>
+            <p className="relethe-step-body">
               Set your availability, your frequency, your boundaries. Every introduction is a deliberate choice. <strong>You scan your weekly matches and choose who makes the cut.</strong>
             </p>
           </div>
-          <div className="lethe-step lethe-reveal lethe-reveal-d3">
-            <span className="lethe-step-num">03</span>
-            <h3 className="lethe-step-title">Stay in the signal</h3>
-            <p className="lethe-step-body">
+          <div className="relethe-step relethe-reveal relethe-reveal-d3">
+            <span className="relethe-step-num">03</span>
+            <h3 className="relethe-step-title">Stay in the signal</h3>
+            <p className="relethe-step-body">
               A daily edition of selected posts. Short-form, intentional, finite. It ends. <strong>That is the point.</strong> The feed exists so you show up knowing who you are meeting and why.
             </p>
           </div>
@@ -1225,30 +1218,30 @@ export default function LandingPage() {
       </section>
 
       {/* DEMO */}
-      <section id="lethe-demo">
-        <p className="lethe-demo-label lethe-reveal">Watch a demo</p>
-        <h2 className="lethe-demo-title lethe-reveal">See it in motion.</h2>
-        <div className="lethe-demo-wrap lethe-reveal" ref={demoWrapRef}>
-          <div className="lethe-demo-card">
+      <section id="relethe-demo">
+        <p className="relethe-demo-label relethe-reveal">Watch a demo</p>
+        <h2 className="relethe-demo-title relethe-reveal">See it in motion.</h2>
+        <div className="relethe-demo-wrap relethe-reveal" ref={demoWrapRef}>
+          <div className="relethe-demo-card">
             <img
               ref={thumbRef}
-              className="lethe-demo-thumb"
+              className="relethe-demo-thumb"
               src={demoThumb}
-              alt="Lethe demo"
+              alt="Relethe demo"
             />
             <div
-              className="lethe-play-overlay"
+              className="relethe-play-overlay"
               ref={playOverlayRef}
               onClick={handlePlayDemo}
             >
-              <div className="lethe-play-btn">
+              <div className="relethe-play-btn">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                   <path d="M8 5.14v14l11-7-11-7z" fill="rgba(173,255,47,0.9)" />
                 </svg>
               </div>
             </div>
             <video 
-              className="lethe-demo-video" 
+              className="relethe-demo-video" 
               ref={videoRef} 
               controls
               onError={() => {
@@ -1268,7 +1261,7 @@ export default function LandingPage() {
           </div>
         </div>
         <button
-          className="lethe-view-demo-btn"
+          className="relethe-view-demo-btn"
           onClick={() => setShowDemoOverlay(true)}
         >
           View full demo
@@ -1308,14 +1301,14 @@ export default function LandingPage() {
                 justifyContent: 'center',
               }}
             >×</button>
-            <div className="lethe-demo-overlay-inner">
-              <h2 className="lethe-demo-overlay-h">Restricted to Admin.</h2>
-              <p className="lethe-demo-overlay-sub">Enter the access code to continue.</p>
+            <div className="relethe-demo-overlay-inner">
+              <h2 className="relethe-demo-overlay-h">Restricted to Admin.</h2>
+              <p className="relethe-demo-overlay-sub">Enter the access code to continue.</p>
               <form
-                className="lethe-demo-overlay-form"
+                className="relethe-demo-overlay-form"
                 onSubmit={(e) => {
                   e.preventDefault();
-                  if (demoCode.trim().toLowerCase() === "lethelive") {
+                  if (demoCode.trim().toLowerCase() === "relethelive") {
                     setShowDemoOverlay(false);
                     setDemoCode("");
                     setDemoCodeError(false);
@@ -1335,7 +1328,7 @@ export default function LandingPage() {
                 />
                 <button type="submit">Enter</button>
               </form>
-              <p className="lethe-demo-overlay-error">{demoCodeError ? "That's not it." : ""}</p>
+              <p className="relethe-demo-overlay-error">{demoCodeError ? "That's not it." : ""}</p>
             </div>
           </div>,
           document.body
@@ -1343,19 +1336,19 @@ export default function LandingPage() {
       </section>
 
       {/* SEE IT */}
-      <section id="lethe-see">
-        <div className="lethe-see-header lethe-reveal">
-          <h2 className="lethe-see-title">
+      <section id="relethe-see">
+        <div className="relethe-see-header relethe-reveal">
+          <h2 className="relethe-see-title">
             Meet people who
             <br />
             update your <em>priors.</em>
           </h2>
-          <p className="lethe-scroll-hint-h">Drag to explore</p>
+          <p className="relethe-scroll-hint-h">Drag to explore</p>
         </div>
-        <div className="lethe-cards-track" ref={cardsTrackRef}>
+        <div className="relethe-cards-track" ref={cardsTrackRef}>
           {/* Card 1: Connect */}
-          <div className="lethe-product-card">
-            <div className="lethe-card-screen" style={{ background: "linear-gradient(180deg,#080d08,#050705)", display: "flex", flexDirection: "column", padding: "16px", gap: "10px" }}>
+          <div className="relethe-product-card">
+            <div className="relethe-card-screen" style={{ background: "linear-gradient(180deg,#080d08,#050705)", display: "flex", flexDirection: "column", padding: "16px", gap: "10px" }}>
               <div style={{ fontSize: "9px", letterSpacing: "0.12em", color: "rgba(127,255,0,0.6)", fontFamily: "monospace" }}>YOUR UPCOMING MATCHES</div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "7px" }}>
                 {([
@@ -1391,17 +1384,17 @@ export default function LandingPage() {
                 <div style={{ fontSize: "8px", color: "rgba(255,255,255,0.28)", fontFamily: "monospace" }}>You have 5 meetings this week</div>
               </div>
             </div>
-            <div className="lethe-card-label">
-              <span className="lethe-card-tag">Your weekly match</span>
-              <p className="lethe-card-title">
+            <div className="relethe-card-label">
+              <span className="relethe-card-tag">Your weekly match</span>
+              <p className="relethe-card-title">
                 Up to five introductions a week, selected from your onboarding preferences and availability. You choose who makes the cut.
               </p>
             </div>
           </div>
 
           {/* Card 2: Hyper-personalized matching */}
-          <div className="lethe-product-card">
-            <div className="lethe-card-screen" style={{ background: "#0a0f0a", display: "flex", flexDirection: "column", padding: "20px", gap: "14px" }}>
+          <div className="relethe-product-card">
+            <div className="relethe-card-screen" style={{ background: "#0a0f0a", display: "flex", flexDirection: "column", padding: "20px", gap: "14px" }}>
               <div style={{ fontSize: "10px", letterSpacing: "0.12em", color: "rgba(127,255,0,0.8)", fontFamily: "monospace", fontWeight: 500 }}>YOUR MATCH</div>
               <div style={{ fontFamily: "Georgia, serif", fontStyle: "italic", fontSize: "15px", lineHeight: 1.45, color: "rgba(255,255,255,0.88)", fontWeight: 300 }}>
                 I want to meet people<br />
@@ -1422,17 +1415,17 @@ export default function LandingPage() {
                 <div style={{ flex: 1, background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "20px", padding: "7px 0", textAlign: "center", fontSize: "10px", letterSpacing: "0.1em", color: "rgba(255,255,255,0.4)", fontFamily: "monospace" }}>LATER</div>
               </div>
             </div>
-            <div className="lethe-card-label">
-              <span className="lethe-card-tag">Your criteria</span>
-              <p className="lethe-card-title">
+            <div className="relethe-card-label">
+              <span className="relethe-card-tag">Your criteria</span>
+              <p className="relethe-card-title">
                 You choose who you meet. The more honest you are, the better the match.
               </p>
             </div>
           </div>
 
           {/* Card 3: Availability */}
-          <div className="lethe-product-card">
-            <div className="lethe-card-screen" style={{ background: "#0a0f0a", display: "flex", flexDirection: "column", padding: "18px", gap: "11px" }}>
+          <div className="relethe-product-card">
+            <div className="relethe-card-screen" style={{ background: "#0a0f0a", display: "flex", flexDirection: "column", padding: "18px", gap: "11px" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <span style={{ fontSize: "9px", letterSpacing: "0.12em", color: "rgba(255,255,255,0.5)", fontFamily: "monospace" }}>MEETING TIMES</span>
                 <span style={{ fontSize: "9px", color: "rgba(127,255,0,0.7)", fontFamily: "monospace" }}>3 of 5 slots used</span>
@@ -1468,17 +1461,17 @@ export default function LandingPage() {
                 ))}
               </div>
             </div>
-            <div className="lethe-card-label">
-              <span className="lethe-card-tag">Your availability</span>
-              <p className="lethe-card-title">
+            <div className="relethe-card-label">
+              <span className="relethe-card-tag">Your availability</span>
+              <p className="relethe-card-title">
                 Set when you show up. Pause anytime. Your meetings, your terms.
               </p>
             </div>
           </div>
 
           {/* Card 4: Daily edition */}
-          <div className="lethe-product-card">
-            <div className="lethe-card-screen" style={{ background: "linear-gradient(180deg,#080d08,#050705)", display: "flex", flexDirection: "column", padding: "14px", gap: "10px" }}>
+          <div className="relethe-product-card">
+            <div className="relethe-card-screen" style={{ background: "linear-gradient(180deg,#080d08,#050705)", display: "flex", flexDirection: "column", padding: "14px", gap: "10px" }}>
               <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
                 <div style={{ background: "rgba(255,255,255,0.9)", borderRadius: "10px", padding: "3px 10px", fontSize: "9px", fontFamily: "monospace", letterSpacing: "0.08em", color: "#050705", fontWeight: 600 }}>ALL</div>
                 <div style={{ background: "transparent", borderRadius: "10px", padding: "3px 10px", fontSize: "9px", fontFamily: "monospace", letterSpacing: "0.08em", color: "rgba(255,255,255,0.35)" }}>FOLLOWING</div>
@@ -1557,38 +1550,38 @@ export default function LandingPage() {
                 </div>
               </div>
             </div>
-            <div className="lethe-card-label">
-              <span className="lethe-card-tag">The daily edition</span>
-              <p className="lethe-card-title">
+            <div className="relethe-card-label">
+              <span className="relethe-card-tag">The daily edition</span>
+              <p className="relethe-card-title">
                 60 posts. A quiet end. Back to your own life.
               </p>
             </div>
           </div>
 
           {/* Card 5: Intentional scrolling */}
-          <div className="lethe-product-card">
-            <div className="lethe-card-screen lethe-screen-depth">
-              <div className="lethe-depth-ripple">
-                <div className="lethe-depth-dot"></div>
+          <div className="relethe-product-card">
+            <div className="relethe-card-screen relethe-screen-depth">
+              <div className="relethe-depth-ripple">
+                <div className="relethe-depth-dot"></div>
               </div>
-              <p className="lethe-depth-text">
+              <p className="relethe-depth-text">
                 You've reached
                 <br />
                 the softened hours.
               </p>
-              <div className="lethe-depth-btn-mock">Return to the present</div>
+              <div className="relethe-depth-btn-mock">Return to the present</div>
             </div>
-            <div className="lethe-card-label">
-              <span className="lethe-card-tag">Intentional scrolling</span>
-              <p className="lethe-card-title">
+            <div className="relethe-card-label">
+              <span className="relethe-card-tag">Intentional scrolling</span>
+              <p className="relethe-card-title">
                 The feed has a shape. Limited daily editions of selected posts. No doomscrolling.
               </p>
             </div>
           </div>
 
           {/* Card 6: Communities */}
-          <div className="lethe-product-card">
-            <div className="lethe-card-screen" style={{ background: "#0a0f0a", display: "flex", flexDirection: "column", overflow: "hidden", padding: 0 }}>
+          <div className="relethe-product-card">
+            <div className="relethe-card-screen" style={{ background: "#0a0f0a", display: "flex", flexDirection: "column", overflow: "hidden", padding: 0 }}>
               <div style={{ height: "48px", background: "linear-gradient(135deg, rgba(127,255,0,0.12) 0%, rgba(0,0,0,0) 100%)", borderBottom: "1px solid rgba(255,255,255,0.06)", flexShrink: 0 }}></div>
               <div style={{ padding: "12px 14px", display: "flex", flexDirection: "column", gap: "10px", flex: 1 }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
@@ -1621,8 +1614,8 @@ export default function LandingPage() {
                       </div>
                     </div>
                   </div>
-                  <div className="lethe-mock-line" style={{ width: "90%" }}></div>
-                  <div className="lethe-mock-line short"></div>
+                  <div className="relethe-mock-line" style={{ width: "90%" }}></div>
+                  <div className="relethe-mock-line short"></div>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <div style={{ display: "flex", gap: "10px" }}>
                       <span style={{ fontSize: "9px", color: "rgba(255,255,255,0.3)", fontFamily: "monospace" }}>♡ 12</span>
@@ -1633,17 +1626,17 @@ export default function LandingPage() {
                 </div>
               </div>
             </div>
-            <div className="lethe-card-label">
-              <span className="lethe-card-tag">Your communities</span>
-              <p className="lethe-card-title">
+            <div className="relethe-card-label">
+              <span className="relethe-card-tag">Your communities</span>
+              <p className="relethe-card-title">
                 Find your guild. Post to people who already get it.
               </p>
             </div>
           </div>
 
           {/* Card 7: Profile */}
-          <div className="lethe-product-card">
-            <div className="lethe-card-screen" style={{ background: "linear-gradient(180deg,#080d08,#050705)", display: "flex", flexDirection: "column", padding: "16px", gap: "12px", overflowY: "hidden" }}>
+          <div className="relethe-product-card">
+            <div className="relethe-card-screen" style={{ background: "linear-gradient(180deg,#080d08,#050705)", display: "flex", flexDirection: "column", padding: "16px", gap: "12px", overflowY: "hidden" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                 <div style={{ width: "36px", height: "36px", borderRadius: "50%", background: "rgba(255,255,255,0.1)", border: "2px solid rgba(127,255,0,0.5)", flexShrink: 0 }}></div>
                 <div style={{ flex: 1 }}>
@@ -1697,9 +1690,9 @@ export default function LandingPage() {
                 </div>
               </div>
             </div>
-            <div className="lethe-card-label">
-              <span className="lethe-card-tag">Your profile</span>
-              <p className="lethe-card-title">
+            <div className="relethe-card-label">
+              <span className="relethe-card-tag">Your profile</span>
+              <p className="relethe-card-title">
                 See your full timeline. Revive anything. Your posts, your choice
               </p>
             </div>
@@ -1708,14 +1701,14 @@ export default function LandingPage() {
       </section>
 
       {/* SIGNUP */}
-      <section id="lethe-signup">
-        <p className="lethe-signup-pre lethe-reveal">Private beta</p>
-        <h2 className="lethe-signup-h lethe-reveal">Connect differently.</h2>
-        <p className="lethe-signup-sub lethe-reveal">
-          Lethe is in private beta. Be among the first to meet people who actually move the needle on how you think, work, and live.
+      <section id="relethe-signup">
+        <p className="relethe-signup-pre relethe-reveal">Private beta</p>
+        <h2 className="relethe-signup-h relethe-reveal">Connect differently.</h2>
+        <p className="relethe-signup-sub relethe-reveal">
+          Relethe is in private beta. Be among the first to meet people who actually move the needle on how you think, work, and live.
         </p>
         {!showSignupSuccess ? (
-          <form className="lethe-signup-form lethe-reveal" onSubmit={handleSignupSubmit}>
+          <form className="relethe-signup-form relethe-reveal" onSubmit={handleSignupSubmit}>
             <input
               type="email"
               placeholder="your@email.com"
@@ -1730,9 +1723,9 @@ export default function LandingPage() {
             </button>
           </form>
         ) : (
-          <div className="lethe-form-success">
-            <p className="lethe-form-success-title">
-              <span className="lethe-confetti" aria-hidden="true">
+          <div className="relethe-form-success">
+            <p className="relethe-form-success-title">
+              <span className="relethe-confetti" aria-hidden="true">
                 {([
                   { tx: "-8px", ty: "-28px", rot: "160deg",  color: "#7FFF00", delay: "0s",   dur: ".6s"  },
                   { tx: "8px",  ty: "-30px", rot: "-140deg", color: "#ADFF2F", delay: ".05s", dur: ".65s" },
@@ -1746,21 +1739,21 @@ export default function LandingPage() {
               </span>
               {"You're now on the list."}
             </p>
-            <p className="lethe-form-success-sub">We'll be in touch when the first batch opens.</p>
+            <p className="relethe-form-success-sub">We'll be in touch when the first batch opens.</p>
           </div>
         )}
-        <p className="lethe-signup-note lethe-reveal">
+        <p className="relethe-signup-note relethe-reveal">
           No spam. No noise. Just a note when we're ready.
         </p>
       </section>
 
       {/* FOOTER */}
-      <footer className="lethe-footer">
-        <span className="lethe-footer-logo">Lethe</span>
-        <span className="lethe-footer-tag">
+      <footer className="relethe-footer">
+        <span className="relethe-footer-logo">Relethe</span>
+        <span className="relethe-footer-tag">
           Networking without the performance.
         </span>
-        <a href="#" className="lethe-footer-link">
+        <a href="#" className="relethe-footer-link">
           LinkedIn ↗
         </a>
       </footer>

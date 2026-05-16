@@ -26,15 +26,15 @@ export function MatchesNav({
   return (
     <div className="flex items-center justify-between w-full">
       {/* Tab navigation */}
-      <div className="bg-lethe-surface rounded-full border border-lethe-line inline-flex px-2 py-1.5 gap-1 transition-colors duration-300">
+      <div className="bg-relethe-surface rounded-full border border-relethe-line inline-flex px-2 py-1.5 gap-1 transition-colors duration-300">
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
           return (
             <button
               key={tab.id}
               onClick={() => onTabChange(tab.id)}
-              className={`px-5 py-1 rounded-full text-[length:var(--lethe-text-xs)] tracking-[length:var(--lethe-tracking-ui)] font-sans transition-all duration-300 ${
-                isActive ? "text-lethe-fg" : "text-lethe-line-dim"
+              className={`px-5 py-1 rounded-full text-[length:var(--relethe-text-xs)] tracking-[length:var(--relethe-tracking-ui)] font-sans transition-all duration-300 ${
+                isActive ? "text-relethe-fg" : "text-relethe-line-dim"
               }`}
             >
               {tab.label}
@@ -46,8 +46,8 @@ export function MatchesNav({
       {/* Status + toggle */}
       <div className="flex items-center gap-3">
         <span
-          className={`text-[length:var(--lethe-text-xs)] tracking-[length:var(--lethe-tracking-ui)] uppercase font-light font-sans transition-colors duration-300 ${
-            isMatchmakingEnabled ? "text-lethe-accent" : "text-lethe-muted"
+          className={`text-[length:var(--relethe-text-xs)] tracking-[length:var(--relethe-tracking-ui)] uppercase font-light font-sans transition-colors duration-300 ${
+            isMatchmakingEnabled ? "text-relethe-accent" : "text-relethe-muted"
           }`}
         >
           {isMatchmakingEnabled ? "You're up for matching" : "You've paused matching"}
@@ -60,7 +60,7 @@ export function MatchesNav({
             style={{
               backgroundColor: isMatchmakingEnabled
                 ? "var(--accent-primary)"
-                : "var(--lethe-line-subtle)",
+                : "var(--relethe-line-subtle)",
             }}
           >
             <span

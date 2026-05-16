@@ -37,9 +37,9 @@ export function PostCard({
   const getStatusBadge = () => {
     if (status === "faded") {
       return (
-        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-lethe-surface border border-lethe-line-dim transition-colors duration-300">
-          <div className="w-1 h-1 rounded-full bg-lethe-status-faded" />
-          <span className="text-lethe-status-faded text-[length:var(--lethe-text-2xs)] tracking-[length:var(--lethe-tracking-ui)] uppercase font-light">
+        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-relethe-surface border border-relethe-line-dim transition-colors duration-300">
+          <div className="w-1 h-1 rounded-full bg-relethe-status-faded" />
+          <span className="text-relethe-status-faded text-[length:var(--relethe-text-2xs)] tracking-[length:var(--relethe-tracking-ui)] uppercase font-light">
             FADED
           </span>
         </div>
@@ -47,9 +47,9 @@ export function PostCard({
     }
     if (status === "fading" && fadingIn) {
       return (
-        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-lethe-surface border border-lethe-line-dim transition-colors duration-300">
-          <div className="w-1 h-1 rounded-full bg-lethe-status-fading" />
-          <span className="text-lethe-status-fading text-[length:var(--lethe-text-2xs)] tracking-[length:var(--lethe-tracking-ui)] uppercase font-light">
+        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-relethe-surface border border-relethe-line-dim transition-colors duration-300">
+          <div className="w-1 h-1 rounded-full bg-relethe-status-fading" />
+          <span className="text-relethe-status-fading text-[length:var(--relethe-text-2xs)] tracking-[length:var(--relethe-tracking-ui)] uppercase font-light">
             FADING IN {fadingIn}
           </span>
         </div>
@@ -59,8 +59,8 @@ export function PostCard({
   };
 
   const actionColor = isFossil
-    ? "text-lethe-line-dim"
-    : "text-lethe-muted hover:text-lethe-fg";
+    ? "text-relethe-line-dim"
+    : "text-relethe-muted hover:text-relethe-fg";
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -75,7 +75,7 @@ export function PostCard({
 
   return (
     <article
-      className={`relative bg-lethe-surface rounded-2xl border border-lethe-line shadow-2xl overflow-hidden group transition-colors duration-300 ${
+      className={`relative bg-relethe-surface rounded-2xl border border-relethe-line shadow-2xl overflow-hidden group transition-colors duration-300 ${
         isFossil && onFadedClick ? "cursor-pointer" : ""
       }`}
       data-status={status}
@@ -109,7 +109,7 @@ export function PostCard({
             <ImageWithFallback
               src={avatar}
               alt={username}
-              className="w-10 h-10 rounded-full object-cover bg-lethe-raised ring-1 ring-lethe-line-subtle hover:ring-lethe-accent/40 transition-all"
+              className="w-10 h-10 rounded-full object-cover bg-relethe-raised ring-1 ring-relethe-line-subtle hover:ring-relethe-accent/40 transition-all"
             />
           </div>
 
@@ -118,7 +118,7 @@ export function PostCard({
             <div className="flex flex-col gap-0.5">
               <div className="flex items-baseline gap-2.5">
                 <span
-                  className="text-lethe-fg text-[length:var(--lethe-text-md)] font-light font-sans tracking-wide cursor-pointer hover:text-lethe-accent transition-colors"
+                  className="text-relethe-fg text-[length:var(--relethe-text-md)] font-light font-sans tracking-wide cursor-pointer hover:text-relethe-accent transition-colors"
                   onClick={(e) => {
                     e.stopPropagation();
                     navigate(`/user/${username}`);
@@ -126,15 +126,15 @@ export function PostCard({
                 >
                   {username}
                 </span>
-                <span className="text-lethe-muted text-[length:var(--lethe-text-sm)] tracking-wider font-light font-sans">
+                <span className="text-relethe-muted text-[length:var(--relethe-text-sm)] tracking-wider font-light font-sans">
                   {timestamp}
                 </span>
               </div>
               <button
-                className={`text-[length:var(--lethe-text-sm)] tracking-wide font-light transition-colors text-left font-sans ${
+                className={`text-[length:var(--relethe-text-sm)] tracking-wide font-light transition-colors text-left font-sans ${
                   isFollowing
-                    ? "text-lethe-muted hover:text-lethe-ghost"
-                    : "text-lethe-fg hover:text-lethe-accent"
+                    ? "text-relethe-muted hover:text-relethe-ghost"
+                    : "text-relethe-fg hover:text-relethe-accent"
                 }`}
               >
                 {isFollowing ? "Following" : "Follow"}
@@ -147,9 +147,9 @@ export function PostCard({
             <button
               ref={buttonRef}
               onClick={handleMenuClick}
-              className="text-lethe-line-dim hover:text-lethe-muted transition-colors"
+              className="text-relethe-line-dim hover:text-relethe-muted transition-colors"
             >
-              <MoreVertical className="w-[var(--lethe-icon-md)] h-[var(--lethe-icon-md)]" strokeWidth={1.5} />
+              <MoreVertical className="w-[var(--relethe-icon-md)] h-[var(--relethe-icon-md)]" strokeWidth={1.5} />
             </button>
           </div>
         </div>
@@ -173,12 +173,12 @@ export function PostCard({
         {/* Post text */}
         <div className="relative mb-5">
           <p
-            className={`leading-[var(--lethe-leading-loose)] tracking-[var(--lethe-tracking-body)] text-[length:var(--lethe-text-sm)] font-light font-display ${
+            className={`leading-[var(--relethe-leading-loose)] tracking-[var(--relethe-tracking-body)] text-[length:var(--relethe-text-sm)] font-light font-display ${
               status === "faded"
-                ? "text-lethe-muted blur-[3px] select-none"
+                ? "text-relethe-muted blur-[3px] select-none"
                 : status === "fading"
-                ? "text-lethe-muted"
-                : "text-lethe-dim"
+                ? "text-relethe-muted"
+                : "text-relethe-dim"
             }`}
           >
             {text}
@@ -196,7 +196,7 @@ export function PostCard({
               className={`flex items-center gap-2 ${actionColor} transition-colors group/btn ${isFossil ? "cursor-not-allowed" : ""}`}
             >
               <MessageCircle
-                className={`w-[var(--lethe-icon-md)] h-[var(--lethe-icon-md)] ${isFossil ? "" : "group-hover/btn:scale-110"} transition-transform`}
+                className={`w-[var(--relethe-icon-md)] h-[var(--relethe-icon-md)] ${isFossil ? "" : "group-hover/btn:scale-110"} transition-transform`}
                 strokeWidth={1.5}
               />
             </button>
@@ -207,7 +207,7 @@ export function PostCard({
                 className={`flex items-center gap-2 ${actionColor} transition-colors group/btn ${isFossil ? "cursor-not-allowed" : ""}`}
               >
                 <div
-                  className={`w-[var(--lethe-icon-md)] h-[var(--lethe-icon-md)] ${isFossil ? "" : "group-hover/btn:scale-110"} transition-transform`}
+                  className={`w-[var(--relethe-icon-md)] h-[var(--relethe-icon-md)] ${isFossil ? "" : "group-hover/btn:scale-110"} transition-transform`}
                   style={{ color: "currentColor" }}
                 >
                   <ArcticonsTetherfi />
@@ -222,7 +222,7 @@ export function PostCard({
               className={`flex items-center gap-2 ${actionColor} transition-colors group/btn ${isFossil ? "cursor-not-allowed" : ""}`}
             >
               <Share
-                className={`w-[var(--lethe-icon-md)] h-[var(--lethe-icon-md)] ${isFossil ? "" : "group-hover/btn:scale-110"} transition-transform`}
+                className={`w-[var(--relethe-icon-md)] h-[var(--relethe-icon-md)] ${isFossil ? "" : "group-hover/btn:scale-110"} transition-transform`}
                 strokeWidth={1.5}
               />
             </button>

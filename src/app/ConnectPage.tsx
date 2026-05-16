@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { X, Check, MapPin, Zap } from 'lucide-react';
-import LetheLogo from '../imports/LetheLogo';
+import ReletheLogo from '../imports/ReletheLogo';
 import { listUserRecommendations, respondToRecommendation } from './trial/api';
 import type { TrialRecommendation } from './trial/types';
 import { useAuth } from './context/AuthContext';
@@ -92,8 +92,8 @@ export default function ConnectPage() {
           onClick={() => navigate('/feed')}
           className="font-['Cormorant_Garamond'] text-[13px] tracking-[0.32em] uppercase text-white/[0.52] flex items-center gap-[9px] hover:text-white/70 transition-colors"
         >
-          <LetheLogo className="w-[15px] h-[15px] opacity-55" />
-          Lethe
+          <ReletheLogo className="w-[15px] h-[15px] opacity-55" />
+          Relethe
         </button>
         <div className="flex items-center gap-3">
           <button
@@ -243,7 +243,7 @@ export default function ConnectPage() {
           )}
         </div>
 
-        {/* Right card — Lethe summary */}
+        {/* Right card — Relethe summary */}
         {!isLoading && !isComplete && rec && (
           <div className="w-[420px] min-w-[400px] flex-shrink-0 flex flex-col bg-transparent overflow-y-auto">
             <div className="bg-[#0b0e0b] border border-white/[0.07] rounded-2xl overflow-hidden flex flex-col">
@@ -253,7 +253,7 @@ export default function ConnectPage() {
                     <Zap size={12} strokeWidth={1.5} />
                   </div>
                   <div>
-                    <div className="text-[10px] font-semibold tracking-[0.16em] uppercase text-[rgba(173,255,47,0.65)]">Lethe summary</div>
+                    <div className="text-[10px] font-semibold tracking-[0.16em] uppercase text-[rgba(173,255,47,0.65)]">Relethe summary</div>
                     <div className="text-[10px] font-light text-white/[0.25] mt-[1px]">
                       What you and {rec.candidate.displayName.split(' ')[0]} have in common
                     </div>
@@ -294,7 +294,7 @@ export default function ConnectPage() {
         </div>
         <div className="font-['Cormorant_Garamond'] text-[22px] italic text-white/[0.88]">Match set.</div>
         <div className="text-[12px] font-light text-white/[0.52] text-center max-w-[220px] leading-[1.65]">
-          Lethe will handle the introduction when the time is right.
+          Relethe will handle the introduction when the time is right.
         </div>
       </div>
 
