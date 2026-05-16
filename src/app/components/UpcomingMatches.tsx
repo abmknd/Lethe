@@ -1,4 +1,4 @@
-import { useTheme } from "../context/ThemeContext";
+﻿import { useTheme } from "../context/ThemeContext";
 import { Calendar } from "lucide-react";
 
 interface UpcomingMatch {
@@ -46,7 +46,7 @@ export function UpcomingMatches({ isMatchingPaused = false }: UpcomingMatchesPro
         <div className="flex-1 min-w-0 bg-[#0b0e0b] border border-white/[0.07] rounded-2xl flex flex-col overflow-hidden">
           {isMatchingPaused ? (
             <div className="flex-1 flex flex-col items-center justify-center gap-3 px-10 py-[60px] text-center">
-              <p className="font-['Cormorant_Garamond'] text-[24px] italic text-white/[0.88]">You have no upcoming meetings</p>
+              <p className="font-['Libre_Franklin'] text-[24px] italic text-white/[0.88]">You have no upcoming meetings</p>
               <p className="text-[15px] font-light text-white/[0.52] leading-[1.7] max-w-[280px]">
                 switch on matching to resume meetings
               </p>

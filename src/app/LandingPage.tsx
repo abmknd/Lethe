@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, FormEvent } from "react";
+﻿import { useState, useEffect, useRef, FormEvent } from "react";
 import { supabase } from "../lib/supabase";
 import { useNavigate } from "react-router";
 import gsap from "gsap";
@@ -530,7 +530,7 @@ export default function LandingPage() {
           --text: rgba(255,255,255,0.88);
           --dim: rgba(255,255,255,0.60);
           --ghost: rgba(255,255,255,0.28);
-          --serif: 'Cormorant Garamond', serif;
+          --serif: 'Libre Franklin', sans-serif;
           --mono: 'Libre Franklin', sans-serif;
           --sans-serif: 'Libre Franklin', sans-serif;
         }
@@ -538,7 +538,7 @@ export default function LandingPage() {
         body {
           background: var(--dark);
           color: var(--text);
-          font-family: var(--serif);
+          font-family: var(--mono);
           overflow-x: hidden;
           cursor: none;
         }
@@ -587,7 +587,7 @@ export default function LandingPage() {
           .relethe-nav { padding: 0 40px; }
         }
         .relethe-nav-logo {
-          font-family: var(--serif); font-size: 14px; font-weight: 300;
+          font-family: var(--mono); font-size: 14px; font-weight: 300;
           letter-spacing: .3em; text-transform: uppercase;
           color: var(--text); text-decoration: none;
           transition: opacity .3s;
@@ -995,7 +995,7 @@ export default function LandingPage() {
         .relethe-depth-ripple::after { animation-delay:1.2s; }
         .relethe-depth-dot { width:5px; height:5px; border-radius:50%; background:rgba(173,255,47,0.5); }
         @keyframes reletheMockRipple { 0%{width:5px;height:5px;opacity:.6} 100%{width:44px;height:44px;opacity:0} }
-        .relethe-depth-text { font-family:var(--serif); font-size:13px; font-style:italic; font-weight:300; color:rgba(255,255,255,0.7); text-align:center; line-height:1.4; }
+        .relethe-depth-text { font-family:var(--mono); font-size:13px; font-weight:300; color:rgba(255,255,255,0.7); text-align:center; line-height:1.4; }
         .relethe-depth-btn-mock { font-family:var(--mono); font-size:8px; letter-spacing:.15em; text-transform:uppercase; color:rgba(173,255,47,0.6); border:1px solid rgba(173,255,47,0.2); padding:5px 14px; border-radius:12px; background:rgba(173,255,47,0.05); }
 
         .relethe-screen-connect { background:linear-gradient(180deg,#080d08,#050705); padding:16px; }
@@ -1070,7 +1070,7 @@ export default function LandingPage() {
         .relethe-signup-note { margin-top:18px; font-family:var(--mono); font-size:11px; letter-spacing:.12em; color:var(--ghost); position:relative; z-index:1; }
         .relethe-form-success { padding: 16px 0; display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; }
         .relethe-form-success-title {
-          font-family: var(--serif); font-size: 18px; font-style: italic;
+          font-family: var(--mono); font-size: 18px;
           font-weight: 300; color: rgba(173,255,47,0.9); margin-bottom: 0;
           display: flex; align-items: center; justify-content: center; gap: 0; position: relative;
         }
@@ -1095,8 +1095,8 @@ export default function LandingPage() {
           display: flex; align-items: center; justify-content: space-between;
           border-top: 1px solid var(--border); position: relative; z-index: 3;
         }
-        .relethe-footer-logo { font-family:var(--serif); font-size:13px; font-weight:300; letter-spacing:.38em; text-transform:uppercase; color:var(--dim); }
-        .relethe-footer-tag { font-family:var(--serif); font-size:14px; font-style:italic; font-weight:300; color:var(--ghost); }
+        .relethe-footer-logo { font-family:var(--mono); font-size:13px; font-weight:300; letter-spacing:.38em; text-transform:uppercase; color:var(--dim); }
+        .relethe-footer-tag { font-family:var(--mono); font-size:14px; font-weight:300; color:var(--ghost); }
         .relethe-footer-link { font-family:var(--mono); font-size:11px; letter-spacing:.15em; text-transform:uppercase; color:var(--ghost); text-decoration:none; transition:color .25s; }
         .relethe-footer-link:hover { color:var(--dim); }
 

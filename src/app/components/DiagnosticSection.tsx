@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import DiagnosticModal from "./DiagnosticModal";
 
 interface Props {
@@ -38,7 +38,7 @@ export default function DiagnosticSection({ onEmailSubmitted }: Props) {
           margin-bottom: 28px;
         }
         .diag-section-heading {
-          font-family: 'Cormorant Garamond', serif;
+          font-family: 'Libre Franklin', sans-serif;
           font-size: clamp(30px, 4.5vw, 58px);
           font-weight: 300;
           font-style: italic;
@@ -49,7 +49,7 @@ export default function DiagnosticSection({ onEmailSubmitted }: Props) {
           margin-bottom: 20px;
         }
         .diag-section-sub {
-          font-family: 'Cormorant Garamond', serif;
+          font-family: 'Libre Franklin', sans-serif;
           font-size: clamp(16px, 1.9vw, 20px);
           font-weight: 300;
           line-height: 1.7;
@@ -96,7 +96,7 @@ export default function DiagnosticSection({ onEmailSubmitted }: Props) {
           color: rgba(127,255,0,0.6);
         }
         .diag-complete-msg {
-          font-family: 'Cormorant Garamond', serif;
+          font-family: 'Libre Franklin', sans-serif;
           font-size: clamp(15px, 1.8vw, 18px);
           font-weight: 300;
           font-style: italic;

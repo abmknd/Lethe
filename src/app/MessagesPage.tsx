@@ -203,7 +203,7 @@ export default function MessagesPage() {
         <aside className="w-[400px] min-w-[400px] flex-shrink-0 flex flex-col border border-white/[0.07] bg-black rounded-2xl">
           {/* Sidebar Header */}
           <div className="px-5 pt-5 pb-0 flex-shrink-0">
-            <div className="font-['Cormorant_Garamond'] text-[18px] font-normal italic text-white/90 mb-[14px] leading-[27px]">
+            <div className="font-['Libre_Franklin'] text-[18px] font-normal italic text-white/90 mb-[14px] leading-[27px]">
               Messages
             </div>
 
@@ -300,7 +300,7 @@ export default function MessagesPage() {
                 </div>
               </div>
 
-              <h2 className="font-['Cormorant_Garamond'] text-[26px] font-normal italic text-white/90 mb-[10px] text-center">
+              <h2 className="font-['Libre_Franklin'] text-[26px] font-normal italic text-white/90 mb-[10px] text-center">
                 Start a conversation
               </h2>
               <p className="text-[14px] font-light text-white/45 text-center leading-[1.7] max-w-[300px] mb-7">
