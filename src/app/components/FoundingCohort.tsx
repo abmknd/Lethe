@@ -102,7 +102,7 @@ export default function FoundingCohort() {
           z-index: 3;
         }
         .cohort-heading {
-          font-family: 'Libre Franklin', sans-serif;
+          font-family: 'Cormorant Garamond', serif;
           font-size: clamp(30px, 4vw, 52px);
           font-weight: 300;
           font-style: italic;
@@ -148,9 +148,10 @@ export default function FoundingCohort() {
           color: rgba(127,255,0,0.75);
         }
         .cohort-name {
-          font-family: 'Libre Franklin', sans-serif;
-          font-size: 18px;
-          font-weight: 600;
+          font-family: 'Cormorant Garamond', serif;
+          font-size: 20px;
+          font-weight: 400;
+          font-style: italic;
           color: rgba(255,255,255,0.88);
           line-height: 1.2;
         }

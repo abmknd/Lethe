@@ -38,7 +38,7 @@ export default function DiagnosticSection({ onEmailSubmitted }: Props) {
           margin-bottom: 28px;
         }
         .diag-section-heading {
-          font-family: 'Libre Franklin', sans-serif;
+          font-family: 'Cormorant Garamond', serif;
           font-size: clamp(30px, 4.5vw, 58px);
           font-weight: 300;
           font-style: italic;
