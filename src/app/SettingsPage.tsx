@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { 
   User, Calendar, Target, Bell, 
@@ -298,7 +298,7 @@ export default function SettingsPage() {
             <svg className="w-4 h-4" fill="none" viewBox="0 0 16 16">
               <path d={svgPathsBack.p543f5c0} stroke="#6B6B6B" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
-            <span className="font-['Inter'] font-light leading-[16.5px] text-[12px] tracking-[3.3px] uppercase">BACK</span>
+            <span className="font-['Libre_Franklin'] font-light leading-[16.5px] text-[12px] tracking-[3.3px] uppercase">BACK</span>
           </button>
         </div>
       </header>
@@ -327,7 +327,7 @@ export default function SettingsPage() {
                 <span className={activeSection === section.id ? 'text-[#7FFF00]/70' : 'text-white/[0.25]'}>
                   {section.icon}
                 </span>
-                <span className="font-['Inter'] text-[14px] font-normal">
+                <span className="font-['Libre_Franklin'] text-[14px] font-normal">
                   {section.label}
                 </span>
               </button>

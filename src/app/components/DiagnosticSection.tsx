@@ -30,7 +30,7 @@ export default function DiagnosticSection({ onEmailSubmitted }: Props) {
           border-top: 1px solid rgba(255,255,255,0.07);
         }
         .diag-section-eyebrow {
-          font-family: 'DM Mono', monospace;
+          font-family: 'Libre Franklin', sans-serif;
           font-size: 11px;
           letter-spacing: .3em;
           text-transform: uppercase;
@@ -58,7 +58,7 @@ export default function DiagnosticSection({ onEmailSubmitted }: Props) {
           margin-bottom: 16px;
         }
         .diagnostic-time-hint {
-          font-family: 'DM Mono', monospace;
+          font-family: 'Libre Franklin', sans-serif;
           font-size: 10px;
           letter-spacing: .18em;
           text-transform: uppercase;
@@ -66,7 +66,7 @@ export default function DiagnosticSection({ onEmailSubmitted }: Props) {
           margin-bottom: 36px;
         }
         .diag-cta-btn {
-          font-family: 'DM Mono', monospace;
+          font-family: 'Libre Franklin', sans-serif;
           font-size: 12px;
           letter-spacing: .22em;
           text-transform: uppercase;
@@ -89,7 +89,7 @@ export default function DiagnosticSection({ onEmailSubmitted }: Props) {
           gap: 12px;
         }
         .diag-complete-label {
-          font-family: 'DM Mono', monospace;
+          font-family: 'Libre Franklin', sans-serif;
           font-size: 10px;
           letter-spacing: .3em;
           text-transform: uppercase;
@@ -105,7 +105,7 @@ export default function DiagnosticSection({ onEmailSubmitted }: Props) {
           line-height: 1.65;
         }
         .diag-explore-again {
-          font-family: 'DM Mono', monospace;
+          font-family: 'Libre Franklin', sans-serif;
           font-size: 11px;
           letter-spacing: .18em;
           text-transform: uppercase;

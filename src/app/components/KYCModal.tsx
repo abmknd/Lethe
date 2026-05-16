@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { ChevronLeft } from 'lucide-react';
 import { Step1HowItWorks } from './kyc/Step1HowItWorks';
 import { Step2Location } from './kyc/Step2Location';
@@ -150,7 +150,7 @@ export function KYCModal({ isOpen, onClose, onComplete }: KYCModalProps) {
           >
             <ChevronLeft size={16} strokeWidth={1.5} />
           </button>
-          <span className="font-['Inter'] text-[10px] tracking-[0.2em] text-white/30">
+          <span className="font-['Libre_Franklin'] text-[10px] tracking-[0.2em] text-white/30">
             {isComplete || isPaused ? '' : `${currentStep} of ${TOTAL_STEPS}`}
           </span>
         </div>
@@ -231,13 +231,13 @@ export function KYCModal({ isOpen, onClose, onComplete }: KYCModalProps) {
               <button
                 onClick={goNext}
                 disabled={!canAdvance()}
-                className="flex-1 py-[15px] px-4 rounded-full border-none font-['Inter'] text-[11px] tracking-[0.22em] uppercase text-[#050705] bg-[#7FFF00] hover:bg-[#c8ff4f] transition-all disabled:opacity-35 disabled:cursor-not-allowed disabled:hover:bg-[#7FFF00]"
+                className="flex-1 py-[15px] px-4 rounded-full border-none font-['Libre_Franklin'] text-[11px] tracking-[0.22em] uppercase text-[#050705] bg-[#7FFF00] hover:bg-[#c8ff4f] transition-all disabled:opacity-35 disabled:cursor-not-allowed disabled:hover:bg-[#7FFF00]"
               >
                 {getButtonLabel()}
               </button>
               <button
                 onClick={handleLater}
-                className="flex-shrink-0 py-[15px] px-6 rounded-full border border-white/[0.12] font-['Inter'] text-[11px] tracking-[0.22em] uppercase text-white bg-[#1a1a1a] hover:bg-[#252525] transition-all"
+                className="flex-shrink-0 py-[15px] px-6 rounded-full border border-white/[0.12] font-['Libre_Franklin'] text-[11px] tracking-[0.22em] uppercase text-white bg-[#1a1a1a] hover:bg-[#252525] transition-all"
               >
                 Later
               </button>

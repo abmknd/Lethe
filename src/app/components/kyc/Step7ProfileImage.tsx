@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+﻿import { useState, useRef } from 'react';
 import { Upload } from 'lucide-react';
 import { KYCData } from '../KYCModal';
 
@@ -38,7 +38,7 @@ export function Step7ProfileImage({ isActive, direction, data, updateData }: Ste
 
   return (
     <div className={`kyc-step ${getClassName()}`}>
-      <span className="font-['Inter'] text-[10px] tracking-[0.3em] uppercase text-[#7FFF00]/50 mb-[14px] block">
+      <span className="font-['Libre_Franklin'] text-[10px] tracking-[0.3em] uppercase text-[#7FFF00]/50 mb-[14px] block">
         Your profile
       </span>
       <h1 className="font-['Cormorant_Garamond'] text-[clamp(28px,4vw,40px)] font-light italic leading-[1.15] tracking-[-0.02em] text-white/90 mb-[10px]">
@@ -83,7 +83,7 @@ export function Step7ProfileImage({ isActive, direction, data, updateData }: Ste
         {/* Upload Button */}
         <button
           onClick={handleUploadClick}
-          className="w-full max-w-[380px] py-[16px] px-6 rounded-full border-none font-['Inter'] text-[11px] tracking-[0.22em] uppercase bg-[#7FFF00] hover:bg-[#c8ff4f] text-[#050705] transition-all flex items-center justify-center gap-2"
+          className="w-full max-w-[380px] py-[16px] px-6 rounded-full border-none font-['Libre_Franklin'] text-[11px] tracking-[0.22em] uppercase bg-[#7FFF00] hover:bg-[#c8ff4f] text-[#050705] transition-all flex items-center justify-center gap-2"
         >
           <Upload size={14} strokeWidth={2.5} />
           {preview ? 'Change image' : 'Upload image'}
@@ -100,7 +100,7 @@ export function Step7ProfileImage({ isActive, direction, data, updateData }: Ste
       </div>
 
       {/* Optional: Skip message */}
-      <p className="text-center font-['Inter'] text-[10px] tracking-[0.14em] text-white/30 mt-6">
+      <p className="text-center font-['Libre_Franklin'] text-[10px] tracking-[0.14em] text-white/30 mt-6">
         You can always add this later in your profile settings
       </p>
     </div>

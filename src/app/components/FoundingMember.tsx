@@ -109,7 +109,7 @@ export default function FoundingMember({ diagnosticEmail }: Props) {
           color: rgba(255,255,255,0.88);
         }
         .fm-badge {
-          font-family: 'DM Mono', monospace;
+          font-family: 'Libre Franklin', sans-serif;
           font-size: 10px;
           letter-spacing: .22em;
           text-transform: uppercase;
@@ -139,7 +139,7 @@ export default function FoundingMember({ diagnosticEmail }: Props) {
         .fm-status-taken { color: rgba(220,80,80,0.75); }
         .fm-status-invalid { color: rgba(255,180,0,0.65); }
         .fm-status-text {
-          font-family: 'DM Mono', monospace;
+          font-family: 'Libre Franklin', sans-serif;
           font-size: 11px;
           letter-spacing: .1em;
           min-height: 18px;
@@ -164,7 +164,7 @@ export default function FoundingMember({ diagnosticEmail }: Props) {
           background: transparent;
           border: none;
           outline: none;
-          font-family: 'DM Mono', monospace;
+          font-family: 'Libre Franklin', sans-serif;
           font-size: 16px;
           color: rgba(255,255,255,0.88);
           padding: 12px 16px;
@@ -177,7 +177,7 @@ export default function FoundingMember({ diagnosticEmail }: Props) {
           padding-left: 16px;
         }
         .fm-handle-prefix {
-          font-family: 'DM Mono', monospace;
+          font-family: 'Libre Franklin', sans-serif;
           font-size: 13px;
           color: rgba(255,255,255,0.28);
           white-space: nowrap;
@@ -192,7 +192,7 @@ export default function FoundingMember({ diagnosticEmail }: Props) {
           margin: 0 8px;
         }
         .fm-btn {
-          font-family: 'DM Mono', monospace;
+          font-family: 'Libre Franklin', sans-serif;
           font-size: 11px;
           letter-spacing: .22em;
           text-transform: uppercase;
@@ -221,7 +221,7 @@ export default function FoundingMember({ diagnosticEmail }: Props) {
           color: rgba(127,255,0,0.85);
         }
         .fm-success-sub {
-          font-family: 'DM Mono', monospace;
+          font-family: 'Libre Franklin', sans-serif;
           font-size: 11px;
           letter-spacing: .1em;
           color: rgba(255,255,255,0.3);
@@ -296,7 +296,7 @@ export default function FoundingMember({ diagnosticEmail }: Props) {
               </div>
 
               {claimError && (
-                <p style={{ fontFamily: "'DM Mono', monospace", fontSize: 11, color: "rgba(220,80,80,0.7)", marginBottom: 12, paddingLeft: 4 }}>
+                <p style={{ fontFamily: "'Libre Franklin', sans-serif", fontSize: 11, color: "rgba(220,80,80,0.7)", marginBottom: 12, paddingLeft: 4 }}>
                   {claimError}
                 </p>
               )}

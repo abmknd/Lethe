@@ -1,4 +1,4 @@
-import { Check, ChevronDown } from 'lucide-react';
+﻿import { Check, ChevronDown } from 'lucide-react';
 import { useState } from 'react';
 import { KYCData } from '../KYCModal';
 
@@ -54,7 +54,7 @@ export function Step4MeetKind({ isActive, direction, data, updateData }: Step4Pr
 
   return (
     <div className={`kyc-step ${getClassName()}`}>
-      <span className="font-['Inter'] text-[10px] tracking-[0.3em] uppercase text-[#7FFF00]/50 mb-[14px] block">
+      <span className="font-['Libre_Franklin'] text-[10px] tracking-[0.3em] uppercase text-[#7FFF00]/50 mb-[14px] block">
         Your match
       </span>
       <h1 className="font-['Cormorant_Garamond'] text-[clamp(28px,4vw,40px)] font-light italic leading-[1.15] tracking-[-0.02em] text-white/90 mb-[10px]">
@@ -72,7 +72,7 @@ export function Step4MeetKind({ isActive, direction, data, updateData }: Step4Pr
           className="flex items-center gap-[10px] px-[18px] py-4 w-full hover:bg-white/[0.03] transition-colors"
         >
           <span className="flex-1 text-left text-[15px] font-light text-white/90">Who they are</span>
-          <span className="font-['Inter'] text-[10px] tracking-[0.14em] text-[#7FFF00]/60 min-w-[16px] text-right">
+          <span className="font-['Libre_Franklin'] text-[10px] tracking-[0.14em] text-[#7FFF00]/60 min-w-[16px] text-right">
             {data.meetWho.size || ''}
           </span>
           <ChevronDown
@@ -118,7 +118,7 @@ export function Step4MeetKind({ isActive, direction, data, updateData }: Step4Pr
           className="flex items-center gap-[10px] px-[18px] py-4 w-full hover:bg-white/[0.03] transition-colors"
         >
           <span className="flex-1 text-left text-[15px] font-light text-white/90">Where they are based</span>
-          <span className="font-['Inter'] text-[10px] tracking-[0.14em] text-[#7FFF00]/60 min-w-[16px] text-right">
+          <span className="font-['Libre_Franklin'] text-[10px] tracking-[0.14em] text-[#7FFF00]/60 min-w-[16px] text-right">
             {data.meetWhere.size || ''}
           </span>
           <ChevronDown

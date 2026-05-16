@@ -1,4 +1,4 @@
-import { Pause } from 'lucide-react';
+﻿import { Pause } from 'lucide-react';
 
 interface KYCPausedProps {
   onCompleteNow: () => void;
@@ -28,13 +28,13 @@ export function KYCPaused({ onCompleteNow, onMaybeLater }: KYCPausedProps) {
       <div className="flex items-center gap-3 w-full max-w-[340px]">
         <button
           onClick={onCompleteNow}
-          className="flex-1 font-['Inter'] text-[11px] tracking-[0.22em] uppercase text-[#050705] bg-[#7FFF00] border-none rounded-full py-[14px] hover:bg-[#c8ff4f] transition-colors"
+          className="flex-1 font-['Libre_Franklin'] text-[11px] tracking-[0.22em] uppercase text-[#050705] bg-[#7FFF00] border-none rounded-full py-[14px] hover:bg-[#c8ff4f] transition-colors"
         >
           Complete now
         </button>
         <button
           onClick={onMaybeLater}
-          className="flex-shrink-0 font-['Inter'] text-[11px] tracking-[0.22em] uppercase text-white bg-[#1a1a1a] border border-white/[0.12] rounded-full px-6 py-[14px] hover:bg-[#252525] transition-colors"
+          className="flex-shrink-0 font-['Libre_Franklin'] text-[11px] tracking-[0.22em] uppercase text-white bg-[#1a1a1a] border border-white/[0.12] rounded-full px-6 py-[14px] hover:bg-[#252525] transition-colors"
         >
           Maybe later
         </button>

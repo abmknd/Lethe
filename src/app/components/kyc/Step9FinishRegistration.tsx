@@ -1,4 +1,4 @@
-import { Lock } from 'lucide-react';
+﻿import { Lock } from 'lucide-react';
 import { KYCData } from '../KYCModal';
 import ReletheLogo from '../../../imports/ReletheLogo';
 
@@ -28,7 +28,7 @@ export function Step9FinishRegistration({ isActive, direction, onContinueToVerif
 
   return (
     <div className={`kyc-step ${getClassName()}`}>
-      <span className="font-['Inter'] text-[10px] tracking-[0.3em] uppercase text-[#7FFF00]/50 mb-[14px] block">
+      <span className="font-['Libre_Franklin'] text-[10px] tracking-[0.3em] uppercase text-[#7FFF00]/50 mb-[14px] block">
         Almost there
       </span>
       <h1 className="font-['Cormorant_Garamond'] text-[clamp(28px,4vw,40px)] font-light italic leading-[1.15] tracking-[-0.02em] text-white/90 mb-10">
@@ -86,7 +86,7 @@ export function Step9FinishRegistration({ isActive, direction, onContinueToVerif
       {/* Google Sign Up Button */}
       <button
         onClick={handleGoogleSignUp}
-        className="w-full py-[16px] px-6 rounded-full border border-white/[0.12] font-['Inter'] text-[11px] tracking-[0.18em] uppercase bg-white/[0.08] hover:bg-white/[0.12] text-white transition-all flex items-center justify-center gap-3"
+        className="w-full py-[16px] px-6 rounded-full border border-white/[0.12] font-['Libre_Franklin'] text-[11px] tracking-[0.18em] uppercase bg-white/[0.08] hover:bg-white/[0.12] text-white transition-all flex items-center justify-center gap-3"
       >
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
