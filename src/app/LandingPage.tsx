@@ -665,7 +665,7 @@ export default function LandingPage() {
           font-family: var(--mono); font-size: 11px; letter-spacing: .3em;
           text-transform: uppercase; color: #6B6B6B;
           background: transparent; border: none; border-radius: 22px;
-          padding: 12px 40px 12px 20px; cursor: none; transition: all .3s; white-space: nowrap;
+          padding: 12px 32px 12px 20px; cursor: none; transition: all .3s; white-space: nowrap;
           display: flex; align-items: center; gap: 8px; flex-shrink: 0;
         }
         .relethe-hero-form button:hover { color: var(--ch); }
@@ -1066,7 +1066,7 @@ export default function LandingPage() {
         }
         .relethe-signup-form input { flex:1; background:transparent; border:none; outline:none; font-family:var(--mono); font-size:16px; letter-spacing:.04em; color:var(--text); padding:12px 18px; }
         .relethe-signup-form input::placeholder { color:var(--ghost); }
-        .relethe-signup-form button { font-family:var(--mono); font-size:11px; letter-spacing:.3em; text-transform:uppercase; color:#6B6B6B; background:transparent; border:none; border-radius:22px; padding:12px 40px 12px 20px; cursor:none; transition:all .3s; white-space:nowrap; display:flex; align-items:center; gap:8px; flex-shrink:0; }
+        .relethe-signup-form button { font-family:var(--mono); font-size:11px; letter-spacing:.3em; text-transform:uppercase; color:#6B6B6B; background:transparent; border:none; border-radius:22px; padding:12px 32px 12px 20px; cursor:none; transition:all .3s; white-space:nowrap; display:flex; align-items:center; gap:8px; flex-shrink:0; }
         .relethe-signup-form button:hover { color:var(--ch); }
         .relethe-signup-note { margin-top:18px; font-family:var(--mono); font-size:11px; letter-spacing:.12em; color:var(--ghost); position:relative; z-index:1; }
         .relethe-form-success { padding: 16px 0; display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; }
