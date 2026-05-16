@@ -204,11 +204,35 @@ function computeArchetype(answers: Record<string, string>): Archetype {
 
 function OrganismSVG() {
   return (
-    <svg className="diagnostic-organism" width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <ellipse cx="18" cy="18" rx="10" ry="14" stroke="rgba(127,255,0,0.55)" strokeWidth="1" />
-      <ellipse cx="18" cy="18" rx="14" ry="9" stroke="rgba(127,255,0,0.35)" strokeWidth="1" />
-      <circle cx="18" cy="18" r="3.5" fill="rgba(127,255,0,0.45)" />
-      <circle cx="18" cy="18" r="1.5" fill="rgba(127,255,0,0.9)" />
+    <svg
+      className="diagnostic-organism"
+      viewBox="0 0 80 80"
+      width="56"
+      height="56"
+      style={{ display: 'block', margin: '0 auto 20px' }}
+    >
+      <g transform="translate(40,40)">
+        <circle r="8" fill="none" stroke="#7FFF00" strokeWidth="1.5" opacity="0.9" />
+        {Array.from({ length: 16 }).map((_, i) => {
+          const angle = (i * 22.5 * Math.PI) / 180;
+          const isLong = i % 2 === 0;
+          const inner = 11;
+          const outer = isLong ? 30 : 20;
+          return (
+            <line
+              key={i}
+              x1={Math.cos(angle) * inner}
+              y1={Math.sin(angle) * inner}
+              x2={Math.cos(angle) * outer}
+              y2={Math.sin(angle) * outer}
+              stroke="#7FFF00"
+              strokeWidth="1.5"
+              opacity="0.85"
+              strokeLinecap="round"
+            />
+          );
+        })}
+      </g>
     </svg>
   );
 }
@@ -330,7 +354,7 @@ export default function DiagnosticModal({ isOpen, onClose, onEmailSubmitted, onC
       <style>{`
         @keyframes diagWave { 0% { transform: scaleY(0.4); } 100% { transform: scaleY(1.1); } }
         @keyframes diagPulse { 0% { opacity: 0.12; transform: scale(0.9); } 100% { opacity: 0.35; transform: scale(1.05); } }
-        @keyframes organism-breathe { 0%,100% { transform: scale(1); opacity: 0.75; } 50% { transform: scale(1.06); opacity: 1; } }
+        @keyframes organism-breathe { 0%,100% { transform: scale(1); opacity: 0.75; } 50% { transform: scale(1.14); opacity: 1; } }
         .diagnostic-organism { animation: organism-breathe 2.8s cubic-bezier(0.4,0,0.6,1) infinite; }
         .diag-opt { width: 100%; min-height: 52px; padding: 14px 16px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.09); border-radius: 10px; cursor: none; display: flex; align-items: flex-start; gap: 14px; transition: border-color .18s, background .18s; text-align: left; }
         .diag-opt:hover { border-color: rgba(127,255,0,0.35); background: rgba(127,255,0,0.04); }
@@ -484,11 +508,14 @@ export default function DiagnosticModal({ isOpen, onClose, onEmailSubmitted, onC
               </p>
 
               {/* Teaser chip */}
-              <div style={{ background: "rgba(127,255,0,0.08)", border: "1px solid rgba(127,255,0,0.35)", borderRadius: 12, padding: "14px 20px", width: "100%", display: "flex", alignItems: "center", gap: 14 }}>
+              <div style={{ background: 'rgba(127,255,0,0.07)', border: '1px solid rgba(127,255,0,0.3)', borderRadius: '16px', padding: '28px 24px', textAlign: 'center', width: '100%' }}>
                 <OrganismSVG />
-                <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 11, letterSpacing: ".1em", color: "rgba(127,255,0,0.85)", lineHeight: 1.5 }}>
+                <p style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontWeight: 700, fontSize: '24px', color: 'var(--text)', margin: '0 0 10px', lineHeight: 1.2 }}>
+                  {result?.name}
+                </p>
+                <p style={{ fontFamily: 'var(--sans-serif)', fontSize: '15px', fontWeight: 300, color: 'var(--dim)', margin: 0, lineHeight: 1.6 }}>
                   {TEASER[archetype]}
-                </span>
+                </p>
               </div>
 
               <input

@@ -3,54 +3,63 @@ const MEMBERS = [
   {
     name: "Marcus Webb",
     initials: "MW",
+    image: "marcus-webb",
     role: "Pre-seed founder, B2B SaaS · Austin, TX",
     intent: "Looking to meet operators who've scaled logistics startups before.",
   },
   {
     name: "Daniel Hartmann",
     initials: "DH",
+    image: "daniel-hartmann",
     role: "Indie hacker, second-time founder · Berlin, Germany",
     intent: "Looking to meet peer builders at the same stage. Not advisors.",
   },
   {
     name: "Sofia Mendes",
     initials: "SM",
+    image: "sofia-mendes",
     role: "Head of Product, Series B · Lisbon, Portugal",
     intent: "Looking to meet senior product peers for candid roadmap pressure-testing.",
   },
   {
     name: "Priya Nair",
     initials: "PN",
+    image: "priya-nair",
     role: "Angel investor · Bangalore, India",
     intent: "Looking to meet technical B2B SaaS and devtools founders pre-Series A.",
   },
   {
     name: "Nadia El-Amin",
     initials: "NE",
+    image: "nadia-el-amin",
     role: "AI ethics researcher · Amsterdam, Netherlands",
     intent: "Looking to meet engineers and policymakers who take AI governance seriously.",
   },
   {
     name: "Lauren Shepard",
     initials: "LS",
+    image: "lauren-shepard",
     role: "Principal engineer · Seattle, WA",
     intent: "Looking to meet product-minded collaborators who can help me think about user problems, not just technical ones.",
   },
   {
     name: "Anika Sharma",
     initials: "AS",
+    image: "anika-sharma",
     role: "Climate VC, seed fund · Singapore",
     intent: "Looking to meet PhD researchers and scientists in carbon capture or sustainable materials.",
   },
   {
     name: "Eleanor Hughes",
     initials: "EH",
+    image: "eleanor-hughes",
     role: "Conflict mediation consultant · Edinburgh, Scotland",
     intent: "Looking to meet peers with direct experience in peacebuilding or international governance.",
   },
   {
     name: "Remi Falade",
     initials: "RF",
+    image: "remi-falade",
     role: "Organizational psychologist, executive coach · Paris, France",
     intent: "Looking to meet first-time founders navigating leadership for the first time.",
   },
@@ -209,10 +218,20 @@ export default function FoundingCohort() {
               className={`cohort-card relethe-reveal relethe-reveal-d${Math.min((i % 3) + 1, 3)}`}
             >
               <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                <div className="cohort-avatar">
+                <img
+                  src={`/src/assets/${m.image}.jpg`}
+                  alt={m.name}
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                    const fallback = e.currentTarget.nextElementSibling as HTMLElement | null;
+                    if (fallback) fallback.removeAttribute('style');
+                  }}
+                  style={{ width: '44px', height: '44px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
+                />
+                <div className="cohort-avatar" style={{ display: 'none' }}>
                   <span>{m.initials}</span>
                 </div>
-                <div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   <p className="cohort-name">{m.name}</p>
                   <p className="cohort-role">{m.role}</p>
                 </div>
