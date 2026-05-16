@@ -494,15 +494,6 @@ export default function DiagnosticModal({ isOpen, onClose, onEmailSubmitted, onC
           {/* ── STATE 8: Email gate ── */}
           {step === 8 && (
             <form onSubmit={handleGateSubmit} style={{ width: "100%", maxWidth: 480, display: "flex", flexDirection: "column", alignItems: "center", gap: 20 }}>
-              {/* Lock icon */}
-              <div style={{ width: 44, height: 44, borderRadius: "50%", border: "1px solid rgba(255,255,255,0.12)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 4 }}>
-                <svg width="16" height="18" viewBox="0 0 16 18" fill="none">
-                  <rect x="2" y="8" width="12" height="9" rx="2" stroke="rgba(255,255,255,0.45)" strokeWidth="1.5" />
-                  <path d="M5 8V5.5a3 3 0 016 0V8" stroke="rgba(255,255,255,0.45)" strokeWidth="1.5" strokeLinecap="round" />
-                  <circle cx="8" cy="12.5" r="1.5" fill="rgba(255,255,255,0.45)" />
-                </svg>
-              </div>
-
               <p style={{ fontFamily: "'Libre Franklin', sans-serif", fontSize: 11, letterSpacing: ".32em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)", textAlign: "center" }}>
                 MATCH PROFILE GENERATED
               </p>

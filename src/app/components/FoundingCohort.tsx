@@ -1,65 +1,75 @@
+import marcusWebbImg from "../../assets/marcus-webb.png";
+import danielHartmannImg from "../../assets/daniel-hartmann.png";
+import sofiaMendesImg from "../../assets/sofia-mendes.png";
+import priyaNairImg from "../../assets/priya-nair.png";
+import nadiaElAminImg from "../../assets/nadia-el-amin.png";
+import laurenShepardImg from "../../assets/lauren-shepard.png";
+import anikaSharmaImg from "../../assets/anika-sharma.png";
+import eleanorHughesImg from "../../assets/eleanor-hughes.png";
+import remiFaladeImg from "../../assets/remi-falade.png";
+
 // TODO: Replace placeholder profiles with real founding cohort members before launch
 const MEMBERS = [
   {
     name: "Marcus Webb",
     initials: "MW",
-    image: "marcus-webb",
+    image: marcusWebbImg,
     role: "Pre-seed founder, B2B SaaS · Austin, TX",
     intent: "Looking to meet operators who've scaled logistics startups before.",
   },
   {
     name: "Daniel Hartmann",
     initials: "DH",
-    image: "daniel-hartmann",
+    image: danielHartmannImg,
     role: "Indie hacker, second-time founder · Berlin, Germany",
     intent: "Looking to meet peer builders at the same stage. Not advisors.",
   },
   {
     name: "Sofia Mendes",
     initials: "SM",
-    image: "sofia-mendes",
+    image: sofiaMendesImg,
     role: "Head of Product, Series B · Lisbon, Portugal",
     intent: "Looking to meet senior product peers for candid roadmap pressure-testing.",
   },
   {
     name: "Priya Nair",
     initials: "PN",
-    image: "priya-nair",
+    image: priyaNairImg,
     role: "Angel investor · Bangalore, India",
     intent: "Looking to meet technical B2B SaaS and devtools founders pre-Series A.",
   },
   {
     name: "Nadia El-Amin",
     initials: "NE",
-    image: "nadia-el-amin",
+    image: nadiaElAminImg,
     role: "AI ethics researcher · Amsterdam, Netherlands",
     intent: "Looking to meet engineers and policymakers who take AI governance seriously.",
   },
   {
     name: "Lauren Shepard",
     initials: "LS",
-    image: "lauren-shepard",
+    image: laurenShepardImg,
     role: "Principal engineer · Seattle, WA",
     intent: "Looking to meet product-minded collaborators who can help me think about user problems, not just technical ones.",
   },
   {
     name: "Anika Sharma",
     initials: "AS",
-    image: "anika-sharma",
+    image: anikaSharmaImg,
     role: "Climate VC, seed fund · Singapore",
     intent: "Looking to meet PhD researchers and scientists in carbon capture or sustainable materials.",
   },
   {
     name: "Eleanor Hughes",
     initials: "EH",
-    image: "eleanor-hughes",
+    image: eleanorHughesImg,
     role: "Conflict mediation consultant · Edinburgh, Scotland",
     intent: "Looking to meet peers with direct experience in peacebuilding or international governance.",
   },
   {
     name: "Remi Falade",
     initials: "RF",
-    image: "remi-falade",
+    image: remiFaladeImg,
     role: "Organizational psychologist, executive coach · Paris, France",
     intent: "Looking to meet first-time founders navigating leadership for the first time.",
   },
@@ -219,7 +229,7 @@ export default function FoundingCohort() {
             >
               <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                 <img
-                  src={`/src/assets/${m.image}.png`}
+                  src={m.image}
                   alt={m.name}
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
