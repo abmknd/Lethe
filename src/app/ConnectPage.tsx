@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { X, Check, MapPin, Zap } from 'lucide-react';
 import ReletheLogo from '../imports/ReletheLogo';
@@ -226,7 +226,7 @@ export default function ConnectPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#050705] text-white/[0.88] font-['Inter'] overflow-hidden flex flex-col">
+    <div className="min-h-screen bg-[#050705] text-white/[0.88] font-['Libre_Franklin'] overflow-hidden flex flex-col">
       {/* Nav */}
       <nav className="h-14 flex-shrink-0 flex items-center justify-between px-8 bg-[rgba(5,7,5,0.97)] backdrop-blur-[20px] border-b border-white/[0.07]">
         <button

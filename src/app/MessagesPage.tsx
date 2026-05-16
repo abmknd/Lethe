@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+﻿import { useState, useRef, useEffect } from 'react';
 import { Search, Plus, User, MoreHorizontal, Paperclip, Send } from 'lucide-react';
 import { AvatarDropdown } from './components/AvatarDropdown';
 import ReletheLogo from '../imports/ReletheLogo';
@@ -215,7 +215,7 @@ export default function MessagesPage() {
                 placeholder="Search chats…"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="flex-1 bg-transparent border-none outline-none font-['Inter'] text-[13px] text-white/90 placeholder:text-white/[0.18]"
+                className="flex-1 bg-transparent border-none outline-none font-['Libre_Franklin'] text-[13px] text-white/90 placeholder:text-white/[0.18]"
               />
             </div>
           </div>
@@ -248,24 +248,24 @@ export default function MessagesPage() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-baseline justify-between mb-[3px]">
                     <div className="flex items-center gap-[6px]">
-                      <span className={`font-['Inter'] text-[14px] font-medium truncate max-w-[160px] ${
+                      <span className={`font-['Libre_Franklin'] text-[14px] font-medium truncate max-w-[160px] ${
                         convo.unread ? 'text-white' : 'text-white/90'
                       }`}>
                         {convo.name}
                       </span>
                       {convo.match && (
-                        <span className="font-['Inter'] text-[11px] font-medium tracking-[0.08em] px-[8.6px] py-[4.2px] rounded-[40px] bg-[rgba(127,255,0,0.1)] text-[rgba(127,255,0,0.7)] whitespace-nowrap flex-shrink-0 leading-[16.5px]">
+                        <span className="font-['Libre_Franklin'] text-[11px] font-medium tracking-[0.08em] px-[8.6px] py-[4.2px] rounded-[40px] bg-[rgba(127,255,0,0.1)] text-[rgba(127,255,0,0.7)] whitespace-nowrap flex-shrink-0 leading-[16.5px]">
                           Match
                         </span>
                       )}
                     </div>
-                    <span className={`font-['Inter'] text-[11px] leading-[16.5px] flex-shrink-0 ml-2 ${
+                    <span className={`font-['Libre_Franklin'] text-[11px] leading-[16.5px] flex-shrink-0 ml-2 ${
                       convo.unread ? 'text-[#7FFF00]/55' : 'text-white/[0.18]'
                     }`}>
                       {convo.time}
                     </span>
                   </div>
-                  <div className={`font-['Inter'] text-[12px] font-light leading-[18px] truncate ${
+                  <div className={`font-['Libre_Franklin'] text-[12px] font-light leading-[18px] truncate ${
                     convo.unread ? 'text-white/45' : 'text-white/[0.18]'
                   }`}>
                     {convo.preview}
@@ -280,7 +280,7 @@ export default function MessagesPage() {
 
           {/* New Chat Button */}
           <div className="px-5 py-[14px] flex-shrink-0 border-t border-white/[0.07]">
-            <button className="w-full py-[11.6px] rounded-[12px] bg-[#7FFF00]/10 border-[0.8px] border-[#7FFF00]/20 text-[#7FFF00]/80 font-['Inter'] text-[12px] font-medium tracking-[0.08em] flex items-center justify-center gap-[7px] transition-all hover:bg-[#7FFF00]/16 hover:border-[#7FFF00]/35 hover:text-[#7FFF00] leading-[18px]">
+            <button className="w-full py-[11.6px] rounded-[12px] bg-[#7FFF00]/10 border-[0.8px] border-[#7FFF00]/20 text-[#7FFF00]/80 font-['Libre_Franklin'] text-[12px] font-medium tracking-[0.08em] flex items-center justify-center gap-[7px] transition-all hover:bg-[#7FFF00]/16 hover:border-[#7FFF00]/35 hover:text-[#7FFF00] leading-[18px]">
               <Plus size={14} strokeWidth={0.875} />
               New chat
             </button>
@@ -306,7 +306,7 @@ export default function MessagesPage() {
               <p className="text-[14px] font-light text-white/45 text-center leading-[1.7] max-w-[300px] mb-7">
                 Choose from your existing conversations, or start a new one.
               </p>
-              <button className="flex items-center gap-2 px-7 py-[13px] rounded-full bg-[#7FFF00] border-none font-['Inter'] text-[12px] font-semibold tracking-[0.1em] uppercase text-[#050705] transition-all hover:bg-[#c8ff4f] hover:-translate-y-px">
+              <button className="flex items-center gap-2 px-7 py-[13px] rounded-full bg-[#7FFF00] border-none font-['Libre_Franklin'] text-[12px] font-semibold tracking-[0.1em] uppercase text-[#050705] transition-all hover:bg-[#c8ff4f] hover:-translate-y-px">
                 <Plus size={14} strokeWidth={2} />
                 New chat
               </button>
@@ -324,10 +324,10 @@ export default function MessagesPage() {
                 </div>
 
                 <div className="flex-1 min-w-0">
-                  <div className="font-['Inter'] text-[14px] font-medium text-white/90 mb-[1px]">
+                  <div className="font-['Libre_Franklin'] text-[14px] font-medium text-white/90 mb-[1px]">
                     {activeConvo?.name}
                   </div>
-                  <div className={`font-['Inter'] text-[11px] font-light ${activeConvo?.online ? 'text-[#7FFF00]/60' : 'text-white/[0.18]'}`}>
+                  <div className={`font-['Libre_Franklin'] text-[11px] font-light ${activeConvo?.online ? 'text-[#7FFF00]/60' : 'text-white/[0.18]'}`}>
                     {activeConvo?.online ? 'Active now' : 'Last seen recently'}
                   </div>
                 </div>
@@ -347,7 +347,7 @@ export default function MessagesPage() {
                 <div className="px-7 pt-3 flex-shrink-0">
                   <div className="flex items-center gap-[10px] px-[14px] py-[10px] bg-[#7FFF00]/[0.05] border border-[#7FFF00]/12 rounded-[10px]">
                     <User size={14} className="text-[#7FFF00]/50 flex-shrink-0" strokeWidth={1.5} />
-                    <p className="font-['Inter'] text-[12px] font-light text-[#7FFF00]/65 leading-[1.5]">
+                    <p className="font-['Libre_Franklin'] text-[12px] font-light text-[#7FFF00]/65 leading-[1.5]">
                       <strong className="font-medium text-[#7FFF00]/85">Relethe match</strong> — You two were introduced this week. Your meeting is scheduled for Thursday at 3pm.
                     </p>
                   </div>
@@ -367,7 +367,7 @@ export default function MessagesPage() {
                       {showDate && (
                         <div className="flex items-center gap-3 my-4">
                           <div className="flex-1 h-px bg-white/[0.07]" />
-                          <span className="font-['Inter'] text-[11px] font-normal text-white/[0.18] whitespace-nowrap tracking-[0.06em]">
+                          <span className="font-['Libre_Franklin'] text-[11px] font-normal text-white/[0.18] whitespace-nowrap tracking-[0.06em]">
                             {msg.date}
                           </span>
                           <div className="flex-1 h-px bg-white/[0.07]" />
@@ -375,27 +375,27 @@ export default function MessagesPage() {
                       )}
 
                       {showSender && (
-                        <div className="font-['Inter'] text-[11px] font-medium text-white/[0.18] mb-[3px] tracking-[0.04em]">
+                        <div className="font-['Libre_Franklin'] text-[11px] font-medium text-white/[0.18] mb-[3px] tracking-[0.04em]">
                           {activeConvo?.name}
                         </div>
                       )}
 
                       {showYou && (
                         <div className="flex justify-end mb-[3px]">
-                          <span className="font-['Inter'] font-medium leading-[16.5px] text-[11px] text-white/[0.18] tracking-[0.44px]">
+                          <span className="font-['Libre_Franklin'] font-medium leading-[16.5px] text-[11px] text-white/[0.18] tracking-[0.44px]">
                             You
                           </span>
                         </div>
                       )}
 
                       <div className={`flex items-end gap-2 mb-[2px] group animate-[msgIn_0.3s_cubic-bezier(0.16,1,0.3,1)_forwards] ${msg.mine ? 'flex-row-reverse pr-0' : ''}`}>
-                        <div className={`max-w-[68%] px-[15px] pt-[11px] pb-[24px] rounded-[18px] font-['Inter'] text-[14px] leading-[1.65] relative ${
+                        <div className={`max-w-[68%] px-[15px] pt-[11px] pb-[24px] rounded-[18px] font-['Libre_Franklin'] text-[14px] leading-[1.65] relative ${
                           msg.mine
                             ? 'bg-[#7FFF00]/[0.12] text-white/90 rounded-br-[4px] font-light'
                             : 'bg-[#0f130f] border border-white/[0.07] text-white/90 rounded-bl-[4px] font-light'
                         }`}>
                           <div>{msg.text}</div>
-                          <div className="absolute bottom-[7px] right-[12px] font-['Inter'] text-[10px] text-white/[0.15] whitespace-nowrap">
+                          <div className="absolute bottom-[7px] right-[12px] font-['Libre_Franklin'] text-[10px] text-white/[0.15] whitespace-nowrap">
                             {msg.time.split(',').pop()?.trim().split(' ').slice(-2).join(' ')}
                           </div>
                         </div>
@@ -421,7 +421,7 @@ export default function MessagesPage() {
                       onKeyDown={handleKeyDown}
                       placeholder="Write a message…"
                       rows={1}
-                      className="flex-1 bg-transparent border-none outline-none resize-none font-['Inter'] text-[14px] font-light text-white/90 placeholder:text-white/[0.18] leading-[21px] max-h-[120px] py-[4px] min-h-[29px]"
+                      className="flex-1 bg-transparent border-none outline-none resize-none font-['Libre_Franklin'] text-[14px] font-light text-white/90 placeholder:text-white/[0.18] leading-[21px] max-h-[120px] py-[4px] min-h-[29px]"
                       style={{ scrollbarWidth: 'none' }}
                     />
 

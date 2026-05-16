@@ -3,8 +3,8 @@
 :root {
   --font-size: 16px;
   --font-display: 'Cormorant Garamond', Georgia, serif;
-  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-mono: 'DM Mono', ui-monospace, 'SF Mono', monospace;
+  --font-sans: 'Libre Franklin', sans-serif;
+  --font-mono: 'Libre Franklin', sans-serif;
 
   /* ─── Relethe Primitive Palette ──────────────────────────────────── */
   --relethe-chartreuse: #7FFF00;

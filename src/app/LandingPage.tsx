@@ -531,8 +531,8 @@ export default function LandingPage() {
           --dim: rgba(255,255,255,0.60);
           --ghost: rgba(255,255,255,0.28);
           --serif: 'Cormorant Garamond', serif;
-          --mono: 'DM Mono', monospace;
-          --sans-serif: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+          --mono: 'Libre Franklin', sans-serif;
+          --sans-serif: 'Libre Franklin', sans-serif;
         }
         html { scroll-behavior: smooth; }
         body {
@@ -1168,8 +1168,9 @@ export default function LandingPage() {
       `}</style>
 
       <link rel="preconnect" href="https://fonts.googleapis.com" />
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       <link
-        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=DM+Mono:wght@300;400&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Libre+Franklin:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&display=swap"
         rel="stylesheet"
       />
 
@@ -1395,7 +1396,7 @@ export default function LandingPage() {
           {/* Card 1: Connect */}
           <div className="relethe-product-card">
             <div className="relethe-card-screen" style={{ background: "linear-gradient(180deg,#080d08,#050705)", display: "flex", flexDirection: "column", padding: "16px", gap: "10px" }}>
-              <div style={{ fontSize: "9px", letterSpacing: "0.12em", color: "rgba(127,255,0,0.6)", fontFamily: "'DM Mono', monospace" }}>YOUR UPCOMING MATCHES</div>
+              <div style={{ fontSize: "9px", letterSpacing: "0.12em", color: "rgba(127,255,0,0.6)", fontFamily: "'Libre Franklin', sans-serif" }}>YOUR UPCOMING MATCHES</div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "7px" }}>
                 {([
                   { day: "WED", date: "APR. 16", time: "5:00 pm BST" },
@@ -1405,29 +1406,29 @@ export default function LandingPage() {
                 ] as { day: string; date: string; time: string }[]).map(({ day, date, time }) => (
                   <div key={`${day}-${date}`} style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "10px", padding: "9px 10px", display: "flex", flexDirection: "column", gap: "5px" }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                      <span style={{ fontSize: "8px", letterSpacing: "0.1em", color: "rgba(127,255,0,0.75)", fontFamily: "'DM Mono', monospace" }}>{day} {date}</span>
+                      <span style={{ fontSize: "8px", letterSpacing: "0.1em", color: "rgba(127,255,0,0.75)", fontFamily: "'Libre Franklin', sans-serif" }}>{day} {date}</span>
                       <div style={{ width: "14px", height: "14px", borderRadius: "50%", background: "rgba(127,255,0,0.15)", border: "1px solid rgba(127,255,0,0.3)" }}></div>
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
                       <div style={{ width: "5px", height: "5px", borderRadius: "50%", background: "rgba(127,255,0,0.8)", flexShrink: 0 }}></div>
-                      <span style={{ fontSize: "9px", color: "rgba(255,255,255,0.85)", fontFamily: "'DM Mono', monospace" }}>{time}</span>
+                      <span style={{ fontSize: "9px", color: "rgba(255,255,255,0.85)", fontFamily: "'Libre Franklin', sans-serif" }}>{time}</span>
                     </div>
                     <div style={{ fontSize: "9px", color: "rgba(255,255,255,0.7)", fontWeight: 600 }}>Upcoming Match</div>
-                    <div style={{ fontSize: "8px", color: "rgba(255,255,255,0.28)", fontFamily: "'DM Mono', monospace" }}>You have 5 meetings this week</div>
+                    <div style={{ fontSize: "8px", color: "rgba(255,255,255,0.28)", fontFamily: "'Libre Franklin', sans-serif" }}>You have 5 meetings this week</div>
                   </div>
                 ))}
               </div>
               <div style={{ width: "50%", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "10px", padding: "9px 10px", display: "flex", flexDirection: "column", gap: "5px" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                  <span style={{ fontSize: "8px", letterSpacing: "0.1em", color: "rgba(127,255,0,0.75)", fontFamily: "'DM Mono', monospace" }}>TUE APR. 22</span>
+                  <span style={{ fontSize: "8px", letterSpacing: "0.1em", color: "rgba(127,255,0,0.75)", fontFamily: "'Libre Franklin', sans-serif" }}>TUE APR. 22</span>
                   <div style={{ width: "14px", height: "14px", borderRadius: "50%", background: "rgba(127,255,0,0.15)", border: "1px solid rgba(127,255,0,0.3)" }}></div>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
                   <div style={{ width: "5px", height: "5px", borderRadius: "50%", background: "rgba(127,255,0,0.8)", flexShrink: 0 }}></div>
-                  <span style={{ fontSize: "9px", color: "rgba(255,255,255,0.85)", fontFamily: "'DM Mono', monospace" }}>2:00 pm BST</span>
+                  <span style={{ fontSize: "9px", color: "rgba(255,255,255,0.85)", fontFamily: "'Libre Franklin', sans-serif" }}>2:00 pm BST</span>
                 </div>
                 <div style={{ fontSize: "9px", color: "rgba(255,255,255,0.7)", fontWeight: 600 }}>Upcoming Match</div>
-                <div style={{ fontSize: "8px", color: "rgba(255,255,255,0.28)", fontFamily: "'DM Mono', monospace" }}>You have 5 meetings this week</div>
+                <div style={{ fontSize: "8px", color: "rgba(255,255,255,0.28)", fontFamily: "'Libre Franklin', sans-serif" }}>You have 5 meetings this week</div>
               </div>
             </div>
             <div className="relethe-card-label">
@@ -1441,24 +1442,24 @@ export default function LandingPage() {
           {/* Card 2: Hyper-personalized matching */}
           <div className="relethe-product-card">
             <div className="relethe-card-screen" style={{ background: "#0a0f0a", display: "flex", flexDirection: "column", padding: "20px", gap: "14px" }}>
-              <div style={{ fontSize: "10px", letterSpacing: "0.12em", color: "rgba(127,255,0,0.8)", fontFamily: "'DM Mono', monospace", fontWeight: 500 }}>YOUR MATCH</div>
+              <div style={{ fontSize: "10px", letterSpacing: "0.12em", color: "rgba(127,255,0,0.8)", fontFamily: "'Libre Franklin', sans-serif", fontWeight: 500 }}>YOUR MATCH</div>
               <div style={{ fontFamily: "Georgia, serif", fontStyle: "italic", fontSize: "15px", lineHeight: 1.45, color: "rgba(255,255,255,0.88)", fontWeight: 300 }}>
                 I want to meet people<br />
                 <span style={{ color: "rgba(127,255,0,0.85)" }}>who...</span>
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginTop: "4px" }}>
                 <div style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px", padding: "8px 12px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.5)", fontFamily: "'DM Mono', monospace" }}>Who they are</span>
+                  <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.5)", fontFamily: "'Libre Franklin', sans-serif" }}>Who they are</span>
                   <span style={{ fontSize: "10px", color: "rgba(255,255,255,0.3)" }}>▾</span>
                 </div>
                 <div style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px", padding: "8px 12px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.5)", fontFamily: "'DM Mono', monospace" }}>Where they are based</span>
+                  <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.5)", fontFamily: "'Libre Franklin', sans-serif" }}>Where they are based</span>
                   <span style={{ fontSize: "10px", color: "rgba(255,255,255,0.3)" }}>▾</span>
                 </div>
               </div>
               <div style={{ display: "flex", gap: "8px", marginTop: "4px" }}>
-                <div style={{ flex: 1, background: "rgba(127,255,0,0.85)", borderRadius: "20px", padding: "7px 0", textAlign: "center", fontSize: "10px", letterSpacing: "0.1em", color: "#050705", fontFamily: "'DM Mono', monospace", fontWeight: 600 }}>CONTINUE</div>
-                <div style={{ flex: 1, background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "20px", padding: "7px 0", textAlign: "center", fontSize: "10px", letterSpacing: "0.1em", color: "rgba(255,255,255,0.4)", fontFamily: "'DM Mono', monospace" }}>LATER</div>
+                <div style={{ flex: 1, background: "rgba(127,255,0,0.85)", borderRadius: "20px", padding: "7px 0", textAlign: "center", fontSize: "10px", letterSpacing: "0.1em", color: "#050705", fontFamily: "'Libre Franklin', sans-serif", fontWeight: 600 }}>CONTINUE</div>
+                <div style={{ flex: 1, background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "20px", padding: "7px 0", textAlign: "center", fontSize: "10px", letterSpacing: "0.1em", color: "rgba(255,255,255,0.4)", fontFamily: "'Libre Franklin', sans-serif" }}>LATER</div>
               </div>
             </div>
             <div className="relethe-card-label">
@@ -1473,33 +1474,33 @@ export default function LandingPage() {
           <div className="relethe-product-card">
             <div className="relethe-card-screen" style={{ background: "#0a0f0a", display: "flex", flexDirection: "column", padding: "18px", gap: "11px" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span style={{ fontSize: "9px", letterSpacing: "0.12em", color: "rgba(255,255,255,0.5)", fontFamily: "'DM Mono', monospace" }}>MEETING TIMES</span>
-                <span style={{ fontSize: "9px", color: "rgba(127,255,0,0.7)", fontFamily: "'DM Mono', monospace" }}>3 of 5 slots used</span>
+                <span style={{ fontSize: "9px", letterSpacing: "0.12em", color: "rgba(255,255,255,0.5)", fontFamily: "'Libre Franklin', sans-serif" }}>MEETING TIMES</span>
+                <span style={{ fontSize: "9px", color: "rgba(127,255,0,0.7)", fontFamily: "'Libre Franklin', sans-serif" }}>3 of 5 slots used</span>
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "6px" }}>
                 {([{ day: "MON", time: "7:00 AM", active: true }, { day: "TUE", time: null, active: false }, { day: "WED", time: "8:00 PM", active: true }, { day: "THU", time: null, active: false }] as { day: string; time: string | null; active: boolean }[]).map(({ day, time, active }) => (
                   <div key={day} style={{ background: active ? "rgba(127,255,0,0.1)" : "rgba(255,255,255,0.04)", border: `1px solid ${active ? "rgba(127,255,0,0.35)" : "rgba(255,255,255,0.08)"}`, borderRadius: "8px", padding: "8px 4px", textAlign: "center", display: "flex", flexDirection: "column", gap: "4px" }}>
-                    <span style={{ fontSize: "8px", letterSpacing: "0.1em", color: active ? "rgba(127,255,0,0.9)" : "rgba(255,255,255,0.35)", fontFamily: "'DM Mono', monospace" }}>{day}</span>
-                    {time && <span style={{ fontSize: "8px", color: "rgba(127,255,0,0.85)", fontFamily: "'DM Mono', monospace" }}>{time}</span>}
+                    <span style={{ fontSize: "8px", letterSpacing: "0.1em", color: active ? "rgba(127,255,0,0.9)" : "rgba(255,255,255,0.35)", fontFamily: "'Libre Franklin', sans-serif" }}>{day}</span>
+                    {time && <span style={{ fontSize: "8px", color: "rgba(127,255,0,0.85)", fontFamily: "'Libre Franklin', sans-serif" }}>{time}</span>}
                   </div>
                 ))}
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "6px" }}>
                 {([{ day: "FRI", time: null, active: false }, { day: "SAT", time: "10:00 AM", active: true }, { day: "SUN", time: null, active: false }] as { day: string; time: string | null; active: boolean }[]).map(({ day, time, active }) => (
                   <div key={day} style={{ background: active ? "rgba(127,255,0,0.1)" : "rgba(255,255,255,0.04)", border: `1px solid ${active ? "rgba(127,255,0,0.35)" : "rgba(255,255,255,0.08)"}`, borderRadius: "8px", padding: "8px 4px", textAlign: "center", display: "flex", flexDirection: "column", gap: "4px" }}>
-                    <span style={{ fontSize: "8px", letterSpacing: "0.1em", color: active ? "rgba(127,255,0,0.9)" : "rgba(255,255,255,0.35)", fontFamily: "'DM Mono', monospace" }}>{day}</span>
-                    {time && <span style={{ fontSize: "8px", color: "rgba(127,255,0,0.85)", fontFamily: "'DM Mono', monospace" }}>{time}</span>}
+                    <span style={{ fontSize: "8px", letterSpacing: "0.1em", color: active ? "rgba(127,255,0,0.9)" : "rgba(255,255,255,0.35)", fontFamily: "'Libre Franklin', sans-serif" }}>{day}</span>
+                    {time && <span style={{ fontSize: "8px", color: "rgba(127,255,0,0.85)", fontFamily: "'Libre Franklin', sans-serif" }}>{time}</span>}
                   </div>
                 ))}
               </div>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-                <span style={{ fontSize: "9px", letterSpacing: "0.1em", color: "rgba(255,255,255,0.45)", fontFamily: "'DM Mono', monospace" }}>MEETING FREQUENCY</span>
-                <div style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "6px", padding: "4px 10px", fontSize: "9px", color: "rgba(255,255,255,0.6)", fontFamily: "'DM Mono', monospace" }}>Every week ▾</div>
+                <span style={{ fontSize: "9px", letterSpacing: "0.1em", color: "rgba(255,255,255,0.45)", fontFamily: "'Libre Franklin', sans-serif" }}>MEETING FREQUENCY</span>
+                <div style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "6px", padding: "4px 10px", fontSize: "9px", color: "rgba(255,255,255,0.6)", fontFamily: "'Libre Franklin', sans-serif" }}>Every week ▾</div>
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                 {(["Meet local matches only", "Pause meetings"] as string[]).map((label) => (
                   <div key={label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <span style={{ fontSize: "9px", color: "rgba(255,255,255,0.4)", fontFamily: "'DM Mono', monospace" }}>{label}</span>
+                    <span style={{ fontSize: "9px", color: "rgba(255,255,255,0.4)", fontFamily: "'Libre Franklin', sans-serif" }}>{label}</span>
                     <div style={{ width: "26px", height: "14px", borderRadius: "7px", background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.15)", position: "relative" }}>
                       <div style={{ width: "10px", height: "10px", borderRadius: "50%", background: "rgba(255,255,255,0.3)", position: "absolute", top: "1px", left: "2px" }}></div>
                     </div>
@@ -1519,10 +1520,10 @@ export default function LandingPage() {
           <div className="relethe-product-card">
             <div className="relethe-card-screen" style={{ background: "linear-gradient(180deg,#080d08,#050705)", display: "flex", flexDirection: "column", padding: "14px", gap: "10px" }}>
               <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
-                <div style={{ background: "rgba(255,255,255,0.9)", borderRadius: "10px", padding: "3px 10px", fontSize: "9px", fontFamily: "'DM Mono', monospace", letterSpacing: "0.08em", color: "#050705", fontWeight: 600 }}>ALL</div>
-                <div style={{ background: "transparent", borderRadius: "10px", padding: "3px 10px", fontSize: "9px", fontFamily: "'DM Mono', monospace", letterSpacing: "0.08em", color: "rgba(255,255,255,0.35)" }}>FOLLOWING</div>
-                <div style={{ background: "transparent", borderRadius: "10px", padding: "3px 10px", fontSize: "9px", fontFamily: "'DM Mono', monospace", letterSpacing: "0.08em", color: "rgba(255,255,255,0.35)" }}>ECHOES</div>
-                <div style={{ marginLeft: "auto", background: "rgba(127,255,0,0.15)", border: "1px solid rgba(127,255,0,0.3)", borderRadius: "10px", padding: "3px 10px", fontSize: "9px", fontFamily: "'DM Mono', monospace", letterSpacing: "0.08em", color: "rgba(127,255,0,0.85)" }}>CREATE</div>
+                <div style={{ background: "rgba(255,255,255,0.9)", borderRadius: "10px", padding: "3px 10px", fontSize: "9px", fontFamily: "'Libre Franklin', sans-serif", letterSpacing: "0.08em", color: "#050705", fontWeight: 600 }}>ALL</div>
+                <div style={{ background: "transparent", borderRadius: "10px", padding: "3px 10px", fontSize: "9px", fontFamily: "'Libre Franklin', sans-serif", letterSpacing: "0.08em", color: "rgba(255,255,255,0.35)" }}>FOLLOWING</div>
+                <div style={{ background: "transparent", borderRadius: "10px", padding: "3px 10px", fontSize: "9px", fontFamily: "'Libre Franklin', sans-serif", letterSpacing: "0.08em", color: "rgba(255,255,255,0.35)" }}>ECHOES</div>
+                <div style={{ marginLeft: "auto", background: "rgba(127,255,0,0.15)", border: "1px solid rgba(127,255,0,0.3)", borderRadius: "10px", padding: "3px 10px", fontSize: "9px", fontFamily: "'Libre Franklin', sans-serif", letterSpacing: "0.08em", color: "rgba(127,255,0,0.85)" }}>CREATE</div>
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "6px", alignItems: "start" }}>
                 <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
@@ -1530,8 +1531,8 @@ export default function LandingPage() {
                     <div style={{ height: "36px", background: "rgba(255,255,255,0.06)", borderRadius: "5px", marginBottom: "4px" }}></div>
                     <div style={{ display: "flex", alignItems: "center", gap: "5px", marginBottom: "2px" }}>
                       <div style={{ width: "14px", height: "14px", borderRadius: "50%", background: "rgba(127,255,0,0.3)", flexShrink: 0 }}></div>
-                      <span style={{ fontSize: "8px", color: "rgba(127,255,0,0.85)", fontFamily: "'DM Mono', monospace" }}>@elan</span>
-                      <span style={{ fontSize: "7px", color: "rgba(255,255,255,0.25)", fontFamily: "'DM Mono', monospace", marginLeft: "auto" }}>2h</span>
+                      <span style={{ fontSize: "8px", color: "rgba(127,255,0,0.85)", fontFamily: "'Libre Franklin', sans-serif" }}>@elan</span>
+                      <span style={{ fontSize: "7px", color: "rgba(255,255,255,0.25)", fontFamily: "'Libre Franklin', sans-serif", marginLeft: "auto" }}>2h</span>
                     </div>
                     <div style={{ fontSize: "8px", fontStyle: "italic", color: "rgba(255,255,255,0.75)", lineHeight: 1.4 }}>Building in public takes courage.</div>
                     <div style={{ display: "flex", gap: "6px", marginTop: "2px" }}>
@@ -1542,8 +1543,8 @@ export default function LandingPage() {
                   <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "8px", padding: "8px", display: "flex", flexDirection: "column", gap: "4px" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "5px", marginBottom: "2px" }}>
                       <div style={{ width: "14px", height: "14px", borderRadius: "50%", background: "rgba(127,255,0,0.2)", flexShrink: 0 }}></div>
-                      <span style={{ fontSize: "8px", color: "rgba(127,255,0,0.85)", fontFamily: "'DM Mono', monospace" }}>@sira</span>
-                      <span style={{ fontSize: "7px", color: "rgba(255,255,255,0.25)", fontFamily: "'DM Mono', monospace", marginLeft: "auto" }}>4h</span>
+                      <span style={{ fontSize: "8px", color: "rgba(127,255,0,0.85)", fontFamily: "'Libre Franklin', sans-serif" }}>@sira</span>
+                      <span style={{ fontSize: "7px", color: "rgba(255,255,255,0.25)", fontFamily: "'Libre Franklin', sans-serif", marginLeft: "auto" }}>4h</span>
                     </div>
                     <div style={{ fontSize: "8px", fontStyle: "italic", color: "rgba(255,255,255,0.75)", lineHeight: 1.4 }}>Most feedback is noise. The rest changes you.</div>
                     <div style={{ display: "flex", gap: "6px", marginTop: "2px" }}>
@@ -1556,8 +1557,8 @@ export default function LandingPage() {
                   <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "8px", padding: "8px", display: "flex", flexDirection: "column", gap: "4px" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "5px", marginBottom: "2px" }}>
                       <div style={{ width: "14px", height: "14px", borderRadius: "50%", background: "rgba(127,255,0,0.25)", flexShrink: 0 }}></div>
-                      <span style={{ fontSize: "8px", color: "rgba(127,255,0,0.85)", fontFamily: "'DM Mono', monospace" }}>@nuri</span>
-                      <span style={{ fontSize: "7px", color: "rgba(255,255,255,0.25)", fontFamily: "'DM Mono', monospace", marginLeft: "auto" }}>1h</span>
+                      <span style={{ fontSize: "8px", color: "rgba(127,255,0,0.85)", fontFamily: "'Libre Franklin', sans-serif" }}>@nuri</span>
+                      <span style={{ fontSize: "7px", color: "rgba(255,255,255,0.25)", fontFamily: "'Libre Franklin', sans-serif", marginLeft: "auto" }}>1h</span>
                     </div>
                     <div style={{ fontSize: "8px", fontStyle: "italic", color: "rgba(255,255,255,0.75)", lineHeight: 1.4 }}>Attention is the only currency that matters.</div>
                     <div style={{ display: "flex", gap: "6px", marginTop: "2px" }}>
@@ -1569,8 +1570,8 @@ export default function LandingPage() {
                     <div style={{ height: "28px", background: "rgba(255,255,255,0.06)", borderRadius: "5px", marginBottom: "4px" }}></div>
                     <div style={{ display: "flex", alignItems: "center", gap: "5px", marginBottom: "2px" }}>
                       <div style={{ width: "14px", height: "14px", borderRadius: "50%", background: "rgba(127,255,0,0.18)", flexShrink: 0 }}></div>
-                      <span style={{ fontSize: "8px", color: "rgba(127,255,0,0.85)", fontFamily: "'DM Mono', monospace" }}>@mia</span>
-                      <span style={{ fontSize: "7px", color: "rgba(255,255,255,0.25)", fontFamily: "'DM Mono', monospace", marginLeft: "auto" }}>6h</span>
+                      <span style={{ fontSize: "8px", color: "rgba(127,255,0,0.85)", fontFamily: "'Libre Franklin', sans-serif" }}>@mia</span>
+                      <span style={{ fontSize: "7px", color: "rgba(255,255,255,0.25)", fontFamily: "'Libre Franklin', sans-serif", marginLeft: "auto" }}>6h</span>
                     </div>
                     <div style={{ fontSize: "8px", fontStyle: "italic", color: "rgba(255,255,255,0.75)", lineHeight: 1.4 }}>Rest is not the opposite of work.</div>
                     <div style={{ display: "flex", gap: "6px", marginTop: "2px" }}>
@@ -1584,8 +1585,8 @@ export default function LandingPage() {
                     <div style={{ height: "50px", background: "rgba(255,255,255,0.06)", borderRadius: "5px", marginBottom: "4px" }}></div>
                     <div style={{ display: "flex", alignItems: "center", gap: "5px", marginBottom: "2px" }}>
                       <div style={{ width: "14px", height: "14px", borderRadius: "50%", background: "rgba(127,255,0,0.22)", flexShrink: 0 }}></div>
-                      <span style={{ fontSize: "8px", color: "rgba(127,255,0,0.85)", fontFamily: "'DM Mono', monospace" }}>@haru</span>
-                      <span style={{ fontSize: "7px", color: "rgba(255,255,255,0.25)", fontFamily: "'DM Mono', monospace", marginLeft: "auto" }}>3h</span>
+                      <span style={{ fontSize: "8px", color: "rgba(127,255,0,0.85)", fontFamily: "'Libre Franklin', sans-serif" }}>@haru</span>
+                      <span style={{ fontSize: "7px", color: "rgba(255,255,255,0.25)", fontFamily: "'Libre Franklin', sans-serif", marginLeft: "auto" }}>3h</span>
                     </div>
                     <div style={{ fontSize: "8px", fontStyle: "italic", color: "rgba(255,255,255,0.75)", lineHeight: 1.4 }}>Clarity is earned, not inherited.</div>
                     <div style={{ display: "flex", gap: "6px", marginTop: "2px" }}>
@@ -1633,10 +1634,10 @@ export default function LandingPage() {
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                   <div>
                     <div style={{ fontSize: "13px", color: "rgba(255,255,255,0.88)", fontWeight: 600, letterSpacing: "0.01em", marginBottom: "3px" }}>Deep Work Guild</div>
-                    <div style={{ fontSize: "10px", color: "rgba(255,255,255,0.35)", fontFamily: "'DM Mono', monospace" }}>342 members · created by @nadia</div>
+                    <div style={{ fontSize: "10px", color: "rgba(255,255,255,0.35)", fontFamily: "'Libre Franklin', sans-serif" }}>342 members · created by @nadia</div>
                   </div>
                   <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
-                    <div style={{ background: "rgba(127,255,0,0.15)", border: "1px solid rgba(127,255,0,0.3)", borderRadius: "12px", padding: "4px 10px", fontSize: "9px", color: "rgba(127,255,0,0.9)", fontFamily: "'DM Mono', monospace", letterSpacing: "0.08em" }}>INVITE</div>
+                    <div style={{ background: "rgba(127,255,0,0.15)", border: "1px solid rgba(127,255,0,0.3)", borderRadius: "12px", padding: "4px 10px", fontSize: "9px", color: "rgba(127,255,0,0.9)", fontFamily: "'Libre Franklin', sans-serif", letterSpacing: "0.08em" }}>INVITE</div>
                     <div style={{ display: "flex", flexDirection: "column", gap: "2px", alignItems: "center" }}>
                       {([0, 1, 2] as number[]).map((i) => <div key={i} style={{ width: "3px", height: "3px", borderRadius: "50%", background: "rgba(255,255,255,0.35)" }}></div>)}
                     </div>
@@ -1645,7 +1646,7 @@ export default function LandingPage() {
                 <div style={{ display: "flex", gap: "8px", alignItems: "center", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "10px", padding: "8px 10px" }}>
                   <div style={{ width: "22px", height: "22px", borderRadius: "50%", background: "rgba(255,255,255,0.1)", flexShrink: 0 }}></div>
                   <span style={{ flex: 1, fontSize: "10px", color: "rgba(255,255,255,0.25)", fontStyle: "italic" }}>Share something with the guild...</span>
-                  <div style={{ background: "rgba(127,255,0,0.85)", borderRadius: "6px", padding: "4px 8px", fontSize: "9px", color: "#050705", fontFamily: "'DM Mono', monospace", fontWeight: 600 }}>POST</div>
+                  <div style={{ background: "rgba(127,255,0,0.85)", borderRadius: "6px", padding: "4px 8px", fontSize: "9px", color: "#050705", fontFamily: "'Libre Franklin', sans-serif", fontWeight: 600 }}>POST</div>
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: "6px", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "10px", padding: "10px" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
@@ -1654,9 +1655,9 @@ export default function LandingPage() {
                       <div>
                         <div style={{ display: "flex", gap: "5px", alignItems: "center", marginBottom: "2px" }}>
                           <span style={{ fontSize: "10px", color: "rgba(255,255,255,0.8)", fontWeight: 500 }}>maren</span>
-                          <span style={{ fontSize: "8px", background: "rgba(127,255,0,0.15)", color: "rgba(127,255,0,0.85)", border: "1px solid rgba(127,255,0,0.25)", borderRadius: "4px", padding: "1px 5px", fontFamily: "'DM Mono', monospace", letterSpacing: "0.06em" }}>Admin</span>
+                          <span style={{ fontSize: "8px", background: "rgba(127,255,0,0.15)", color: "rgba(127,255,0,0.85)", border: "1px solid rgba(127,255,0,0.25)", borderRadius: "4px", padding: "1px 5px", fontFamily: "'Libre Franklin', sans-serif", letterSpacing: "0.06em" }}>Admin</span>
                         </div>
-                        <span style={{ fontSize: "9px", color: "rgba(255,255,255,0.25)", fontFamily: "'DM Mono', monospace" }}>2h ago</span>
+                        <span style={{ fontSize: "9px", color: "rgba(255,255,255,0.25)", fontFamily: "'Libre Franklin', sans-serif" }}>2h ago</span>
                       </div>
                     </div>
                   </div>
@@ -1664,10 +1665,10 @@ export default function LandingPage() {
                   <div className="relethe-mock-line short"></div>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <div style={{ display: "flex", gap: "10px" }}>
-                      <span style={{ fontSize: "9px", color: "rgba(255,255,255,0.3)", fontFamily: "'DM Mono', monospace" }}>♡ 12</span>
-                      <span style={{ fontSize: "9px", color: "rgba(255,255,255,0.3)", fontFamily: "'DM Mono', monospace" }}>◯ 4</span>
+                      <span style={{ fontSize: "9px", color: "rgba(255,255,255,0.3)", fontFamily: "'Libre Franklin', sans-serif" }}>♡ 12</span>
+                      <span style={{ fontSize: "9px", color: "rgba(255,255,255,0.3)", fontFamily: "'Libre Franklin', sans-serif" }}>◯ 4</span>
                     </div>
-                    <span style={{ fontSize: "8px", color: "rgba(127,255,0,0.6)", fontFamily: "'DM Mono', monospace", letterSpacing: "0.08em" }}>PINNED</span>
+                    <span style={{ fontSize: "8px", color: "rgba(127,255,0,0.6)", fontFamily: "'Libre Franklin', sans-serif", letterSpacing: "0.08em" }}>PINNED</span>
                   </div>
                 </div>
               </div>
@@ -1687,21 +1688,21 @@ export default function LandingPage() {
                 <div style={{ width: "36px", height: "36px", borderRadius: "50%", background: "rgba(255,255,255,0.1)", border: "2px solid rgba(127,255,0,0.5)", flexShrink: 0 }}></div>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.88)", fontWeight: 600, marginBottom: "2px" }}>maren k.</div>
-                  <div style={{ fontSize: "9px", color: "rgba(127,255,0,0.65)", fontFamily: "'DM Mono', monospace" }}>@maren</div>
+                  <div style={{ fontSize: "9px", color: "rgba(127,255,0,0.65)", fontFamily: "'Libre Franklin', sans-serif" }}>@maren</div>
                 </div>
-                <div style={{ border: "1px solid rgba(127,255,0,0.4)", borderRadius: "12px", padding: "4px 10px", fontSize: "8px", color: "rgba(127,255,0,0.8)", fontFamily: "'DM Mono', monospace", letterSpacing: "0.08em" }}>EDIT PROFILE</div>
+                <div style={{ border: "1px solid rgba(127,255,0,0.4)", borderRadius: "12px", padding: "4px 10px", fontSize: "8px", color: "rgba(127,255,0,0.8)", fontFamily: "'Libre Franklin', sans-serif", letterSpacing: "0.08em" }}>EDIT PROFILE</div>
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
                 <div style={{ fontSize: "9px", color: "rgba(255,255,255,0.5)", lineHeight: 1.5 }}>Product designer. Building things that earn attention.</div>
                 <div style={{ display: "flex", gap: "12px" }}>
-                  <span style={{ fontSize: "8px", color: "rgba(255,255,255,0.3)", fontFamily: "'DM Mono', monospace" }}>&#x25BE; London, UK</span>
-                  <span style={{ fontSize: "8px", color: "rgba(255,255,255,0.3)", fontFamily: "'DM Mono', monospace" }}>&#x25BE; she/her</span>
+                  <span style={{ fontSize: "8px", color: "rgba(255,255,255,0.3)", fontFamily: "'Libre Franklin', sans-serif" }}>&#x25BE; London, UK</span>
+                  <span style={{ fontSize: "8px", color: "rgba(255,255,255,0.3)", fontFamily: "'Libre Franklin', sans-serif" }}>&#x25BE; she/her</span>
                 </div>
               </div>
               <div style={{ display: "flex", gap: "14px", paddingBottom: "8px", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-                <span style={{ fontSize: "9px", color: "rgba(255,255,255,0.85)", fontFamily: "'DM Mono', monospace", fontWeight: 600 }}>ALL POSTS 35</span>
-                <span style={{ fontSize: "9px", color: "rgba(255,255,255,0.3)", fontFamily: "'DM Mono', monospace" }}>FADED 2</span>
-                <span style={{ fontSize: "9px", color: "rgba(255,255,255,0.3)", fontFamily: "'DM Mono', monospace" }}>ECHOES 2</span>
+                <span style={{ fontSize: "9px", color: "rgba(255,255,255,0.85)", fontFamily: "'Libre Franklin', sans-serif", fontWeight: 600 }}>ALL POSTS 35</span>
+                <span style={{ fontSize: "9px", color: "rgba(255,255,255,0.3)", fontFamily: "'Libre Franklin', sans-serif" }}>FADED 2</span>
+                <span style={{ fontSize: "9px", color: "rgba(255,255,255,0.3)", fontFamily: "'Libre Franklin', sans-serif" }}>ECHOES 2</span>
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                 <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "8px", overflow: "hidden" }}>
@@ -1709,8 +1710,8 @@ export default function LandingPage() {
                   <div style={{ padding: "8px" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "5px" }}>
                       <div style={{ width: "16px", height: "16px", borderRadius: "50%", background: "rgba(127,255,0,0.25)", flexShrink: 0 }}></div>
-                      <span style={{ fontSize: "9px", color: "rgba(127,255,0,0.85)", fontFamily: "'DM Mono', monospace", fontWeight: 600 }}>maren k.</span>
-                      <span style={{ fontSize: "8px", color: "rgba(255,255,255,0.25)", fontFamily: "'DM Mono', monospace", marginLeft: "auto" }}>1h</span>
+                      <span style={{ fontSize: "9px", color: "rgba(127,255,0,0.85)", fontFamily: "'Libre Franklin', sans-serif", fontWeight: 600 }}>maren k.</span>
+                      <span style={{ fontSize: "8px", color: "rgba(255,255,255,0.25)", fontFamily: "'Libre Franklin', sans-serif", marginLeft: "auto" }}>1h</span>
                     </div>
                     <div style={{ fontSize: "8px", fontStyle: "italic", color: "rgba(255,255,255,0.75)", lineHeight: 1.45, marginBottom: "6px" }}>Some decisions age well. This one did.</div>
                     <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px" }}>
@@ -1724,8 +1725,8 @@ export default function LandingPage() {
                   <div style={{ padding: "8px" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "5px" }}>
                       <div style={{ width: "16px", height: "16px", borderRadius: "50%", background: "rgba(127,255,0,0.2)", flexShrink: 0 }}></div>
-                      <span style={{ fontSize: "9px", color: "rgba(127,255,0,0.85)", fontFamily: "'DM Mono', monospace", fontWeight: 600 }}>maren k.</span>
-                      <span style={{ fontSize: "8px", color: "rgba(255,255,255,0.25)", fontFamily: "'DM Mono', monospace", marginLeft: "auto" }}>3h</span>
+                      <span style={{ fontSize: "9px", color: "rgba(127,255,0,0.85)", fontFamily: "'Libre Franklin', sans-serif", fontWeight: 600 }}>maren k.</span>
+                      <span style={{ fontSize: "8px", color: "rgba(255,255,255,0.25)", fontFamily: "'Libre Franklin', sans-serif", marginLeft: "auto" }}>3h</span>
                     </div>
                     <div style={{ fontSize: "8px", fontStyle: "italic", color: "rgba(255,255,255,0.75)", lineHeight: 1.45, marginBottom: "6px" }}>The quieter the room, the better the work.</div>
                     <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px" }}>

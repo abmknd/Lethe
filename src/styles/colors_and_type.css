@@ -1,11 +1,10 @@
-/* ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+﻿/* ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
    Relethe Design System â Colors & Type
-   v2 â Three-font system. Dark is the brand. Light is functional.
+   v3 — Two-font system. Dark is the brand. Light is functional.
    ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-   Font system (3 fonts, non-overlapping roles):
+   Font system (2 fonts, non-overlapping roles):
      Cormorant Garamond â all headings, display, hero, in-app titles
-     Inter              â all body copy, paragraphs, UI text, forms
-     DM Mono            â eyebrows, buttons, meta, all-caps, code, tags
+     Libre Franklin     — all body, UI text, forms, eyebrows, buttons, meta, code
 
    Chartreuse (#7FFF00) only works on dark backgrounds.
    In light mode, #5D9F00 replaces it on interactive elements only.
@@ -14,14 +13,13 @@
    ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
 
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&display=swap');
 
 :root {
   /* âââ Font stacks âââââââââââââââââââââââââââââââââââââââââââ */
   --font-display: 'Cormorant Garamond', Georgia, serif; /* all headings: display, hero, in-app */
-  --font-sans:    'Inter', system-ui, -apple-system, sans-serif; /* all body, UI, forms */
-  --font-mono:    'DM Mono', ui-monospace, 'SF Mono', monospace; /* eyebrows, buttons, meta, code */
+  --font-sans:    'Libre Franklin', sans-serif; /* all body, UI, forms */
+  --font-mono:    'Libre Franklin', sans-serif; /* eyebrows, buttons, meta, code */
 
   /* âââ Relethe Primitive Palette âââââââââââââââââââââââââââââââ */
   --relethe-chartreuse:         #7FFF00;   /* primary accent â dark mode only */
@@ -250,7 +248,7 @@ h4 {
   line-height: var(--leading-snug);
 }
 
-/* âââ Body â Inter ââââââââââââââââââââââââââââââââââââââââââââââ */
+/* âââ Body â Libre Franklin ââââââââââââââââââââââââââââââââââââââââââââââ */
 p, .body {
   font-family: var(--font-sans);
   font-size: var(--text-md);
@@ -260,7 +258,7 @@ p, .body {
   letter-spacing: var(--track-body);
 }
 
-/* âââ Mono â DM Mono ââââââââââââââââââââââââââââââââââââââââââââ */
+/* âââ Mono â Libre Franklin ââââââââââââââââââââââââââââââââââââââââââââ */
 
 /* Tracked caps eyebrow â appears on every page */
 .eyebrow, .label-caps {
@@ -296,7 +294,7 @@ code, .mono {
   font-size: var(--text-sm);
 }
 
-/* âââ Buttons â DM Mono âââââââââââââââââââââââââââââââââââââââââ */
+/* âââ Buttons â Libre Franklin âââââââââââââââââââââââââââââââââââââââââ */
 .btn {
   font-family: var(--font-mono);
   font-size: var(--text-xs);

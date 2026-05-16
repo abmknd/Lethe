@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+﻿import { useState, useRef, useEffect } from 'react';
 import { Link2, UserPlus, Download, EyeOff, VolumeX, Ban, AlertCircle, Pin, RotateCcw, Trash2, Clock } from 'lucide-react';
 
 interface PostOptionsMenuProps {
@@ -89,7 +89,7 @@ export function PostOptionsMenu({ isOpen, onClose, type, isFaded = false, positi
               className={isRed ? 'text-[#DC2626]' : isChartreuse ? 'text-[#7FFF00]' : 'text-white'}
             />
             <span 
-              className={`font-['Inter'] text-[14px] leading-[21px] tracking-[0.35px] ${
+              className={`font-['Libre_Franklin'] text-[14px] leading-[21px] tracking-[0.35px] ${
                 isRed ? 'text-[#DC2626]' : isChartreuse ? 'text-[#7FFF00]' : 'text-white'
               }`}
             >

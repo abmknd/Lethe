@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+﻿import { useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { ChevronLeft, MessageCircle, Share2, Plus, MoreVertical } from 'lucide-react';
 import svgPaths from "../imports/svg-mzo5g4s9h6";
@@ -188,7 +188,7 @@ export default function ProfilePage() {
             <svg className="w-4 h-4" fill="none" viewBox="0 0 16 16">
               <path d={svgPathsBack.p543f5c0} stroke="#6B6B6B" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
-            <span className="font-['Inter'] font-light leading-[16.5px] text-[11px] tracking-[3.3px] uppercase">BACK</span>
+            <span className="font-['Libre_Franklin'] font-light leading-[16.5px] text-[11px] tracking-[3.3px] uppercase">BACK</span>
           </button>
         </div>
       </header>
@@ -227,7 +227,7 @@ export default function ProfilePage() {
                   <h1 className="font-['Cormorant_Garamond'] text-[22px] leading-[26.4px] text-[rgba(255,255,255,0.88)]">
                     A. Fitch
                   </h1>
-                  <p className="font-['Inter'] text-[13px] leading-[19.5px] tracking-[0.52px] text-[rgba(255,255,255,0.25)]">
+                  <p className="font-['Libre_Franklin'] text-[13px] leading-[19.5px] tracking-[0.52px] text-[rgba(255,255,255,0.25)]">
                     @alabaster.f
                   </p>
                 </div>
@@ -261,7 +261,7 @@ export default function ProfilePage() {
                         </g>
                       </svg>
                     </div>
-                    <p className="font-['Inter'] text-[13px] leading-[19.5px] tracking-[0.52px] text-[rgba(255,255,255,0.25)]">
+                    <p className="font-['Libre_Franklin'] text-[13px] leading-[19.5px] tracking-[0.52px] text-[rgba(255,255,255,0.25)]">
                       Frankfurt, Kentucky
                     </p>
                   </div>
@@ -270,7 +270,7 @@ export default function ProfilePage() {
                     <div className="w-4 h-4 relative flex-shrink-0">
                       <GenderIcon />
                     </div>
-                    <p className="font-['Inter'] text-[13px] leading-[19.5px] tracking-[0.52px] text-[rgba(255,255,255,0.25)]">
+                    <p className="font-['Libre_Franklin'] text-[13px] leading-[19.5px] tracking-[0.52px] text-[rgba(255,255,255,0.25)]">
                       He/Him/His
                     </p>
                   </div>
@@ -281,7 +281,7 @@ export default function ProfilePage() {
 
             {/* Right: Edit Button */}
             <button 
-              className="bg-[rgba(173,255,47,0.06)] border border-[rgba(173,255,47,0.2)] rounded-full px-7 h-[34px] font-['Inter'] text-[11px] tracking-[1.98px] uppercase text-[rgba(173,255,47,0.7)] hover:bg-[rgba(173,255,47,0.12)] hover:border-[rgba(173,255,47,0.4)] transition-all flex items-center justify-center"
+              className="bg-[rgba(173,255,47,0.06)] border border-[rgba(173,255,47,0.2)] rounded-full px-7 h-[34px] font-['Libre_Franklin'] text-[11px] tracking-[1.98px] uppercase text-[rgba(173,255,47,0.7)] hover:bg-[rgba(173,255,47,0.12)] hover:border-[rgba(173,255,47,0.4)] transition-all flex items-center justify-center"
               onClick={() => setIsEditProfileModalOpen(true)}
             >
               Edit profile
@@ -300,7 +300,7 @@ export default function ProfilePage() {
               <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-full p-[7px] pr-[8px] pl-[9px] flex items-center gap-1 inline-flex">
                 <button
                   onClick={() => setActiveTab('all')}
-                  className={`px-[21px] py-[4px] rounded-full font-['Inter'] text-[11px] tracking-[2.2px] uppercase leading-[16.5px] transition-all ${
+                  className={`px-[21px] py-[4px] rounded-full font-['Libre_Franklin'] text-[11px] tracking-[2.2px] uppercase leading-[16.5px] transition-all ${
                     activeTab === 'all'
                       ? 'text-[rgba(255,255,255,0.9)]'
                       : 'text-[#3a3a3a]'
@@ -310,7 +310,7 @@ export default function ProfilePage() {
                 </button>
                 <button
                   onClick={() => setActiveTab('faded')}
-                  className={`px-[20px] py-[4px] rounded-full font-['Inter'] text-[11px] tracking-[2.2px] uppercase leading-[16.5px] transition-all ${
+                  className={`px-[20px] py-[4px] rounded-full font-['Libre_Franklin'] text-[11px] tracking-[2.2px] uppercase leading-[16.5px] transition-all ${
                     activeTab === 'faded'
                       ? 'text-[rgba(255,255,255,0.9)]'
                       : 'text-[#3a3a3a]'
@@ -320,7 +320,7 @@ export default function ProfilePage() {
                 </button>
                 <button
                   onClick={() => setActiveTab('echoes')}
-                  className={`px-[20px] py-[4px] rounded-full font-['Inter'] text-[11px] tracking-[2.2px] uppercase leading-[16.5px] transition-all ${
+                  className={`px-[20px] py-[4px] rounded-full font-['Libre_Franklin'] text-[11px] tracking-[2.2px] uppercase leading-[16.5px] transition-all ${
                     activeTab === 'echoes'
                       ? 'text-[rgba(255,255,255,0.9)]'
                       : 'text-[#3a3a3a]'
@@ -345,7 +345,7 @@ export default function ProfilePage() {
               <div className="bg-[#0a0a0a] rounded-[16px] border-[0.8px] border-[rgba(255,255,255,0.07)] overflow-hidden">
                 {/* Bio Section */}
                 <div className="p-5">
-                  <p className="font-['Inter'] font-medium text-[11px] tracking-[2px] uppercase text-[#6b6b6b] mb-4">
+                  <p className="font-['Libre_Franklin'] font-medium text-[11px] tracking-[2px] uppercase text-[#6b6b6b] mb-4">
                     bio
                   </p>
                   <p className="font-['Cormorant_Garamond'] text-[14px] leading-[25.5px] text-[rgba(255,255,255,0.4)]">
@@ -360,7 +360,7 @@ export default function ProfilePage() {
                       <p className="font-['Cormorant_Garamond'] text-[22px] leading-[22px] text-[rgba(255,255,255,0.9)] mb-2">
                         284
                       </p>
-                      <p className="font-['Inter'] font-medium text-[11px] tracking-[2px] uppercase text-[#6b6b6b]">
+                      <p className="font-['Libre_Franklin'] font-medium text-[11px] tracking-[2px] uppercase text-[#6b6b6b]">
                         Followers
                       </p>
                     </div>
@@ -368,7 +368,7 @@ export default function ProfilePage() {
                       <p className="font-['Cormorant_Garamond'] text-[22px] leading-[22px] text-[rgba(255,255,255,0.9)] mb-2">
                         521
                       </p>
-                      <p className="font-['Inter'] font-medium text-[11px] tracking-[2px] uppercase text-[#6b6b6b]">
+                      <p className="font-['Libre_Franklin'] font-medium text-[11px] tracking-[2px] uppercase text-[#6b6b6b]">
                         Following
                       </p>
                     </div>
@@ -376,7 +376,7 @@ export default function ProfilePage() {
                       <p className="font-['Cormorant_Garamond'] text-[22px] leading-[22px] text-[rgba(255,255,255,0.9)] mb-2">
                         1,603
                       </p>
-                      <p className="font-['Inter'] font-medium text-[11px] tracking-[2px] uppercase text-[#6b6b6b]">
+                      <p className="font-['Libre_Franklin'] font-medium text-[11px] tracking-[2px] uppercase text-[#6b6b6b]">
                         posts
                       </p>
                     </div>
@@ -384,7 +384,7 @@ export default function ProfilePage() {
                       <p className="font-['Cormorant_Garamond'] text-[22px] leading-[22px] text-[rgba(255,255,255,0.9)] mb-2">
                         5,499
                       </p>
-                      <p className="font-['Inter'] font-medium text-[11px] tracking-[2px] uppercase text-[#6b6b6b]">
+                      <p className="font-['Libre_Franklin'] font-medium text-[11px] tracking-[2px] uppercase text-[#6b6b6b]">
                         faded
                       </p>
                     </div>
@@ -396,7 +396,7 @@ export default function ProfilePage() {
                   <div className="flex gap-8">
                     {/* Matches */}
                     <div className="flex-1">
-                      <p className="font-['Inter'] font-medium text-[11px] tracking-[2px] uppercase text-[#6b6b6b] mb-2">
+                      <p className="font-['Libre_Franklin'] font-medium text-[11px] tracking-[2px] uppercase text-[#6b6b6b] mb-2">
                         matches
                       </p>
                       <div className="flex items-end gap-2">
@@ -422,7 +422,7 @@ export default function ProfilePage() {
 
                     {/* Meetings */}
                     <div className="flex-1">
-                      <p className="font-['Inter'] font-medium text-[11px] tracking-[2px] uppercase text-[#6b6b6b] mb-2">
+                      <p className="font-['Libre_Franklin'] font-medium text-[11px] tracking-[2px] uppercase text-[#6b6b6b] mb-2">
                         meetings
                       </p>
                       <div className="flex items-end gap-2">
@@ -450,13 +450,13 @@ export default function ProfilePage() {
 
                 {/* Interests Section */}
                 <div className="p-5 border-t-[0.8px] border-[rgba(255,255,255,0.07)]">
-                  <p className="font-['Inter'] font-medium text-[11px] tracking-[2px] uppercase text-[#6b6b6b] mb-4">
+                  <p className="font-['Libre_Franklin'] font-medium text-[11px] tracking-[2px] uppercase text-[#6b6b6b] mb-4">
                     Interests
                   </p>
                   <div className="flex flex-wrap gap-2 mb-6">
                     {['social impact', 'travel', 'food', 'venture capital', 'coffee', 'fitness'].map((tag) => (
                       <div key={tag} className="bg-[#1a1a1a] rounded-full px-2 py-1">
-                        <span className="font-['Inter'] font-light text-[13px] leading-[19.5px] tracking-[0.65px] text-[#6b6b6b]">
+                        <span className="font-['Libre_Franklin'] font-light text-[13px] leading-[19.5px] tracking-[0.65px] text-[#6b6b6b]">
                           {tag}
                         </span>
                       </div>
@@ -473,7 +473,7 @@ export default function ProfilePage() {
                           </g>
                         </svg>
                       </div>
-                      <span className="font-['Inter'] font-medium text-[11px] leading-[16.5px] tracking-[2.2px] uppercase text-[rgba(255,255,255,0.9)]">
+                      <span className="font-['Libre_Franklin'] font-medium text-[11px] leading-[16.5px] tracking-[2.2px] uppercase text-[rgba(255,255,255,0.9)]">
                         Add more
                       </span>
                     </button>
@@ -555,15 +555,15 @@ function PostCardProfile({ post }: { post: Post }) {
           {/* Username and handle */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-[10px] mb-1">
-              <p className="font-['Inter'] text-[15px] leading-[22.5px] tracking-[0.375px] text-white font-light">
+              <p className="font-['Libre_Franklin'] text-[15px] leading-[22.5px] tracking-[0.375px] text-white font-light">
                 A. Fitch
               </p>
-              <p className="font-['Inter'] text-[13px] leading-[19.5px] tracking-[0.65px] text-[#6b6b6b] font-light">
+              <p className="font-['Libre_Franklin'] text-[13px] leading-[19.5px] tracking-[0.65px] text-[#6b6b6b] font-light">
                 {post.timestamp}
               </p>
             </div>
             {/* Handle instead of Following badge */}
-            <p className="font-['Inter'] text-[13px] leading-[19.5px] tracking-[0.65px] text-[#6b6b6b] font-light">
+            <p className="font-['Libre_Franklin'] text-[13px] leading-[19.5px] tracking-[0.65px] text-[#6b6b6b] font-light">
               @alabaster.f
             </p>
           </div>

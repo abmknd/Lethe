@@ -132,7 +132,7 @@ export default function FoundingCohort() {
           flex-shrink: 0;
         }
         .cohort-avatar span {
-          font-family: 'DM Mono', monospace;
+          font-family: 'Libre Franklin', sans-serif;
           font-size: 11px;
           letter-spacing: .1em;
           color: rgba(127,255,0,0.75);
@@ -145,7 +145,7 @@ export default function FoundingCohort() {
           line-height: 1.2;
         }
         .cohort-role {
-          font-family: 'DM Mono', monospace;
+          font-family: 'Libre Franklin', sans-serif;
           font-size: 10px;
           letter-spacing: .08em;
           color: rgba(255,255,255,0.32);
@@ -182,7 +182,7 @@ export default function FoundingCohort() {
           gap: 10px;
         }
         .cohort-benefit-label {
-          font-family: 'DM Mono', monospace;
+          font-family: 'Libre Franklin', sans-serif;
           font-size: 11px;
           letter-spacing: .18em;
           text-transform: uppercase;
