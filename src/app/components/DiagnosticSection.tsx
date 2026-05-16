@@ -123,7 +123,7 @@ export default function DiagnosticSection({ onEmailSubmitted }: Props) {
         }
       `}</style>
 
-      <section className="diag-section">
+      <section id="relethe-diagnostic" className="diag-section">
         <p className="diag-section-eyebrow relethe-reveal">Network Diagnostic</p>
         <h2 className="diag-section-heading relethe-reveal">
           Ready to leap, but scared of the unknown?
@@ -136,12 +136,19 @@ export default function DiagnosticSection({ onEmailSubmitted }: Props) {
         </p>
 
         {completed ? (
-          <div className="diag-complete-state relethe-reveal">
-            <p className="diag-complete-label">Network Diagnostic Complete</p>
-            <p className="diag-complete-msg">
-              Your match profile has been built. Join the founding cohort to activate it.
+          <div style={{ textAlign: 'center', maxWidth: '520px', margin: '0 auto' }}>
+            <p style={{ fontFamily: 'var(--mono)', fontSize: '10px', letterSpacing: '.3em', textTransform: 'uppercase', color: 'var(--ch)', marginBottom: '16px' }}>
+              NETWORK DIAGNOSTIC COMPLETE
             </p>
-            <button className="diag-explore-again" onClick={handleReset}>
+            <p style={{ fontFamily: 'var(--sans-serif)', fontSize: '15px', fontWeight: 300, color: 'var(--dim)', lineHeight: 1.75, marginBottom: '32px' }}>
+              Your match profile has been saved. We'll use it to find your people when matchmaking opens.
+            </p>
+            <button
+              onClick={() => { setCompleted(false); setModalOpen(true); }}
+              style={{ fontFamily: 'var(--mono)', fontSize: '11px', letterSpacing: '.2em', textTransform: 'uppercase', color: 'var(--ch)', background: 'none', border: 'none', cursor: 'none', opacity: 1, transition: 'opacity .2s' }}
+              onMouseEnter={e => (e.currentTarget.style.opacity = '0.6')}
+              onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
+            >
               Explore again →
             </button>
           </div>

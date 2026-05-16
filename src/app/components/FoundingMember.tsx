@@ -135,41 +135,6 @@ export default function FoundingMember({ diagnosticEmail }: Props) {
           color: rgba(255,255,255,0.62);
           line-height: 1.65;
         }
-        .fm-handle-row {
-          display: flex;
-          align-items: stretch;
-          gap: 0;
-          width: 100%;
-          margin-bottom: 10px;
-        }
-        .fm-handle-prefix {
-          font-family: 'DM Mono', monospace;
-          font-size: 13px;
-          color: rgba(255,255,255,0.28);
-          background: rgba(255,255,255,0.04);
-          border: 1px solid rgba(255,255,255,0.09);
-          border-right: none;
-          border-radius: 10px 0 0 10px;
-          padding: 13px 14px;
-          white-space: nowrap;
-          display: flex;
-          align-items: center;
-        }
-        .fm-handle-input {
-          flex: 1;
-          background: rgba(255,255,255,0.04);
-          border: 1px solid rgba(255,255,255,0.09);
-          border-left: none;
-          border-radius: 0 10px 10px 0;
-          padding: 13px 14px;
-          font-family: 'DM Mono', monospace;
-          font-size: 16px;
-          color: rgba(255,255,255,0.88);
-          outline: none;
-          transition: border-color .2s;
-        }
-        .fm-handle-input:focus { border-color: rgba(127,255,0,0.35); }
-        .fm-handle-input::placeholder { color: rgba(255,255,255,0.2); }
         .fm-status-available { color: rgba(127,255,0,0.75); }
         .fm-status-taken { color: rgba(220,80,80,0.75); }
         .fm-status-invalid { color: rgba(255,180,0,0.65); }
@@ -183,21 +148,49 @@ export default function FoundingMember({ diagnosticEmail }: Props) {
           gap: 6px;
           margin-bottom: 8px;
         }
-        .fm-email-input {
-          width: 100%;
+        .founding-member-form {
+          border: 1px solid rgba(255,255,255,0.07);
+          border-radius: 20px;
           background: rgba(255,255,255,0.04);
-          border: 1px solid rgba(255,255,255,0.09);
-          border-radius: 10px;
-          padding: 13px 18px;
+          padding: 8px;
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          max-width: 460px;
+          width: 100%;
+          margin-bottom: 8px;
+        }
+        .founding-member-form input {
+          background: transparent;
+          border: none;
+          outline: none;
           font-family: 'DM Mono', monospace;
           font-size: 16px;
           color: rgba(255,255,255,0.88);
-          outline: none;
-          transition: border-color .2s;
-          margin-bottom: 16px;
+          padding: 12px 16px;
+          width: 100%;
         }
-        .fm-email-input:focus { border-color: rgba(127,255,0,0.35); }
-        .fm-email-input::placeholder { color: rgba(255,255,255,0.2); }
+        .founding-member-form input::placeholder { color: rgba(255,255,255,0.28); }
+        .fm-handle-row-inner {
+          display: flex;
+          align-items: center;
+          padding-left: 16px;
+        }
+        .fm-handle-prefix {
+          font-family: 'DM Mono', monospace;
+          font-size: 13px;
+          color: rgba(255,255,255,0.28);
+          white-space: nowrap;
+          flex-shrink: 0;
+        }
+        .fm-handle-row-inner input {
+          padding-left: 2px;
+        }
+        .founding-member-form .fm-divider {
+          height: 1px;
+          background: rgba(255,255,255,0.06);
+          margin: 0 8px;
+        }
         .fm-btn {
           font-family: 'DM Mono', monospace;
           font-size: 11px;
@@ -211,6 +204,7 @@ export default function FoundingMember({ diagnosticEmail }: Props) {
           cursor: none;
           transition: background .2s, opacity .2s;
           width: 100%;
+          max-width: 460px;
         }
         .fm-btn:hover:not(:disabled) { background: rgba(127,255,0,1); }
         .fm-btn:disabled { opacity: 0.45; }
@@ -234,17 +228,6 @@ export default function FoundingMember({ diagnosticEmail }: Props) {
         }
         @media (max-width: 640px) {
           .fm-section { padding: 80px 24px; }
-          .fm-handle-row { flex-direction: column; }
-          .fm-handle-prefix {
-            border-right: 1px solid rgba(255,255,255,0.09);
-            border-bottom: none;
-            border-radius: 10px 10px 0 0;
-          }
-          .fm-handle-input {
-            border-left: 1px solid rgba(255,255,255,0.09);
-            border-top: none;
-            border-radius: 0 0 10px 10px;
-          }
         }
       `}</style>
 
@@ -260,22 +243,34 @@ export default function FoundingMember({ diagnosticEmail }: Props) {
           </div>
 
           {!claimed ? (
-            <form onSubmit={handleClaim} className="relethe-reveal">
-              <div className="fm-handle-row">
-                <span className="fm-handle-prefix">relethe.com/</span>
-                <input
-                  className="fm-handle-input"
-                  type="text"
-                  placeholder="yourname"
-                  value={handle}
-                  onChange={(e) => setHandle(e.target.value.replace(/[^a-zA-Z0-9_-]/g, "").toLowerCase())}
-                  maxLength={30}
-                  autoComplete="off"
-                  spellCheck={false}
-                />
+            <form onSubmit={handleClaim} className="relethe-reveal" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 0 }}>
+              <div className="founding-member-form">
+                <div className="fm-handle-row-inner">
+                  <span className="fm-handle-prefix">relethe.com/</span>
+                  <input
+                    type="text"
+                    placeholder="yourname"
+                    value={handle}
+                    onChange={(e) => setHandle(e.target.value.replace(/[^a-zA-Z0-9_-]/g, "").toLowerCase())}
+                    maxLength={30}
+                    autoComplete="off"
+                    spellCheck={false}
+                  />
+                </div>
+                {!diagnosticEmail && (
+                  <>
+                    <div className="fm-divider" />
+                    <input
+                      type="email"
+                      placeholder="your@email.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                    />
+                  </>
+                )}
               </div>
 
-              <div className="fm-status-text">
+              <div className="fm-status-text" style={{ paddingLeft: 4 }}>
                 {isCheckingHandle && (
                   <span style={{ color: "rgba(255,255,255,0.25)" }}>Checking...</span>
                 )}
@@ -300,18 +295,8 @@ export default function FoundingMember({ diagnosticEmail }: Props) {
                 )}
               </div>
 
-              {!diagnosticEmail && (
-                <input
-                  className="fm-email-input"
-                  type="email"
-                  placeholder="your@email.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              )}
-
               {claimError && (
-                <p style={{ fontFamily: "'DM Mono', monospace", fontSize: 11, color: "rgba(220,80,80,0.7)", marginBottom: 12 }}>
+                <p style={{ fontFamily: "'DM Mono', monospace", fontSize: 11, color: "rgba(220,80,80,0.7)", marginBottom: 12, paddingLeft: 4 }}>
                   {claimError}
                 </p>
               )}
