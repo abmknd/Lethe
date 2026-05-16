@@ -243,7 +243,7 @@ export default function FoundingMember({ diagnosticEmail }: Props) {
           </div>
 
           {!claimed ? (
-            <form onSubmit={handleClaim} className="relethe-reveal" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 0 }}>
+            <form onSubmit={handleClaim} className="relethe-reveal" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0, width: '100%' }}>
               <div className="founding-member-form">
                 <div className="fm-handle-row-inner">
                   <span className="fm-handle-prefix">relethe.com/</span>
@@ -270,7 +270,7 @@ export default function FoundingMember({ diagnosticEmail }: Props) {
                 )}
               </div>
 
-              <div className="fm-status-text" style={{ paddingLeft: 4 }}>
+              <div className="fm-status-text" style={{ justifyContent: 'center', width: '100%', maxWidth: 460 }}>
                 {isCheckingHandle && (
                   <span style={{ color: "rgba(255,255,255,0.25)" }}>Checking...</span>
                 )}
@@ -296,7 +296,7 @@ export default function FoundingMember({ diagnosticEmail }: Props) {
               </div>
 
               {claimError && (
-                <p style={{ fontFamily: "'Libre Franklin', sans-serif", fontSize: 11, color: "rgba(220,80,80,0.7)", marginBottom: 12, paddingLeft: 4 }}>
+                <p style={{ fontFamily: "'Libre Franklin', sans-serif", fontSize: 11, color: "rgba(220,80,80,0.7)", marginBottom: 12, textAlign: 'center', width: '100%', maxWidth: 460 }}>
                   {claimError}
                 </p>
               )}

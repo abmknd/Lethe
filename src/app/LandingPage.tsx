@@ -665,8 +665,8 @@ export default function LandingPage() {
           font-family: var(--mono); font-size: 11px; letter-spacing: .3em;
           text-transform: uppercase; color: #6B6B6B;
           background: transparent; border: none; border-radius: 22px;
-          padding: 12px 24px; cursor: none; transition: all .3s; white-space: nowrap;
-          display: flex; align-items: center; gap: 8px;
+          padding: 12px 32px 12px 20px; cursor: none; transition: all .3s; white-space: nowrap;
+          display: flex; align-items: center; gap: 8px; flex-shrink: 0;
         }
         .relethe-hero-form button:hover { color: var(--ch); }
         .relethe-hero-meta {
