@@ -219,7 +219,7 @@ export default function FoundingCohort() {
             >
               <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                 <img
-                  src={`/src/assets/${m.image}.jpg`}
+                  src={`/src/assets/${m.image}.png`}
                   alt={m.name}
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
