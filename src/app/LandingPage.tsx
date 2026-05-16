@@ -708,14 +708,15 @@ export default function LandingPage() {
         .relethe-story-inner { max-width: 860px; text-align: center; }
         .relethe-story-line {
           display: block; min-height: 1.4em;
+          font-family: var(--serif); font-style: italic;
           font-size: clamp(24px, 3.2vw, 44px);
           font-weight: 300; line-height: 1.35; letter-spacing: -.01em;
           margin-bottom: 8px;
         }
         .relethe-story-line.dim    { color: rgba(255,255,255,0.22); }
         .relethe-story-line.bright { color: rgba(255,255,255,0.88); }
-        .relethe-story-line.accent { color: var(--ch); font-style: italic; }
-        .relethe-story-line.small  { font-size: clamp(15px, 1.8vw, 20px); color: var(--dim); font-style: italic; margin-top: 8px; }
+        .relethe-story-line.accent { color: var(--ch); }
+        .relethe-story-line.small  { font-family: var(--mono); font-style: italic; font-size: clamp(15px, 1.8vw, 20px); color: var(--dim); margin-top: 8px; }
         .relethe-cursor-blink {
           display: inline-block; width: 2px; height: 1em;
           background: var(--ch); margin-left: 3px; vertical-align: middle;

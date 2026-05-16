@@ -100,7 +100,7 @@ export default function FoundingMember({ diagnosticEmail }: Props) {
           flex-wrap: wrap;
         }
         .fm-heading {
-          font-family: 'Libre Franklin', sans-serif;
+          font-family: 'Cormorant Garamond', serif;
           font-size: clamp(28px, 4vw, 48px);
           font-weight: 300;
           font-style: italic;
@@ -255,17 +255,13 @@ export default function FoundingMember({ diagnosticEmail }: Props) {
                     spellCheck={false}
                   />
                 </div>
-                {!diagnosticEmail && (
-                  <>
-                    <div className="fm-divider" />
-                    <input
-                      type="email"
-                      placeholder="your@email.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                    />
-                  </>
-                )}
+                <div className="fm-divider" />
+                <input
+                  type="email"
+                  placeholder="your@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
               </div>
 
               <div className="fm-status-text" style={{ paddingLeft: 8 }}>
