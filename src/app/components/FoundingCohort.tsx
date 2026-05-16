@@ -1,4 +1,4 @@
-import marcusWebbImg from "../../assets/marcus-webb.png";
+﻿import marcusWebbImg from "../../assets/marcus-webb.png";
 import danielHartmannImg from "../../assets/daniel-hartmann.png";
 import sofiaMendesImg from "../../assets/sofia-mendes.png";
 import priyaNairImg from "../../assets/priya-nair.png";
@@ -102,7 +102,7 @@ export default function FoundingCohort() {
           z-index: 3;
         }
         .cohort-heading {
-          font-family: 'Cormorant Garamond', serif;
+          font-family: 'Libre Franklin', sans-serif;
           font-size: clamp(30px, 4vw, 52px);
           font-weight: 300;
           font-style: italic;
@@ -148,7 +148,7 @@ export default function FoundingCohort() {
           color: rgba(127,255,0,0.75);
         }
         .cohort-name {
-          font-family: 'Cormorant Garamond', serif;
+          font-family: 'Libre Franklin', sans-serif;
           font-size: 18px;
           font-weight: 600;
           color: rgba(255,255,255,0.88);
@@ -162,7 +162,7 @@ export default function FoundingCohort() {
           line-height: 1.5;
         }
         .cohort-intent {
-          font-family: 'Cormorant Garamond', serif;
+          font-family: 'Libre Franklin', sans-serif;
           font-size: 14px;
           font-style: italic;
           font-weight: 300;
@@ -199,7 +199,7 @@ export default function FoundingCohort() {
           color: rgba(127,255,0,0.7);
         }
         .cohort-benefit-detail {
-          font-family: 'Cormorant Garamond', serif;
+          font-family: 'Libre Franklin', sans-serif;
           font-size: 15px;
           font-weight: 300;
           line-height: 1.65;

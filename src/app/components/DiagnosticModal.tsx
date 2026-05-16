@@ -1,4 +1,4 @@
-import { useState, useEffect, FormEvent } from "react";
+﻿import { useState, useEffect, FormEvent } from "react";
 import { createPortal } from "react-dom";
 import { supabase } from "../../lib/supabase";
 
@@ -399,7 +399,7 @@ export default function DiagnosticModal({ isOpen, onClose, onEmailSubmitted, onC
           {step === 0 && (
             <form onSubmit={handleFreetextSubmit} style={{ width: "100%", maxWidth: 480, display: "flex", flexDirection: "column", gap: 20 }}>
               <p className="diag-section-title">LIFE CALIBRATION</p>
-              <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(22px,3vw,32px)", fontWeight: 300, fontStyle: "italic", lineHeight: 1.3, color: "rgba(255,255,255,0.88)", margin: 0 }}>
+              <h2 style={{ fontFamily: "'Libre Franklin', sans-serif", fontSize: "clamp(22px,3vw,32px)", fontWeight: 300, fontStyle: "italic", lineHeight: 1.3, color: "rgba(255,255,255,0.88)", margin: 0 }}>
                 What direction are you currently moving in, or want to move toward, in your life?
               </h2>
               <textarea
@@ -424,7 +424,7 @@ export default function DiagnosticModal({ isOpen, onClose, onEmailSubmitted, onC
                 <p style={{ fontFamily: "'Libre Franklin', sans-serif", fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", color: "rgba(255,255,255,0.28)", marginBottom: 12 }}>
                   Calibrating your signal for:
                 </p>
-                <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 20, fontStyle: "italic", fontWeight: 300, color: "rgba(255,255,255,0.72)", lineHeight: 1.5 }}>
+                <p style={{ fontFamily: "'Libre Franklin', sans-serif", fontSize: 20, fontStyle: "italic", fontWeight: 300, color: "rgba(255,255,255,0.72)", lineHeight: 1.5 }}>
                   "{freetext.length > 60 ? freetext.slice(0, 60) + "…" : freetext}"
                 </p>
                 <div style={{ marginTop: 16, display: "flex", justifyContent: "center" }}>
@@ -445,7 +445,7 @@ export default function DiagnosticModal({ isOpen, onClose, onEmailSubmitted, onC
                 <p style={{ fontFamily: "'Libre Franklin', sans-serif", fontSize: 10, letterSpacing: ".22em", textTransform: "uppercase", color: "rgba(255,255,255,0.22)", marginBottom: 20 }}>
                   {q.query}
                 </p>
-                <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(20px,2.8vw,30px)", fontWeight: 300, fontStyle: "italic", lineHeight: 1.35, color: "rgba(255,255,255,0.88)", marginBottom: 28 }}>
+                <h2 style={{ fontFamily: "'Libre Franklin', sans-serif", fontSize: "clamp(20px,2.8vw,30px)", fontWeight: 300, fontStyle: "italic", lineHeight: 1.35, color: "rgba(255,255,255,0.88)", marginBottom: 28 }}>
                   {q.text}
                 </h2>
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -458,7 +458,7 @@ export default function DiagnosticModal({ isOpen, onClose, onEmailSubmitted, onC
                       <span style={{ fontFamily: "'Libre Franklin', sans-serif", fontSize: 10, letterSpacing: ".2em", color: "rgba(127,255,0,0.5)", flexShrink: 0, paddingTop: 1 }}>
                         {OPT_KEYS[i]}
                       </span>
-                      <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 16, fontWeight: 300, color: "rgba(255,255,255,0.75)", lineHeight: 1.5 }}>
+                      <span style={{ fontFamily: "'Libre Franklin', sans-serif", fontSize: 16, fontWeight: 300, color: "rgba(255,255,255,0.75)", lineHeight: 1.5 }}>
                         {opt}
                       </span>
                     </button>
@@ -501,7 +501,7 @@ export default function DiagnosticModal({ isOpen, onClose, onEmailSubmitted, onC
               {/* Teaser chip */}
               <div style={{ background: 'rgba(127,255,0,0.07)', border: '1px solid rgba(127,255,0,0.3)', borderRadius: '16px', padding: '28px 24px', textAlign: 'center', width: '100%' }}>
                 <OrganismSVG />
-                <p style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontWeight: 700, fontSize: '24px', color: 'var(--text)', margin: '0 0 10px', lineHeight: 1.2 }}>
+                <p style={{ fontFamily: 'var(--mono)', fontWeight: 600, fontSize: '18px', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--text)', margin: '0 0 10px', lineHeight: 1.2 }}>
                   {result?.name}
                 </p>
                 <p style={{ fontFamily: 'var(--sans-serif)', fontSize: '15px', fontWeight: 300, color: 'var(--dim)', margin: 0, lineHeight: 1.6 }}>
@@ -546,14 +546,14 @@ export default function DiagnosticModal({ isOpen, onClose, onEmailSubmitted, onC
               <h2 style={{ fontFamily: "'Libre Franklin', sans-serif", fontSize: "clamp(15px,2vw,18px)", letterSpacing: ".18em", textTransform: "uppercase", color: "rgba(255,255,255,0.88)", textAlign: "center", marginBottom: 12, lineHeight: 1.4 }}>
                 {result.name}
               </h2>
-              <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(17px,2.2vw,20px)", fontStyle: "italic", fontWeight: 300, color: "rgba(255,255,255,0.55)", textAlign: "center", lineHeight: 1.5, marginBottom: 36 }}>
+              <p style={{ fontFamily: "'Libre Franklin', sans-serif", fontSize: "clamp(17px,2.2vw,20px)", fontStyle: "italic", fontWeight: 300, color: "rgba(255,255,255,0.55)", textAlign: "center", lineHeight: 1.5, marginBottom: 36 }}>
                 {result.tagline}
               </p>
 
               {/* THE GAP */}
               <div style={{ width: "100%", borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 24, marginBottom: 28 }}>
                 <span className="diag-result-section-label">THE GAP</span>
-                <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(15px,1.8vw,18px)", fontWeight: 300, lineHeight: 1.8, color: "rgba(255,255,255,0.65)" }}>
+                <p style={{ fontFamily: "'Libre Franklin', sans-serif", fontSize: "clamp(15px,1.8vw,18px)", fontWeight: 300, lineHeight: 1.8, color: "rgba(255,255,255,0.65)" }}>
                   {variant.gap}
                 </p>
               </div>
@@ -561,7 +561,7 @@ export default function DiagnosticModal({ isOpen, onClose, onEmailSubmitted, onC
               {/* WHO YOU NEED */}
               <div style={{ width: "100%", borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 24, marginBottom: 32 }}>
                 <span className="diag-result-section-label">WHO YOU NEED</span>
-                <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(15px,1.8vw,18px)", fontWeight: 300, lineHeight: 1.8, color: "rgba(255,255,255,0.65)" }}>
+                <p style={{ fontFamily: "'Libre Franklin', sans-serif", fontSize: "clamp(15px,1.8vw,18px)", fontWeight: 300, lineHeight: 1.8, color: "rgba(255,255,255,0.65)" }}>
                   {variant.who}
                 </p>
               </div>

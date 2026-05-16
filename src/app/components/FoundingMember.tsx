@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, FormEvent } from "react";
+﻿import { useState, useEffect, useRef, FormEvent } from "react";
 import { supabase } from "../../lib/supabase";
 
 interface Props {
@@ -100,7 +100,7 @@ export default function FoundingMember({ diagnosticEmail }: Props) {
           flex-wrap: wrap;
         }
         .fm-heading {
-          font-family: 'Cormorant Garamond', serif;
+          font-family: 'Libre Franklin', sans-serif;
           font-size: clamp(28px, 4vw, 48px);
           font-weight: 300;
           font-style: italic;
@@ -128,7 +128,7 @@ export default function FoundingMember({ diagnosticEmail }: Props) {
           margin-bottom: 36px;
         }
         .fm-highlight p {
-          font-family: 'Cormorant Garamond', serif;
+          font-family: 'Libre Franklin', sans-serif;
           font-size: 16px;
           font-style: italic;
           font-weight: 300;
@@ -212,7 +212,7 @@ export default function FoundingMember({ diagnosticEmail }: Props) {
           gap: 8px;
         }
         .fm-success-title {
-          font-family: 'Cormorant Garamond', serif;
+          font-family: 'Libre Franklin', sans-serif;
           font-size: 22px;
           font-style: italic;
           font-weight: 300;
