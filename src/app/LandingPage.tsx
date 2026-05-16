@@ -638,10 +638,10 @@ export default function LandingPage() {
         .relethe-hero-h1 em { font-style: normal; color: var(--ch); }
         .relethe-hero-h1-dim { color: var(--dim); display: block; }
         .relethe-hero-h2 {
-          font-size: clamp(17px, 2vw, 22px);
-          font-weight: 300; font-style: italic; line-height: 1.55; letter-spacing: .01em;
-          color: rgba(255,255,255,0.5); margin-top: 32px; margin-bottom: 40px; opacity: 0;
-          max-width: 580px;
+          font-family: var(--mono); font-size: 15px;
+          font-weight: 300; line-height: 1.7;
+          color: var(--dim); margin-top: 32px; margin-bottom: 40px; opacity: 0;
+          max-width: 520px;
         }
         .relethe-hero-sub {
           font-size: clamp(15px, 1.8vw, 18px); font-weight: 300;
@@ -665,7 +665,7 @@ export default function LandingPage() {
           font-family: var(--mono); font-size: 11px; letter-spacing: .3em;
           text-transform: uppercase; color: #6B6B6B;
           background: transparent; border: none; border-radius: 22px;
-          padding: 12px 32px 12px 20px; cursor: none; transition: all .3s; white-space: nowrap;
+          padding: 12px 40px 12px 20px; cursor: none; transition: all .3s; white-space: nowrap;
           display: flex; align-items: center; gap: 8px; flex-shrink: 0;
         }
         .relethe-hero-form button:hover { color: var(--ch); }
@@ -1039,7 +1039,7 @@ export default function LandingPage() {
 
         .relethe-card-label { padding:20px 22px 22px; }
         .relethe-card-tag { font-family:var(--mono); font-size:10px; letter-spacing:.2em; text-transform:uppercase; color:rgba(173,255,47,0.45); margin-bottom:6px; display:block; }
-        .relethe-card-title { font-size:20px; font-weight:300; font-style:italic; color:rgba(255,255,255,0.82); line-height:1.2; }
+        .relethe-card-title { font-family:var(--mono); font-size:15px; font-weight:300; color:var(--dim); line-height:1.7; }
 
         /* ── SIGNUP ── */
         #relethe-signup {
@@ -1065,7 +1065,7 @@ export default function LandingPage() {
         }
         .relethe-signup-form input { flex:1; background:transparent; border:none; outline:none; font-family:var(--mono); font-size:16px; letter-spacing:.04em; color:var(--text); padding:12px 18px; }
         .relethe-signup-form input::placeholder { color:var(--ghost); }
-        .relethe-signup-form button { font-family:var(--mono); font-size:11px; letter-spacing:.3em; text-transform:uppercase; color:#6B6B6B; background:transparent; border:none; border-radius:22px; padding:12px 24px; cursor:none; transition:all .3s; white-space:nowrap; display: flex; align-items: center; gap: 8px; }
+        .relethe-signup-form button { font-family:var(--mono); font-size:11px; letter-spacing:.3em; text-transform:uppercase; color:#6B6B6B; background:transparent; border:none; border-radius:22px; padding:12px 40px 12px 20px; cursor:none; transition:all .3s; white-space:nowrap; display:flex; align-items:center; gap:8px; flex-shrink:0; }
         .relethe-signup-form button:hover { color:var(--ch); }
         .relethe-signup-note { margin-top:18px; font-family:var(--mono); font-size:11px; letter-spacing:.12em; color:var(--ghost); position:relative; z-index:1; }
         .relethe-form-success { padding: 16px 0; display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; }
