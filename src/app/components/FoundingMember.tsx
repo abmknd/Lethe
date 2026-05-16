@@ -206,24 +206,6 @@ export default function FoundingMember({ diagnosticEmail }: Props) {
         }
         .fm-btn:hover:not(:disabled) { background: rgba(127,255,0,1); }
         .fm-btn:disabled { opacity: 0.45; }
-        .fm-success {
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-        }
-        .fm-success-title {
-          font-family: 'Libre Franklin', sans-serif;
-          font-size: 22px;
-          font-style: italic;
-          font-weight: 300;
-          color: rgba(127,255,0,0.85);
-        }
-        .fm-success-sub {
-          font-family: 'Libre Franklin', sans-serif;
-          font-size: 11px;
-          letter-spacing: .1em;
-          color: rgba(255,255,255,0.3);
-        }
         @media (max-width: 640px) {
           .fm-section { padding: 80px 24px; }
         }
@@ -237,10 +219,16 @@ export default function FoundingMember({ diagnosticEmail }: Props) {
           </div>
 
           <div className="fm-highlight relethe-reveal">
-            <p>As a Founding Member, your profile will receive priority visibility once matchmaking begins.</p>
+            {claimed ? (
+              <p style={{ fontFamily: "'Libre Franklin', sans-serif", fontSize: 16, fontStyle: 'italic', fontWeight: 300, color: 'rgba(127,255,0,0.75)', lineHeight: 1.65 }}>
+                You're now a founding member — we'll email you when it's time to ball!
+              </p>
+            ) : (
+              <p>As a Founding Member, your profile will receive priority visibility once matchmaking begins.</p>
+            )}
           </div>
 
-          {!claimed ? (
+          {!claimed && (
             <form onSubmit={handleClaim} className="relethe-reveal" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0, width: '100%' }}>
               <div className="founding-member-form">
                 <div className="fm-handle-row-inner">
@@ -303,13 +291,6 @@ export default function FoundingMember({ diagnosticEmail }: Props) {
                 {isClaiming ? "Claiming..." : "Claim your handle"}
               </button>
             </form>
-          ) : (
-            <div className="fm-success relethe-reveal">
-              <p className="fm-success-title">
-                relethe.com/{handle.toLowerCase()} is yours.
-              </p>
-              <p className="fm-success-sub">Your handle is reserved in the founding cohort.</p>
-            </div>
           )}
         </div>
       </section>
