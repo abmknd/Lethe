@@ -530,7 +530,7 @@ export default function LandingPage() {
           --text: rgba(255,255,255,0.88);
           --dim: rgba(255,255,255,0.60);
           --ghost: rgba(255,255,255,0.28);
-          --serif: 'Libre Franklin', sans-serif;
+          --serif: 'Cormorant Garamond', serif;
           --mono: 'Libre Franklin', sans-serif;
           --sans-serif: 'Libre Franklin', sans-serif;
         }
