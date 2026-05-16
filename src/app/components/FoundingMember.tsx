@@ -156,7 +156,6 @@ export default function FoundingMember({ diagnosticEmail }: Props) {
           display: flex;
           flex-direction: column;
           gap: 4px;
-          max-width: 460px;
           width: 100%;
           margin-bottom: 8px;
         }
@@ -204,7 +203,6 @@ export default function FoundingMember({ diagnosticEmail }: Props) {
           cursor: none;
           transition: background .2s, opacity .2s;
           width: 100%;
-          max-width: 460px;
         }
         .fm-btn:hover:not(:disabled) { background: rgba(127,255,0,1); }
         .fm-btn:disabled { opacity: 0.45; }
@@ -270,7 +268,7 @@ export default function FoundingMember({ diagnosticEmail }: Props) {
                 )}
               </div>
 
-              <div className="fm-status-text" style={{ justifyContent: 'center', width: '100%', maxWidth: 460 }}>
+              <div className="fm-status-text" style={{ paddingLeft: 8 }}>
                 {isCheckingHandle && (
                   <span style={{ color: "rgba(255,255,255,0.25)" }}>Checking...</span>
                 )}
@@ -296,7 +294,7 @@ export default function FoundingMember({ diagnosticEmail }: Props) {
               </div>
 
               {claimError && (
-                <p style={{ fontFamily: "'Libre Franklin', sans-serif", fontSize: 11, color: "rgba(220,80,80,0.7)", marginBottom: 12, textAlign: 'center', width: '100%', maxWidth: 460 }}>
+                <p style={{ fontFamily: "'Libre Franklin', sans-serif", fontSize: 11, color: "rgba(220,80,80,0.7)", marginBottom: 12, paddingLeft: 8 }}>
                   {claimError}
                 </p>
               )}
