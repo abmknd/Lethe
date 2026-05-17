@@ -121,17 +121,21 @@ export default function FoundingMember({ diagnosticEmail }: Props) {
         .fm-highlight {
           background: rgba(127,255,0,0.04);
           border: 1px solid rgba(127,255,0,0.2);
-          padding: 14px 20px;
+          padding: 18px 24px;
           border-radius: 12px;
           margin-bottom: 36px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
         .fm-highlight p {
           font-family: 'Libre Franklin', sans-serif;
           font-size: 16px;
-          font-style: italic;
+          font-style: normal;
           font-weight: 300;
           color: rgba(255,255,255,0.62);
           line-height: 1.65;
+          text-align: center;
         }
         .fm-status-available { color: rgba(127,255,0,0.75); }
         .fm-status-taken { color: rgba(220,80,80,0.75); }
@@ -140,11 +144,18 @@ export default function FoundingMember({ diagnosticEmail }: Props) {
           font-family: 'Libre Franklin', sans-serif;
           font-size: 11px;
           letter-spacing: .1em;
-          min-height: 18px;
+          height: 18px;
           display: flex;
           align-items: center;
           gap: 6px;
-          margin-bottom: 8px;
+          margin-top: 12px;
+          margin-bottom: 12px;
+        }
+        .fm-status-line {
+          flex: 1;
+          height: 1px;
+          background: rgba(127,255,0,0.2);
+          border-radius: 1px;
         }
         .founding-member-form {
           border: 1px solid rgba(255,255,255,0.07);
@@ -155,7 +166,7 @@ export default function FoundingMember({ diagnosticEmail }: Props) {
           flex-direction: column;
           gap: 4px;
           width: 100%;
-          margin-bottom: 8px;
+          margin-bottom: 0;
         }
         .founding-member-form input {
           background: transparent;
@@ -218,11 +229,11 @@ export default function FoundingMember({ diagnosticEmail }: Props) {
 
           <div className="fm-highlight relethe-reveal">
             {claimed ? (
-              <p style={{ fontFamily: "'Libre Franklin', sans-serif", fontSize: 16, fontStyle: 'italic', fontWeight: 300, color: 'rgba(127,255,0,0.75)', lineHeight: 1.65 }}>
+              <p style={{ fontFamily: "'Libre Franklin', sans-serif", fontSize: 16, fontStyle: 'normal', fontWeight: 300, color: 'rgba(127,255,0,0.75)', lineHeight: 1.65, textAlign: 'center' }}>
                 You're now a founding member — we'll email you when it's time to ball!
               </p>
             ) : claimDuplicate ? (
-              <p style={{ fontFamily: "'Libre Franklin', sans-serif", fontSize: 16, fontStyle: 'italic', fontWeight: 300, color: 'rgba(127,255,0,0.75)', lineHeight: 1.65 }}>
+              <p style={{ fontFamily: "'Libre Franklin', sans-serif", fontSize: 16, fontStyle: 'normal', fontWeight: 300, color: 'rgba(127,255,0,0.75)', lineHeight: 1.65, textAlign: 'center' }}>
                 You're already on the list. We'll be in touch.
               </p>
             ) : (
@@ -254,7 +265,10 @@ export default function FoundingMember({ diagnosticEmail }: Props) {
                 />
               </div>
 
-              <div className="fm-status-text" style={{ paddingLeft: 8 }}>
+              <div className="fm-status-text">
+                {!isCheckingHandle && handleStatus === "idle" && (
+                  <div className="fm-status-line" />
+                )}
                 {isCheckingHandle && (
                   <span style={{ color: "rgba(255,255,255,0.25)" }}>Checking...</span>
                 )}
