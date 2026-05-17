@@ -211,7 +211,7 @@ export default function FoundingCohort() {
           .cohort-benefits-grid { grid-template-columns: repeat(2, 1fr); }
           .cohort-section { padding: 80px 24px; }
         }
-        @media (max-width: 640px) {
+        @media (max-width: 720px) {
           .cohort-grid { grid-template-columns: 1fr; }
           .cohort-benefits-grid { grid-template-columns: 1fr; }
         }

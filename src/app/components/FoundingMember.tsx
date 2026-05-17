@@ -66,9 +66,22 @@ export default function FoundingMember({ diagnosticEmail }: Props) {
         .from("waitlist")
         .insert({ handle: h, ...(em ? { email: em } : {}), source: "founding-member" });
       if (error) {
-        if (error.code === "23505") { setClaimDuplicate(true); } else { setClaimError("Something went wrong. Try again."); }
-        setIsClaiming(false);
-        return;
+        if (error.code === "23505" && em) {
+          // Email already exists — link the handle to their existing row
+          const { error: updateError } = await supabase
+            .from("waitlist")
+            .update({ handle: h, source: "founding-member" })
+            .eq("email", em);
+          if (updateError) {
+            setClaimError("Something went wrong. Try again.");
+            setIsClaiming(false);
+            return;
+          }
+        } else {
+          setClaimError("Something went wrong. Try again.");
+          setIsClaiming(false);
+          return;
+        }
       }
     }
 
@@ -215,7 +228,7 @@ export default function FoundingMember({ diagnosticEmail }: Props) {
         }
         .fm-btn:hover:not(:disabled) { background: rgba(127,255,0,1); }
         .fm-btn:disabled { opacity: 0.45; }
-        @media (max-width: 640px) {
+        @media (max-width: 720px) {
           .fm-section { padding: 80px 24px; }
         }
       `}</style>

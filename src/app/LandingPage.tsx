@@ -1130,7 +1130,7 @@ export default function LandingPage() {
         .relethe-story-line:empty::before { content: '\\00a0'; display: block; }
 
         /* ── Mobile ── */
-        @media (max-width: 640px) {
+        @media (max-width: 720px) {
           #relethe-hero    { padding: 100px 24px 80px; }
           #relethe-story   { padding: 80px 24px; }
           #relethe-how     { padding: 80px 24px; }

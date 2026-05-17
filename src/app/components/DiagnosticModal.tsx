@@ -378,12 +378,25 @@ export default function DiagnosticModal({ isOpen, onClose, onEmailSubmitted, onC
         .diag-back:hover { color: rgba(255,255,255,0.5); }
         .diag-section-title { font-family: 'Libre Franklin', sans-serif; font-size: 10px; letter-spacing: .3em; text-transform: uppercase; color: rgba(127,255,0,0.5); margin-bottom: 4px; }
         .diag-result-section-label { font-family: 'Libre Franklin', sans-serif; font-size: 10px; letter-spacing: .28em; text-transform: uppercase; color: rgba(127,255,0,0.45); margin-bottom: 8px; display: block; }
-        @media (max-width: 640px) {
-          .diag-card-inner { width: calc(100% - 32px) !important; padding: 24px !important; }
+        .diag-overlay { scrollbar-width: none; -ms-overflow-style: none; }
+        .diag-overlay::-webkit-scrollbar { display: none; }
+        .diag-result-card {
+          width: 100%; border: 1px solid rgba(127,255,0,0.15); border-radius: 16px;
+          padding: 28px 24px; max-height: calc(100vh - 260px); overflow-y: auto;
+          scrollbar-width: thin; scrollbar-color: rgba(127,255,0,0.25) transparent;
+          display: flex; flex-direction: column; align-items: center;
+        }
+        .diag-result-card::-webkit-scrollbar { width: 4px; }
+        .diag-result-card::-webkit-scrollbar-track { background: transparent; }
+        .diag-result-card::-webkit-scrollbar-thumb { background: rgba(127,255,0,0.25); border-radius: 2px; }
+        .diag-result-card::-webkit-scrollbar-thumb:hover { background: rgba(127,255,0,0.4); }
+        @media (max-width: 720px) {
+          .diag-card-inner { width: calc(100% - 32px) !important; padding: 80px 20px 40px !important; }
+          .diag-result-card { max-height: calc(100vh - 220px); padding: 20px 16px; }
         }
       `}</style>
 
-      <div style={overlay}>
+      <div style={overlay} className="diag-overlay">
         <button className="diag-close" onClick={onClose}>×</button>
 
         <div className="diag-card-inner" style={{ width: "100%", maxWidth: 640, margin: "0 auto", padding: "80px 32px 48px", display: "flex", flexDirection: "column", alignItems: "center", minHeight: "100vh" }}>
@@ -545,54 +558,57 @@ export default function DiagnosticModal({ isOpen, onClose, onEmailSubmitted, onC
 
           {/* ── STATE 9: Result ── */}
           {step === 9 && result && variant && (
-            <div style={{ width: "100%", maxWidth: 520, display: "flex", flexDirection: "column", alignItems: "center", gap: 0 }}>
-              {/* Checkmark */}
-              <div style={{ width: 48, height: 48, borderRadius: "50%", border: "1px solid rgba(127,255,0,0.4)", background: "rgba(127,255,0,0.06)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 20 }}>
-                <svg width="18" height="14" viewBox="0 0 18 14" fill="none">
-                  <path d="M1.5 7L6.5 12L16.5 2" stroke="rgba(127,255,0,0.8)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </div>
+            <div style={{ width: "100%", maxWidth: 520, display: "flex", flexDirection: "column", alignItems: "center", gap: 20, paddingBottom: 40 }}>
+              <div className="diag-result-card">
+                {/* Checkmark */}
+                <div style={{ width: 48, height: 48, borderRadius: "50%", border: "1px solid rgba(127,255,0,0.4)", background: "rgba(127,255,0,0.06)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 20, flexShrink: 0 }}>
+                  <svg width="18" height="14" viewBox="0 0 18 14" fill="none">
+                    <path d="M1.5 7L6.5 12L16.5 2" stroke="rgba(127,255,0,0.8)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </div>
 
-              <p className="diag-section-title" style={{ marginBottom: 12 }}>MATCH PROFILE UNLOCKED</p>
+                <p className="diag-section-title" style={{ marginBottom: 12 }}>MATCH PROFILE UNLOCKED</p>
 
-              <h2 style={{ fontFamily: "'Libre Franklin', sans-serif", fontSize: "clamp(15px,2vw,18px)", letterSpacing: ".18em", textTransform: "uppercase", color: "rgba(255,255,255,0.88)", textAlign: "center", marginBottom: 12, lineHeight: 1.4 }}>
-                {result.name}
-              </h2>
-              <p style={{ fontFamily: "'Libre Franklin', sans-serif", fontSize: "clamp(17px,2.2vw,20px)", fontStyle: "italic", fontWeight: 300, color: "rgba(255,255,255,0.55)", textAlign: "center", lineHeight: 1.5, marginBottom: 36 }}>
-                {result.tagline}
-              </p>
+                <h2 style={{ fontFamily: "'Libre Franklin', sans-serif", fontSize: "clamp(15px,2vw,18px)", letterSpacing: ".18em", textTransform: "uppercase", color: "rgba(255,255,255,0.88)", textAlign: "center", marginBottom: 12, lineHeight: 1.4 }}>
+                  {result.name}
+                </h2>
+                <p style={{ fontFamily: "'Libre Franklin', sans-serif", fontSize: "clamp(17px,2.2vw,20px)", fontStyle: "italic", fontWeight: 300, color: "rgba(255,255,255,0.55)", textAlign: "center", lineHeight: 1.5, marginBottom: 28 }}>
+                  {result.tagline}
+                </p>
 
-              {/* THE GAP */}
-              <div style={{ width: "100%", borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 24, marginBottom: 28 }}>
-                <span className="diag-result-section-label">THE GAP</span>
-                <p style={{ fontFamily: "'Libre Franklin', sans-serif", fontSize: "clamp(15px,1.8vw,18px)", fontWeight: 300, lineHeight: 1.8, color: "rgba(255,255,255,0.65)" }}>
-                  {variant.gap}
+                {/* THE GAP */}
+                <div style={{ width: "100%", borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 20, marginBottom: 20 }}>
+                  <span className="diag-result-section-label">THE GAP</span>
+                  <p style={{ fontFamily: "'Libre Franklin', sans-serif", fontSize: "clamp(14px,1.6vw,16px)", fontWeight: 300, lineHeight: 1.8, color: "rgba(255,255,255,0.65)" }}>
+                    {variant.gap}
+                  </p>
+                </div>
+
+                {/* WHO YOU NEED */}
+                <div style={{ width: "100%", borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 20, marginBottom: 20 }}>
+                  <span className="diag-result-section-label">WHO YOU NEED</span>
+                  <p style={{ fontFamily: "'Libre Franklin', sans-serif", fontSize: "clamp(14px,1.6vw,16px)", fontWeight: 300, lineHeight: 1.8, color: "rgba(255,255,255,0.65)" }}>
+                    {variant.who}
+                  </p>
+                </div>
+
+                {/* Cohort count */}
+                <div style={{ width: "100%", background: "rgba(127,255,0,0.04)", border: "1px solid rgba(127,255,0,0.12)", borderRadius: 10, padding: "12px 16px", marginBottom: 16, textAlign: "center" }}>
+                  <p style={{ fontFamily: "'Libre Franklin', sans-serif", fontSize: 12, letterSpacing: ".1em", color: "rgba(255,255,255,0.45)" }}>
+                    There are <span style={{ color: "rgba(127,255,0,0.75)" }}>16</span> people in the Relethe founding cohort who match this profile.
+                  </p>
+                </div>
+
+                <p style={{ fontFamily: "'Libre Franklin', sans-serif", fontSize: 11, letterSpacing: ".12em", color: "rgba(255,255,255,0.3)", textAlign: "center", marginBottom: 4 }}>
+                  You're on the founding cohort waitlist. We'll be in touch.
                 </p>
               </div>
 
-              {/* WHO YOU NEED */}
-              <div style={{ width: "100%", borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 24, marginBottom: 32 }}>
-                <span className="diag-result-section-label">WHO YOU NEED</span>
-                <p style={{ fontFamily: "'Libre Franklin', sans-serif", fontSize: "clamp(15px,1.8vw,18px)", fontWeight: 300, lineHeight: 1.8, color: "rgba(255,255,255,0.65)" }}>
-                  {variant.who}
-                </p>
-              </div>
-
-              {/* Cohort count */}
-              <div style={{ width: "100%", background: "rgba(127,255,0,0.04)", border: "1px solid rgba(127,255,0,0.12)", borderRadius: 10, padding: "14px 18px", marginBottom: 32, textAlign: "center" }}>
-                <p style={{ fontFamily: "'Libre Franklin', sans-serif", fontSize: 12, letterSpacing: ".1em", color: "rgba(255,255,255,0.45)" }}>
-                  There are <span style={{ color: "rgba(127,255,0,0.75)" }}>16</span> people in the Relethe founding cohort who match this profile.
-                </p>
-              </div>
-
-              <p style={{ fontFamily: "'Libre Franklin', sans-serif", fontSize: 11, letterSpacing: ".12em", color: "rgba(255,255,255,0.3)", textAlign: "center", marginBottom: 28 }}>
-                You're on the founding cohort waitlist. We'll be in touch.
-              </p>
-
+              {/* Close button — outside the scrollable card */}
               <button
                 className="diag-btn-primary"
                 onClick={() => { onComplete?.(); onClose(); }}
-                style={{ width: "auto", paddingLeft: 40, paddingRight: 40 }}
+                style={{ width: "auto", paddingLeft: 40, paddingRight: 40, flexShrink: 0 }}
               >
                 Close
               </button>
