@@ -25,13 +25,9 @@ export default function FoundingMember({ diagnosticEmail }: Props) {
     if (!HANDLE_RE.test(val)) { setHandleStatus("invalid"); return; }
     setIsCheckingHandle(true);
     try {
-      const { data, error } = await supabase
-        .from("waitlist")
-        .select("handle")
-        .eq("handle", val)
-        .maybeSingle();
+      const { data, error } = await supabase.rpc("is_handle_available", { p_handle: val });
       if (error) { setHandleStatus("idle"); }
-      else { const isAvailable = !data; setHandleStatus(isAvailable ? "available" : "taken"); }
+      else { setHandleStatus(data === true ? "available" : "taken"); }
     } catch {
       setHandleStatus("idle");
     }
