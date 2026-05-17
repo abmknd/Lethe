@@ -1248,7 +1248,7 @@ export default function LandingPage() {
         ) : showHeroDuplicate ? (
           <div className="relethe-form-success">
             <p className="relethe-form-success-title">{"You're already on the list."}</p>
-            <p className="relethe-form-success-sub">We'll reach out when the first batch opens.</p>
+            <p className="relethe-form-success-sub">We'll be in touch.</p>
           </div>
         ) : (
           <div className="relethe-form-success">
@@ -1774,7 +1774,7 @@ export default function LandingPage() {
         ) : showSignupDuplicate ? (
           <div className="relethe-form-success">
             <p className="relethe-form-success-title">{"You're already on the list."}</p>
-            <p className="relethe-form-success-sub">We'll reach out when the first batch opens.</p>
+            <p className="relethe-form-success-sub">We'll be in touch.</p>
           </div>
         ) : (
           <div className="relethe-form-success">

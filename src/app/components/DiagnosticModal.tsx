@@ -291,11 +291,12 @@ export default function DiagnosticModal({ isOpen, onClose, onEmailSubmitted, onC
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [diagDuplicate, setDiagDuplicate] = useState(false);
 
   const reset = () => {
     setStep(0); setFreetext(""); setCommunity("independents");
     setAnswers({}); setArchetype("signal_seeker");
-    setName(""); setEmail(""); setIsSubmitting(false);
+    setName(""); setEmail(""); setIsSubmitting(false); setDiagDuplicate(false);
   };
 
   useEffect(() => { if (!isOpen) reset(); }, [isOpen]);
@@ -325,16 +326,22 @@ export default function DiagnosticModal({ isOpen, onClose, onEmailSubmitted, onC
     e.preventDefault();
     if (!email.trim()) return;
     setIsSubmitting(true);
+    let isDuplicate = false;
     try {
       const res = await fetch("https://ipapi.co/json/");
       const geo = await res.json().catch(() => ({}));
       const country = geo.country_name ?? null;
-      await supabase.from("waitlist").insert({ email: email.trim(), name: name.trim() || null, source: "diagnostic", country });
-      // Duplicate (23505) is handled silently — user still sees result
+      const { error } = await supabase.from("waitlist").insert({ email: email.trim(), name: name.trim() || null, source: "diagnostic", country });
+      if (error?.code === "23505") isDuplicate = true;
     } catch { /* best-effort */ }
     onEmailSubmitted(email.trim());
     setIsSubmitting(false);
-    setStep(9);
+    if (isDuplicate) {
+      setDiagDuplicate(true);
+      setTimeout(() => setStep(9), 1800);
+    } else {
+      setStep(9);
+    }
   };
 
   if (!isOpen) return null;
@@ -525,9 +532,14 @@ export default function DiagnosticModal({ isOpen, onClose, onEmailSubmitted, onC
                 onChange={(e) => setEmail(e.target.value)}
               />
 
-              <button type="submit" className="diag-btn-primary" disabled={isSubmitting || !email.trim()}>
+              <button type="submit" className="diag-btn-primary" disabled={isSubmitting || !email.trim() || diagDuplicate}>
                 {isSubmitting ? "Loading..." : "Reveal My Match Profile"}
               </button>
+              {diagDuplicate && (
+                <p style={{ fontFamily: "'Libre Franklin', sans-serif", fontSize: 13, fontStyle: "italic", fontWeight: 300, color: "rgba(127,255,0,0.75)", textAlign: "center", marginTop: 4 }}>
+                  You're already on the list. We'll be in touch.
+                </p>
+              )}
             </form>
           )}
 
