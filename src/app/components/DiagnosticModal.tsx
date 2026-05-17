@@ -382,22 +382,34 @@ export default function DiagnosticModal({ isOpen, onClose, onEmailSubmitted, onC
         .diag-overlay::-webkit-scrollbar { display: none; }
         .diag-result-card {
           width: 100%; border: 1px solid rgba(127,255,0,0.15); border-radius: 16px;
-          padding: 28px 24px; max-height: calc(100vh - 260px); overflow-y: auto;
-          scrollbar-width: thin; scrollbar-color: rgba(127,255,0,0.25) transparent;
-          display: flex; flex-direction: column; align-items: center;
+          max-height: calc(100vh - 260px); overflow: hidden;
         }
-        .diag-result-card::-webkit-scrollbar,
-        textarea.diag-input::-webkit-scrollbar { width: 4px; }
-        .diag-result-card::-webkit-scrollbar-track,
-        textarea.diag-input::-webkit-scrollbar-track { background: transparent; margin: 4px 0; }
-        .diag-result-card::-webkit-scrollbar-thumb,
-        textarea.diag-input::-webkit-scrollbar-thumb { background: rgba(127,255,0,0.25); border-radius: 2px; }
-        .diag-result-card::-webkit-scrollbar-thumb:hover,
-        textarea.diag-input::-webkit-scrollbar-thumb:hover { background: rgba(127,255,0,0.4); }
-        textarea.diag-input { scrollbar-width: thin; scrollbar-color: rgba(127,255,0,0.25) transparent; }
+        .diag-result-card-scroll {
+          overflow-y: auto; max-height: inherit; padding: 28px 24px;
+          display: flex; flex-direction: column; align-items: center;
+          scrollbar-width: thin; scrollbar-color: rgba(127,255,0,0.25) transparent;
+        }
+        .diag-result-card-scroll::-webkit-scrollbar { width: 4px; }
+        .diag-result-card-scroll::-webkit-scrollbar-track { background: transparent; margin: 4px 0; }
+        .diag-result-card-scroll::-webkit-scrollbar-thumb { background: rgba(127,255,0,0.25); border-radius: 2px; }
+        .diag-result-card-scroll::-webkit-scrollbar-thumb:hover { background: rgba(127,255,0,0.4); }
+        .diag-textarea-wrap {
+          width: 100%; border-radius: 10px; overflow: hidden;
+          border: 1px solid rgba(255,255,255,0.1); transition: border-color .2s;
+        }
+        .diag-textarea-wrap:focus-within { border-color: rgba(127,255,0,0.35); }
+        .diag-textarea-wrap textarea.diag-input {
+          border: none; border-radius: 0;
+          scrollbar-width: thin; scrollbar-color: rgba(127,255,0,0.25) transparent;
+        }
+        .diag-textarea-wrap textarea.diag-input::-webkit-scrollbar { width: 4px; }
+        .diag-textarea-wrap textarea.diag-input::-webkit-scrollbar-track { background: transparent; margin: 4px 0; }
+        .diag-textarea-wrap textarea.diag-input::-webkit-scrollbar-thumb { background: rgba(127,255,0,0.25); border-radius: 2px; }
+        .diag-textarea-wrap textarea.diag-input::-webkit-scrollbar-thumb:hover { background: rgba(127,255,0,0.4); }
         @media (max-width: 720px) {
           .diag-card-inner { width: calc(100% - 32px) !important; padding: 80px 20px 40px !important; }
-          .diag-result-card { max-height: calc(100vh - 220px); padding: 20px 16px; }
+          .diag-result-card { max-height: calc(100vh - 220px); }
+          .diag-result-card-scroll { padding: 20px 16px; }
         }
       `}</style>
 
@@ -427,14 +439,16 @@ export default function DiagnosticModal({ isOpen, onClose, onEmailSubmitted, onC
               <h2 style={{ fontFamily: "'Libre Franklin', sans-serif", fontSize: "clamp(22px,3vw,32px)", fontWeight: 300, fontStyle: "italic", lineHeight: 1.3, color: "rgba(255,255,255,0.88)", margin: 0 }}>
                 What direction are you currently moving in, or want to move toward, in your life?
               </h2>
-              <textarea
-                className="diag-input"
-                rows={4}
-                placeholder={"Leaving a stable career to build something... Trying to think more clearly about a hard problem... Working on something that's meant to matter beyond me..."}
-                value={freetext}
-                onChange={(e) => setFreetext(e.target.value)}
-                style={{ resize: "none", lineHeight: 1.7 }}
-              />
+              <div className="diag-textarea-wrap">
+                <textarea
+                  className="diag-input"
+                  rows={4}
+                  placeholder={"Leaving a stable career to build something... Trying to think more clearly about a hard problem... Working on something that's meant to matter beyond me..."}
+                  value={freetext}
+                  onChange={(e) => setFreetext(e.target.value)}
+                  style={{ resize: "none", lineHeight: 1.7 }}
+                />
+              </div>
               <button type="submit" className="diag-btn-primary" disabled={!freetext.trim()}>
                 Begin the Audit
               </button>
@@ -564,7 +578,7 @@ export default function DiagnosticModal({ isOpen, onClose, onEmailSubmitted, onC
           {/* ── STATE 9: Result ── */}
           {step === 9 && result && variant && (
             <div style={{ width: "100%", maxWidth: 520, display: "flex", flexDirection: "column", alignItems: "center", gap: 20, paddingBottom: 40 }}>
-              <div className="diag-result-card">
+              <div className="diag-result-card"><div className="diag-result-card-scroll">
                 {/* Checkmark */}
                 <div style={{ width: 48, height: 48, borderRadius: "50%", border: "1px solid rgba(127,255,0,0.4)", background: "rgba(127,255,0,0.06)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 20, flexShrink: 0 }}>
                   <svg width="18" height="14" viewBox="0 0 18 14" fill="none">
@@ -607,7 +621,7 @@ export default function DiagnosticModal({ isOpen, onClose, onEmailSubmitted, onC
                 <p style={{ fontFamily: "'Libre Franklin', sans-serif", fontSize: 11, letterSpacing: ".12em", color: "rgba(255,255,255,0.3)", textAlign: "center", marginBottom: 4 }}>
                   You're on the founding cohort waitlist. We'll be in touch.
                 </p>
-              </div>
+              </div></div>
 
               {/* Close button — outside the scrollable card */}
               <button
