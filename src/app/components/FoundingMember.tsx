@@ -49,7 +49,7 @@ export default function FoundingMember({ diagnosticEmail }: Props) {
     e.preventDefault();
     const h = handle.toLowerCase();
     const em = email.trim() || diagnosticEmail;
-    if (!h || handleStatus !== "available" || isClaiming) return;
+    if (!h || handleStatus !== "available" || isClaiming || !em) return;
     setIsClaiming(true);
     setClaimError("");
 
@@ -286,7 +286,7 @@ export default function FoundingMember({ diagnosticEmail }: Props) {
               <button
                 type="submit"
                 className="fm-btn"
-                disabled={!handle || handleStatus !== "available" || isClaiming}
+                disabled={!handle || handleStatus !== "available" || isClaiming || !(email.trim() || diagnosticEmail)}
               >
                 {isClaiming ? "Claiming..." : "Claim your handle"}
               </button>

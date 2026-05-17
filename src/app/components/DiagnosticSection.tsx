@@ -171,7 +171,6 @@ export default function DiagnosticSection({ onEmailSubmitted }: Props) {
         onClose={() => setModalOpen(false)}
         onEmailSubmitted={(em) => {
           onEmailSubmitted(em);
-          setModalOpen(false);
         }}
         onComplete={() => setCompleted(true)}
       />
