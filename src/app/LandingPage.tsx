@@ -638,9 +638,9 @@ export default function LandingPage() {
         .relethe-hero-h1 em { font-style: normal; color: var(--ch); }
         .relethe-hero-h1-dim { color: var(--dim); display: block; }
         .relethe-hero-h2 {
-          font-family: var(--mono); font-size: 15px;
+          font-family: var(--mono); font-size: clamp(16px, 1.9vw, 20px);
           font-weight: 300; font-style: normal; line-height: 1.7;
-          color: var(--dim); margin-top: 32px; margin-bottom: 40px; opacity: 0;
+          color: rgba(255,255,255,0.42); margin-top: 32px; margin-bottom: 40px; opacity: 0;
           max-width: 520px;
         }
         .relethe-hero-sub {
