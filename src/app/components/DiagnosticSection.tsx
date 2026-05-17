@@ -118,7 +118,7 @@ export default function DiagnosticSection({ onEmailSubmitted }: Props) {
           padding: 12px;
         }
         .diag-explore-again:hover { color: rgba(127,255,0,1); }
-        @media (max-width: 640px) {
+        @media (max-width: 720px) {
           .diag-section { padding: 80px 24px; }
         }
       `}</style>
