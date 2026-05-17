@@ -14,6 +14,7 @@ export default function FoundingMember({ diagnosticEmail }: Props) {
   const [email, setEmail] = useState(diagnosticEmail ?? "");
   const [isClaiming, setIsClaiming] = useState(false);
   const [claimed, setClaimed] = useState(false);
+  const [claimDuplicate, setClaimDuplicate] = useState(false);
   const [claimError, setClaimError] = useState("");
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -59,7 +60,7 @@ export default function FoundingMember({ diagnosticEmail }: Props) {
         .update({ handle: h, ...(em ? { email: em } : {}), source: "founding-member" })
         .eq("email", diagnosticEmail);
       if (error) {
-        setClaimError(error.code === "23505" ? "Already claimed." : "Something went wrong. Try again.");
+        if (error.code === "23505") { setClaimDuplicate(true); } else { setClaimError("Something went wrong. Try again."); }
         setIsClaiming(false);
         return;
       }
@@ -68,7 +69,7 @@ export default function FoundingMember({ diagnosticEmail }: Props) {
         .from("waitlist")
         .insert({ handle: h, ...(em ? { email: em } : {}), source: "founding-member" });
       if (error) {
-        setClaimError(error.code === "23505" ? "Already claimed." : "Something went wrong. Try again.");
+        if (error.code === "23505") { setClaimDuplicate(true); } else { setClaimError("Something went wrong. Try again."); }
         setIsClaiming(false);
         return;
       }
@@ -223,12 +224,16 @@ export default function FoundingMember({ diagnosticEmail }: Props) {
               <p style={{ fontFamily: "'Libre Franklin', sans-serif", fontSize: 16, fontStyle: 'italic', fontWeight: 300, color: 'rgba(127,255,0,0.75)', lineHeight: 1.65 }}>
                 You're now a founding member — we'll email you when it's time to ball!
               </p>
+            ) : claimDuplicate ? (
+              <p style={{ fontFamily: "'Libre Franklin', sans-serif", fontSize: 16, fontStyle: 'italic', fontWeight: 300, color: 'rgba(127,255,0,0.75)', lineHeight: 1.65 }}>
+                You're already on the list. We'll be in touch.
+              </p>
             ) : (
               <p>As a Founding Member, your profile will receive priority visibility once matchmaking begins.</p>
             )}
           </div>
 
-          {!claimed && (
+          {!claimed && !claimDuplicate && (
             <form onSubmit={handleClaim} className="relethe-reveal" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0, width: '100%' }}>
               <div className="founding-member-form">
                 <div className="fm-handle-row-inner">
