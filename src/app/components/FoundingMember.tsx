@@ -51,38 +51,13 @@ export default function FoundingMember({ diagnosticEmail }: Props) {
     setIsClaiming(true);
     setClaimError("");
 
-    if (diagnosticEmail) {
-      const { error } = await supabase
-        .from("waitlist")
-        .update({ handle: h, ...(em ? { email: em } : {}), source: "founding-member" })
-        .eq("email", diagnosticEmail);
-      if (error) {
-        if (error.code === "23505") { setClaimDuplicate(true); } else { setClaimError("Something went wrong. Try again."); }
-        setIsClaiming(false);
-        return;
-      }
-    } else {
-      const { error } = await supabase
-        .from("waitlist")
-        .insert({ handle: h, ...(em ? { email: em } : {}), source: "founding-member" });
-      if (error) {
-        if (error.code === "23505" && em) {
-          // Email already exists — link the handle to their existing row
-          const { error: updateError } = await supabase
-            .from("waitlist")
-            .update({ handle: h, source: "founding-member" })
-            .eq("email", em);
-          if (updateError) {
-            setClaimError("Something went wrong. Try again.");
-            setIsClaiming(false);
-            return;
-          }
-        } else {
-          setClaimError("Something went wrong. Try again.");
-          setIsClaiming(false);
-          return;
-        }
-      }
+    // claim_handle is a SECURITY DEFINER RPC that upserts on email conflict,
+    // bypassing RLS so both fresh signups and existing waitlist members get their handle linked
+    const { error } = await supabase.rpc("claim_handle", { p_email: em, p_handle: h });
+    if (error) {
+      if (error.code === "23505") { setClaimDuplicate(true); } else { setClaimError("Something went wrong. Try again."); }
+      setIsClaiming(false);
+      return;
     }
 
     setClaimed(true);

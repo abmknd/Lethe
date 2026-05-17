@@ -386,10 +386,15 @@ export default function DiagnosticModal({ isOpen, onClose, onEmailSubmitted, onC
           scrollbar-width: thin; scrollbar-color: rgba(127,255,0,0.25) transparent;
           display: flex; flex-direction: column; align-items: center;
         }
-        .diag-result-card::-webkit-scrollbar { width: 4px; }
-        .diag-result-card::-webkit-scrollbar-track { background: transparent; }
-        .diag-result-card::-webkit-scrollbar-thumb { background: rgba(127,255,0,0.25); border-radius: 2px; }
-        .diag-result-card::-webkit-scrollbar-thumb:hover { background: rgba(127,255,0,0.4); }
+        .diag-result-card::-webkit-scrollbar,
+        textarea.diag-input::-webkit-scrollbar { width: 4px; }
+        .diag-result-card::-webkit-scrollbar-track,
+        textarea.diag-input::-webkit-scrollbar-track { background: transparent; margin: 4px 0; }
+        .diag-result-card::-webkit-scrollbar-thumb,
+        textarea.diag-input::-webkit-scrollbar-thumb { background: rgba(127,255,0,0.25); border-radius: 2px; }
+        .diag-result-card::-webkit-scrollbar-thumb:hover,
+        textarea.diag-input::-webkit-scrollbar-thumb:hover { background: rgba(127,255,0,0.4); }
+        textarea.diag-input { scrollbar-width: thin; scrollbar-color: rgba(127,255,0,0.25) transparent; }
         @media (max-width: 720px) {
           .diag-card-inner { width: calc(100% - 32px) !important; padding: 80px 20px 40px !important; }
           .diag-result-card { max-height: calc(100vh - 220px); padding: 20px 16px; }
