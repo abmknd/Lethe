@@ -67,12 +67,14 @@ export default function LandingPage() {
     if (error) {
       if (error.code === "23505") {
         setShowHeroDuplicate(true);
+        setDiagnosticEmail(email1);
       } else {
         setIsSubmitting1(false);
       }
       return;
     }
     await sendConfirmationEmail(email1);
+    setDiagnosticEmail(email1);
     setShowHeroSuccess(true);
   };
 
@@ -85,12 +87,14 @@ export default function LandingPage() {
     if (error) {
       if (error.code === "23505") {
         setShowSignupDuplicate(true);
+        setDiagnosticEmail(email2);
       } else {
         setIsSubmitting2(false);
       }
       return;
     }
     await sendConfirmationEmail(email2);
+    setDiagnosticEmail(email2);
     setShowSignupSuccess(true);
   };
 
