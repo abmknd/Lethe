@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { KYCData } from '../KYCModal';
 
 interface Step5Props {
@@ -42,10 +42,10 @@ export function Step5Hobbies({ isActive, direction, data, updateData }: Step5Pro
 
   return (
     <div className={`kyc-step ${getClassName()}`}>
-      <span className="font-['Inter'] text-[10px] tracking-[0.3em] uppercase text-[#7FFF00]/50 mb-[14px] block">
+      <span className="font-['Libre_Franklin'] text-[10px] tracking-[0.3em] uppercase text-[#7FFF00]/50 mb-[14px] block">
         Your texture
       </span>
-      <h1 className="font-['Cormorant_Garamond'] text-[clamp(28px,4vw,40px)] font-light italic leading-[1.15] tracking-[-0.02em] text-white/90 mb-[10px]">
+      <h1 className="font-['Libre_Franklin'] text-[clamp(28px,4vw,40px)] font-light italic leading-[1.15] tracking-[-0.02em] text-white/90 mb-[10px]">
         What are<br />
         you <em className="not-italic text-[#7FFF00]">into?</em>
       </h1>
@@ -59,7 +59,7 @@ export function Step5Hobbies({ isActive, direction, data, updateData }: Step5Pro
           <button
             key={hobby}
             onClick={() => toggleHobby(hobby)}
-            className={`font-['Inter'] text-[11px] tracking-[0.1em] px-4 py-2 rounded-[20px] border transition-all ${
+            className={`font-['Libre_Franklin'] text-[11px] tracking-[0.1em] px-4 py-2 rounded-[20px] border transition-all ${
               data.hobbies.has(hobby)
                 ? 'bg-[#7FFF00]/[0.12] border-[#7FFF00]/35 text-[#7FFF00]/90'
                 : 'bg-[#101410] border-white/[0.07] text-white/90 hover:border-white/10 hover:bg-white/[0.05]'
@@ -78,9 +78,9 @@ export function Step5Hobbies({ isActive, direction, data, updateData }: Step5Pro
           onChange={(e) => setCustomInput(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="Add your own…"
-          className="flex-1 bg-transparent border-none outline-none font-['Inter'] text-[11px] tracking-[0.1em] text-white/90 placeholder:text-white/30"
+          className="flex-1 bg-transparent border-none outline-none font-['Libre_Franklin'] text-[11px] tracking-[0.1em] text-white/90 placeholder:text-white/30"
         />
-        <span className="font-['Inter'] text-[9px] tracking-[0.14em] uppercase text-white/30">↵ Enter</span>
+        <span className="font-['Libre_Franklin'] text-[9px] tracking-[0.14em] uppercase text-white/30">↵ Enter</span>
       </div>
     </div>
   );

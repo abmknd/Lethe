@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { MessageCircle, UserPlus } from 'lucide-react';
 import svgPaths from "../imports/svg-mzo5g4s9h6";
@@ -207,12 +207,12 @@ export default function OtherUserProfilePage() {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-center">
-          <h1 className="font-['Cormorant_Garamond'] text-[24px] text-white/90 mb-4">
+          <h1 className="font-['Libre_Franklin'] text-[24px] text-white/90 mb-4">
             User not found
           </h1>
           <button
             onClick={() => navigate(-1)}
-            className="font-['Inter'] text-[12px] tracking-[0.2em] uppercase text-[#7FFF00] hover:text-[#c8ff4f] transition-colors"
+            className="font-['Libre_Franklin'] text-[12px] tracking-[0.2em] uppercase text-[#7FFF00] hover:text-[#c8ff4f] transition-colors"
           >
             Go back
           </button>
@@ -253,7 +253,7 @@ export default function OtherUserProfilePage() {
             <svg className="w-4 h-4" fill="none" viewBox="0 0 16 16">
               <path d={svgPathsBack.p543f5c0} stroke="#6B6B6B" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
-            <span className="font-['Inter'] font-light leading-[16.5px] text-[11px] tracking-[3.3px] uppercase">BACK</span>
+            <span className="font-['Libre_Franklin'] font-light leading-[16.5px] text-[11px] tracking-[3.3px] uppercase">BACK</span>
           </button>
         </div>
       </header>
@@ -290,23 +290,23 @@ export default function OtherUserProfilePage() {
               <div className="flex flex-col h-[115px]">
                 <div className="flex flex-col gap-[4px] mb-[12px]">
                   <div className="flex items-center gap-[6px]">
-                    <h1 className="font-['Cormorant_Garamond'] text-[22px] leading-[26.4px] text-[rgba(255,255,255,0.88)]">
+                    <h1 className="font-['Libre_Franklin'] text-[22px] leading-[26.4px] text-[rgba(255,255,255,0.88)]">
                       {user.name}
                     </h1>
                     {user.isMatch && (
-                      <span className="font-['Inter'] text-[11px] font-medium tracking-[0.08em] px-[8.6px] py-[4.2px] rounded-[40px] bg-[rgba(127,255,0,0.1)] text-[rgba(127,255,0,0.7)] whitespace-nowrap flex-shrink-0 leading-[16.5px]">
+                      <span className="font-['Libre_Franklin'] text-[11px] font-medium tracking-[0.08em] px-[8.6px] py-[4.2px] rounded-[40px] bg-[rgba(127,255,0,0.1)] text-[rgba(127,255,0,0.7)] whitespace-nowrap flex-shrink-0 leading-[16.5px]">
                         Match
                       </span>
                     )}
                   </div>
-                  <p className="font-['Inter'] text-[13px] leading-[19.5px] tracking-[0.52px] text-[rgba(255,255,255,0.25)]">
+                  <p className="font-['Libre_Franklin'] text-[13px] leading-[19.5px] tracking-[0.52px] text-[rgba(255,255,255,0.25)]">
                     {user.handle}
                   </p>
                 </div>
 
                 {/* Occupation, Location & Gender */}
                 <div className="flex flex-col gap-[4px]">
-                  <div className="font-['Cormorant_Garamond'] text-[13px] leading-[19.5px] text-[rgba(255,255,255,0.4)]">
+                  <div className="font-['Libre_Franklin'] text-[13px] leading-[19.5px] text-[rgba(255,255,255,0.4)]">
                     {user.occupation}
                   </div>
                   <div className="flex gap-6">
@@ -333,7 +333,7 @@ export default function OtherUserProfilePage() {
                           </g>
                         </svg>
                       </div>
-                      <p className="font-['Inter'] text-[13px] leading-[19.5px] tracking-[0.52px] text-[rgba(255,255,255,0.25)]">
+                      <p className="font-['Libre_Franklin'] text-[13px] leading-[19.5px] tracking-[0.52px] text-[rgba(255,255,255,0.25)]">
                         {user.location}
                       </p>
                     </div>
@@ -342,7 +342,7 @@ export default function OtherUserProfilePage() {
                       <div className="w-4 h-4 relative flex-shrink-0">
                         <GenderIcon />
                       </div>
-                      <p className="font-['Inter'] text-[13px] leading-[19.5px] tracking-[0.52px] text-[rgba(255,255,255,0.25)]">
+                      <p className="font-['Libre_Franklin'] text-[13px] leading-[19.5px] tracking-[0.52px] text-[rgba(255,255,255,0.25)]">
                         {user.pronouns}
                       </p>
                     </div>
@@ -354,7 +354,7 @@ export default function OtherUserProfilePage() {
             {/* Right: Message Button */}
             <div className="flex items-center gap-3">
               <button 
-                className={`border rounded-full px-6 h-[34px] font-['Inter'] text-[11px] tracking-[1.98px] uppercase transition-all flex items-center justify-center gap-2 ${
+                className={`border rounded-full px-6 h-[34px] font-['Libre_Franklin'] text-[11px] tracking-[1.98px] uppercase transition-all flex items-center justify-center gap-2 ${
                   isFollowing
                     ? 'bg-transparent border-white/[0.15] text-white/[0.4] hover:bg-white/[0.05] hover:border-white/[0.25]'
                     : 'bg-transparent border-white/[0.15] text-white/[0.6] hover:bg-white/[0.05] hover:border-white/[0.25] hover:text-white/[0.8]'
@@ -365,7 +365,7 @@ export default function OtherUserProfilePage() {
                 {isFollowing ? 'Following' : 'Follow'}
               </button>
               <button 
-                className="bg-[rgba(173,255,47,0.06)] border border-[rgba(173,255,47,0.2)] rounded-full px-6 h-[34px] font-['Inter'] text-[11px] tracking-[1.98px] uppercase text-[rgba(173,255,47,0.7)] hover:bg-[rgba(173,255,47,0.12)] hover:border-[rgba(173,255,47,0.4)] transition-all flex items-center justify-center gap-2"
+                className="bg-[rgba(173,255,47,0.06)] border border-[rgba(173,255,47,0.2)] rounded-full px-6 h-[34px] font-['Libre_Franklin'] text-[11px] tracking-[1.98px] uppercase text-[rgba(173,255,47,0.7)] hover:bg-[rgba(173,255,47,0.12)] hover:border-[rgba(173,255,47,0.4)] transition-all flex items-center justify-center gap-2"
                 onClick={handleMessage}
               >
                 <MessageCircle size={14} strokeWidth={1.5} />
@@ -386,7 +386,7 @@ export default function OtherUserProfilePage() {
               <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-full p-[7px] pr-[8px] pl-[9px] flex items-center gap-1 inline-flex">
                 <button
                   onClick={() => setActiveTab('all')}
-                  className={`px-[21px] py-[4px] rounded-full font-['Inter'] text-[11px] tracking-[2.2px] uppercase leading-[16.5px] transition-all ${
+                  className={`px-[21px] py-[4px] rounded-full font-['Libre_Franklin'] text-[11px] tracking-[2.2px] uppercase leading-[16.5px] transition-all ${
                     activeTab === 'all'
                       ? 'text-[rgba(255,255,255,0.9)]'
                       : 'text-[#3a3a3a]'
@@ -396,7 +396,7 @@ export default function OtherUserProfilePage() {
                 </button>
                 <button
                   onClick={() => setActiveTab('faded')}
-                  className={`px-[20px] py-[4px] rounded-full font-['Inter'] text-[11px] tracking-[2.2px] uppercase leading-[16.5px] transition-all ${
+                  className={`px-[20px] py-[4px] rounded-full font-['Libre_Franklin'] text-[11px] tracking-[2.2px] uppercase leading-[16.5px] transition-all ${
                     activeTab === 'faded'
                       ? 'text-[rgba(255,255,255,0.9)]'
                       : 'text-[#3a3a3a]'
@@ -406,7 +406,7 @@ export default function OtherUserProfilePage() {
                 </button>
                 <button
                   onClick={() => setActiveTab('echoes')}
-                  className={`px-[20px] py-[4px] rounded-full font-['Inter'] text-[11px] tracking-[2.2px] uppercase leading-[16.5px] transition-all ${
+                  className={`px-[20px] py-[4px] rounded-full font-['Libre_Franklin'] text-[11px] tracking-[2.2px] uppercase leading-[16.5px] transition-all ${
                     activeTab === 'echoes'
                       ? 'text-[rgba(255,255,255,0.9)]'
                       : 'text-[#3a3a3a]'
@@ -442,10 +442,10 @@ export default function OtherUserProfilePage() {
               <div className="bg-[#0a0a0a] rounded-[16px] border-[0.8px] border-[rgba(255,255,255,0.07)] overflow-hidden">
                 {/* Bio Section */}
                 <div className="p-5">
-                  <p className="font-['Inter'] font-medium text-[11px] tracking-[2px] uppercase text-[#6b6b6b] mb-4">
+                  <p className="font-['Libre_Franklin'] font-medium text-[11px] tracking-[2px] uppercase text-[#6b6b6b] mb-4">
                     bio
                   </p>
-                  <p className="font-['Cormorant_Garamond'] text-[14px] leading-[25.5px] text-[rgba(255,255,255,0.4)]">
+                  <p className="font-['Libre_Franklin'] text-[14px] leading-[25.5px] text-[rgba(255,255,255,0.4)]">
                     {user.bio}
                   </p>
                 </div>
@@ -454,34 +454,34 @@ export default function OtherUserProfilePage() {
                 <div className="relative border-t-[0.8px] border-b-[0.8px] border-[rgba(255,255,255,0.07)]">
                   <div className="flex flex-wrap gap-x-8 gap-y-8 px-5 py-[20.8px]">
                     <div className="w-[160px]">
-                      <p className="font-['Cormorant_Garamond'] text-[22px] leading-[22px] text-[rgba(255,255,255,0.9)] mb-2">
+                      <p className="font-['Libre_Franklin'] text-[22px] leading-[22px] text-[rgba(255,255,255,0.9)] mb-2">
                         {user.stats.followers}
                       </p>
-                      <p className="font-['Inter'] font-medium text-[11px] tracking-[2px] uppercase text-[#6b6b6b]">
+                      <p className="font-['Libre_Franklin'] font-medium text-[11px] tracking-[2px] uppercase text-[#6b6b6b]">
                         Followers
                       </p>
                     </div>
                     <div className="w-[160px]">
-                      <p className="font-['Cormorant_Garamond'] text-[22px] leading-[22px] text-[rgba(255,255,255,0.9)] mb-2">
+                      <p className="font-['Libre_Franklin'] text-[22px] leading-[22px] text-[rgba(255,255,255,0.9)] mb-2">
                         {user.stats.following}
                       </p>
-                      <p className="font-['Inter'] font-medium text-[11px] tracking-[2px] uppercase text-[#6b6b6b]">
+                      <p className="font-['Libre_Franklin'] font-medium text-[11px] tracking-[2px] uppercase text-[#6b6b6b]">
                         Following
                       </p>
                     </div>
                     <div className="w-[160px]">
-                      <p className="font-['Cormorant_Garamond'] text-[22px] leading-[22px] text-[rgba(255,255,255,0.9)] mb-2">
+                      <p className="font-['Libre_Franklin'] text-[22px] leading-[22px] text-[rgba(255,255,255,0.9)] mb-2">
                         {user.stats.posts}
                       </p>
-                      <p className="font-['Inter'] font-medium text-[11px] tracking-[2px] uppercase text-[#6b6b6b]">
+                      <p className="font-['Libre_Franklin'] font-medium text-[11px] tracking-[2px] uppercase text-[#6b6b6b]">
                         posts
                       </p>
                     </div>
                     <div className="w-[160px]">
-                      <p className="font-['Cormorant_Garamond'] text-[22px] leading-[22px] text-[rgba(255,255,255,0.9)] mb-2">
+                      <p className="font-['Libre_Franklin'] text-[22px] leading-[22px] text-[rgba(255,255,255,0.9)] mb-2">
                         {user.stats.faded}
                       </p>
-                      <p className="font-['Inter'] font-medium text-[11px] tracking-[2px] uppercase text-[#6b6b6b]">
+                      <p className="font-['Libre_Franklin'] font-medium text-[11px] tracking-[2px] uppercase text-[#6b6b6b]">
                         faded
                       </p>
                     </div>
@@ -493,7 +493,7 @@ export default function OtherUserProfilePage() {
                   <div className="flex gap-8">
                     {/* Matches */}
                     <div className="flex-1">
-                      <p className="font-['Inter'] font-medium text-[11px] tracking-[2px] uppercase text-[#6b6b6b] mb-2">
+                      <p className="font-['Libre_Franklin'] font-medium text-[11px] tracking-[2px] uppercase text-[#6b6b6b] mb-2">
                         matches
                       </p>
                       <div className="flex items-center gap-2">
@@ -507,7 +507,7 @@ export default function OtherUserProfilePage() {
                             />
                           ))}
                         </div>
-                        <span className="font-['Cormorant_Garamond'] text-[14px] leading-[25.5px] text-[rgba(255,255,255,0.4)]">
+                        <span className="font-['Libre_Franklin'] text-[14px] leading-[25.5px] text-[rgba(255,255,255,0.4)]">
                           {user.matches.count}
                         </span>
                       </div>
@@ -515,10 +515,10 @@ export default function OtherUserProfilePage() {
 
                     {/* Meetings */}
                     <div className="flex-1">
-                      <p className="font-['Inter'] font-medium text-[11px] tracking-[2px] uppercase text-[#6b6b6b] mb-2">
+                      <p className="font-['Libre_Franklin'] font-medium text-[11px] tracking-[2px] uppercase text-[#6b6b6b] mb-2">
                         Meetings
                       </p>
-                      <p className="font-['Cormorant_Garamond'] text-[22px] leading-[22px] text-[rgba(255,255,255,0.9)]">
+                      <p className="font-['Libre_Franklin'] text-[22px] leading-[22px] text-[rgba(255,255,255,0.9)]">
                         {user.meetings}
                       </p>
                     </div>

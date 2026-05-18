@@ -1,4 +1,4 @@
-import { useState, useEffect, FormEvent } from "react";
+﻿import { useState, useEffect, FormEvent } from "react";
 import { createPortal } from "react-dom";
 import { supabase } from "../../lib/supabase";
 
@@ -9,6 +9,7 @@ interface Props {
   isOpen: boolean;
   onClose: () => void;
   onEmailSubmitted: (email: string) => void;
+  onComplete?: () => void;
 }
 
 const PROGRESS = [9, 18, 27, 36, 45, 55, 64, 82, 91, 100];
@@ -201,6 +202,41 @@ function computeArchetype(answers: Record<string, string>): Archetype {
   return q5Tie[answers.q5] ?? "signal_seeker";
 }
 
+function OrganismSVG() {
+  return (
+    <svg
+      className="diagnostic-organism"
+      viewBox="0 0 80 80"
+      width="56"
+      height="56"
+      style={{ display: 'block', margin: '0 auto 20px' }}
+    >
+      <g transform="translate(40,40)">
+        <circle r="8" fill="none" stroke="#7FFF00" strokeWidth="1.5" opacity="0.9" />
+        {Array.from({ length: 16 }).map((_, i) => {
+          const angle = (i * 22.5 * Math.PI) / 180;
+          const isLong = i % 2 === 0;
+          const inner = 11;
+          const outer = isLong ? 30 : 20;
+          return (
+            <line
+              key={i}
+              x1={Math.cos(angle) * inner}
+              y1={Math.sin(angle) * inner}
+              x2={Math.cos(angle) * outer}
+              y2={Math.sin(angle) * outer}
+              stroke="#7FFF00"
+              strokeWidth="1.5"
+              opacity="0.85"
+              strokeLinecap="round"
+            />
+          );
+        })}
+      </g>
+    </svg>
+  );
+}
+
 function Waveform() {
   const heights = [6, 10, 16, 12, 20, 14, 18, 10, 14, 8, 16, 10];
   return (
@@ -246,7 +282,7 @@ function PulseRings() {
 
 const OPT_KEYS = ["A", "B", "C", "D"];
 
-export default function DiagnosticModal({ isOpen, onClose, onEmailSubmitted }: Props) {
+export default function DiagnosticModal({ isOpen, onClose, onEmailSubmitted, onComplete }: Props) {
   const [step, setStep] = useState(0);
   const [freetext, setFreetext] = useState("");
   const [community, setCommunity] = useState<Community>("independents");
@@ -255,11 +291,12 @@ export default function DiagnosticModal({ isOpen, onClose, onEmailSubmitted }: P
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [diagDuplicate, setDiagDuplicate] = useState(false);
 
   const reset = () => {
     setStep(0); setFreetext(""); setCommunity("independents");
     setAnswers({}); setArchetype("signal_seeker");
-    setName(""); setEmail(""); setIsSubmitting(false);
+    setName(""); setEmail(""); setIsSubmitting(false); setDiagDuplicate(false);
   };
 
   useEffect(() => { if (!isOpen) reset(); }, [isOpen]);
@@ -289,16 +326,22 @@ export default function DiagnosticModal({ isOpen, onClose, onEmailSubmitted }: P
     e.preventDefault();
     if (!email.trim()) return;
     setIsSubmitting(true);
+    let isDuplicate = false;
     try {
       const res = await fetch("https://ipapi.co/json/");
       const geo = await res.json().catch(() => ({}));
       const country = geo.country_name ?? null;
-      await supabase.from("waitlist").insert({ email: email.trim(), name: name.trim() || null, source: "diagnostic", country });
-      // Duplicate (23505) is handled silently — user still sees result
+      const { error } = await supabase.from("waitlist").insert({ email: email.trim(), name: name.trim() || null, source: "diagnostic", country });
+      if (error?.code === "23505") isDuplicate = true;
     } catch { /* best-effort */ }
     onEmailSubmitted(email.trim());
     setIsSubmitting(false);
-    setStep(9);
+    if (isDuplicate) {
+      setDiagDuplicate(true);
+      setTimeout(() => setStep(9), 1800);
+    } else {
+      setStep(9);
+    }
   };
 
   if (!isOpen) return null;
@@ -313,46 +356,74 @@ export default function DiagnosticModal({ isOpen, onClose, onEmailSubmitted }: P
     justifyContent: "flex-start", overflowY: "auto", cursor: "none",
   };
 
-  const card: React.CSSProperties = {
-    width: "100%", maxWidth: 640, margin: "0 auto",
-    padding: "80px 32px 48px",
-    display: "flex", flexDirection: "column", alignItems: "center",
-    minHeight: "100vh",
-  };
-
   return createPortal(
     <>
       <style>{`
         @keyframes diagWave { 0% { transform: scaleY(0.4); } 100% { transform: scaleY(1.1); } }
         @keyframes diagPulse { 0% { opacity: 0.12; transform: scale(0.9); } 100% { opacity: 0.35; transform: scale(1.05); } }
-        .diag-opt { width: 100%; padding: 14px 20px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.09); border-radius: 10px; cursor: none; display: flex; align-items: flex-start; gap: 14px; transition: border-color .18s, background .18s; text-align: left; }
+        @keyframes organism-breathe { 0%,100% { transform: scale(1); opacity: 0.75; } 50% { transform: scale(1.14); opacity: 1; } }
+        .diagnostic-organism { animation: organism-breathe 2.8s cubic-bezier(0.4,0,0.6,1) infinite; }
+        .diag-opt { width: 100%; min-height: 52px; padding: 14px 16px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.09); border-radius: 10px; cursor: none; display: flex; align-items: flex-start; gap: 14px; transition: border-color .18s, background .18s; text-align: left; }
         .diag-opt:hover { border-color: rgba(127,255,0,0.35); background: rgba(127,255,0,0.04); }
         .diag-opt:active { border-color: rgba(127,255,0,0.6); background: rgba(127,255,0,0.08); }
         .diag-close { position: fixed; top: 20px; right: 24px; width: 40px; height: 40px; border-radius: 50%; background: transparent; border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.4); font-size: 18px; display: flex; align-items: center; justify-content: center; cursor: none; transition: border-color .2s, color .2s; z-index: 99999; }
         .diag-close:hover { border-color: rgba(255,255,255,0.3); color: rgba(255,255,255,0.75); }
-        .diag-input { width: 100%; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 13px 18px; font-family: 'DM Mono', monospace; font-size: 13px; color: rgba(255,255,255,0.88); outline: none; transition: border-color .2s; }
+        .diag-input { width: 100%; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 13px 18px; font-family: var(--font-sans); font-size: 16px; color: var(--fg-dim); outline: none; transition: border-color .2s; }
         .diag-input:focus { border-color: rgba(127,255,0,0.35); }
         .diag-input::placeholder { color: rgba(255,255,255,0.18); }
-        .diag-btn-primary { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: #050705; background: rgba(127,255,0,0.88); border: none; border-radius: 22px; padding: 13px 28px; cursor: none; transition: background .2s; width: 100%; }
+        .diag-btn-primary { font-family: var(--font-sans); font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: #050705; background: rgba(127,255,0,0.88); border: none; border-radius: 22px; padding: 13px 28px; cursor: none; transition: background .2s; width: 100%; }
         .diag-btn-primary:hover { background: rgba(127,255,0,1); }
         .diag-btn-primary:disabled { opacity: 0.5; }
-        .diag-back { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: rgba(255,255,255,0.25); background: transparent; border: none; cursor: none; transition: color .2s; margin-top: 24px; }
+        .diag-back { font-family: var(--font-sans); font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: rgba(255,255,255,0.25); background: transparent; border: none; cursor: none; transition: color .2s; margin-top: 24px; padding: 16px; }
         .diag-back:hover { color: rgba(255,255,255,0.5); }
-        .diag-section-title { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: .3em; text-transform: uppercase; color: rgba(127,255,0,0.5); margin-bottom: 4px; }
-        .diag-result-section-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: .28em; text-transform: uppercase; color: rgba(127,255,0,0.45); margin-bottom: 8px; display: block; }
+        .diag-section-title { font-family: var(--font-sans); font-size: 10px; letter-spacing: .3em; text-transform: uppercase; color: rgba(127,255,0,0.5); margin-bottom: 4px; }
+        .diag-result-section-label { font-family: var(--font-sans); font-size: 10px; letter-spacing: .28em; text-transform: uppercase; color: rgba(127,255,0,0.45); margin-bottom: 8px; display: block; }
+        .diag-overlay { scrollbar-width: none; -ms-overflow-style: none; }
+        .diag-overlay::-webkit-scrollbar { display: none; }
+        .diag-result-card {
+          width: 100%; border: 1px solid rgba(127,255,0,0.15); border-radius: 16px;
+          max-height: calc(100vh - 260px); overflow: hidden;
+        }
+        .diag-result-card-scroll {
+          overflow-y: auto; max-height: inherit; padding: 28px 24px;
+          display: flex; flex-direction: column; align-items: center;
+          scrollbar-width: thin; scrollbar-color: rgba(127,255,0,0.25) transparent;
+        }
+        .diag-result-card-scroll::-webkit-scrollbar { width: 4px; }
+        .diag-result-card-scroll::-webkit-scrollbar-track { background: transparent; margin: 4px 0; }
+        .diag-result-card-scroll::-webkit-scrollbar-thumb { background: rgba(127,255,0,0.25); border-radius: 2px; }
+        .diag-result-card-scroll::-webkit-scrollbar-thumb:hover { background: rgba(127,255,0,0.4); }
+        .diag-textarea-wrap {
+          width: 100%; border-radius: 10px; overflow: hidden;
+          border: 1px solid rgba(255,255,255,0.1); transition: border-color .2s;
+        }
+        .diag-textarea-wrap:focus-within { border-color: rgba(127,255,0,0.35); }
+        .diag-textarea-wrap textarea.diag-input {
+          border: none; border-radius: 0;
+          scrollbar-width: thin; scrollbar-color: rgba(127,255,0,0.25) transparent;
+        }
+        .diag-textarea-wrap textarea.diag-input::-webkit-scrollbar { width: 4px; }
+        .diag-textarea-wrap textarea.diag-input::-webkit-scrollbar-track { background: transparent; margin: 4px 0; }
+        .diag-textarea-wrap textarea.diag-input::-webkit-scrollbar-thumb { background: rgba(127,255,0,0.25); border-radius: 2px; }
+        .diag-textarea-wrap textarea.diag-input::-webkit-scrollbar-thumb:hover { background: rgba(127,255,0,0.4); }
+        @media (max-width: 720px) {
+          .diag-card-inner { width: calc(100% - 32px) !important; padding: 80px 20px 40px !important; }
+          .diag-result-card { max-height: calc(100vh - 220px); }
+          .diag-result-card-scroll { padding: 20px 16px; }
+        }
       `}</style>
 
-      <div style={overlay}>
+      <div style={overlay} className="diag-overlay">
         <button className="diag-close" onClick={onClose}>×</button>
 
-        <div style={card}>
+        <div className="diag-card-inner" style={{ width: "100%", maxWidth: 640, margin: "0 auto", padding: "80px 32px 48px", display: "flex", flexDirection: "column", alignItems: "center", minHeight: "100vh" }}>
           {/* Progress bar */}
           <div style={{ width: "100%", maxWidth: 480, marginBottom: 40 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-              <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 10, letterSpacing: ".28em", textTransform: "uppercase", color: "rgba(127,255,0,0.45)" }}>
+              <span style={{ fontFamily: "var(--font-sans)", fontSize: 10, letterSpacing: ".28em", textTransform: "uppercase", color: "rgba(127,255,0,0.45)" }}>
                 DIAGNOSTIC PROGRESS
               </span>
-              <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 10, color: "rgba(127,255,0,0.6)" }}>
+              <span style={{ fontFamily: "var(--font-sans)", fontSize: 10, color: "rgba(127,255,0,0.6)" }}>
                 {progress}%
               </span>
             </div>
@@ -365,17 +436,19 @@ export default function DiagnosticModal({ isOpen, onClose, onEmailSubmitted }: P
           {step === 0 && (
             <form onSubmit={handleFreetextSubmit} style={{ width: "100%", maxWidth: 480, display: "flex", flexDirection: "column", gap: 20 }}>
               <p className="diag-section-title">LIFE CALIBRATION</p>
-              <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(22px,3vw,32px)", fontWeight: 300, fontStyle: "italic", lineHeight: 1.3, color: "rgba(255,255,255,0.88)", margin: 0 }}>
+              <p style={{ fontFamily: "var(--font-sans)", fontSize: "clamp(22px,3vw,32px)", fontWeight: 300, fontStyle: "italic", lineHeight: 1.3, color: "var(--fg-dim)", margin: 0 }}>
                 What direction are you currently moving in, or want to move toward, in your life?
-              </h2>
-              <textarea
-                className="diag-input"
-                rows={4}
-                placeholder={"Leaving a stable career to build something... Trying to think more clearly about a hard problem... Working on something that's meant to matter beyond me..."}
-                value={freetext}
-                onChange={(e) => setFreetext(e.target.value)}
-                style={{ resize: "none", lineHeight: 1.7 }}
-              />
+              </p>
+              <div className="diag-textarea-wrap">
+                <textarea
+                  className="diag-input"
+                  rows={4}
+                  placeholder={"Leaving a stable career to build something... Trying to think more clearly about a hard problem... Working on something that's meant to matter beyond me..."}
+                  value={freetext}
+                  onChange={(e) => setFreetext(e.target.value)}
+                  style={{ resize: "none", lineHeight: 1.7 }}
+                />
+              </div>
               <button type="submit" className="diag-btn-primary" disabled={!freetext.trim()}>
                 Begin the Audit
               </button>
@@ -387,10 +460,10 @@ export default function DiagnosticModal({ isOpen, onClose, onEmailSubmitted }: P
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 24, paddingTop: 40 }}>
               <PulseRings />
               <div style={{ textAlign: "center", maxWidth: 400 }}>
-                <p style={{ fontFamily: "'DM Mono', monospace", fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", color: "rgba(255,255,255,0.28)", marginBottom: 12 }}>
+                <p style={{ fontFamily: "var(--font-sans)", fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", color: "rgba(255,255,255,0.28)", marginBottom: 12 }}>
                   Calibrating your signal for:
                 </p>
-                <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 20, fontStyle: "italic", fontWeight: 300, color: "rgba(255,255,255,0.72)", lineHeight: 1.5 }}>
+                <p style={{ fontFamily: "var(--font-sans)", fontSize: 20, fontStyle: "italic", fontWeight: 300, color: "rgba(255,255,255,0.72)", lineHeight: 1.5 }}>
                   "{freetext.length > 60 ? freetext.slice(0, 60) + "…" : freetext}"
                 </p>
                 <div style={{ marginTop: 16, display: "flex", justifyContent: "center" }}>
@@ -408,12 +481,12 @@ export default function DiagnosticModal({ isOpen, onClose, onEmailSubmitted }: P
             return (
               <div style={{ width: "100%", maxWidth: 480, display: "flex", flexDirection: "column", gap: 0 }}>
                 <p className="diag-section-title">{q.label}</p>
-                <p style={{ fontFamily: "'DM Mono', monospace", fontSize: 10, letterSpacing: ".22em", textTransform: "uppercase", color: "rgba(255,255,255,0.22)", marginBottom: 20 }}>
+                <p style={{ fontFamily: "var(--font-sans)", fontSize: 10, letterSpacing: ".22em", textTransform: "uppercase", color: "rgba(255,255,255,0.22)", marginBottom: 20 }}>
                   {q.query}
                 </p>
-                <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(20px,2.8vw,30px)", fontWeight: 300, fontStyle: "italic", lineHeight: 1.35, color: "rgba(255,255,255,0.88)", marginBottom: 28 }}>
+                <p style={{ fontFamily: "var(--font-sans)", fontSize: "clamp(20px,2.8vw,30px)", fontWeight: 300, fontStyle: "italic", lineHeight: 1.35, color: "var(--fg-dim)", marginBottom: 28 }}>
                   {q.text}
-                </h2>
+                </p>
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                   {q.options.map((opt, i) => (
                     <button
@@ -421,10 +494,10 @@ export default function DiagnosticModal({ isOpen, onClose, onEmailSubmitted }: P
                       className="diag-opt"
                       onClick={() => handleAnswer(qKey, OPT_KEYS[i])}
                     >
-                      <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 10, letterSpacing: ".2em", color: "rgba(127,255,0,0.5)", flexShrink: 0, paddingTop: 1 }}>
+                      <span style={{ fontFamily: "var(--font-sans)", fontSize: 10, letterSpacing: ".2em", color: "rgba(127,255,0,0.5)", flexShrink: 0, paddingTop: 1 }}>
                         {OPT_KEYS[i]}
                       </span>
-                      <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 16, fontWeight: 300, color: "rgba(255,255,255,0.75)", lineHeight: 1.5 }}>
+                      <span style={{ fontFamily: "var(--font-sans)", fontSize: 16, fontWeight: 300, color: "rgba(255,255,255,0.75)", lineHeight: 1.5 }}>
                         {opt}
                       </span>
                     </button>
@@ -444,10 +517,10 @@ export default function DiagnosticModal({ isOpen, onClose, onEmailSubmitted }: P
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 24, paddingTop: 40 }}>
               <PulseRings />
               <div style={{ textAlign: "center", maxWidth: 360 }}>
-                <p style={{ fontFamily: "'DM Mono', monospace", fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", color: "rgba(255,255,255,0.28)", marginBottom: 8 }}>
+                <p style={{ fontFamily: "var(--font-sans)", fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", color: "rgba(255,255,255,0.28)", marginBottom: 8 }}>
                   Processing your network signal...
                 </p>
-                <p style={{ fontFamily: "'DM Mono', monospace", fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", color: "rgba(255,255,255,0.18)" }}>
+                <p style={{ fontFamily: "var(--font-sans)", fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", color: "rgba(255,255,255,0.18)" }}>
                   Cross-referencing the founding cohort...
                 </p>
                 <div style={{ marginTop: 20, display: "flex", justifyContent: "center" }}>
@@ -460,24 +533,19 @@ export default function DiagnosticModal({ isOpen, onClose, onEmailSubmitted }: P
           {/* ── STATE 8: Email gate ── */}
           {step === 8 && (
             <form onSubmit={handleGateSubmit} style={{ width: "100%", maxWidth: 480, display: "flex", flexDirection: "column", alignItems: "center", gap: 20 }}>
-              {/* Lock icon */}
-              <div style={{ width: 44, height: 44, borderRadius: "50%", border: "1px solid rgba(255,255,255,0.12)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 4 }}>
-                <svg width="16" height="18" viewBox="0 0 16 18" fill="none">
-                  <rect x="2" y="8" width="12" height="9" rx="2" stroke="rgba(255,255,255,0.45)" strokeWidth="1.5" />
-                  <path d="M5 8V5.5a3 3 0 016 0V8" stroke="rgba(255,255,255,0.45)" strokeWidth="1.5" strokeLinecap="round" />
-                  <circle cx="8" cy="12.5" r="1.5" fill="rgba(255,255,255,0.45)" />
-                </svg>
-              </div>
-
-              <p style={{ fontFamily: "'DM Mono', monospace", fontSize: 11, letterSpacing: ".32em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)", textAlign: "center" }}>
+              <p style={{ fontFamily: "var(--font-sans)", fontSize: 11, letterSpacing: ".32em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)", textAlign: "center" }}>
                 MATCH PROFILE GENERATED
               </p>
 
               {/* Teaser chip */}
-              <div style={{ background: "rgba(245,158,11,0.12)", border: "1px solid rgba(245,158,11,0.2)", borderRadius: 8, padding: "10px 16px", width: "100%", textAlign: "center" }}>
-                <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 11, letterSpacing: ".1em", color: "#FCD34D" }}>
+              <div style={{ background: 'rgba(127,255,0,0.07)', border: '1px solid rgba(127,255,0,0.3)', borderRadius: '16px', padding: '28px 24px', textAlign: 'center', width: '100%' }}>
+                <OrganismSVG />
+                <p style={{ fontFamily: "var(--font-sans)", fontWeight: 600, fontSize: '18px', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--text)', margin: '0 0 10px', lineHeight: 1.2 }}>
+                  {result?.name}
+                </p>
+                <p style={{ fontFamily: "var(--font-sans)", fontSize: '15px', fontWeight: 300, color: 'var(--dim)', margin: 0, lineHeight: 1.6 }}>
                   {TEASER[archetype]}
-                </span>
+                </p>
               </div>
 
               <input
@@ -496,62 +564,70 @@ export default function DiagnosticModal({ isOpen, onClose, onEmailSubmitted }: P
                 onChange={(e) => setEmail(e.target.value)}
               />
 
-              <button type="submit" className="diag-btn-primary" disabled={isSubmitting || !email.trim()}>
+              <button type="submit" className="diag-btn-primary" disabled={isSubmitting || !email.trim() || diagDuplicate}>
                 {isSubmitting ? "Loading..." : "Reveal My Match Profile"}
               </button>
+              {diagDuplicate && (
+                <p style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontStyle: "italic", fontWeight: 300, color: "rgba(127,255,0,0.75)", textAlign: "center", marginTop: 4 }}>
+                  You're already on the list. We'll be in touch.
+                </p>
+              )}
             </form>
           )}
 
           {/* ── STATE 9: Result ── */}
           {step === 9 && result && variant && (
-            <div style={{ width: "100%", maxWidth: 520, display: "flex", flexDirection: "column", alignItems: "center", gap: 0 }}>
-              {/* Checkmark */}
-              <div style={{ width: 48, height: 48, borderRadius: "50%", border: "1px solid rgba(127,255,0,0.4)", background: "rgba(127,255,0,0.06)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 20 }}>
-                <svg width="18" height="14" viewBox="0 0 18 14" fill="none">
-                  <path d="M1.5 7L6.5 12L16.5 2" stroke="rgba(127,255,0,0.8)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </div>
+            <div style={{ width: "100%", maxWidth: 520, display: "flex", flexDirection: "column", alignItems: "center", gap: 20, paddingBottom: 40 }}>
+              <div className="diag-result-card"><div className="diag-result-card-scroll">
+                {/* Checkmark */}
+                <div style={{ width: 48, height: 48, borderRadius: "50%", border: "1px solid rgba(127,255,0,0.4)", background: "rgba(127,255,0,0.06)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 20, flexShrink: 0 }}>
+                  <svg width="18" height="14" viewBox="0 0 18 14" fill="none">
+                    <path d="M1.5 7L6.5 12L16.5 2" stroke="rgba(127,255,0,0.8)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </div>
 
-              <p className="diag-section-title" style={{ marginBottom: 12 }}>MATCH PROFILE UNLOCKED</p>
+                <p className="diag-section-title" style={{ marginBottom: 12 }}>MATCH PROFILE UNLOCKED</p>
 
-              <h2 style={{ fontFamily: "'DM Mono', monospace", fontSize: "clamp(15px,2vw,18px)", letterSpacing: ".18em", textTransform: "uppercase", color: "rgba(255,255,255,0.88)", textAlign: "center", marginBottom: 12, lineHeight: 1.4 }}>
-                {result.name}
-              </h2>
-              <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(17px,2.2vw,20px)", fontStyle: "italic", fontWeight: 300, color: "rgba(255,255,255,0.55)", textAlign: "center", lineHeight: 1.5, marginBottom: 36 }}>
-                {result.tagline}
-              </p>
-
-              {/* THE GAP */}
-              <div style={{ width: "100%", borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 24, marginBottom: 28 }}>
-                <span className="diag-result-section-label">THE GAP</span>
-                <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(15px,1.8vw,18px)", fontWeight: 300, lineHeight: 1.8, color: "rgba(255,255,255,0.65)" }}>
-                  {variant.gap}
+                <p style={{ fontFamily: "var(--font-sans)", fontSize: "clamp(15px,2vw,18px)", letterSpacing: ".18em", textTransform: "uppercase", color: "var(--fg-dim)", textAlign: "center", marginBottom: 12, lineHeight: 1.4 }}>
+                  {result.name}
                 </p>
-              </div>
-
-              {/* WHO YOU NEED */}
-              <div style={{ width: "100%", borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 24, marginBottom: 32 }}>
-                <span className="diag-result-section-label">WHO YOU NEED</span>
-                <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(15px,1.8vw,18px)", fontWeight: 300, lineHeight: 1.8, color: "rgba(255,255,255,0.65)" }}>
-                  {variant.who}
+                <p style={{ fontFamily: "var(--font-sans)", fontSize: "clamp(17px,2.2vw,20px)", fontStyle: "italic", fontWeight: 300, color: "rgba(255,255,255,0.55)", textAlign: "center", lineHeight: 1.5, marginBottom: 28 }}>
+                  {result.tagline}
                 </p>
-              </div>
 
-              {/* Cohort count */}
-              <div style={{ width: "100%", background: "rgba(127,255,0,0.04)", border: "1px solid rgba(127,255,0,0.12)", borderRadius: 10, padding: "14px 18px", marginBottom: 32, textAlign: "center" }}>
-                <p style={{ fontFamily: "'DM Mono', monospace", fontSize: 12, letterSpacing: ".1em", color: "rgba(255,255,255,0.45)" }}>
-                  There are <span style={{ color: "rgba(127,255,0,0.75)" }}>16</span> people in the Relethe founding cohort who match this profile.
+                {/* THE GAP */}
+                <div style={{ width: "100%", borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 20, marginBottom: 20 }}>
+                  <span className="diag-result-section-label">THE GAP</span>
+                  <p style={{ fontFamily: "var(--font-sans)", fontSize: "clamp(14px,1.6vw,16px)", fontWeight: 300, lineHeight: 1.8, color: "rgba(255,255,255,0.65)" }}>
+                    {variant.gap}
+                  </p>
+                </div>
+
+                {/* WHO YOU NEED */}
+                <div style={{ width: "100%", borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 20, marginBottom: 20 }}>
+                  <span className="diag-result-section-label">WHO YOU NEED</span>
+                  <p style={{ fontFamily: "var(--font-sans)", fontSize: "clamp(14px,1.6vw,16px)", fontWeight: 300, lineHeight: 1.8, color: "rgba(255,255,255,0.65)" }}>
+                    {variant.who}
+                  </p>
+                </div>
+
+                {/* Cohort count */}
+                <div style={{ width: "100%", background: "rgba(127,255,0,0.04)", border: "1px solid rgba(127,255,0,0.12)", borderRadius: 10, padding: "12px 16px", marginBottom: 16, textAlign: "center" }}>
+                  <p style={{ fontFamily: "var(--font-sans)", fontSize: 12, letterSpacing: ".1em", color: "rgba(255,255,255,0.45)" }}>
+                    There are <span style={{ color: "rgba(127,255,0,0.75)" }}>16</span> people in the Relethe founding cohort who match this profile.
+                  </p>
+                </div>
+
+                <p style={{ fontFamily: "var(--font-sans)", fontSize: 11, letterSpacing: ".12em", color: "rgba(255,255,255,0.3)", textAlign: "center", marginBottom: 4 }}>
+                  You're on the founding cohort waitlist. We'll be in touch.
                 </p>
-              </div>
+              </div></div>
 
-              <p style={{ fontFamily: "'DM Mono', monospace", fontSize: 11, letterSpacing: ".12em", color: "rgba(255,255,255,0.3)", textAlign: "center", marginBottom: 28 }}>
-                You're on the founding cohort waitlist. We'll be in touch.
-              </p>
-
+              {/* Close button — outside the scrollable card */}
               <button
                 className="diag-btn-primary"
-                onClick={onClose}
-                style={{ width: "auto", paddingLeft: 40, paddingRight: 40 }}
+                onClick={() => { onComplete?.(); onClose(); }}
+                style={{ width: "auto", paddingLeft: 40, paddingRight: 40, flexShrink: 0 }}
               >
                 Close
               </button>

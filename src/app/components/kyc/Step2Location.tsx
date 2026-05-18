@@ -1,4 +1,4 @@
-import { Search } from 'lucide-react';
+﻿import { Search } from 'lucide-react';
 import { useState } from 'react';
 import { KYCData } from '../KYCModal';
 
@@ -43,10 +43,10 @@ export function Step2Location({ isActive, direction, data, updateData }: Step2Pr
 
   return (
     <div className={`kyc-step ${getClassName()}`}>
-      <span className="font-['Inter'] text-[10px] tracking-[0.3em] uppercase text-[#7FFF00]/50 mb-[14px] block">
+      <span className="font-['Libre_Franklin'] text-[10px] tracking-[0.3em] uppercase text-[#7FFF00]/50 mb-[14px] block">
         Your world
       </span>
-      <h1 className="font-['Cormorant_Garamond'] text-[clamp(28px,4vw,40px)] font-light italic leading-[1.15] tracking-[-0.02em] text-white/90 mb-[10px]">
+      <h1 className="font-['Libre_Franklin'] text-[clamp(28px,4vw,40px)] font-light italic leading-[1.15] tracking-[-0.02em] text-white/90 mb-[10px]">
         Where are<br />
         you <em className="not-italic text-[#7FFF00]">based?</em>
       </h1>
@@ -62,7 +62,7 @@ export function Step2Location({ isActive, direction, data, updateData }: Step2Pr
           placeholder="Search cities…"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="flex-1 bg-transparent border-none outline-none font-['Inter'] text-[13px] tracking-[0.04em] text-white/90 placeholder:text-white/30"
+          className="flex-1 bg-transparent border-none outline-none font-['Libre_Franklin'] text-[13px] tracking-[0.04em] text-white/90 placeholder:text-white/30"
         />
       </div>
 
@@ -80,15 +80,15 @@ export function Step2Location({ isActive, direction, data, updateData }: Step2Pr
           >
             <span className="text-[20px] leading-none w-7 text-center">{city.flag}</span>
             <span className="flex-1 text-left text-[16px] font-light text-white/90">{city.name}</span>
-            <span className="font-['Inter'] text-[10px] tracking-[0.1em] text-white/30">{city.tz}</span>
+            <span className="font-['Libre_Franklin'] text-[10px] tracking-[0.1em] text-white/30">{city.tz}</span>
           </button>
         ))}
       </div>
 
       {/* Timezone display */}
       <div className="flex items-center gap-[10px] px-4 py-3 bg-white/[0.08] border border-white/[0.07] rounded-[10px] mt-1">
-        <span className="flex-1 font-['Inter'] text-[10px] tracking-[0.18em] uppercase text-white/30">Timezone</span>
-        <span className="font-['Inter'] text-[12px] text-[#7FFF00]/60">{data.timezone || '—'}</span>
+        <span className="flex-1 font-['Libre_Franklin'] text-[10px] tracking-[0.18em] uppercase text-white/30">Timezone</span>
+        <span className="font-['Libre_Franklin'] text-[12px] text-[#7FFF00]/60">{data.timezone || '—'}</span>
       </div>
     </div>
   );

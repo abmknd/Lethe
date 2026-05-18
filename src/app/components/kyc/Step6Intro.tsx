@@ -1,4 +1,4 @@
-import { KYCData } from '../KYCModal';
+﻿import { KYCData } from '../KYCModal';
 
 interface Step6Props {
   isActive: boolean;
@@ -19,10 +19,10 @@ export function Step6Intro({ isActive, direction, data, updateData }: Step6Props
 
   return (
     <div className={`kyc-step ${getClassName()}`}>
-      <span className="font-['Inter'] text-[10px] tracking-[0.3em] uppercase text-[#7FFF00]/50 mb-[14px] block">
+      <span className="font-['Libre_Franklin'] text-[10px] tracking-[0.3em] uppercase text-[#7FFF00]/50 mb-[14px] block">
         Your voice
       </span>
-      <h1 className="font-['Cormorant_Garamond'] text-[clamp(28px,4vw,40px)] font-light italic leading-[1.15] tracking-[-0.02em] text-white/90 mb-[10px]">
+      <h1 className="font-['Libre_Franklin'] text-[clamp(28px,4vw,40px)] font-light italic leading-[1.15] tracking-[-0.02em] text-white/90 mb-[10px]">
         How would you<br />
         <em className="not-italic text-[#7FFF00]">introduce yourself?</em>
       </h1>
@@ -36,12 +36,12 @@ export function Step6Intro({ isActive, direction, data, updateData }: Step6Props
         onChange={(e) => updateData({ intro: e.target.value })}
         maxLength={300}
         placeholder="I'm a product designer who thinks about the ethics of what we build…"
-        className="w-full bg-white/[0.08] border border-white/[0.07] rounded-[14px] px-[18px] py-[18px] font-['Cormorant_Garamond'] text-[17px] font-light leading-[1.75] text-white/90 resize-none outline-none focus:border-[#7FFF00]/30 transition-colors placeholder:text-white/30 placeholder:italic min-h-[140px]"
+        className="w-full bg-white/[0.08] border border-white/[0.07] rounded-[14px] px-[18px] py-[18px] font-['Libre_Franklin'] text-[17px] font-light leading-[1.75] text-white/90 resize-none outline-none focus:border-[#7FFF00]/30 transition-colors placeholder:text-white/30 placeholder:italic min-h-[140px]"
       />
       
       {/* Character count */}
       <div className="flex justify-end mt-2 mb-6">
-        <span className={`font-['Inter'] text-[10px] tracking-[0.12em] transition-colors ${isWarn ? 'text-[#CC9933]' : 'text-white/30'}`}>
+        <span className={`font-['Libre_Franklin'] text-[10px] tracking-[0.12em] transition-colors ${isWarn ? 'text-[#CC9933]' : 'text-white/30'}`}>
           {remaining} remaining
         </span>
       </div>
@@ -50,7 +50,7 @@ export function Step6Intro({ isActive, direction, data, updateData }: Step6Props
       <div className="flex items-center justify-between gap-4 px-4 py-[14px] mb-6 bg-white/[0.08] border border-white/[0.07] rounded-xl">
         <div className="flex flex-col gap-[3px]">
           <span className="text-[14px] font-light text-white/90">Make this my profile bio</span>
-          <span className="font-['Inter'] text-[10px] tracking-[0.08em] text-white/30">
+          <span className="font-['Libre_Franklin'] text-[10px] tracking-[0.08em] text-white/30">
             Your intro will also appear on your public profile
           </span>
         </div>
@@ -71,7 +71,7 @@ export function Step6Intro({ isActive, direction, data, updateData }: Step6Props
       </div>
 
       {/* Examples */}
-      <span className="font-['Inter'] text-[10px] tracking-[0.22em] uppercase text-white/30 mb-3 block">
+      <span className="font-['Libre_Franklin'] text-[10px] tracking-[0.22em] uppercase text-white/30 mb-3 block">
         Some examples
       </span>
       <div className="flex flex-col gap-2">

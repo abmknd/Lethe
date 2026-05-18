@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { 
   User, Calendar, Target, Bell, 
@@ -298,7 +298,7 @@ export default function SettingsPage() {
             <svg className="w-4 h-4" fill="none" viewBox="0 0 16 16">
               <path d={svgPathsBack.p543f5c0} stroke="#6B6B6B" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
-            <span className="font-['Inter'] font-light leading-[16.5px] text-[12px] tracking-[3.3px] uppercase">BACK</span>
+            <span className="font-['Libre_Franklin'] font-light leading-[16.5px] text-[12px] tracking-[3.3px] uppercase">BACK</span>
           </button>
         </div>
       </header>
@@ -308,7 +308,7 @@ export default function SettingsPage() {
         {/* Sidebar */}
         <aside className="w-[320px] min-w-[320px] flex-shrink-0 bg-[#0b0e0b] border border-white/[0.07] rounded-2xl overflow-hidden self-start">
           <div className="p-4 pb-4 border-b border-white/[0.07]">
-            <div className="font-['Cormorant_Garamond'] text-[13px] italic text-white/52">
+            <div className="font-['Libre_Franklin'] text-[13px] italic text-white/52">
               Settings
             </div>
           </div>
@@ -327,7 +327,7 @@ export default function SettingsPage() {
                 <span className={activeSection === section.id ? 'text-[#7FFF00]/70' : 'text-white/[0.25]'}>
                   {section.icon}
                 </span>
-                <span className="font-['Inter'] text-[14px] font-normal">
+                <span className="font-['Libre_Franklin'] text-[14px] font-normal">
                   {section.label}
                 </span>
               </button>
@@ -343,7 +343,7 @@ export default function SettingsPage() {
               <div className="bg-[#0b0e0b] border border-white/[0.07] rounded-2xl overflow-hidden">
                 {/* Header */}
                 <div className="px-7 pt-[22px] pb-[22px] border-b border-white/[0.07]">
-                  <h2 className="font-['Cormorant_Garamond'] text-[20px] font-normal text-white/88 mb-[5px]">
+                  <h2 className="font-['Libre_Franklin'] text-[20px] font-normal text-white/88 mb-[5px]">
                     Account
                   </h2>
                   <p className="text-[12px] font-light text-white/[0.25] leading-[1.6]">
@@ -512,7 +512,7 @@ export default function SettingsPage() {
             {activeSection === 'availability' && (
               <div className="bg-[#0b0e0b] border border-white/[0.07] rounded-2xl overflow-hidden">
                 <div className="px-7 pt-[22px] pb-[22px] border-b border-white/[0.07]">
-                  <h2 className="font-['Cormorant_Garamond'] text-[20px] font-normal text-white/88 mb-[5px]">
+                  <h2 className="font-['Libre_Franklin'] text-[20px] font-normal text-white/88 mb-[5px]">
                     Availability
                   </h2>
                   <p className="text-[12px] font-light text-white/[0.25] leading-[1.6]">
@@ -699,7 +699,7 @@ export default function SettingsPage() {
             {activeSection === 'goals' && (
               <div className="bg-[#0b0e0b] border border-white/[0.07] rounded-2xl overflow-hidden">
                 <div className="px-7 pt-[22px] pb-[22px] border-b border-white/[0.07]">
-                  <h2 className="font-['Cormorant_Garamond'] text-[20px] font-normal text-white/88 mb-[5px]">
+                  <h2 className="font-['Libre_Franklin'] text-[20px] font-normal text-white/88 mb-[5px]">
                     Goals
                   </h2>
                   <p className="text-[12px] font-light text-white/[0.25] leading-[1.6]">
@@ -919,7 +919,7 @@ export default function SettingsPage() {
             {activeSection === 'notifications' && (
               <div className="bg-[#0b0e0b] border border-white/[0.07] rounded-2xl overflow-hidden">
                 <div className="px-7 pt-[22px] pb-[22px] border-b border-white/[0.07]">
-                  <h2 className="font-['Cormorant_Garamond'] text-[20px] font-normal text-white/88 mb-[5px]">
+                  <h2 className="font-['Libre_Franklin'] text-[20px] font-normal text-white/88 mb-[5px]">
                     Notifications
                   </h2>
                   <p className="text-[12px] font-light text-white/[0.25] leading-[1.6]">

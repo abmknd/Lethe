@@ -1,4 +1,4 @@
-import { Check } from 'lucide-react';
+﻿import { Check } from 'lucide-react';
 import { KYCData } from '../KYCModal';
 
 interface Step3Props {
@@ -38,10 +38,10 @@ export function Step3Objectives({ isActive, direction, data, updateData }: Step3
 
   return (
     <div className={`kyc-step ${getClassName()}`}>
-      <span className="font-['Inter'] text-[10px] tracking-[0.3em] uppercase text-[#7FFF00]/50 mb-[14px] block">
+      <span className="font-['Libre_Franklin'] text-[10px] tracking-[0.3em] uppercase text-[#7FFF00]/50 mb-[14px] block">
         Your intent
       </span>
-      <h1 className="font-['Cormorant_Garamond'] text-[clamp(28px,4vw,40px)] font-light italic leading-[1.15] tracking-[-0.02em] text-white/90 mb-[10px]">
+      <h1 className="font-['Libre_Franklin'] text-[clamp(28px,4vw,40px)] font-light italic leading-[1.15] tracking-[-0.02em] text-white/90 mb-[10px]">
         What brings<br />
         you <em className="not-italic text-[#7FFF00]">here?</em>
       </h1>
