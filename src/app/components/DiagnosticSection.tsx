@@ -27,38 +27,38 @@ export default function DiagnosticSection({ onEmailSubmitted }: Props) {
           text-align: center;
           position: relative;
           z-index: 3;
-          border-top: 1px solid rgba(255,255,255,0.07);
+          border-top: 1px solid var(--line);
         }
         .diag-section-eyebrow {
-          font-family: 'Libre Franklin', sans-serif;
-          font-size: 11px;
+          font-family: var(--font-sans);
+          font-size: var(--text-xs);
           letter-spacing: .3em;
           text-transform: uppercase;
           color: rgba(127,255,0,0.5);
           margin-bottom: 28px;
         }
         .diag-section-heading {
-          font-family: 'Cormorant Garamond', serif;
+          font-family: var(--font-display);
           font-size: clamp(30px, 4.5vw, 58px);
           font-weight: 300;
           font-style: italic;
           line-height: 1.15;
           letter-spacing: -.02em;
-          color: rgba(255,255,255,0.88);
+          color: var(--fg-dim);
           max-width: 680px;
           margin-bottom: 20px;
         }
         .diag-section-sub {
-          font-family: 'Libre Franklin', sans-serif;
-          font-size: clamp(16px, 1.9vw, 20px);
+          font-family: var(--font-sans);
+          font-size: var(--text-body-responsive);
           font-weight: 300;
           line-height: 1.7;
-          color: rgba(255,255,255,0.42);
+          color: var(--fg-muted);
           max-width: 520px;
           margin-bottom: 16px;
         }
         .diagnostic-time-hint {
-          font-family: 'Libre Franklin', sans-serif;
+          font-family: var(--font-sans);
           font-size: 10px;
           letter-spacing: .18em;
           text-transform: uppercase;
@@ -66,14 +66,14 @@ export default function DiagnosticSection({ onEmailSubmitted }: Props) {
           margin-bottom: 36px;
         }
         .diag-cta-btn {
-          font-family: 'Libre Franklin', sans-serif;
+          font-family: var(--font-sans);
           font-size: 12px;
           letter-spacing: .22em;
           text-transform: uppercase;
           color: #050705;
           background: rgba(127,255,0,0.88);
           border: none;
-          border-radius: 9999px;
+          border-radius: var(--radius-pill);
           padding: 14px 36px;
           cursor: none;
           transition: background .25s;
@@ -89,24 +89,24 @@ export default function DiagnosticSection({ onEmailSubmitted }: Props) {
           gap: 12px;
         }
         .diag-complete-label {
-          font-family: 'Libre Franklin', sans-serif;
+          font-family: var(--font-sans);
           font-size: 10px;
           letter-spacing: .3em;
           text-transform: uppercase;
           color: rgba(127,255,0,0.6);
         }
         .diag-complete-msg {
-          font-family: 'Libre Franklin', sans-serif;
+          font-family: var(--font-sans);
           font-size: clamp(15px, 1.8vw, 18px);
           font-weight: 300;
           font-style: italic;
           color: rgba(255,255,255,0.45);
           max-width: 420px;
-          line-height: 1.65;
+          line-height: var(--leading-relaxed);
         }
         .diag-explore-again {
-          font-family: 'Libre Franklin', sans-serif;
-          font-size: 11px;
+          font-family: var(--font-sans);
+          font-size: var(--text-xs);
           letter-spacing: .18em;
           text-transform: uppercase;
           color: rgba(127,255,0,0.65);

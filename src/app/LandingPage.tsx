@@ -522,17 +522,19 @@ export default function LandingPage() {
       <style>{`
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
-          --ch: #7FFF00;
+          /* ── aliases to design-system tokens ── */
+          --ch: var(--accent);
+          --border: var(--line);
+          --text: var(--fg-dim);
+          --serif: var(--font-display);
+          --mono: var(--font-sans);
+          --sans-serif: var(--font-sans);
+          /* ── landing-page-specific (no global token match) ── */
           --ch-dim: rgba(127,255,0,0.15);
           --dark: #050705;
           --dark2: #0a0d0a;
-          --border: rgba(255,255,255,0.07);
-          --text: rgba(255,255,255,0.88);
           --dim: rgba(255,255,255,0.60);
           --ghost: rgba(255,255,255,0.28);
-          --serif: 'Cormorant Garamond', serif;
-          --mono: 'Libre Franklin', sans-serif;
-          --sans-serif: 'Libre Franklin', sans-serif;
         }
         html { scroll-behavior: smooth; }
         body {
@@ -638,9 +640,9 @@ export default function LandingPage() {
         .relethe-hero-h1 em { font-style: normal; color: var(--ch); }
         .relethe-hero-h1-dim { color: var(--dim); display: block; }
         .relethe-hero-h2 {
-          font-family: var(--mono); font-size: clamp(16px, 1.9vw, 20px);
+          font-family: var(--mono); font-size: var(--text-body-responsive);
           font-weight: 300; font-style: normal; line-height: 1.7;
-          color: rgba(255,255,255,0.42); margin-top: 32px; margin-bottom: 40px; opacity: 0;
+          color: var(--fg-muted); margin-top: 32px; margin-bottom: 40px; opacity: 0;
           max-width: 520px;
         }
         .relethe-hero-sub {
@@ -1229,7 +1231,7 @@ export default function LandingPage() {
           You should be more intentional
           <span className="relethe-hero-h1-dim"> about meeting people.</span>
         </h1>
-        <h2 className="relethe-hero-h2">Everything you dream of achieving lies within the unexplored gap in your network.</h2>
+        <p className="relethe-hero-h2">Everything you dream of achieving lies within the unexplored gap in your network.</p>
         {!showHeroSuccess && !showHeroDuplicate ? (
           <form className="relethe-hero-form" onSubmit={handleHeroSubmit}>
             <input
