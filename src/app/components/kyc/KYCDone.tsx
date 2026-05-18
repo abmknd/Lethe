@@ -1,4 +1,4 @@
-import { Check } from 'lucide-react';
+﻿import { Check } from 'lucide-react';
 
 interface KYCDoneProps {
   onFinish: () => void;
@@ -16,7 +16,7 @@ export function KYCDone({ onFinish }: KYCDoneProps) {
         </div>
       </div>
 
-      <div className="font-['Cormorant_Garamond'] text-[32px] font-light italic mb-[10px] text-white/90">
+      <div className="font-['Libre_Franklin'] text-[32px] font-light italic mb-[10px] text-white/90">
         You're live.
       </div>
       
@@ -24,13 +24,13 @@ export function KYCDone({ onFinish }: KYCDoneProps) {
         Your first match arrives next week. In the meantime, the feed is yours.
       </div>
       
-      <div className="font-['Inter'] text-[10px] tracking-[0.12em] text-white/30 -mt-5 mb-8">
+      <div className="font-['Libre_Franklin'] text-[10px] tracking-[0.12em] text-white/30 -mt-5 mb-8">
         You can pause matching anytime from your settings.
       </div>
       
       <button
         onClick={onFinish}
-        className="font-['Inter'] text-[11px] tracking-[0.22em] uppercase text-[#050705] bg-[#7FFF00] border-none rounded-full px-10 py-[14px] hover:bg-[#c8ff4f] transition-colors"
+        className="font-['Libre_Franklin'] text-[11px] tracking-[0.22em] uppercase text-[#050705] bg-[#7FFF00] border-none rounded-full px-10 py-[14px] hover:bg-[#c8ff4f] transition-colors"
       >
         Go to my feed
       </button>

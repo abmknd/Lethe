@@ -5,34 +5,29 @@ interface Props {
   diagnosticEmail: string | null;
 }
 
-type HandleStatus = "idle" | "available" | "taken";
+type HandleStatus = "idle" | "available" | "taken" | "invalid";
 
 export default function FoundingMember({ diagnosticEmail }: Props) {
   const [handle, setHandle] = useState("");
   const [handleStatus, setHandleStatus] = useState<HandleStatus>("idle");
   const [isCheckingHandle, setIsCheckingHandle] = useState(false);
+  const [email, setEmail] = useState(diagnosticEmail ?? "");
   const [isClaiming, setIsClaiming] = useState(false);
   const [claimed, setClaimed] = useState(false);
+  const [claimDuplicate, setClaimDuplicate] = useState(false);
   const [claimError, setClaimError] = useState("");
-
-  // After claim with no diagnostic email: show secondary email prompt
-  const [showEmailPrompt, setShowEmailPrompt] = useState(false);
-  const [secondaryEmail, setSecondaryEmail] = useState("");
-  const [isSubmittingEmail, setIsSubmittingEmail] = useState(false);
-  const [emailSaved, setEmailSaved] = useState(false);
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  const HANDLE_RE = /^[a-z0-9_-]{3,30}$/;
+
   const checkHandle = async (val: string) => {
-    if (!val.trim()) { setHandleStatus("idle"); return; }
+    if (!HANDLE_RE.test(val)) { setHandleStatus("invalid"); return; }
     setIsCheckingHandle(true);
     try {
-      const { data } = await supabase
-        .from("waitlist")
-        .select("handle")
-        .eq("handle", val.trim().toLowerCase())
-        .maybeSingle();
-      setHandleStatus(data ? "taken" : "available");
+      const { data, error } = await supabase.rpc("is_handle_available", { p_handle: val });
+      if (error) { setHandleStatus("idle"); }
+      else { setHandleStatus(data === true ? "available" : "taken"); }
     } catch {
       setHandleStatus("idle");
     }
@@ -42,61 +37,32 @@ export default function FoundingMember({ diagnosticEmail }: Props) {
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     setHandleStatus("idle");
-    if (!handle.trim()) return;
-    debounceRef.current = setTimeout(() => checkHandle(handle), 500);
+    const cleaned = handle.toLowerCase();
+    if (!cleaned) return;
+    debounceRef.current = setTimeout(() => checkHandle(cleaned), 500);
     return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
   }, [handle]);
 
   const handleClaim = async (e: FormEvent) => {
     e.preventDefault();
-    if (!handle.trim() || handleStatus !== "available" || isClaiming) return;
+    const h = handle.toLowerCase();
+    const em = diagnosticEmail || email.trim();
+    if (!h || handleStatus !== "available" || isClaiming || !em) return;
     setIsClaiming(true);
     setClaimError("");
 
-    const h = handle.trim().toLowerCase();
-
-    if (diagnosticEmail) {
-      // Update existing row
-      const { error } = await supabase
-        .from("waitlist")
-        .update({ handle: h })
-        .eq("email", diagnosticEmail);
-      if (error) {
-        setClaimError(error.code === "23505" ? "Already claimed." : "Something went wrong. Try again.");
-        setIsClaiming(false);
-        return;
-      }
-      setClaimed(true);
-    } else {
-      // Insert handle-only row
-      const { error } = await supabase
-        .from("waitlist")
-        .insert({ handle: h });
-      if (error) {
-        setClaimError(error.code === "23505" ? "Already claimed." : "Something went wrong. Try again.");
-        setIsClaiming(false);
-        return;
-      }
-      setClaimed(true);
-      setShowEmailPrompt(true);
+    // claim_handle is a SECURITY DEFINER RPC that upserts on email conflict,
+    // bypassing RLS so both fresh signups and existing waitlist members get their handle linked
+    const { error } = await supabase.rpc("claim_handle", { p_email: em, p_handle: h });
+    if (error) {
+      if (error.code === "23505") { setClaimDuplicate(true); } else { setClaimError("Something went wrong. Try again."); }
+      setIsClaiming(false);
+      return;
     }
+
+    setClaimed(true);
     setIsClaiming(false);
   };
-
-  const handleSecondaryEmail = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!secondaryEmail.trim() || isSubmittingEmail) return;
-    setIsSubmittingEmail(true);
-    const h = handle.trim().toLowerCase();
-    const { error } = await supabase
-      .from("waitlist")
-      .update({ email: secondaryEmail.trim() })
-      .eq("handle", h);
-    if (!error) setEmailSaved(true);
-    setIsSubmittingEmail(false);
-  };
-
-  const handleInputValue = handle.replace(/[^a-zA-Z0-9_.-]/g, "").toLowerCase();
 
   return (
     <>
@@ -106,7 +72,7 @@ export default function FoundingMember({ diagnosticEmail }: Props) {
           position: relative;
           z-index: 3;
           background: #020402;
-          border-top: 1px solid rgba(255,255,255,0.07);
+          border-top: 1px solid var(--line);
         }
         .fm-inner {
           max-width: 680px;
@@ -120,91 +86,110 @@ export default function FoundingMember({ diagnosticEmail }: Props) {
           flex-wrap: wrap;
         }
         .fm-heading {
-          font-family: 'Cormorant Garamond', serif;
+          font-family: var(--font-display);
           font-size: clamp(28px, 4vw, 48px);
           font-weight: 300;
           font-style: italic;
           line-height: 1.15;
           letter-spacing: -.02em;
-          color: rgba(255,255,255,0.88);
+          color: var(--fg-dim);
         }
         .fm-badge {
-          font-family: 'DM Mono', monospace;
+          font-family: var(--font-sans);
           font-size: 10px;
           letter-spacing: .22em;
           text-transform: uppercase;
           color: rgba(127,255,0,0.75);
           background: rgba(127,255,0,0.08);
           border: 1px solid rgba(127,255,0,0.2);
-          border-radius: 9999px;
+          border-radius: var(--radius-pill);
           padding: 4px 12px;
           white-space: nowrap;
         }
         .fm-highlight {
           background: rgba(127,255,0,0.04);
-          border-left: 2px solid rgba(127,255,0,0.4);
-          padding: 14px 20px;
-          border-radius: 0 8px 8px 0;
+          border: 1px solid rgba(127,255,0,0.2);
+          padding: 18px 24px;
+          border-radius: 12px;
           margin-bottom: 36px;
-        }
-        .fm-highlight p {
-          font-family: 'Cormorant Garamond', serif;
-          font-size: 16px;
-          font-style: italic;
-          font-weight: 300;
-          color: rgba(255,255,255,0.62);
-          line-height: 1.65;
-        }
-        .fm-handle-row {
-          display: flex;
-          align-items: stretch;
-          gap: 0;
-          width: 100%;
-          margin-bottom: 10px;
-        }
-        .fm-handle-prefix {
-          font-family: 'DM Mono', monospace;
-          font-size: 13px;
-          color: rgba(255,255,255,0.28);
-          background: rgba(255,255,255,0.04);
-          border: 1px solid rgba(255,255,255,0.09);
-          border-right: none;
-          border-radius: 10px 0 0 10px;
-          padding: 13px 14px;
-          white-space: nowrap;
           display: flex;
           align-items: center;
+          justify-content: center;
         }
-        .fm-handle-input {
-          flex: 1;
-          background: rgba(255,255,255,0.04);
-          border: 1px solid rgba(255,255,255,0.09);
-          border-left: none;
-          border-radius: 0 10px 10px 0;
-          padding: 13px 14px;
-          font-family: 'DM Mono', monospace;
-          font-size: 13px;
-          color: rgba(255,255,255,0.88);
-          outline: none;
-          transition: border-color .2s;
+        .fm-highlight p {
+          font-family: var(--font-sans);
+          font-size: 16px;
+          font-style: normal;
+          font-weight: 300;
+          color: rgba(255,255,255,0.62);
+          line-height: var(--leading-relaxed);
+          text-align: center;
         }
-        .fm-handle-input:focus { border-color: rgba(127,255,0,0.35); }
-        .fm-handle-input::placeholder { color: rgba(255,255,255,0.2); }
         .fm-status-available { color: rgba(127,255,0,0.75); }
         .fm-status-taken { color: rgba(220,80,80,0.75); }
+        .fm-status-invalid { color: rgba(255,180,0,0.65); }
         .fm-status-text {
-          font-family: 'DM Mono', monospace;
-          font-size: 11px;
+          font-family: var(--font-sans);
+          font-size: var(--text-xs);
           letter-spacing: .1em;
-          min-height: 18px;
+          height: 18px;
           display: flex;
           align-items: center;
           gap: 6px;
-          margin-bottom: 16px;
+          margin-top: 12px;
+          margin-bottom: 12px;
+        }
+        .fm-status-line {
+          flex: 1;
+          height: 1px;
+          background: rgba(127,255,0,0.2);
+          border-radius: 1px;
+        }
+        .founding-member-form {
+          border: 1px solid var(--line);
+          border-radius: 20px;
+          background: rgba(255,255,255,0.04);
+          padding: 8px;
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          width: 100%;
+          margin-bottom: 0;
+        }
+        .founding-member-form input {
+          background: transparent;
+          border: none;
+          outline: none;
+          font-family: var(--font-sans);
+          font-size: 16px;
+          color: var(--fg-dim);
+          padding: 12px 16px;
+          width: 100%;
+        }
+        .founding-member-form input::placeholder { color: rgba(255,255,255,0.28); }
+        .fm-handle-row-inner {
+          display: flex;
+          align-items: center;
+          padding-left: 16px;
+        }
+        .fm-handle-prefix {
+          font-family: var(--font-sans);
+          font-size: var(--text-sm);
+          color: rgba(255,255,255,0.28);
+          white-space: nowrap;
+          flex-shrink: 0;
+        }
+        .fm-handle-row-inner input {
+          padding-left: 2px;
+        }
+        .founding-member-form .fm-divider {
+          height: 1px;
+          background: rgba(255,255,255,0.06);
+          margin: 0 8px;
         }
         .fm-btn {
-          font-family: 'DM Mono', monospace;
-          font-size: 11px;
+          font-family: var(--font-sans);
+          font-size: var(--text-xs);
           letter-spacing: .22em;
           text-transform: uppercase;
           color: #050705;
@@ -218,51 +203,7 @@ export default function FoundingMember({ diagnosticEmail }: Props) {
         }
         .fm-btn:hover:not(:disabled) { background: rgba(127,255,0,1); }
         .fm-btn:disabled { opacity: 0.45; }
-        .fm-success {
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-        }
-        .fm-success-title {
-          font-family: 'Cormorant Garamond', serif;
-          font-size: 22px;
-          font-style: italic;
-          font-weight: 300;
-          color: rgba(127,255,0,0.85);
-        }
-        .fm-success-sub {
-          font-family: 'DM Mono', monospace;
-          font-size: 11px;
-          letter-spacing: .1em;
-          color: rgba(255,255,255,0.3);
-        }
-        .fm-email-prompt {
-          margin-top: 24px;
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-        }
-        .fm-email-prompt p {
-          font-family: 'DM Mono', monospace;
-          font-size: 11px;
-          letter-spacing: .12em;
-          color: rgba(255,255,255,0.35);
-        }
-        .fm-email-input {
-          width: 100%;
-          background: rgba(255,255,255,0.04);
-          border: 1px solid rgba(255,255,255,0.09);
-          border-radius: 10px;
-          padding: 13px 18px;
-          font-family: 'DM Mono', monospace;
-          font-size: 13px;
-          color: rgba(255,255,255,0.88);
-          outline: none;
-          transition: border-color .2s;
-        }
-        .fm-email-input:focus { border-color: rgba(127,255,0,0.35); }
-        .fm-email-input::placeholder { color: rgba(255,255,255,0.2); }
-        @media (max-width: 640px) {
+        @media (max-width: 720px) {
           .fm-section { padding: 80px 24px; }
         }
       `}</style>
@@ -275,26 +216,47 @@ export default function FoundingMember({ diagnosticEmail }: Props) {
           </div>
 
           <div className="fm-highlight relethe-reveal">
-            <p>As a Founding Member, your profile will receive priority visibility once matchmaking begins.</p>
+            {claimed ? (
+              <p style={{ fontFamily: "var(--font-sans)", fontSize: 16, fontStyle: 'normal', fontWeight: 300, color: 'rgba(127,255,0,0.75)', lineHeight: 1.65, textAlign: 'center' }}>
+                You're now a founding member — we'll email you when it's time to ball!
+              </p>
+            ) : claimDuplicate ? (
+              <p style={{ fontFamily: "var(--font-sans)", fontSize: 16, fontStyle: 'normal', fontWeight: 300, color: 'rgba(127,255,0,0.75)', lineHeight: 1.65, textAlign: 'center' }}>
+                You're already on the list. We'll be in touch.
+              </p>
+            ) : (
+              <p>As a Founding Member, your profile will receive priority visibility once matchmaking begins.</p>
+            )}
           </div>
 
-          {!claimed ? (
-            <form onSubmit={handleClaim} className="relethe-reveal">
-              <div className="fm-handle-row">
-                <span className="fm-handle-prefix">relethe.com/</span>
+          {!claimed && !claimDuplicate && (
+            <form onSubmit={handleClaim} className="relethe-reveal" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0, width: '100%' }}>
+              <div className="founding-member-form">
+                <div className="fm-handle-row-inner">
+                  <span className="fm-handle-prefix">relethe.com/</span>
+                  <input
+                    type="text"
+                    placeholder="yourname"
+                    value={handle}
+                    onChange={(e) => setHandle(e.target.value.replace(/[^a-zA-Z0-9_-]/g, "").toLowerCase())}
+                    maxLength={30}
+                    autoComplete="off"
+                    spellCheck={false}
+                  />
+                </div>
+                <div className="fm-divider" />
                 <input
-                  className="fm-handle-input"
-                  type="text"
-                  placeholder="yourname"
-                  value={handle}
-                  onChange={(e) => setHandle(e.target.value.replace(/[^a-zA-Z0-9_.-]/g, "").toLowerCase())}
-                  maxLength={32}
-                  autoComplete="off"
-                  spellCheck={false}
+                  type="email"
+                  placeholder="your@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
 
               <div className="fm-status-text">
+                {!isCheckingHandle && handleStatus === "idle" && (
+                  <div className="fm-status-line" />
+                )}
                 {isCheckingHandle && (
                   <span style={{ color: "rgba(255,255,255,0.25)" }}>Checking...</span>
                 )}
@@ -314,10 +276,13 @@ export default function FoundingMember({ diagnosticEmail }: Props) {
                     Already claimed
                   </span>
                 )}
+                {!isCheckingHandle && handleStatus === "invalid" && handle.length > 0 && (
+                  <span className="fm-status-invalid">3–30 chars, letters, numbers, _ or - only</span>
+                )}
               </div>
 
               {claimError && (
-                <p style={{ fontFamily: "'DM Mono', monospace", fontSize: 11, color: "rgba(220,80,80,0.7)", marginBottom: 12 }}>
+                <p style={{ fontFamily: "var(--font-sans)", fontSize: 11, color: "rgba(220,80,80,0.7)", marginBottom: 12, paddingLeft: 8 }}>
                   {claimError}
                 </p>
               )}
@@ -325,46 +290,11 @@ export default function FoundingMember({ diagnosticEmail }: Props) {
               <button
                 type="submit"
                 className="fm-btn"
-                disabled={!handle.trim() || handleStatus !== "available" || isClaiming}
+                disabled={!handle || handleStatus !== "available" || isClaiming || !(email.trim() || diagnosticEmail)}
               >
                 {isClaiming ? "Claiming..." : "Claim your handle"}
               </button>
             </form>
-          ) : (
-            <div className="fm-success relethe-reveal">
-              <p className="fm-success-title">
-                relethe.com/{handleInputValue || handle.trim().toLowerCase()} is yours.
-              </p>
-              <p className="fm-success-sub">Your handle is reserved in the founding cohort.</p>
-
-              {showEmailPrompt && !emailSaved && (
-                <form onSubmit={handleSecondaryEmail} className="fm-email-prompt">
-                  <p>Add your email to secure your spot.</p>
-                  <input
-                    className="fm-email-input"
-                    type="email"
-                    placeholder="your@email.com"
-                    required
-                    value={secondaryEmail}
-                    onChange={(e) => setSecondaryEmail(e.target.value)}
-                  />
-                  <button
-                    type="submit"
-                    className="fm-btn"
-                    disabled={!secondaryEmail.trim() || isSubmittingEmail}
-                    style={{ width: "auto", alignSelf: "flex-start" }}
-                  >
-                    {isSubmittingEmail ? "Saving..." : "Secure my spot"}
-                  </button>
-                </form>
-              )}
-
-              {emailSaved && (
-                <p style={{ fontFamily: "'DM Mono', monospace", fontSize: 11, letterSpacing: ".1em", color: "rgba(127,255,0,0.5)", marginTop: 8 }}>
-                  You're on the list. We'll be in touch.
-                </p>
-              )}
-            </div>
           )}
         </div>
       </section>
