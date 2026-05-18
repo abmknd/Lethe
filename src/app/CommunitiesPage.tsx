@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { Grid, List, Users, MessageCircle, Bell, Search } from 'lucide-react';
 import { AvatarDropdown } from './components/AvatarDropdown';

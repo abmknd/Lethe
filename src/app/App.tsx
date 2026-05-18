@@ -21,7 +21,7 @@ export default function App() {
               fontSize: '12px',
               letterSpacing: '.1em',
               color: 'rgba(255,255,255,0.5)',
-              fontFamily: 'Inter, sans-serif',
+              fontFamily: 'var(--font-sans)',
             },
           }}
         />

@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useRef, FormEvent } from "react";
+import { useState, useEffect, useRef, FormEvent } from "react";
 import { supabase } from "../../lib/supabase";
 
 interface Props {
