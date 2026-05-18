@@ -333,9 +333,11 @@ export default function LandingPage() {
     let paused = false;
     const refs = [ls1Ref, ls2Ref, ls3Ref, ls4Ref];
     const storySection = document.getElementById('relethe-story');
+    const onMouseEnter = () => { paused = true; };
+    const onMouseLeave = () => { paused = false; };
     if (storySection) {
-      storySection.addEventListener('mouseenter', () => { paused = true; });
-      storySection.addEventListener('mouseleave', () => { paused = false; });
+      storySection.addEventListener('mouseenter', onMouseEnter);
+      storySection.addEventListener('mouseleave', onMouseLeave);
     }
 
     function typeText(
@@ -400,6 +402,10 @@ export default function LandingPage() {
 
     return () => {
       ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+      if (storySection) {
+        storySection.removeEventListener('mouseenter', onMouseEnter);
+        storySection.removeEventListener('mouseleave', onMouseLeave);
+      }
     };
   }, []);
 
