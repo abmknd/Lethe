@@ -102,13 +102,13 @@ export default function FoundingCohort() {
           z-index: 3;
         }
         .cohort-heading {
-          font-family: 'Cormorant Garamond', serif;
+          font-family: var(--font-display);
           font-size: clamp(30px, 4vw, 52px);
           font-weight: 300;
           font-style: italic;
           line-height: 1.15;
           letter-spacing: -.02em;
-          color: rgba(255,255,255,0.88);
+          color: var(--fg-dim);
           margin-bottom: 56px;
         }
         .cohort-grid {
@@ -118,8 +118,8 @@ export default function FoundingCohort() {
         }
         .cohort-card {
           background: rgba(255,255,255,0.025);
-          border: 1px solid rgba(255,255,255,0.07);
-          border-radius: 16px;
+          border: 1px solid var(--line);
+          border-radius: var(--radius-lg);
           padding: 24px;
           display: flex;
           flex-direction: column;
@@ -142,40 +142,40 @@ export default function FoundingCohort() {
           flex-shrink: 0;
         }
         .cohort-avatar span {
-          font-family: 'Libre Franklin', sans-serif;
-          font-size: 11px;
+          font-family: var(--font-sans);
+          font-size: var(--text-xs);
           letter-spacing: .1em;
           color: rgba(127,255,0,0.75);
         }
         .cohort-name {
-          font-family: 'Cormorant Garamond', serif;
+          font-family: var(--font-display);
           font-size: 20px;
           font-weight: 400;
           font-style: italic;
-          color: rgba(255,255,255,0.88);
+          color: var(--fg-dim);
           line-height: 1.2;
         }
         .cohort-role {
-          font-family: 'Libre Franklin', sans-serif;
+          font-family: var(--font-sans);
           font-size: 10px;
           letter-spacing: .08em;
           color: rgba(255,255,255,0.32);
           line-height: 1.5;
         }
         .cohort-intent {
-          font-family: 'Libre Franklin', sans-serif;
+          font-family: var(--font-sans);
           font-size: 14px;
           font-style: italic;
           font-weight: 300;
           color: rgba(255,255,255,0.55);
-          line-height: 1.65;
+          line-height: var(--leading-relaxed);
           border-top: 1px solid rgba(255,255,255,0.06);
           padding-top: 12px;
           margin-top: 2px;
         }
         .cohort-divider {
           border: none;
-          border-top: 1px solid rgba(255,255,255,0.07);
+          border-top: 1px solid var(--line);
           margin: 56px 0;
         }
         .cohort-benefits-grid {
@@ -185,25 +185,25 @@ export default function FoundingCohort() {
         }
         .cohort-benefit-tab {
           background: rgba(255,255,255,0.025);
-          border: 1px solid rgba(255,255,255,0.07);
-          border-radius: 16px;
+          border: 1px solid var(--line);
+          border-radius: var(--radius-lg);
           padding: 28px 24px;
           display: flex;
           flex-direction: column;
           gap: 10px;
         }
         .cohort-benefit-label {
-          font-family: 'Libre Franklin', sans-serif;
-          font-size: 11px;
+          font-family: var(--font-sans);
+          font-size: var(--text-xs);
           letter-spacing: .18em;
           text-transform: uppercase;
           color: rgba(127,255,0,0.7);
         }
         .cohort-benefit-detail {
-          font-family: 'Libre Franklin', sans-serif;
-          font-size: 15px;
+          font-family: var(--font-sans);
+          font-size: var(--text-md);
           font-weight: 300;
-          line-height: 1.65;
+          line-height: var(--leading-relaxed);
           color: rgba(255,255,255,0.48);
         }
         @media (max-width: 968px) {

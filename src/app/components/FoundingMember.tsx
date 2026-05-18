@@ -72,7 +72,7 @@ export default function FoundingMember({ diagnosticEmail }: Props) {
           position: relative;
           z-index: 3;
           background: #020402;
-          border-top: 1px solid rgba(255,255,255,0.07);
+          border-top: 1px solid var(--line);
         }
         .fm-inner {
           max-width: 680px;
@@ -86,23 +86,23 @@ export default function FoundingMember({ diagnosticEmail }: Props) {
           flex-wrap: wrap;
         }
         .fm-heading {
-          font-family: 'Cormorant Garamond', serif;
+          font-family: var(--font-display);
           font-size: clamp(28px, 4vw, 48px);
           font-weight: 300;
           font-style: italic;
           line-height: 1.15;
           letter-spacing: -.02em;
-          color: rgba(255,255,255,0.88);
+          color: var(--fg-dim);
         }
         .fm-badge {
-          font-family: 'Libre Franklin', sans-serif;
+          font-family: var(--font-sans);
           font-size: 10px;
           letter-spacing: .22em;
           text-transform: uppercase;
           color: rgba(127,255,0,0.75);
           background: rgba(127,255,0,0.08);
           border: 1px solid rgba(127,255,0,0.2);
-          border-radius: 9999px;
+          border-radius: var(--radius-pill);
           padding: 4px 12px;
           white-space: nowrap;
         }
@@ -117,20 +117,20 @@ export default function FoundingMember({ diagnosticEmail }: Props) {
           justify-content: center;
         }
         .fm-highlight p {
-          font-family: 'Libre Franklin', sans-serif;
+          font-family: var(--font-sans);
           font-size: 16px;
           font-style: normal;
           font-weight: 300;
           color: rgba(255,255,255,0.62);
-          line-height: 1.65;
+          line-height: var(--leading-relaxed);
           text-align: center;
         }
         .fm-status-available { color: rgba(127,255,0,0.75); }
         .fm-status-taken { color: rgba(220,80,80,0.75); }
         .fm-status-invalid { color: rgba(255,180,0,0.65); }
         .fm-status-text {
-          font-family: 'Libre Franklin', sans-serif;
-          font-size: 11px;
+          font-family: var(--font-sans);
+          font-size: var(--text-xs);
           letter-spacing: .1em;
           height: 18px;
           display: flex;
@@ -146,7 +146,7 @@ export default function FoundingMember({ diagnosticEmail }: Props) {
           border-radius: 1px;
         }
         .founding-member-form {
-          border: 1px solid rgba(255,255,255,0.07);
+          border: 1px solid var(--line);
           border-radius: 20px;
           background: rgba(255,255,255,0.04);
           padding: 8px;
@@ -160,9 +160,9 @@ export default function FoundingMember({ diagnosticEmail }: Props) {
           background: transparent;
           border: none;
           outline: none;
-          font-family: 'Libre Franklin', sans-serif;
+          font-family: var(--font-sans);
           font-size: 16px;
-          color: rgba(255,255,255,0.88);
+          color: var(--fg-dim);
           padding: 12px 16px;
           width: 100%;
         }
@@ -173,8 +173,8 @@ export default function FoundingMember({ diagnosticEmail }: Props) {
           padding-left: 16px;
         }
         .fm-handle-prefix {
-          font-family: 'Libre Franklin', sans-serif;
-          font-size: 13px;
+          font-family: var(--font-sans);
+          font-size: var(--text-sm);
           color: rgba(255,255,255,0.28);
           white-space: nowrap;
           flex-shrink: 0;
@@ -188,8 +188,8 @@ export default function FoundingMember({ diagnosticEmail }: Props) {
           margin: 0 8px;
         }
         .fm-btn {
-          font-family: 'Libre Franklin', sans-serif;
-          font-size: 11px;
+          font-family: var(--font-sans);
+          font-size: var(--text-xs);
           letter-spacing: .22em;
           text-transform: uppercase;
           color: #050705;
@@ -217,11 +217,11 @@ export default function FoundingMember({ diagnosticEmail }: Props) {
 
           <div className="fm-highlight relethe-reveal">
             {claimed ? (
-              <p style={{ fontFamily: "'Libre Franklin', sans-serif", fontSize: 16, fontStyle: 'normal', fontWeight: 300, color: 'rgba(127,255,0,0.75)', lineHeight: 1.65, textAlign: 'center' }}>
+              <p style={{ fontFamily: "var(--font-sans)", fontSize: 16, fontStyle: 'normal', fontWeight: 300, color: 'rgba(127,255,0,0.75)', lineHeight: 1.65, textAlign: 'center' }}>
                 You're now a founding member — we'll email you when it's time to ball!
               </p>
             ) : claimDuplicate ? (
-              <p style={{ fontFamily: "'Libre Franklin', sans-serif", fontSize: 16, fontStyle: 'normal', fontWeight: 300, color: 'rgba(127,255,0,0.75)', lineHeight: 1.65, textAlign: 'center' }}>
+              <p style={{ fontFamily: "var(--font-sans)", fontSize: 16, fontStyle: 'normal', fontWeight: 300, color: 'rgba(127,255,0,0.75)', lineHeight: 1.65, textAlign: 'center' }}>
                 You're already on the list. We'll be in touch.
               </p>
             ) : (
@@ -282,7 +282,7 @@ export default function FoundingMember({ diagnosticEmail }: Props) {
               </div>
 
               {claimError && (
-                <p style={{ fontFamily: "'Libre Franklin', sans-serif", fontSize: 11, color: "rgba(220,80,80,0.7)", marginBottom: 12, paddingLeft: 8 }}>
+                <p style={{ fontFamily: "var(--font-sans)", fontSize: 11, color: "rgba(220,80,80,0.7)", marginBottom: 12, paddingLeft: 8 }}>
                   {claimError}
                 </p>
               )}

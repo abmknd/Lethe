@@ -368,16 +368,16 @@ export default function DiagnosticModal({ isOpen, onClose, onEmailSubmitted, onC
         .diag-opt:active { border-color: rgba(127,255,0,0.6); background: rgba(127,255,0,0.08); }
         .diag-close { position: fixed; top: 20px; right: 24px; width: 40px; height: 40px; border-radius: 50%; background: transparent; border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.4); font-size: 18px; display: flex; align-items: center; justify-content: center; cursor: none; transition: border-color .2s, color .2s; z-index: 99999; }
         .diag-close:hover { border-color: rgba(255,255,255,0.3); color: rgba(255,255,255,0.75); }
-        .diag-input { width: 100%; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 13px 18px; font-family: 'Libre Franklin', sans-serif; font-size: 16px; color: rgba(255,255,255,0.88); outline: none; transition: border-color .2s; }
+        .diag-input { width: 100%; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 13px 18px; font-family: var(--font-sans); font-size: 16px; color: var(--fg-dim); outline: none; transition: border-color .2s; }
         .diag-input:focus { border-color: rgba(127,255,0,0.35); }
         .diag-input::placeholder { color: rgba(255,255,255,0.18); }
-        .diag-btn-primary { font-family: 'Libre Franklin', sans-serif; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: #050705; background: rgba(127,255,0,0.88); border: none; border-radius: 22px; padding: 13px 28px; cursor: none; transition: background .2s; width: 100%; }
+        .diag-btn-primary { font-family: var(--font-sans); font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: #050705; background: rgba(127,255,0,0.88); border: none; border-radius: 22px; padding: 13px 28px; cursor: none; transition: background .2s; width: 100%; }
         .diag-btn-primary:hover { background: rgba(127,255,0,1); }
         .diag-btn-primary:disabled { opacity: 0.5; }
-        .diag-back { font-family: 'Libre Franklin', sans-serif; font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: rgba(255,255,255,0.25); background: transparent; border: none; cursor: none; transition: color .2s; margin-top: 24px; padding: 16px; }
+        .diag-back { font-family: var(--font-sans); font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: rgba(255,255,255,0.25); background: transparent; border: none; cursor: none; transition: color .2s; margin-top: 24px; padding: 16px; }
         .diag-back:hover { color: rgba(255,255,255,0.5); }
-        .diag-section-title { font-family: 'Libre Franklin', sans-serif; font-size: 10px; letter-spacing: .3em; text-transform: uppercase; color: rgba(127,255,0,0.5); margin-bottom: 4px; }
-        .diag-result-section-label { font-family: 'Libre Franklin', sans-serif; font-size: 10px; letter-spacing: .28em; text-transform: uppercase; color: rgba(127,255,0,0.45); margin-bottom: 8px; display: block; }
+        .diag-section-title { font-family: var(--font-sans); font-size: 10px; letter-spacing: .3em; text-transform: uppercase; color: rgba(127,255,0,0.5); margin-bottom: 4px; }
+        .diag-result-section-label { font-family: var(--font-sans); font-size: 10px; letter-spacing: .28em; text-transform: uppercase; color: rgba(127,255,0,0.45); margin-bottom: 8px; display: block; }
         .diag-overlay { scrollbar-width: none; -ms-overflow-style: none; }
         .diag-overlay::-webkit-scrollbar { display: none; }
         .diag-result-card {
@@ -420,10 +420,10 @@ export default function DiagnosticModal({ isOpen, onClose, onEmailSubmitted, onC
           {/* Progress bar */}
           <div style={{ width: "100%", maxWidth: 480, marginBottom: 40 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-              <span style={{ fontFamily: "'Libre Franklin', sans-serif", fontSize: 10, letterSpacing: ".28em", textTransform: "uppercase", color: "rgba(127,255,0,0.45)" }}>
+              <span style={{ fontFamily: "var(--font-sans)", fontSize: 10, letterSpacing: ".28em", textTransform: "uppercase", color: "rgba(127,255,0,0.45)" }}>
                 DIAGNOSTIC PROGRESS
               </span>
-              <span style={{ fontFamily: "'Libre Franklin', sans-serif", fontSize: 10, color: "rgba(127,255,0,0.6)" }}>
+              <span style={{ fontFamily: "var(--font-sans)", fontSize: 10, color: "rgba(127,255,0,0.6)" }}>
                 {progress}%
               </span>
             </div>
@@ -436,9 +436,9 @@ export default function DiagnosticModal({ isOpen, onClose, onEmailSubmitted, onC
           {step === 0 && (
             <form onSubmit={handleFreetextSubmit} style={{ width: "100%", maxWidth: 480, display: "flex", flexDirection: "column", gap: 20 }}>
               <p className="diag-section-title">LIFE CALIBRATION</p>
-              <h2 style={{ fontFamily: "'Libre Franklin', sans-serif", fontSize: "clamp(22px,3vw,32px)", fontWeight: 300, fontStyle: "italic", lineHeight: 1.3, color: "rgba(255,255,255,0.88)", margin: 0 }}>
+              <p style={{ fontFamily: "var(--font-sans)", fontSize: "clamp(22px,3vw,32px)", fontWeight: 300, fontStyle: "italic", lineHeight: 1.3, color: "var(--fg-dim)", margin: 0 }}>
                 What direction are you currently moving in, or want to move toward, in your life?
-              </h2>
+              </p>
               <div className="diag-textarea-wrap">
                 <textarea
                   className="diag-input"
@@ -460,10 +460,10 @@ export default function DiagnosticModal({ isOpen, onClose, onEmailSubmitted, onC
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 24, paddingTop: 40 }}>
               <PulseRings />
               <div style={{ textAlign: "center", maxWidth: 400 }}>
-                <p style={{ fontFamily: "'Libre Franklin', sans-serif", fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", color: "rgba(255,255,255,0.28)", marginBottom: 12 }}>
+                <p style={{ fontFamily: "var(--font-sans)", fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", color: "rgba(255,255,255,0.28)", marginBottom: 12 }}>
                   Calibrating your signal for:
                 </p>
-                <p style={{ fontFamily: "'Libre Franklin', sans-serif", fontSize: 20, fontStyle: "italic", fontWeight: 300, color: "rgba(255,255,255,0.72)", lineHeight: 1.5 }}>
+                <p style={{ fontFamily: "var(--font-sans)", fontSize: 20, fontStyle: "italic", fontWeight: 300, color: "rgba(255,255,255,0.72)", lineHeight: 1.5 }}>
                   "{freetext.length > 60 ? freetext.slice(0, 60) + "…" : freetext}"
                 </p>
                 <div style={{ marginTop: 16, display: "flex", justifyContent: "center" }}>
@@ -481,12 +481,12 @@ export default function DiagnosticModal({ isOpen, onClose, onEmailSubmitted, onC
             return (
               <div style={{ width: "100%", maxWidth: 480, display: "flex", flexDirection: "column", gap: 0 }}>
                 <p className="diag-section-title">{q.label}</p>
-                <p style={{ fontFamily: "'Libre Franklin', sans-serif", fontSize: 10, letterSpacing: ".22em", textTransform: "uppercase", color: "rgba(255,255,255,0.22)", marginBottom: 20 }}>
+                <p style={{ fontFamily: "var(--font-sans)", fontSize: 10, letterSpacing: ".22em", textTransform: "uppercase", color: "rgba(255,255,255,0.22)", marginBottom: 20 }}>
                   {q.query}
                 </p>
-                <h2 style={{ fontFamily: "'Libre Franklin', sans-serif", fontSize: "clamp(20px,2.8vw,30px)", fontWeight: 300, fontStyle: "italic", lineHeight: 1.35, color: "rgba(255,255,255,0.88)", marginBottom: 28 }}>
+                <p style={{ fontFamily: "var(--font-sans)", fontSize: "clamp(20px,2.8vw,30px)", fontWeight: 300, fontStyle: "italic", lineHeight: 1.35, color: "var(--fg-dim)", marginBottom: 28 }}>
                   {q.text}
-                </h2>
+                </p>
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                   {q.options.map((opt, i) => (
                     <button
@@ -494,10 +494,10 @@ export default function DiagnosticModal({ isOpen, onClose, onEmailSubmitted, onC
                       className="diag-opt"
                       onClick={() => handleAnswer(qKey, OPT_KEYS[i])}
                     >
-                      <span style={{ fontFamily: "'Libre Franklin', sans-serif", fontSize: 10, letterSpacing: ".2em", color: "rgba(127,255,0,0.5)", flexShrink: 0, paddingTop: 1 }}>
+                      <span style={{ fontFamily: "var(--font-sans)", fontSize: 10, letterSpacing: ".2em", color: "rgba(127,255,0,0.5)", flexShrink: 0, paddingTop: 1 }}>
                         {OPT_KEYS[i]}
                       </span>
-                      <span style={{ fontFamily: "'Libre Franklin', sans-serif", fontSize: 16, fontWeight: 300, color: "rgba(255,255,255,0.75)", lineHeight: 1.5 }}>
+                      <span style={{ fontFamily: "var(--font-sans)", fontSize: 16, fontWeight: 300, color: "rgba(255,255,255,0.75)", lineHeight: 1.5 }}>
                         {opt}
                       </span>
                     </button>
@@ -517,10 +517,10 @@ export default function DiagnosticModal({ isOpen, onClose, onEmailSubmitted, onC
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 24, paddingTop: 40 }}>
               <PulseRings />
               <div style={{ textAlign: "center", maxWidth: 360 }}>
-                <p style={{ fontFamily: "'Libre Franklin', sans-serif", fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", color: "rgba(255,255,255,0.28)", marginBottom: 8 }}>
+                <p style={{ fontFamily: "var(--font-sans)", fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", color: "rgba(255,255,255,0.28)", marginBottom: 8 }}>
                   Processing your network signal...
                 </p>
-                <p style={{ fontFamily: "'Libre Franklin', sans-serif", fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", color: "rgba(255,255,255,0.18)" }}>
+                <p style={{ fontFamily: "var(--font-sans)", fontSize: 11, letterSpacing: ".18em", textTransform: "uppercase", color: "rgba(255,255,255,0.18)" }}>
                   Cross-referencing the founding cohort...
                 </p>
                 <div style={{ marginTop: 20, display: "flex", justifyContent: "center" }}>
@@ -533,17 +533,17 @@ export default function DiagnosticModal({ isOpen, onClose, onEmailSubmitted, onC
           {/* ── STATE 8: Email gate ── */}
           {step === 8 && (
             <form onSubmit={handleGateSubmit} style={{ width: "100%", maxWidth: 480, display: "flex", flexDirection: "column", alignItems: "center", gap: 20 }}>
-              <p style={{ fontFamily: "'Libre Franklin', sans-serif", fontSize: 11, letterSpacing: ".32em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)", textAlign: "center" }}>
+              <p style={{ fontFamily: "var(--font-sans)", fontSize: 11, letterSpacing: ".32em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)", textAlign: "center" }}>
                 MATCH PROFILE GENERATED
               </p>
 
               {/* Teaser chip */}
               <div style={{ background: 'rgba(127,255,0,0.07)', border: '1px solid rgba(127,255,0,0.3)', borderRadius: '16px', padding: '28px 24px', textAlign: 'center', width: '100%' }}>
                 <OrganismSVG />
-                <p style={{ fontFamily: 'var(--mono)', fontWeight: 600, fontSize: '18px', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--text)', margin: '0 0 10px', lineHeight: 1.2 }}>
+                <p style={{ fontFamily: "var(--font-sans)", fontWeight: 600, fontSize: '18px', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--text)', margin: '0 0 10px', lineHeight: 1.2 }}>
                   {result?.name}
                 </p>
-                <p style={{ fontFamily: 'var(--sans-serif)', fontSize: '15px', fontWeight: 300, color: 'var(--dim)', margin: 0, lineHeight: 1.6 }}>
+                <p style={{ fontFamily: "var(--font-sans)", fontSize: '15px', fontWeight: 300, color: 'var(--dim)', margin: 0, lineHeight: 1.6 }}>
                   {TEASER[archetype]}
                 </p>
               </div>
@@ -568,7 +568,7 @@ export default function DiagnosticModal({ isOpen, onClose, onEmailSubmitted, onC
                 {isSubmitting ? "Loading..." : "Reveal My Match Profile"}
               </button>
               {diagDuplicate && (
-                <p style={{ fontFamily: "'Libre Franklin', sans-serif", fontSize: 13, fontStyle: "italic", fontWeight: 300, color: "rgba(127,255,0,0.75)", textAlign: "center", marginTop: 4 }}>
+                <p style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontStyle: "italic", fontWeight: 300, color: "rgba(127,255,0,0.75)", textAlign: "center", marginTop: 4 }}>
                   You're already on the list. We'll be in touch.
                 </p>
               )}
@@ -588,17 +588,17 @@ export default function DiagnosticModal({ isOpen, onClose, onEmailSubmitted, onC
 
                 <p className="diag-section-title" style={{ marginBottom: 12 }}>MATCH PROFILE UNLOCKED</p>
 
-                <h2 style={{ fontFamily: "'Libre Franklin', sans-serif", fontSize: "clamp(15px,2vw,18px)", letterSpacing: ".18em", textTransform: "uppercase", color: "rgba(255,255,255,0.88)", textAlign: "center", marginBottom: 12, lineHeight: 1.4 }}>
+                <p style={{ fontFamily: "var(--font-sans)", fontSize: "clamp(15px,2vw,18px)", letterSpacing: ".18em", textTransform: "uppercase", color: "var(--fg-dim)", textAlign: "center", marginBottom: 12, lineHeight: 1.4 }}>
                   {result.name}
-                </h2>
-                <p style={{ fontFamily: "'Libre Franklin', sans-serif", fontSize: "clamp(17px,2.2vw,20px)", fontStyle: "italic", fontWeight: 300, color: "rgba(255,255,255,0.55)", textAlign: "center", lineHeight: 1.5, marginBottom: 28 }}>
+                </p>
+                <p style={{ fontFamily: "var(--font-sans)", fontSize: "clamp(17px,2.2vw,20px)", fontStyle: "italic", fontWeight: 300, color: "rgba(255,255,255,0.55)", textAlign: "center", lineHeight: 1.5, marginBottom: 28 }}>
                   {result.tagline}
                 </p>
 
                 {/* THE GAP */}
                 <div style={{ width: "100%", borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 20, marginBottom: 20 }}>
                   <span className="diag-result-section-label">THE GAP</span>
-                  <p style={{ fontFamily: "'Libre Franklin', sans-serif", fontSize: "clamp(14px,1.6vw,16px)", fontWeight: 300, lineHeight: 1.8, color: "rgba(255,255,255,0.65)" }}>
+                  <p style={{ fontFamily: "var(--font-sans)", fontSize: "clamp(14px,1.6vw,16px)", fontWeight: 300, lineHeight: 1.8, color: "rgba(255,255,255,0.65)" }}>
                     {variant.gap}
                   </p>
                 </div>
@@ -606,19 +606,19 @@ export default function DiagnosticModal({ isOpen, onClose, onEmailSubmitted, onC
                 {/* WHO YOU NEED */}
                 <div style={{ width: "100%", borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 20, marginBottom: 20 }}>
                   <span className="diag-result-section-label">WHO YOU NEED</span>
-                  <p style={{ fontFamily: "'Libre Franklin', sans-serif", fontSize: "clamp(14px,1.6vw,16px)", fontWeight: 300, lineHeight: 1.8, color: "rgba(255,255,255,0.65)" }}>
+                  <p style={{ fontFamily: "var(--font-sans)", fontSize: "clamp(14px,1.6vw,16px)", fontWeight: 300, lineHeight: 1.8, color: "rgba(255,255,255,0.65)" }}>
                     {variant.who}
                   </p>
                 </div>
 
                 {/* Cohort count */}
                 <div style={{ width: "100%", background: "rgba(127,255,0,0.04)", border: "1px solid rgba(127,255,0,0.12)", borderRadius: 10, padding: "12px 16px", marginBottom: 16, textAlign: "center" }}>
-                  <p style={{ fontFamily: "'Libre Franklin', sans-serif", fontSize: 12, letterSpacing: ".1em", color: "rgba(255,255,255,0.45)" }}>
+                  <p style={{ fontFamily: "var(--font-sans)", fontSize: 12, letterSpacing: ".1em", color: "rgba(255,255,255,0.45)" }}>
                     There are <span style={{ color: "rgba(127,255,0,0.75)" }}>16</span> people in the Relethe founding cohort who match this profile.
                   </p>
                 </div>
 
-                <p style={{ fontFamily: "'Libre Franklin', sans-serif", fontSize: 11, letterSpacing: ".12em", color: "rgba(255,255,255,0.3)", textAlign: "center", marginBottom: 4 }}>
+                <p style={{ fontFamily: "var(--font-sans)", fontSize: 11, letterSpacing: ".12em", color: "rgba(255,255,255,0.3)", textAlign: "center", marginBottom: 4 }}>
                   You're on the founding cohort waitlist. We'll be in touch.
                 </p>
               </div></div>
