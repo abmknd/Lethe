@@ -46,7 +46,7 @@ export default function FoundingMember({ diagnosticEmail }: Props) {
   const handleClaim = async (e: FormEvent) => {
     e.preventDefault();
     const h = handle.toLowerCase();
-    const em = email.trim() || diagnosticEmail;
+    const em = diagnosticEmail || email.trim();
     if (!h || handleStatus !== "available" || isClaiming || !em) return;
     setIsClaiming(true);
     setClaimError("");
