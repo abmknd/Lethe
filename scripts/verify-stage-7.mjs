@@ -4,10 +4,10 @@ import { spawn } from 'node:child_process';
 
 const commands = [
   ['npm', ['run', 'build'], { allowFailure: false }],
-  ['npm', ['run', 'trial:test:backend'], { allowFailure: false }],
+  ['npm', ['run', 'mvp:test:backend'], { allowFailure: false }],
   // Cucumber exits non-zero when scenarios are pending. Pending scenarios are
   // intentionally tracked as future work; actual failures still show up here.
-  ['npm', ['run', 'trial:test:bdd'], { allowFailure: true }],
+  ['npm', ['run', 'mvp:test:bdd'], { allowFailure: true }],
   ['npm', ['run', 'verify:waitlist'], { allowFailure: false }],
 ];
 
