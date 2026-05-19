@@ -33,8 +33,8 @@ export function ensureSchema(db) {
 
 function isSchemaCompatible(db) {
   const requirements = {
-    users: ['name', 'bio', 'matching_enabled'],
-    preferences: ['id', 'offers', 'asks', 'preferred_locations', 'user_type', 'preferred_user_types', 'objectives'],
+    users: ['name', 'bio', 'matching_enabled', 'dob'],
+    preferences: ['id', 'offers', 'asks', 'preferred_locations', 'user_type', 'preferred_user_types', 'objectives', 'languages', 'meeting_frequency', 'learn_about', 'ask_about', 'who_to_meet', 'notification_prefs'],
     availability_slots: ['start_time', 'end_time', 'timezone'],
     recommendations: ['source_user_id', 'target_user_id', 'why_matched', 'insight_text'],
     events: ['user_id', 'payload'],

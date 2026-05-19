@@ -129,7 +129,7 @@ export class SqliteTrialRepository extends UserRepository {
     return this.db
       .prepare(
         `
-        SELECT id, name, handle, email, location, bio, matching_enabled, timezone, is_active, created_at, updated_at
+        SELECT id, name, handle, email, location, bio, matching_enabled, timezone, is_active, dob, created_at, updated_at
         FROM users
         ORDER BY name ASC
       `,
@@ -155,7 +155,7 @@ export class SqliteTrialRepository extends UserRepository {
     const row = this.db
       .prepare(
         `
-        SELECT id, name, handle, email, location, bio, matching_enabled, timezone, is_active, created_at, updated_at
+        SELECT id, name, handle, email, location, bio, matching_enabled, timezone, is_active, dob, created_at, updated_at
         FROM users
         WHERE id = :userId
       `,
@@ -177,6 +177,7 @@ export class SqliteTrialRepository extends UserRepository {
       matchingEnabled: Boolean(row.matching_enabled),
       timezone: row.timezone,
       isActive: Boolean(row.is_active),
+      dob: row.dob ?? null,
       createdAt: row.created_at,
       updatedAt: row.updated_at,
     };
@@ -186,7 +187,7 @@ export class SqliteTrialRepository extends UserRepository {
     const normalized = handle.startsWith('@') ? handle.slice(1) : handle;
     const row = this.db
       .prepare(
-        `SELECT id, name, handle, email, location, bio, matching_enabled, timezone, is_active, created_at, updated_at
+        `SELECT id, name, handle, email, location, bio, matching_enabled, timezone, is_active, dob, created_at, updated_at
          FROM users WHERE handle = ? OR handle = ? LIMIT 1`,
       )
       .get(normalized, '@' + normalized);
@@ -202,6 +203,7 @@ export class SqliteTrialRepository extends UserRepository {
       matchingEnabled: Boolean(row.matching_enabled),
       timezone: row.timezone,
       isActive: Boolean(row.is_active),
+      dob: row.dob ?? null,
       createdAt: row.created_at,
       updatedAt: row.updated_at,
     };
@@ -214,10 +216,10 @@ export class SqliteTrialRepository extends UserRepository {
       .prepare(
         `
         INSERT INTO users (
-          id, name, handle, email, location, bio, matching_enabled, timezone, is_active, created_at, updated_at
+          id, name, handle, email, location, bio, matching_enabled, timezone, is_active, dob, created_at, updated_at
         )
         VALUES (
-          :id, :name, :handle, :email, :location, :bio, :matchingEnabled, :timezone, :isActive, :createdAt, :updatedAt
+          :id, :name, :handle, :email, :location, :bio, :matchingEnabled, :timezone, :isActive, :dob, :createdAt, :updatedAt
         )
         ON CONFLICT(id) DO UPDATE SET
           name = excluded.name,
@@ -228,6 +230,7 @@ export class SqliteTrialRepository extends UserRepository {
           matching_enabled = excluded.matching_enabled,
           timezone = excluded.timezone,
           is_active = excluded.is_active,
+          dob = excluded.dob,
           updated_at = excluded.updated_at
       `,
       )
@@ -241,6 +244,7 @@ export class SqliteTrialRepository extends UserRepository {
         matchingEnabled: user.matchingEnabled ? 1 : 0,
         timezone: user.timezone || 'UTC',
         isActive: user.isActive ? 1 : 0,
+        dob: user.dob ?? null,
         createdAt: now,
         updatedAt: now,
       });
@@ -253,7 +257,8 @@ export class SqliteTrialRepository extends UserRepository {
       .prepare(
         `
         SELECT id, user_id, match_intent, offers, asks, preferred_locations, user_type, preferred_user_types, interests, objectives,
-               intro_text, meeting_format, local_only, blocked_user_ids, created_at, updated_at
+               intro_text, meeting_format, local_only, blocked_user_ids, languages, meeting_frequency, learn_about, ask_about,
+               who_to_meet, notification_prefs, created_at, updated_at
         FROM preferences
         WHERE user_id = :userId
       `,
@@ -279,6 +284,12 @@ export class SqliteTrialRepository extends UserRepository {
       meetingFormat: row.meeting_format ?? 'video',
       localOnly: Boolean(row.local_only ?? 0),
       blockedUserIds: parseJson(row.blocked_user_ids, []),
+      languages: parseJson(row.languages, []),
+      meetingFrequency: row.meeting_frequency ?? 'every_week',
+      learnAbout: row.learn_about ?? '',
+      askAbout: row.ask_about ?? '',
+      whoToMeet: Number.isInteger(row.who_to_meet) ? row.who_to_meet : 0,
+      notificationPrefs: parseJson(row.notification_prefs, {}),
       createdAt: row.created_at,
       updatedAt: row.updated_at,
     };
@@ -306,6 +317,12 @@ export class SqliteTrialRepository extends UserRepository {
           meeting_format,
           local_only,
           blocked_user_ids,
+          languages,
+          meeting_frequency,
+          learn_about,
+          ask_about,
+          who_to_meet,
+          notification_prefs,
           created_at,
           updated_at
         )
@@ -324,6 +341,12 @@ export class SqliteTrialRepository extends UserRepository {
           :meetingFormat,
           :localOnly,
           :blockedUserIds,
+          :languages,
+          :meetingFrequency,
+          :learnAbout,
+          :askAbout,
+          :whoToMeet,
+          :notificationPrefs,
           :createdAt,
           :updatedAt
         )
@@ -340,6 +363,12 @@ export class SqliteTrialRepository extends UserRepository {
           meeting_format = excluded.meeting_format,
           local_only = excluded.local_only,
           blocked_user_ids = excluded.blocked_user_ids,
+          languages = excluded.languages,
+          meeting_frequency = excluded.meeting_frequency,
+          learn_about = excluded.learn_about,
+          ask_about = excluded.ask_about,
+          who_to_meet = excluded.who_to_meet,
+          notification_prefs = excluded.notification_prefs,
           updated_at = excluded.updated_at
       `,
       )
@@ -358,6 +387,12 @@ export class SqliteTrialRepository extends UserRepository {
         meetingFormat: preferences.meetingFormat ?? 'video',
         localOnly: preferences.localOnly ? 1 : 0,
         blockedUserIds: JSON.stringify(preferences.blockedUserIds ?? []),
+        languages: JSON.stringify(preferences.languages ?? []),
+        meetingFrequency: preferences.meetingFrequency ?? 'every_week',
+        learnAbout: preferences.learnAbout ?? '',
+        askAbout: preferences.askAbout ?? '',
+        whoToMeet: Number.isInteger(preferences.whoToMeet) ? preferences.whoToMeet : 0,
+        notificationPrefs: JSON.stringify(preferences.notificationPrefs ?? {}),
         createdAt: now,
         updatedAt: now,
       });
@@ -444,6 +479,12 @@ export class SqliteTrialRepository extends UserRepository {
       meetingFormat: 'video',
       localOnly: false,
       blockedUserIds: [],
+      languages: [],
+      meetingFrequency: 'every_week',
+      learnAbout: '',
+      askAbout: '',
+      whoToMeet: 0,
+      notificationPrefs: {},
     };
 
     const availability = this.listAvailabilityByUserId(userId);
@@ -460,6 +501,7 @@ export class SqliteTrialRepository extends UserRepository {
         bio: user.bio,
         matchingEnabled: user.matchingEnabled,
         isActive: user.isActive,
+        dob: user.dob ?? null,
       },
       preferences: {
         matchIntent: preferences.matchIntent,
@@ -474,6 +516,12 @@ export class SqliteTrialRepository extends UserRepository {
         localOnly: preferences.localOnly,
         matchEnabled: user.matchingEnabled,
         blockedUserIds: preferences.blockedUserIds,
+        languages: preferences.languages ?? [],
+        meetingFrequency: preferences.meetingFrequency ?? 'every_week',
+        learnAbout: preferences.learnAbout ?? '',
+        askAbout: preferences.askAbout ?? '',
+        whoToMeet: preferences.whoToMeet ?? 0,
+        notificationPrefs: preferences.notificationPrefs ?? {},
       },
       availability,
       updatedAt: user.updatedAt,
@@ -508,6 +556,12 @@ export class SqliteTrialRepository extends UserRepository {
         meetingFormat: preferences.meetingFormat,
         localOnly: preferences.localOnly,
         blockedUserIds: preferences.blockedUserIds,
+        languages: preferences.languages,
+        meetingFrequency: preferences.meetingFrequency,
+        learnAbout: preferences.learnAbout,
+        askAbout: preferences.askAbout,
+        whoToMeet: preferences.whoToMeet,
+        notificationPrefs: preferences.notificationPrefs,
       });
 
       this.replaceAvailabilitySlots(user.id, availability);

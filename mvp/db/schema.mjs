@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS users (
   matching_enabled INTEGER NOT NULL DEFAULT 1,
   timezone TEXT NOT NULL DEFAULT 'UTC',
   is_active INTEGER NOT NULL DEFAULT 1,
+  dob TEXT,
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL
 );
@@ -30,6 +31,12 @@ CREATE TABLE IF NOT EXISTS preferences (
   meeting_format TEXT NOT NULL DEFAULT 'video',
   local_only INTEGER NOT NULL DEFAULT 0,
   blocked_user_ids TEXT NOT NULL DEFAULT '[]',
+  languages TEXT NOT NULL DEFAULT '[]',
+  meeting_frequency TEXT NOT NULL DEFAULT 'every_week',
+  learn_about TEXT NOT NULL DEFAULT '',
+  ask_about TEXT NOT NULL DEFAULT '',
+  who_to_meet INTEGER NOT NULL DEFAULT 0,
+  notification_prefs TEXT NOT NULL DEFAULT '{}',
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL,
   FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
