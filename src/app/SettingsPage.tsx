@@ -68,6 +68,18 @@ function meetingFormatToIndex(val: string): number {
   return i >= 0 ? i : 0;
 }
 
+// ── meeting frequency helpers ──────────────────────────────────────────────────
+
+const FREQUENCY_LABEL_TO_VALUE: Record<string, string> = {
+  'Every week': 'every_week',
+  'Every two weeks': 'every_two_weeks',
+  'Once a month': 'monthly',
+  'Twice a month': 'twice_monthly',
+};
+const FREQUENCY_VALUE_TO_LABEL: Record<string, string> = Object.fromEntries(
+  Object.entries(FREQUENCY_LABEL_TO_VALUE).map(([k, v]) => [v, k]),
+);
+
 // ── goals label helpers ────────────────────────────────────────────────────────
 
 const GOAL_LABELS = [
@@ -215,6 +227,7 @@ export default function SettingsPage() {
 
         if (u?.location) setLocation(u.location as string);
         if (u?.matchingEnabled === false) setPauseMeetings(true);
+        if (typeof u?.dob === 'string') setDob(u.dob as string);
 
         if (p?.localOnly) setLocalMatchesOnly(p.localOnly as boolean);
         if (Array.isArray(p?.interests) && p.interests.length) setInterests(p.interests as string[]);
@@ -226,6 +239,34 @@ export default function SettingsPage() {
         }
         if (Array.isArray(p?.preferredLocations) && (p.preferredLocations as string[]).length) {
           setWhereBased((p.preferredLocations as string[])[0]);
+        }
+        if (Array.isArray(p?.languages) && (p.languages as string[]).length) {
+          setLanguages(p.languages as string[]);
+        }
+        if (typeof p?.meetingFrequency === 'string' && FREQUENCY_VALUE_TO_LABEL[p.meetingFrequency as string]) {
+          setMeetingFrequency(FREQUENCY_VALUE_TO_LABEL[p.meetingFrequency as string]);
+        }
+        if (typeof p?.learnAbout === 'string') setLearnAbout(p.learnAbout as string);
+        if (typeof p?.askAbout === 'string') setAskAbout(p.askAbout as string);
+        if (Number.isInteger(p?.whoToMeet)) setWhoToMeet(p.whoToMeet as number);
+        if (p?.notificationPrefs && typeof p.notificationPrefs === 'object') {
+          const np = p.notificationPrefs as Record<string, Record<string, { email?: boolean; push?: boolean }>>;
+          setNotificationGroups((prev) => prev.map((g) => {
+            const saved = np[g.id];
+            if (!saved) return g;
+            return {
+              ...g,
+              items: g.items.map((item) => {
+                const ch = saved[item.title];
+                if (!ch) return item;
+                return {
+                  ...item,
+                  email: ch.email === undefined ? item.email : Boolean(ch.email),
+                  push: ch.push === undefined ? item.push : Boolean(ch.push),
+                };
+              }),
+            };
+          }));
         }
 
         if (Array.isArray(av) && av.length) {
@@ -247,6 +288,13 @@ export default function SettingsPage() {
       const token = session?.access_token;
       const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
+      const notificationPrefs = Object.fromEntries(
+        notificationGroups.map((g) => [
+          g.id,
+          Object.fromEntries(g.items.map((item) => [item.title, { email: item.email, push: item.push }])),
+        ]),
+      );
+
       await apiFetch(
         `/api/v1/users/${user.id}/profile`,
         {
@@ -256,6 +304,7 @@ export default function SettingsPage() {
               location,
               matchingEnabled: !pauseMeetings,
               timezone,
+              dob: dob || null,
             },
             preferences: {
               interests,
@@ -264,6 +313,12 @@ export default function SettingsPage() {
               meetingFormat: MEETING_FORMAT_VALUES[meetingFormat],
               matchIntent: goals.filter((g) => g.active).map((g) => g.label),
               preferredLocations: whereBased === 'Anywhere in the world' ? [] : [whereBased],
+              languages,
+              meetingFrequency: FREQUENCY_LABEL_TO_VALUE[meetingFrequency] ?? 'every_week',
+              learnAbout,
+              askAbout,
+              whoToMeet,
+              notificationPrefs,
             },
             availability: availabilityToSlots(availability, timezone),
           }),

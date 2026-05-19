@@ -119,9 +119,36 @@ export function normalizeMatchIntent(input) {
   return [];
 }
 
+const MEETING_FREQUENCIES = new Set(['every_week', 'every_two_weeks', 'monthly', 'twice_monthly']);
+
+export function normalizeNotificationPrefs(input) {
+  if (!input || typeof input !== 'object' || Array.isArray(input)) {
+    return {};
+  }
+  const out = {};
+  for (const [groupId, items] of Object.entries(input)) {
+    if (!items || typeof items !== 'object' || Array.isArray(items)) continue;
+    const group = {};
+    for (const [itemKey, channels] of Object.entries(items)) {
+      if (!channels || typeof channels !== 'object') continue;
+      group[String(itemKey)] = {
+        email: Boolean(channels.email),
+        push: Boolean(channels.push),
+      };
+    }
+    out[String(groupId)] = group;
+  }
+  return out;
+}
+
 export function normalizePreferences(input = {}) {
   const preferredLocations = normalizeStringList(input.preferredLocations);
   const preferredUserTypes = normalizeStringList(input.preferredUserTypes);
+  const meetingFrequency = typeof input.meetingFrequency === 'string' && MEETING_FREQUENCIES.has(input.meetingFrequency)
+    ? input.meetingFrequency
+    : 'every_week';
+  const whoToMeetRaw = Number(input.whoToMeet);
+  const whoToMeet = Number.isInteger(whoToMeetRaw) && whoToMeetRaw >= 0 && whoToMeetRaw < 10 ? whoToMeetRaw : 0;
 
   return {
     matchIntent: normalizeMatchIntent(input.matchIntent),
@@ -137,11 +164,19 @@ export function normalizePreferences(input = {}) {
     localOnly: Boolean(input.localOnly),
     matchEnabled: input.matchEnabled === undefined ? true : Boolean(input.matchEnabled),
     blockedUserIds: normalizeStringList(input.blockedUserIds),
+    languages: normalizeStringList(input.languages),
+    meetingFrequency,
+    learnAbout: typeof input.learnAbout === 'string' ? input.learnAbout.trim() : '',
+    askAbout: typeof input.askAbout === 'string' ? input.askAbout.trim() : '',
+    whoToMeet,
+    notificationPrefs: normalizeNotificationPrefs(input.notificationPrefs),
   };
 }
 
 export function normalizeUser(input = {}) {
   const name = String(input.name ?? input.displayName ?? '').trim();
+  const dobRaw = input.dob;
+  const dob = typeof dobRaw === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dobRaw.trim()) ? dobRaw.trim() : null;
 
   return {
     id: String(input.id ?? '').trim(),
@@ -154,6 +189,7 @@ export function normalizeUser(input = {}) {
     bio: String(input.bio ?? input.introText ?? '').trim(),
     matchingEnabled: input.matchingEnabled === undefined ? true : Boolean(input.matchingEnabled),
     isActive: input.isActive === undefined ? true : Boolean(input.isActive),
+    dob,
   };
 }
 
