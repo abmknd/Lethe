@@ -21,7 +21,7 @@ jobs:
       - run: npm ci
 
       - name: Backend tests
-        run: node --test mvp/tests/**/*.test.mjs
+        run: node --test "mvp/tests/**/*.test.mjs"
 
       - name: Build
         run: npm run build

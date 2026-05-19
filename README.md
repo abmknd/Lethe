@@ -76,7 +76,7 @@ The `MVP CI` workflow (`.github/workflows/mvp-ci.yml`) runs on every PR targetin
 
 ```
 npm ci
-node --test mvp/tests/**/*.test.mjs
+node --test "mvp/tests/**/*.test.mjs"
 npm run build
 ```
 
