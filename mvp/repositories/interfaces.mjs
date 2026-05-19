@@ -122,6 +122,16 @@ export class MeetingRepository {
   }
 }
 
+export class ConnectionReadinessRepository {
+  upsertConnectionReadiness() {
+    throw new Error('Not implemented');
+  }
+
+  getConnectionReadinessByUserId() {
+    throw new Error('Not implemented');
+  }
+}
+
 export class CepRepository {
   upsertCep() {
     throw new Error('Not implemented');

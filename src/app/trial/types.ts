@@ -18,6 +18,35 @@ export interface TrialCepResponse {
   isActive: boolean;
 }
 
+export type TrialMeetingReadinessStatus = 'excellent' | 'good' | 'medium' | 'low' | 'failed' | 'unknown';
+
+export interface TrialMeetingReadiness {
+  id: string;
+  userId: string;
+  provider: string;
+  testedAt: string;
+  expiresAt: string;
+  status: TrialMeetingReadinessStatus;
+  score: number | null;
+  latencyMs: number | null;
+  jitterMs: number | null;
+  packetLossPct: number | null;
+  uploadKbps: number | null;
+  downloadKbps: number | null;
+  canUseCamera: boolean;
+  canUseMic: boolean;
+  deviceWarnings: string[];
+  recommendation: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface TrialMeetingReadinessResponse {
+  readiness: TrialMeetingReadiness | null;
+  isActive: boolean;
+  displayStatus: TrialMeetingReadinessStatus;
+}
+
 export interface TrialUser {
   id: string;
   displayName: string;

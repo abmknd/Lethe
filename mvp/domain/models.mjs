@@ -38,6 +38,18 @@ export const MEETING_STATUSES = Object.freeze({
   FAILED: 'failed',
 });
 
+export const READINESS_STATUSES = Object.freeze({
+  EXCELLENT: 'excellent',
+  GOOD: 'good',
+  MEDIUM: 'medium',
+  LOW: 'low',
+  FAILED: 'failed',
+  UNKNOWN: 'unknown',
+});
+
+export const READINESS_JOIN_EXPIRY_MINUTES = 30;
+export const READINESS_SCHEDULING_EXPIRY_HOURS = 24;
+
 export function nowIso() {
   return new Date().toISOString();
 }
@@ -185,6 +197,50 @@ export function normalizeMeetingPayload(input = {}) {
   };
 }
 
+export function readinessExpiresAt(testedAt = nowIso(), mode = 'scheduling') {
+  const base = new Date(testedAt);
+  if (Number.isNaN(base.getTime())) {
+    throw new Error('Invalid readiness testedAt.');
+  }
+  const ms = mode === 'join'
+    ? READINESS_JOIN_EXPIRY_MINUTES * 60 * 1000
+    : READINESS_SCHEDULING_EXPIRY_HOURS * 60 * 60 * 1000;
+  return new Date(base.getTime() + ms).toISOString();
+}
+
+export function isReadinessActive(entry, now = nowIso()) {
+  if (!entry?.expiresAt) return false;
+  return new Date(entry.expiresAt).getTime() > new Date(now).getTime();
+}
+
+export function normalizeConnectionReadiness(input = {}) {
+  const status = String(input.status ?? READINESS_STATUSES.UNKNOWN).trim().toLowerCase();
+  if (!Object.values(READINESS_STATUSES).includes(status)) {
+    throw new Error('Invalid meeting readiness status.');
+  }
+
+  const score = normalizeOptionalNumber(input.score, 'score', { min: 0, max: 100 });
+  const testedAt = normalizeOptionalDate(input.testedAt ?? nowIso(), 'testedAt') ?? nowIso();
+  const expiresAt = normalizeOptionalDate(input.expiresAt ?? readinessExpiresAt(testedAt), 'expiresAt');
+
+  return {
+    provider: input.provider ? String(input.provider).trim().toLowerCase() : 'manual_link',
+    testedAt,
+    expiresAt,
+    status,
+    score,
+    latencyMs: normalizeOptionalNumber(input.latencyMs, 'latencyMs', { min: 0 }),
+    jitterMs: normalizeOptionalNumber(input.jitterMs, 'jitterMs', { min: 0 }),
+    packetLossPct: normalizeOptionalNumber(input.packetLossPct, 'packetLossPct', { min: 0, max: 100 }),
+    uploadKbps: normalizeOptionalNumber(input.uploadKbps, 'uploadKbps', { min: 0 }),
+    downloadKbps: normalizeOptionalNumber(input.downloadKbps, 'downloadKbps', { min: 0 }),
+    canUseCamera: Boolean(input.canUseCamera),
+    canUseMic: Boolean(input.canUseMic),
+    deviceWarnings: normalizeStringList(input.deviceWarnings),
+    recommendation: typeof input.recommendation === 'string' ? input.recommendation.trim() : '',
+  };
+}
+
 function normalizeOptionalDate(value, fieldName) {
   if (!value) {
     return null;
@@ -196,6 +252,17 @@ function normalizeOptionalDate(value, fieldName) {
   }
 
   return date.toISOString();
+}
+
+function normalizeOptionalNumber(value, fieldName, { min = -Infinity, max = Infinity } = {}) {
+  if (value === undefined || value === null || value === '') {
+    return null;
+  }
+  const number = Number(value);
+  if (!Number.isFinite(number) || number < min || number > max) {
+    throw new Error(`Invalid readiness ${fieldName}.`);
+  }
+  return number;
 }
 
 export function hasHourOverlap(a, b) {

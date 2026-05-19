@@ -111,6 +111,17 @@ CREATE POLICY "meetings: read via own recommendation"
     )
   );
 
+-- ── connection_readiness ─────────────────────────────────────────────────────
+-- Users may read their own readiness signal. Mutations go through Edge Functions
+-- so clients cannot write readiness directly around the API validation layer.
+
+ALTER TABLE connection_readiness ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "connection_readiness: read own" ON connection_readiness;
+CREATE POLICY "connection_readiness: read own"
+  ON connection_readiness FOR SELECT
+  USING (user_id = lethe_user_id());
+
 -- ── weekly_cep ────────────────────────────────────────────────────────────────
 -- Users own their CEP entry: read, write, and delete scoped to their user id.
 -- The upsert (submit/replace) goes through the same Edge Function as reads,

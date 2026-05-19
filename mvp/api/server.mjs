@@ -370,6 +370,31 @@ export function createTrialApiServer({ services, dbPath }) {
         return;
       }
 
+      if (req.method === 'POST' && path === '/api/trial/meeting-readiness/start') {
+        const body = await readJsonBody(req);
+        const result = services.meetingReadiness.startCheck(String(body.userId ?? ''), {
+          provider: body.provider,
+          actorUserId: body.actorUserId ?? body.userId,
+        });
+        sendJson(res, 200, result);
+        return;
+      }
+
+      if (req.method === 'POST' && path === '/api/trial/meeting-readiness/result') {
+        const body = await readJsonBody(req);
+        const result = services.meetingReadiness.recordResult(String(body.userId ?? ''), body);
+        sendJson(res, 200, result);
+        return;
+      }
+
+      const userReadinessMatch = path.match(/^\/api\/trial\/users\/([^/]+)\/meeting-readiness$/);
+      if (userReadinessMatch && req.method === 'GET') {
+        const userId = decodeURIComponent(userReadinessMatch[1]);
+        const result = services.meetingReadiness.getLatest(userId);
+        sendJson(res, 200, result);
+        return;
+      }
+
       const userCepMatch = path.match(/^\/api\/trial\/users\/([^/]+)\/cep$/);
       if (userCepMatch) {
         const userId = decodeURIComponent(userCepMatch[1]);

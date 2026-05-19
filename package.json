@@ -18,6 +18,9 @@
     "trial:test:backend": "node --test mvp/tests/**/*.test.mjs",
     "trial:test:bdd": "cucumber-js --import 'mvp/tests/step-definitions/**/*.mjs' mvp/tests/features/l0-happy-paths.feature mvp/tests/features/l1-insufficient-input.feature mvp/tests/features/l2-matching-failure.feature mvp/tests/features/l3-match-bypass.feature --tags 'not @skip'",
     "trial:test:bdd:all": "cucumber-js --import 'mvp/tests/step-definitions/**/*.mjs' mvp/tests/features/l0-happy-paths.feature mvp/tests/features/l1-insufficient-input.feature mvp/tests/features/l2-matching-failure.feature mvp/tests/features/l3-match-bypass.feature",
+    "verify:magic-link": "node scripts/verify-magic-link.mjs",
+    "verify:stage7": "node scripts/verify-stage-7.mjs",
+    "verify:waitlist": "node scripts/verify-waitlist.mjs",
     "verify:rls": "node scripts/verify-rls.mjs",
     "verify:signup": "node scripts/verify-signup.mjs",
     "build": "vite build"

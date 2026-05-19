@@ -4,6 +4,7 @@ import { nowIso, normalizeProfilePayload } from '../domain/models.mjs';
 export function clearAllTrialData(db) {
   db.exec(`
     DELETE FROM events;
+    DELETE FROM connection_readiness;
     DELETE FROM meetings;
     DELETE FROM outcomes;
     DELETE FROM admin_decisions;

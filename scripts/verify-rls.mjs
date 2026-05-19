@@ -8,14 +8,24 @@
 //   SUPABASE_ANON_KEY=... \
 //   node scripts/verify-rls.mjs
 //
-// Requires email+password auth enabled in Supabase Auth settings.
+// Uses Supabase Admin generateLink + verifyOtp, so it does not require
+// email+password auth to be enabled. Requires a service role key.
 
 import { createClient } from "@supabase/supabase-js";
+import { getSupabasePublicEnv, loadEnvFiles } from "./env-loader.mjs";
 
-const { SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, SUPABASE_ANON_KEY } = process.env;
+loadEnvFiles();
 
-if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY || !SUPABASE_ANON_KEY) {
-  console.error("Missing env vars: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, SUPABASE_ANON_KEY");
+const { SUPABASE_SERVICE_ROLE_KEY } = process.env;
+const { url: SUPABASE_URL, anonKey: SUPABASE_ANON_KEY } = getSupabasePublicEnv();
+
+const missingEnv = [];
+if (!SUPABASE_URL) missingEnv.push("SUPABASE_URL or VITE_SUPABASE_URL");
+if (!SUPABASE_ANON_KEY) missingEnv.push("SUPABASE_ANON_KEY or VITE_SUPABASE_ANON_KEY");
+if (!SUPABASE_SERVICE_ROLE_KEY) missingEnv.push("SUPABASE_SERVICE_ROLE_KEY");
+
+if (missingEnv.length > 0) {
+  console.error(`Missing env vars: ${missingEnv.join(", ")}`);
   process.exit(1);
 }
 
@@ -51,27 +61,56 @@ function assert(condition, label, detail) {
 const TS = Date.now();
 const ALICE_EMAIL = `rls-alice-${TS}@lethe-test.invalid`;
 const BOB_EMAIL   = `rls-bob-${TS}@lethe-test.invalid`;
-const PASSWORD    = `Lethe-test-${TS}!`;
 const ALICE_ID    = `test_alice_${TS}`;
 const BOB_ID      = `test_bob_${TS}`;
+const RUN_ID      = `run_rls_test_${TS}`;
+const REC_ID      = `rec_rls_test_${TS}`;
+const MEETING_ID  = `meeting_rls_test_${TS}`;
+const EVENT_ID    = `evt_rls_test_${TS}`;
+const ALICE_READINESS_ID = `readiness_rls_test_alice_${TS}`;
+const BOB_READINESS_ID = `readiness_rls_test_bob_${TS}`;
+const ALICE_CEP_ID = `cep_rls_test_alice_${TS}`;
+const BOB_CEP_ID   = `cep_rls_test_bob_${TS}`;
 const nowIso      = () => new Date().toISOString();
 
+async function createSessionViaMagicLink(email) {
+  const { data: link, error: linkError } = await admin.auth.admin.generateLink({
+    type: "magiclink",
+    email,
+  });
+  if (linkError) throw new Error(`Generate magic link for ${email}: ${linkError.message}`);
+
+  const tokenHash = link.properties?.hashed_token;
+  if (!tokenHash) {
+    throw new Error(`Generate magic link for ${email}: missing hashed token`);
+  }
+
+  const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  });
+  const { data: session, error: verifyError } = await client.auth.verifyOtp({
+    token_hash: tokenHash,
+    type: link.properties?.verification_type ?? "magiclink",
+  });
+  if (verifyError) throw new Error(`Verify magic link for ${email}: ${verifyError.message}`);
+  if (!session.session?.access_token || !session.user?.id) {
+    throw new Error(`Verify magic link for ${email}: missing session`);
+  }
+
+  return {
+    authId: session.user.id,
+    client: anon(session.session.access_token),
+  };
+}
+
 async function setup() {
-  // Create auth users
-  const { data: a, error: ae } = await admin.auth.admin.createUser({
-    email: ALICE_EMAIL, password: PASSWORD, email_confirm: true,
-  });
-  if (ae) throw new Error(`Create Alice auth user: ${ae.message}`);
+  // Create auth users and obtain real authenticated JWTs via generated magic links.
+  const aliceSession = await createSessionViaMagicLink(ALICE_EMAIL);
+  const bobSession = await createSessionViaMagicLink(BOB_EMAIL);
+  const aliceAuthId = aliceSession.authId;
+  const bobAuthId = bobSession.authId;
 
-  const { data: b, error: be } = await admin.auth.admin.createUser({
-    email: BOB_EMAIL, password: PASSWORD, email_confirm: true,
-  });
-  if (be) throw new Error(`Create Bob auth user: ${be.message}`);
-
-  const aliceAuthId = a.user.id;
-  const bobAuthId   = b.user.id;
-
-  // Insert Lethe user rows via service role (bypasses RLS)
+  // Insert Relethe user rows via service role (bypasses RLS).
   const now = nowIso();
   for (const [id, authId, name] of [
     [ALICE_ID, aliceAuthId, "Alice Test"],
@@ -101,28 +140,97 @@ async function setup() {
     if (error) throw new Error(`Insert preferences ${userId}: ${error.message}`);
   }
 
-  // Sign in as each user
-  const aliceClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  const { data: aliceSession, error: aliceErr } =
-    await aliceClient.auth.signInWithPassword({ email: ALICE_EMAIL, password: PASSWORD });
-  if (aliceErr) throw new Error(`Alice sign-in: ${aliceErr.message}`);
+  // Seed service-owned rows that users should read only through RLS.
+  const { error: runErr } = await admin.from("recommendation_runs").insert({
+    id: RUN_ID,
+    run_type: "weekly",
+    started_at: now,
+    completed_at: now,
+    status: "completed",
+    summary_json: {},
+  });
+  if (runErr) throw new Error(`Insert recommendation run: ${runErr.message}`);
 
-  const bobClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  const { data: bobSession, error: bobErr } =
-    await bobClient.auth.signInWithPassword({ email: BOB_EMAIL, password: PASSWORD });
-  if (bobErr) throw new Error(`Bob sign-in: ${bobErr.message}`);
+  const { error: recErr } = await admin.from("recommendations").insert({
+    id: REC_ID,
+    run_id: RUN_ID,
+    source_user_id: ALICE_ID,
+    target_user_id: BOB_ID,
+    rank: 1,
+    score: 85,
+    why_matched: "RLS test match",
+    status: "pending_review",
+    created_at: now,
+    updated_at: now,
+  });
+  if (recErr) throw new Error(`Insert recommendation: ${recErr.message}`);
+
+  const { error: meetingErr } = await admin.from("meetings").insert({
+    id: MEETING_ID,
+    recommendation_id: REC_ID,
+    provider: "manual_link",
+    meeting_url: "https://example.invalid/rls-test",
+    status: "scheduled",
+    metadata: {},
+    created_at: now,
+    updated_at: now,
+  });
+  if (meetingErr) throw new Error(`Insert meeting: ${meetingErr.message}`);
+
+  for (const [id, userId, status] of [
+    [ALICE_READINESS_ID, ALICE_ID, "good"],
+    [BOB_READINESS_ID, BOB_ID, "low"],
+  ]) {
+    const { error } = await admin.from("connection_readiness").insert({
+      id,
+      user_id: userId,
+      provider: "manual_link",
+      tested_at: now,
+      expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+      status,
+      score: status === "good" ? 82 : 42,
+      can_use_camera: true,
+      can_use_mic: true,
+      device_warnings: [],
+      recommendation: status === "good" ? "Ready for video." : "Audio-first recommended.",
+      created_at: now,
+      updated_at: now,
+    });
+    if (error) throw new Error(`Insert connection_readiness ${userId}: ${error.message}`);
+  }
+
+  for (const [id, userId, focusText] of [
+    [ALICE_CEP_ID, ALICE_ID, "Alice RLS focus"],
+    [BOB_CEP_ID, BOB_ID, "Bob RLS focus"],
+  ]) {
+    const { error } = await admin.from("weekly_cep").insert({
+      id,
+      user_id: userId,
+      focus_text: focusText,
+      created_at: now,
+      expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+    });
+    if (error) throw new Error(`Insert weekly_cep ${userId}: ${error.message}`);
+  }
 
   return {
     aliceAuthId, bobAuthId,
-    alice: anon(aliceSession.session.access_token),
-    bob:   anon(bobSession.session.access_token),
+    alice: aliceSession.client,
+    bob: bobSession.client,
   };
 }
 
 // ── teardown ──────────────────────────────────────────────────────────────────
 
 async function teardown(aliceAuthId, bobAuthId) {
-  // Deleting auth users cascades to the users table via ON DELETE CASCADE
+  await admin.from("events").delete().eq("id", EVENT_ID);
+  await admin.from("connection_readiness").delete().in("id", [ALICE_READINESS_ID, BOB_READINESS_ID]);
+  await admin.from("weekly_cep").delete().in("id", [ALICE_CEP_ID, BOB_CEP_ID]);
+  await admin.from("meetings").delete().eq("id", MEETING_ID);
+  await admin.from("recommendations").delete().eq("id", REC_ID);
+  await admin.from("recommendation_runs").delete().eq("id", RUN_ID);
+
+  // Deleting auth users cascades to the users table via ON DELETE CASCADE.
   await admin.auth.admin.deleteUser(aliceAuthId);
   await admin.auth.admin.deleteUser(bobAuthId);
 }
@@ -213,7 +321,7 @@ async function runTests({ alice, bob }) {
 
   // Service role inserts an event for Alice
   const { error: evtInsertErr } = await admin.from("events").insert({
-    id: `evt_rls_test_${Date.now()}`,
+    id: EVENT_ID,
     event_type: "test.isolation",
     user_id: ALICE_ID,
     payload: {},
@@ -231,6 +339,79 @@ async function runTests({ alice, bob }) {
   assert(
     bobEvents?.length === 0,
     "Bob sees no events (none targeted at him)",
+  );
+
+  // ── connection_readiness ───────────────────────────────────────────────────
+
+  console.log("\nconnection_readiness");
+
+  const { data: aliceReadiness } = await alice.from("connection_readiness").select("user_id, status");
+  assert(
+    aliceReadiness?.length === 1 && aliceReadiness[0].user_id === ALICE_ID,
+    "Alice can read only her own readiness entry",
+    `got: ${JSON.stringify(aliceReadiness)}`,
+  );
+
+  const { data: bobReadinessViaAlice } =
+    await alice.from("connection_readiness").select("user_id").eq("user_id", BOB_ID);
+  assert(bobReadinessViaAlice?.length === 0, "Alice cannot read Bob's readiness entry");
+
+  const { error: insertReadinessErr } = await alice.from("connection_readiness").insert({
+    id: `readiness_bad_${Date.now()}`,
+    user_id: ALICE_ID,
+    provider: "manual_link",
+    tested_at: nowIso(),
+    expires_at: new Date(Date.now() + 1000).toISOString(),
+    status: "good",
+    can_use_camera: true,
+    can_use_mic: true,
+    device_warnings: [],
+    recommendation: "bad write",
+    created_at: nowIso(),
+    updated_at: nowIso(),
+  });
+  assert(insertReadinessErr != null, "Alice cannot write readiness directly");
+
+  // ── weekly_cep ─────────────────────────────────────────────────────────────
+
+  console.log("\nweekly_cep");
+
+  const { data: aliceCep } = await alice.from("weekly_cep").select("user_id, focus_text");
+  assert(
+    aliceCep?.length === 1 && aliceCep[0].user_id === ALICE_ID,
+    "Alice can read only her own CEP entry",
+    `got: ${JSON.stringify(aliceCep)}`,
+  );
+
+  const { data: bobCepViaAlice } =
+    await alice.from("weekly_cep").select("user_id").eq("user_id", BOB_ID);
+  assert(bobCepViaAlice?.length === 0, "Alice cannot read Bob's CEP entry");
+
+  const { error: insertBobCepErr } = await alice.from("weekly_cep").insert({
+    id: `cep_bad_${Date.now()}`,
+    user_id: BOB_ID,
+    focus_text: "bad write",
+    created_at: nowIso(),
+    expires_at: new Date(Date.now() + 1000).toISOString(),
+  });
+  assert(insertBobCepErr != null, "Alice cannot insert CEP for Bob");
+
+  // ── meetings ───────────────────────────────────────────────────────────────
+
+  console.log("\nmeetings");
+
+  const { data: aliceMeetings } = await alice.from("meetings").select("recommendation_id");
+  assert(
+    aliceMeetings?.length === 1 && aliceMeetings[0].recommendation_id === REC_ID,
+    "Alice can read meeting linked to her recommendation",
+    `got: ${JSON.stringify(aliceMeetings)}`,
+  );
+
+  const { data: bobMeetings } = await bob.from("meetings").select("recommendation_id");
+  assert(
+    bobMeetings?.length === 0,
+    "Bob cannot read Alice's meeting",
+    `got: ${JSON.stringify(bobMeetings)}`,
   );
 }
 

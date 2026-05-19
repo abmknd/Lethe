@@ -3,16 +3,73 @@ import {
   clearUserCep,
   getUserCep,
   getUserCompleteness,
+  getUserMeetingReadiness,
   listTrialUsers,
   listUserRecommendations,
   respondToRecommendation,
   runWeeklyMatching,
   saveRecommendationMeeting,
+  saveMeetingReadinessResult,
   saveUserCep,
+  startMeetingReadiness,
   updateFollowThrough,
   updateRecommendationMeetingStatus,
 } from './api';
-import type { TrialCepEntry, TrialCompletenessResult, TrialRecommendation, TrialUser } from './types';
+import type {
+  TrialCepEntry,
+  TrialCompletenessResult,
+  TrialMeetingReadinessResponse,
+  TrialMeetingReadinessStatus,
+  TrialRecommendation,
+  TrialUser,
+} from './types';
+
+const READINESS_LABELS: Record<TrialMeetingReadinessStatus, string> = {
+  excellent: 'Excellent',
+  good: 'Good',
+  medium: 'Medium',
+  low: 'Low',
+  failed: 'Failed',
+  unknown: 'Untested',
+};
+
+function readinessClass(status: TrialMeetingReadinessStatus) {
+  if (status === 'excellent' || status === 'good') return 'bg-[#c9ff87]/15 text-[#c9ff87] border-[#c9ff87]/25';
+  if (status === 'medium') return 'bg-[#4dc7ff]/15 text-[#9fe4ff] border-[#4dc7ff]/25';
+  if (status === 'low') return 'bg-orange-400/15 text-orange-300 border-orange-400/25';
+  if (status === 'failed') return 'bg-[#ff6b6b]/15 text-[#ffc5c5] border-[#ff6b6b]/25';
+  return 'bg-white/5 text-white/55 border-white/15';
+}
+
+async function canAccessDevice(kind: 'videoinput' | 'audioinput') {
+  if (!navigator.mediaDevices?.getUserMedia) return false;
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia(
+      kind === 'videoinput' ? { video: true } : { audio: true },
+    );
+    for (const track of stream.getTracks()) track.stop();
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function scoreReadiness(canUseCamera: boolean, canUseMic: boolean, warnings: string[]) {
+  let score = 100;
+  if (!canUseCamera) score -= 25;
+  if (!canUseMic) score -= 35;
+  score -= warnings.length * 10;
+  return Math.max(0, Math.min(100, score));
+}
+
+function statusFromScore(score: number, canUseMic: boolean): TrialMeetingReadinessStatus {
+  if (!canUseMic) return 'failed';
+  if (score >= 90) return 'excellent';
+  if (score >= 75) return 'good';
+  if (score >= 55) return 'medium';
+  if (score > 0) return 'low';
+  return 'failed';
+}
 
 export default function TrialConnectPage() {
   const [users, setUsers] = useState<TrialUser[]>([]);
@@ -27,6 +84,8 @@ export default function TrialConnectPage() {
   const [cepFocusText, setCepFocusText] = useState('');
   const [cepSaving, setCepSaving] = useState(false);
   const [completeness, setCompleteness] = useState<TrialCompletenessResult | null>(null);
+  const [readiness, setReadiness] = useState<TrialMeetingReadinessResponse | null>(null);
+  const [readinessChecking, setReadinessChecking] = useState(false);
 
   async function refreshRecommendations(userId: string) {
     const nextRecommendations = await listUserRecommendations(userId);
@@ -97,12 +156,63 @@ export default function TrialConnectPage() {
   useEffect(() => {
     if (!selectedUserId) {
       setCompleteness(null);
+      setReadiness(null);
       return;
     }
     getUserCompleteness(selectedUserId)
       .then(setCompleteness)
       .catch(() => setCompleteness(null));
+    getUserMeetingReadiness(selectedUserId)
+      .then(setReadiness)
+      .catch(() => setReadiness(null));
   }, [selectedUserId]);
+
+  async function handleRunReadinessCheck() {
+    if (!selectedUserId) return;
+    setReadinessChecking(true);
+    setMessage('');
+    try {
+      await startMeetingReadiness({ userId: selectedUserId, provider: 'manual_link' });
+      const warnings: string[] = [];
+      const supportsWebRtc = Boolean(window.RTCPeerConnection && navigator.mediaDevices?.getUserMedia);
+      if (!supportsWebRtc) warnings.push('Browser WebRTC support unavailable.');
+      if (!navigator.onLine) warnings.push('Browser reports offline.');
+
+      const connection = (navigator as Navigator & {
+        connection?: { effectiveType?: string; downlink?: number; rtt?: number };
+      }).connection;
+      if (connection?.effectiveType && ['slow-2g', '2g'].includes(connection.effectiveType)) {
+        warnings.push('Very slow network detected.');
+      }
+
+      const [canUseCamera, canUseMic] = await Promise.all([
+        canAccessDevice('videoinput'),
+        canAccessDevice('audioinput'),
+      ]);
+      if (!canUseCamera) warnings.push('Camera permission or device unavailable.');
+      if (!canUseMic) warnings.push('Microphone permission or device unavailable.');
+
+      const score = scoreReadiness(canUseCamera, canUseMic, warnings);
+      const status = statusFromScore(score, canUseMic);
+      const result = await saveMeetingReadinessResult({
+        userId: selectedUserId,
+        provider: 'manual_link',
+        status,
+        score,
+        latencyMs: connection?.rtt ?? null,
+        downloadKbps: connection?.downlink ? Math.round(connection.downlink * 1000) : null,
+        canUseCamera,
+        canUseMic,
+        deviceWarnings: warnings,
+      });
+      setReadiness(result);
+      setMessage(`Meeting readiness: ${READINESS_LABELS[result.displayStatus]}.`);
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Failed to run readiness check');
+    } finally {
+      setReadinessChecking(false);
+    }
+  }
 
   async function handleSaveCep() {
     if (!selectedUserId || !cepFocusText.trim()) return;
@@ -351,6 +461,43 @@ export default function TrialConnectPage() {
                 {completeness.missingFields.join(', ')}
               </span>
             </p>
+          )}
+        </section>
+      )}
+
+      {selectedUserId && (
+        <section className="bg-[#0d140d] border border-white/10 rounded-xl p-5">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2 className="text-base font-semibold mb-1">Meeting readiness</h2>
+              <p className="text-xs text-white/40">
+                {readiness?.readiness && readiness.isActive
+                  ? `${READINESS_LABELS[readiness.displayStatus]} - tested recently.`
+                  : 'Untested recently.'}
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className={`text-xs font-medium px-2 py-1 rounded-full border ${readinessClass(readiness?.displayStatus ?? 'unknown')}`}>
+                {READINESS_LABELS[readiness?.displayStatus ?? 'unknown']}
+              </span>
+              <button
+                disabled={readinessChecking}
+                onClick={handleRunReadinessCheck}
+                className="px-3 py-2 rounded-md bg-[#4dc7ff]/15 border border-[#4dc7ff]/40 text-[#9fe4ff] text-sm disabled:opacity-50"
+              >
+                {readinessChecking ? 'Testing...' : 'Run check'}
+              </button>
+            </div>
+          </div>
+          {readiness?.readiness && (
+            <div className="mt-3 text-sm text-white/60">
+              <p>{readiness.isActive ? readiness.readiness.recommendation : 'Untested recently.'}</p>
+              {readiness.readiness.deviceWarnings.length > 0 && (
+                <p className="mt-1 text-xs text-white/40">
+                  {readiness.readiness.deviceWarnings.join(' ')}
+                </p>
+              )}
+            </div>
           )}
         </section>
       )}

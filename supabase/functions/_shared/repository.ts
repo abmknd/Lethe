@@ -106,6 +106,27 @@ export interface Meeting {
   updatedAt: string;
 }
 
+export interface ConnectionReadiness {
+  id: string;
+  userId: string;
+  provider: string;
+  testedAt: string;
+  expiresAt: string;
+  status: string;
+  score: number | null;
+  latencyMs: number | null;
+  jitterMs: number | null;
+  packetLossPct: number | null;
+  uploadKbps: number | null;
+  downloadKbps: number | null;
+  canUseCamera: boolean;
+  canUseMic: boolean;
+  deviceWarnings: string[];
+  recommendation: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface Recommendation {
   id: string;
   runId: string;
@@ -182,6 +203,29 @@ function mapMeeting(row: Record<string, unknown>): Meeting {
     endedAt: row.ended_at as string | null,
     status: row.status as string,
     metadata: (row.metadata as Record<string, unknown>) ?? {},
+    createdAt: row.created_at as string,
+    updatedAt: row.updated_at as string,
+  };
+}
+
+function mapConnectionReadiness(row: Record<string, unknown>): ConnectionReadiness {
+  return {
+    id: row.id as string,
+    userId: row.user_id as string,
+    provider: row.provider as string,
+    testedAt: row.tested_at as string,
+    expiresAt: row.expires_at as string,
+    status: row.status as string,
+    score: row.score as number | null,
+    latencyMs: row.latency_ms as number | null,
+    jitterMs: row.jitter_ms as number | null,
+    packetLossPct: row.packet_loss_pct as number | null,
+    uploadKbps: row.upload_kbps as number | null,
+    downloadKbps: row.download_kbps as number | null,
+    canUseCamera: Boolean(row.can_use_camera),
+    canUseMic: Boolean(row.can_use_mic),
+    deviceWarnings: (row.device_warnings as string[]) ?? [],
+    recommendation: (row.recommendation as string) ?? "",
     createdAt: row.created_at as string,
     updatedAt: row.updated_at as string,
   };
@@ -758,6 +802,66 @@ export class PostgresRepository {
       RETURNING *
     `;
     return row ? mapMeeting(row) : null;
+  }
+
+  // ── connection_readiness ──────────────────────────────────────────────────
+
+  async getConnectionReadiness(userId: string): Promise<ConnectionReadiness | null> {
+    const [row] = await sql`
+      SELECT * FROM connection_readiness WHERE user_id = ${userId} LIMIT 1
+    `;
+    return row ? mapConnectionReadiness(row) : null;
+  }
+
+  async upsertConnectionReadiness(userId: string, data: {
+    provider: string;
+    testedAt: string;
+    expiresAt: string;
+    status: string;
+    score?: number | null;
+    latencyMs?: number | null;
+    jitterMs?: number | null;
+    packetLossPct?: number | null;
+    uploadKbps?: number | null;
+    downloadKbps?: number | null;
+    canUseCamera: boolean;
+    canUseMic: boolean;
+    deviceWarnings?: string[];
+    recommendation?: string;
+  }): Promise<ConnectionReadiness> {
+    const now = new Date().toISOString();
+    const id = `readiness_${crypto.randomUUID()}`;
+    const [row] = await sql`
+      INSERT INTO connection_readiness (
+        id, user_id, provider, tested_at, expires_at, status, score,
+        latency_ms, jitter_ms, packet_loss_pct, upload_kbps, download_kbps,
+        can_use_camera, can_use_mic, device_warnings, recommendation, created_at, updated_at
+      ) VALUES (
+        ${id}, ${userId}, ${data.provider}, ${data.testedAt}, ${data.expiresAt}, ${data.status}, ${data.score ?? null},
+        ${data.latencyMs ?? null}, ${data.jitterMs ?? null}, ${data.packetLossPct ?? null},
+        ${data.uploadKbps ?? null}, ${data.downloadKbps ?? null},
+        ${data.canUseCamera}, ${data.canUseMic}, ${JSON.stringify(data.deviceWarnings ?? [])}::jsonb,
+        ${data.recommendation ?? ''}, ${now}, ${now}
+      )
+      ON CONFLICT (user_id) DO UPDATE SET
+        provider = EXCLUDED.provider,
+        tested_at = EXCLUDED.tested_at,
+        expires_at = EXCLUDED.expires_at,
+        status = EXCLUDED.status,
+        score = EXCLUDED.score,
+        latency_ms = EXCLUDED.latency_ms,
+        jitter_ms = EXCLUDED.jitter_ms,
+        packet_loss_pct = EXCLUDED.packet_loss_pct,
+        upload_kbps = EXCLUDED.upload_kbps,
+        download_kbps = EXCLUDED.download_kbps,
+        can_use_camera = EXCLUDED.can_use_camera,
+        can_use_mic = EXCLUDED.can_use_mic,
+        device_warnings = EXCLUDED.device_warnings,
+        recommendation = EXCLUDED.recommendation,
+        updated_at = EXCLUDED.updated_at
+      RETURNING *
+    `;
+    return mapConnectionReadiness(row);
   }
 
   // ── transaction helper ─────────────────────────────────────────────────────
