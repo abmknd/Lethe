@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, FormEvent } from "react";
-import { supabase } from "../lib/supabase";
+import { signup } from "../lib/signup";
 import { useNavigate } from "react-router";
 import { createPortal } from "react-dom";
 import gsap from "gsap";
@@ -42,8 +42,8 @@ export default function LandingPage() {
     e.preventDefault();
     if (!email1) return;
     setIsSubmitting1(true);
-    const { error } = await supabase.from("waitlist").insert({ email: email1 });
-    if (error && error.code !== "23505") {
+    const result = await signup({ email: email1, source: "hero" });
+    if (result.status === "error") {
       setIsSubmitting1(false);
       return;
     }
@@ -54,8 +54,8 @@ export default function LandingPage() {
     e.preventDefault();
     if (!email2) return;
     setIsSubmitting2(true);
-    const { error } = await supabase.from("waitlist").insert({ email: email2 });
-    if (error && error.code !== "23505") {
+    const result = await signup({ email: email2, source: "signup" });
+    if (result.status === "error") {
       setIsSubmitting2(false);
       return;
     }
