@@ -70,6 +70,20 @@ feature/* → mvp → demo/main
 
 ---
 
+## CI
+
+The `MVP CI` workflow (`.github/workflows/mvp-ci.yml`) runs on every PR targeting `mvp` and every push to `mvp`. It installs dependencies, runs the backend test suite, and builds the frontend. Reproduce locally with:
+
+```
+npm ci
+node --test mvp/tests/**/*.test.mjs
+npm run build
+```
+
+The workflow is intended to be added as a required status check on the `mvp` branch in GitHub branch protection settings.
+
+---
+
 ## Further reading
 
 - [Product & Intelligence Roadmap](./docs/) — product direction, intelligence sequencing, engineering phases

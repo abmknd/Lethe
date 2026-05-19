@@ -1,0 +1,27 @@
+name: MVP CI
+
+on:
+  pull_request:
+    branches: [mvp]
+  push:
+    branches: [mvp]
+
+jobs:
+  validate:
+    name: validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Backend tests
+        run: node --test mvp/tests/**/*.test.mjs
+
+      - name: Build
+        run: npm run build
