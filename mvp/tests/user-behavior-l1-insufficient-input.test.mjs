@@ -4,7 +4,7 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createIsolatedTrialApp } from './helpers/trial-test-harness.mjs';
+import { createIsolatedApp } from './helpers/test-harness.mjs';
 import { buildProfileFixture } from './fixtures/profile-fixtures.mjs';
 import {
   buildTylerBrooks,
@@ -18,7 +18,7 @@ import {
 // L1-S1: Tyler has no asks.
 // The completeness gate now blocks him from the matching pool until asks are filled.
 test('L1-S1: user with empty asks receives zero matches — completeness gate blocks entry', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: false });
+  const { app, cleanup } = createIsolatedApp({ seed: false });
   try {
     app.services.onboarding.saveUserProfile(buildTylerBrooks());
     app.services.onboarding.saveUserProfile(buildLogisticsOperatorMentor());
@@ -36,7 +36,7 @@ test('L1-S1: user with empty asks receives zero matches — completeness gate bl
 // receives no recs. The scoring assertion is no longer reachable for this persona,
 // but is preserved as documentation of the scoring intent.
 test('L1-S1: empty asks — Tyler receives no recommendations (gate blocks before scoring)', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: false });
+  const { app, cleanup } = createIsolatedApp({ seed: false });
   try {
     app.services.onboarding.saveUserProfile(buildTylerBrooks());
     app.services.onboarding.saveUserProfile(buildLogisticsOperatorMentor());
@@ -53,7 +53,7 @@ test('L1-S1: empty asks — Tyler receives no recommendations (gate blocks befor
 // L1-S5: Ethan has no offers.
 // The completeness gate now blocks him from the matching pool until offers are filled.
 test('L1-S5: user with empty offers receives zero matches — completeness gate blocks entry', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: false });
+  const { app, cleanup } = createIsolatedApp({ seed: false });
   try {
     app.services.onboarding.saveUserProfile(buildEthanPark());
     app.services.onboarding.saveUserProfile(buildLogisticsOperatorMentor());
@@ -71,7 +71,7 @@ test('L1-S5: user with empty offers receives zero matches — completeness gate 
 // The availability score dimension contributes zero, but matching still runs.
 // GAP: no blocking guard requiring availability before a match is surfaced.
 test('L1-S6: user with no availability still receives a match — availability score is zero (gap)', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: false });
+  const { app, cleanup } = createIsolatedApp({ seed: false });
   try {
     app.services.onboarding.saveUserProfile(buildLeilaAhmadi());
     app.services.onboarding.saveUserProfile(buildMarcusWebb());
@@ -96,7 +96,7 @@ test('L1-S6: user with no availability still receives a match — availability s
 // L1-S8: Claire skipped availability during onboarding.
 // The completeness gate now requires at least one availability slot before matching.
 test('L1-S8: user with no availability receives zero matches — completeness gate requires availability', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: false });
+  const { app, cleanup } = createIsolatedApp({ seed: false });
   try {
     const claire = buildProfileFixture({
       user: {
@@ -137,7 +137,7 @@ test('L1-S8: user with no availability receives zero matches — completeness ga
 // The system currently has no offer-reciprocity detector to flag or hold such matches.
 // GAP: no low-reciprocity offer detection; match generates without HITL flag.
 test('L1-S10: low-reciprocity offer (media coverage) produces a match without HITL flag (gap)', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: false });
+  const { app, cleanup } = createIsolatedApp({ seed: false });
   try {
     app.services.onboarding.saveUserProfile(buildMinJiPark());
     app.services.onboarding.saveUserProfile(buildMarcusWebb());

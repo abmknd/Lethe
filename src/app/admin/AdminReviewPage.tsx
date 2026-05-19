@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { getAdminRecommendationContext, listAdminRecommendations, submitAdminDecision } from './api';
-import type { TrialAdminRecommendation, TrialAdminRecommendationContext } from './types';
+import { getAdminRecommendationContext, listAdminRecommendations, submitAdminDecision } from "../api";
+import type { AdminRecommendation, AdminRecommendationContext } from "../types";
 
 const MIN_RATIONALE_CHARS = 10;
 
@@ -17,15 +17,15 @@ async function copyText(value: string) {
   }
 }
 
-export default function TrialAdminPage() {
+export default function AdminReviewPage() {
   const [status, setStatus] = useState<'pending_review' | 'approved' | 'rejected'>('pending_review');
-  const [rows, setRows] = useState<TrialAdminRecommendation[]>([]);
+  const [rows, setRows] = useState<AdminRecommendation[]>([]);
   const [message, setMessage] = useState('');
   const [savingById, setSavingById] = useState<Record<string, boolean>>({});
   const [rationaleById, setRationaleById] = useState<Record<string, string>>({});
   const [rowMessageById, setRowMessageById] = useState<Record<string, string>>({});
   const [expandedContextById, setExpandedContextById] = useState<Record<string, boolean>>({});
-  const [contextById, setContextById] = useState<Record<string, TrialAdminRecommendationContext>>({});
+  const [contextById, setContextById] = useState<Record<string, AdminRecommendationContext>>({});
   const [loadingContextById, setLoadingContextById] = useState<Record<string, boolean>>({});
 
   async function refresh(currentStatus: 'pending_review' | 'approved' | 'rejected') {

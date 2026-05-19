@@ -6,7 +6,7 @@
 -- ── helper ────────────────────────────────────────────────────────────────────
 
 -- Resolves the current Supabase Auth user to their Lethe user id.
-CREATE OR REPLACE FUNCTION lethe_user_id()
+CREATE OR REPLACE FUNCTION relethe_user_id()
 RETURNS TEXT LANGUAGE SQL STABLE SECURITY DEFINER
 AS $$
   SELECT id FROM users WHERE auth_id = auth.uid()
@@ -42,41 +42,41 @@ CREATE POLICY "users: update own profile"
 DROP POLICY IF EXISTS "preferences: read own" ON preferences;
 CREATE POLICY "preferences: read own"
   ON preferences FOR SELECT
-  USING (user_id = lethe_user_id());
+  USING (user_id = relethe_user_id());
 
 DROP POLICY IF EXISTS "preferences: write own" ON preferences;
 CREATE POLICY "preferences: write own"
   ON preferences FOR INSERT
-  WITH CHECK (user_id = lethe_user_id());
+  WITH CHECK (user_id = relethe_user_id());
 
 DROP POLICY IF EXISTS "preferences: update own" ON preferences;
 CREATE POLICY "preferences: update own"
   ON preferences FOR UPDATE
-  USING (user_id = lethe_user_id());
+  USING (user_id = relethe_user_id());
 
 -- ── availability_slots ────────────────────────────────────────────────────────
 
 DROP POLICY IF EXISTS "availability: read own" ON availability_slots;
 CREATE POLICY "availability: read own"
   ON availability_slots FOR SELECT
-  USING (user_id = lethe_user_id());
+  USING (user_id = relethe_user_id());
 
 DROP POLICY IF EXISTS "availability: write own" ON availability_slots;
 CREATE POLICY "availability: write own"
   ON availability_slots FOR INSERT
-  WITH CHECK (user_id = lethe_user_id());
+  WITH CHECK (user_id = relethe_user_id());
 
 DROP POLICY IF EXISTS "availability: delete own" ON availability_slots;
 CREATE POLICY "availability: delete own"
   ON availability_slots FOR DELETE
-  USING (user_id = lethe_user_id());
+  USING (user_id = relethe_user_id());
 
 -- ── recommendations ───────────────────────────────────────────────────────────
 
 DROP POLICY IF EXISTS "recommendations: read own" ON recommendations;
 CREATE POLICY "recommendations: read own"
   ON recommendations FOR SELECT
-  USING (source_user_id = lethe_user_id());
+  USING (source_user_id = relethe_user_id());
 
 -- ── outcomes ──────────────────────────────────────────────────────────────────
 
@@ -85,7 +85,7 @@ CREATE POLICY "outcomes: read via own recommendation"
   ON outcomes FOR SELECT
   USING (
     recommendation_id IN (
-      SELECT id FROM recommendations WHERE source_user_id = lethe_user_id()
+      SELECT id FROM recommendations WHERE source_user_id = relethe_user_id()
     )
   );
 
@@ -94,7 +94,7 @@ CREATE POLICY "outcomes: read via own recommendation"
 DROP POLICY IF EXISTS "events: read own" ON events;
 CREATE POLICY "events: read own"
   ON events FOR SELECT
-  USING (user_id = lethe_user_id());
+  USING (user_id = relethe_user_id());
 
 -- ── meetings ──────────────────────────────────────────────────────────────────
 -- Users may read meetings linked to their own recommendations.
@@ -107,7 +107,7 @@ CREATE POLICY "meetings: read via own recommendation"
   ON meetings FOR SELECT
   USING (
     recommendation_id IN (
-      SELECT id FROM recommendations WHERE source_user_id = lethe_user_id()
+      SELECT id FROM recommendations WHERE source_user_id = relethe_user_id()
     )
   );
 
@@ -132,22 +132,22 @@ ALTER TABLE weekly_cep ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "weekly_cep: read own" ON weekly_cep;
 CREATE POLICY "weekly_cep: read own"
   ON weekly_cep FOR SELECT
-  USING (user_id = lethe_user_id());
+  USING (user_id = relethe_user_id());
 
 DROP POLICY IF EXISTS "weekly_cep: write own" ON weekly_cep;
 CREATE POLICY "weekly_cep: write own"
   ON weekly_cep FOR INSERT
-  WITH CHECK (user_id = lethe_user_id());
+  WITH CHECK (user_id = relethe_user_id());
 
 DROP POLICY IF EXISTS "weekly_cep: update own" ON weekly_cep;
 CREATE POLICY "weekly_cep: update own"
   ON weekly_cep FOR UPDATE
-  USING (user_id = lethe_user_id());
+  USING (user_id = relethe_user_id());
 
 DROP POLICY IF EXISTS "weekly_cep: delete own" ON weekly_cep;
 CREATE POLICY "weekly_cep: delete own"
   ON weekly_cep FOR DELETE
-  USING (user_id = lethe_user_id());
+  USING (user_id = relethe_user_id());
 
 -- ── admin tables: service role only ──────────────────────────────────────────
 -- admin_decisions and recommendation_runs are write-only via service role.

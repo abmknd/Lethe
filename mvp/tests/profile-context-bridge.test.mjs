@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createIsolatedTrialApp } from './helpers/trial-test-harness.mjs';
+import { createIsolatedApp } from './helpers/test-harness.mjs';
 import { createTrialApiServer } from '../api/server.mjs';
 
 function prepareRecommendation(app) {
@@ -28,7 +28,7 @@ async function withStartedServer(app, fn) {
 }
 
 test('service: recommendation participants context returns viewer-safe payload', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: true });
+  const { app, cleanup } = createIsolatedApp({ seed: true });
 
   try {
     const recommendation = prepareRecommendation(app);
@@ -51,7 +51,7 @@ test('service: recommendation participants context returns viewer-safe payload',
 });
 
 test('service: recommendation participants context returns 404 when recommendation is missing', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: true });
+  const { app, cleanup } = createIsolatedApp({ seed: true });
 
   try {
     assert.throws(
@@ -64,7 +64,7 @@ test('service: recommendation participants context returns 404 when recommendati
 });
 
 test('service: recommendation participants context returns 404 when participant profile is missing', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: true });
+  const { app, cleanup } = createIsolatedApp({ seed: true });
 
   try {
     const recommendation = prepareRecommendation(app);
@@ -87,7 +87,7 @@ test('service: recommendation participants context returns 404 when participant 
 });
 
 test('service: snapshotUsed reflects snapshot presence/absence', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: true });
+  const { app, cleanup } = createIsolatedApp({ seed: true });
 
   try {
     const recommendation = prepareRecommendation(app);
@@ -111,14 +111,14 @@ test('service: snapshotUsed reflects snapshot presence/absence', () => {
 });
 
 test('routes: participants-context and user-context endpoints return typed viewer-safe payloads', async () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: true });
+  const { app, cleanup } = createIsolatedApp({ seed: true });
 
   try {
     const recommendation = prepareRecommendation(app);
 
     await withStartedServer(app, async (baseUrl) => {
       const participantRes = await fetch(
-        `${baseUrl}/api/trial/recommendations/${encodeURIComponent(recommendation.id)}/participants-context`,
+        `${baseUrl}/api/v1/recommendations/${encodeURIComponent(recommendation.id)}/participants-context`,
       );
       assert.equal(participantRes.status, 200);
       const participantBody = await participantRes.json();
@@ -134,7 +134,7 @@ test('routes: participants-context and user-context endpoints return typed viewe
       assert.equal('freeText' in participantContext.sourceParticipant.extractionSupport, false);
 
       const userRes = await fetch(
-        `${baseUrl}/api/trial/users/${encodeURIComponent(recommendation.userId)}/context`,
+        `${baseUrl}/api/v1/users/${encodeURIComponent(recommendation.userId)}/context`,
       );
       assert.equal(userRes.status, 200);
       const userBody = await userRes.json();
@@ -152,26 +152,26 @@ test('routes: participants-context and user-context endpoints return typed viewe
 });
 
 test('routes: not-found behavior for new endpoints and admin route remains available', async () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: true });
+  const { app, cleanup } = createIsolatedApp({ seed: true });
 
   try {
     const recommendation = prepareRecommendation(app);
 
     await withStartedServer(app, async (baseUrl) => {
       const missingRecommendationRes = await fetch(
-        `${baseUrl}/api/trial/recommendations/missing_recommendation/participants-context`,
+        `${baseUrl}/api/v1/recommendations/missing_recommendation/participants-context`,
       );
       assert.equal(missingRecommendationRes.status, 404);
       const missingRecommendationBody = await missingRecommendationRes.json();
       assert.match(missingRecommendationBody.error, /Recommendation not found\./);
 
-      const missingUserRes = await fetch(`${baseUrl}/api/trial/users/missing_user/context`);
+      const missingUserRes = await fetch(`${baseUrl}/api/v1/users/missing_user/context`);
       assert.equal(missingUserRes.status, 404);
       const missingUserBody = await missingUserRes.json();
       assert.match(missingUserBody.error, /User not found\./);
 
       const adminContextRes = await fetch(
-        `${baseUrl}/api/trial/admin/recommendations/${encodeURIComponent(recommendation.id)}/context`,
+        `${baseUrl}/api/v1/admin/recommendations/${encodeURIComponent(recommendation.id)}/context`,
       );
       assert.equal(adminContextRes.status, 200);
       const adminContextBody = await adminContextRes.json();

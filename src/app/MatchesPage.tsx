@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { MapPin, Check } from 'lucide-react';
 import ReletheLogo from '../imports/ReletheLogo';
-import { listUserRecommendations } from './trial/api';
-import type { TrialRecommendation } from './trial/types';
+import { listUserRecommendations } from "./api";
+import type { Recommendation } from "./types";
 import { useAuth } from './context/AuthContext';
 
 function initials(name: string) {
@@ -21,7 +21,7 @@ export default function MatchesPage() {
   const navigate = useNavigate();
   const { user, getAccessToken } = useAuth();
   const userId = user?.id ?? '';
-  const [matches, setMatches] = useState<TrialRecommendation[]>([]);
+  const [matches, setMatches] = useState<Recommendation[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {

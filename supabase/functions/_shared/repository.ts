@@ -1,5 +1,5 @@
 // Async Postgres repository for Lethe.
-// Replaces mvp/repositories/sqlite/sqlite-trial-repository.mjs for production.
+// Replaces mvp/repositories/sqlite/sqlite-repository.mjs for production.
 // Uses postgres.js (npm:postgres) which is Deno-compatible.
 // JSONB columns are returned as parsed JS objects — no JSON.parse() needed.
 // BOOLEAN columns are returned as JS booleans — no Boolean() coercion needed.
@@ -127,6 +127,29 @@ export interface ConnectionReadiness {
   updatedAt: string;
 }
 
+export interface Conversation {
+  id: string;
+  participantA: string;
+  participantB: string;
+  unlockedByRecommendationId: string | null;
+  createdAt: string;
+  lastMessageAt: string | null;
+}
+
+export interface Message {
+  id: string;
+  conversationId: string;
+  senderId: string;
+  body: string;
+  createdAt: string;
+}
+
+export interface ConversationListItem extends Conversation {
+  peer: { id: string; name: string; handle: string | null };
+  lastMessagePreview: { body: string; senderId: string; createdAt: string } | null;
+  unreadCount: number;
+}
+
 export interface Recommendation {
   id: string;
   runId: string;
@@ -231,6 +254,33 @@ function mapConnectionReadiness(row: Record<string, unknown>): ConnectionReadine
   };
 }
 
+function mapConversation(row: Record<string, unknown>): Conversation {
+  return {
+    id: row.id as string,
+    participantA: row.participant_a as string,
+    participantB: row.participant_b as string,
+    unlockedByRecommendationId: (row.unlocked_by_recommendation_id as string | null) ?? null,
+    createdAt: row.created_at as string,
+    lastMessageAt: (row.last_message_at as string | null) ?? null,
+  };
+}
+
+function mapMessage(row: Record<string, unknown>): Message {
+  return {
+    id: row.id as string,
+    conversationId: row.conversation_id as string,
+    senderId: row.sender_id as string,
+    body: row.body as string,
+    createdAt: row.created_at as string,
+  };
+}
+
+/** Canonical ordering so (a, b) and (b, a) map to the same conversation row. */
+function canonicalPair(a: string, b: string): [string, string] {
+  return a < b ? [a, b] : [b, a];
+}
+
+
 function mapRecommendation(row: Record<string, unknown>): Recommendation {
   return {
     id: row.id as string,
@@ -283,7 +333,7 @@ export class PostgresRepository {
   }
 
   /**
-   * Resolve a Supabase Auth UUID to the trial users.id (TEXT). On first sight,
+   * Resolve a Supabase Auth UUID to the users.id (TEXT). On first sight,
    * provisions a stub users row + empty preferences row so authenticated routes
    * can immediately read/write self profile and KYC can fill it in.
    *
@@ -862,6 +912,164 @@ export class PostgresRepository {
       RETURNING *
     `;
     return mapConnectionReadiness(row);
+  }
+
+  // ── messaging ──────────────────────────────────────────────────────────────
+
+  async getConversationById(id: string): Promise<Conversation | null> {
+    const [row] = await sql`SELECT * FROM conversations WHERE id = ${id}`;
+    return row ? mapConversation(row) : null;
+  }
+
+  async findConversationBetween(userA: string, userB: string): Promise<Conversation | null> {
+    const [lo, hi] = canonicalPair(userA, userB);
+    const [row] = await sql`
+      SELECT * FROM conversations WHERE participant_a = ${lo} AND participant_b = ${hi}
+    `;
+    return row ? mapConversation(row) : null;
+  }
+
+  /**
+   * Returns the recommendation_id (either direction) that unlocks messaging
+   * between two users, or null if none qualifies. A pair is unlocked when a
+   * recommendation between them has been accepted OR has progressed past
+   * intro_sent on the outcomes table.
+   */
+  async findUnlockingRecommendationId(userA: string, userB: string): Promise<string | null> {
+    const [row] = await sql`
+      SELECT r.id
+      FROM recommendations r
+      LEFT JOIN outcomes o ON o.recommendation_id = r.id
+      WHERE ((r.source_user_id = ${userA} AND r.target_user_id = ${userB})
+          OR (r.source_user_id = ${userB} AND r.target_user_id = ${userA}))
+        AND (r.status = 'accepted'
+             OR o.outcome_status IN ('intro_sent', 'meeting_scheduled', 'completed'))
+      ORDER BY r.updated_at DESC
+      LIMIT 1
+    `;
+    return (row?.id as string) ?? null;
+  }
+
+  /**
+   * Idempotent: returns the existing conversation if one already exists for
+   * the pair. Otherwise creates a new one stamped with the unlocking
+   * recommendation. Eligibility is the caller's responsibility — pass the
+   * recommendation id returned by findUnlockingRecommendationId().
+   */
+  async createConversation({
+    userA, userB, unlockedByRecommendationId, createdAt,
+  }: {
+    userA: string; userB: string; unlockedByRecommendationId: string; createdAt: string;
+  }): Promise<Conversation> {
+    const [lo, hi] = canonicalPair(userA, userB);
+    const id = `conv_${crypto.randomUUID()}`;
+    const [row] = await sql`
+      INSERT INTO conversations (
+        id, participant_a, participant_b, unlocked_by_recommendation_id, created_at
+      ) VALUES (
+        ${id}, ${lo}, ${hi}, ${unlockedByRecommendationId}, ${createdAt}
+      )
+      ON CONFLICT (participant_a, participant_b) DO UPDATE
+        SET participant_a = EXCLUDED.participant_a
+      RETURNING *
+    `;
+    return mapConversation(row);
+  }
+
+  /**
+   * Conversations the user participates in, with peer profile snippet, the
+   * latest message preview, and an unread count derived from the read
+   * watermark. Sorted newest-activity first.
+   */
+  async listConversationsForUser(userId: string): Promise<ConversationListItem[]> {
+    const rows = await sql`
+      WITH my_conversations AS (
+        SELECT c.*, CASE WHEN c.participant_a = ${userId} THEN c.participant_b ELSE c.participant_a END AS peer_id
+        FROM conversations c
+        WHERE ${userId} IN (c.participant_a, c.participant_b)
+      ),
+      last_msg AS (
+        SELECT DISTINCT ON (m.conversation_id)
+               m.conversation_id, m.body, m.sender_id, m.created_at
+        FROM messages m
+        WHERE m.conversation_id IN (SELECT id FROM my_conversations)
+        ORDER BY m.conversation_id, m.created_at DESC
+      ),
+      unread AS (
+        SELECT m.conversation_id, COUNT(*)::int AS cnt
+        FROM messages m
+        JOIN my_conversations mc ON mc.id = m.conversation_id
+        LEFT JOIN conversation_reads cr
+               ON cr.conversation_id = m.conversation_id AND cr.user_id = ${userId}
+        WHERE m.sender_id <> ${userId}
+          AND (cr.last_read_at IS NULL OR m.created_at > cr.last_read_at)
+        GROUP BY m.conversation_id
+      )
+      SELECT mc.*, u.name AS peer_name, u.handle AS peer_handle,
+             lm.body AS last_body, lm.sender_id AS last_sender, lm.created_at AS last_at,
+             COALESCE(ur.cnt, 0) AS unread_count
+      FROM my_conversations mc
+      JOIN users u ON u.id = mc.peer_id
+      LEFT JOIN last_msg lm ON lm.conversation_id = mc.id
+      LEFT JOIN unread ur   ON ur.conversation_id = mc.id
+      ORDER BY mc.last_message_at DESC NULLS LAST, mc.created_at DESC
+    `;
+    return rows.map((row) => ({
+      ...mapConversation(row),
+      peer: {
+        id: row.peer_id as string,
+        name: row.peer_name as string,
+        handle: row.peer_handle as string | null,
+      },
+      lastMessagePreview: row.last_body == null ? null : {
+        body: row.last_body as string,
+        senderId: row.last_sender as string,
+        createdAt: row.last_at as string,
+      },
+      unreadCount: row.unread_count as number,
+    }));
+  }
+
+  async listMessages(
+    conversationId: string,
+    { limit = 50, before }: { limit?: number; before?: string } = {},
+  ): Promise<Message[]> {
+    const cap = Math.min(200, Math.max(1, limit));
+    const rows = before
+      ? await sql`
+          SELECT * FROM messages
+          WHERE conversation_id = ${conversationId} AND created_at < ${before}
+          ORDER BY created_at DESC LIMIT ${cap}
+        `
+      : await sql`
+          SELECT * FROM messages
+          WHERE conversation_id = ${conversationId}
+          ORDER BY created_at DESC LIMIT ${cap}
+        `;
+    return rows.map(mapMessage).reverse();
+  }
+
+  /** Idempotent on message id; returns the persisted row even on conflict. */
+  async sendMessage(input: {
+    id: string; conversationId: string; senderId: string; body: string; createdAt: string;
+  }): Promise<Message> {
+    const [row] = await sql`
+      INSERT INTO messages (id, conversation_id, sender_id, body, created_at)
+      VALUES (${input.id}, ${input.conversationId}, ${input.senderId}, ${input.body}, ${input.createdAt})
+      ON CONFLICT (id) DO UPDATE SET id = EXCLUDED.id
+      RETURNING *
+    `;
+    return mapMessage(row);
+  }
+
+  async markConversationRead(
+    conversationId: string, userId: string, at: string,
+  ): Promise<void> {
+    await sql`
+      INSERT INTO conversation_reads (conversation_id, user_id, last_read_at)
+      VALUES (${conversationId}, ${userId}, ${at})
+      ON CONFLICT (conversation_id, user_id) DO UPDATE SET last_read_at = EXCLUDED.last_read_at
+    `;
   }
 
   // ── transaction helper ─────────────────────────────────────────────────────

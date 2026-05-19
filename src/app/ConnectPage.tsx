@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { X, Check, MapPin, Zap } from 'lucide-react';
 import ReletheLogo from '../imports/ReletheLogo';
-import { listUserRecommendations, respondToRecommendation } from './trial/api';
-import type { TrialRecommendation } from './trial/types';
+import { listUserRecommendations, respondToRecommendation } from "./api";
+import type { Recommendation } from "./types";
 import { useAuth } from './context/AuthContext';
 
 function initials(name: string) {
@@ -17,7 +17,7 @@ export default function ConnectPage() {
   const selfDisplayName = (user?.user_metadata?.name as string | undefined)
     ?? user?.email?.split('@')[0]
     ?? '';
-  const [recommendations, setRecommendations] = useState<TrialRecommendation[]>([]);
+  const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [currentIdx, setCurrentIdx] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);

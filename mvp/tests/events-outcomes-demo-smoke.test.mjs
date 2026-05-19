@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createIsolatedTrialApp } from './helpers/trial-test-harness.mjs';
+import { createIsolatedApp } from './helpers/test-harness.mjs';
 
 function prepareApprovedRecommendation(app) {
   app.services.weeklyMatching.runWeeklyMatching({ maxRecommendationsPerUser: 3 });
@@ -10,7 +10,7 @@ function prepareApprovedRecommendation(app) {
   const recommendation = pending[0];
   app.services.adminReview.decide({
     recommendationId: recommendation.id,
-    adminId: 'admin_trial',
+    adminId: 'admin_system',
     decision: 'approve',
     rationale: 'Approved for deterministic event and outcome validation.',
   });
@@ -18,7 +18,7 @@ function prepareApprovedRecommendation(app) {
 }
 
 test('outcome updates are traceable and emit expected events by recommendation', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: true });
+  const { app, cleanup } = createIsolatedApp({ seed: true });
 
   try {
     const recommendation = prepareApprovedRecommendation(app);
@@ -32,13 +32,13 @@ test('outcome updates are traceable and emit expected events by recommendation',
 
     app.services.recommendations.updateFollowThrough({
       recommendationId: recommendation.id,
-      actorUserId: 'admin_trial',
+      actorUserId: 'admin_system',
       status: 'intro_sent',
       notes: 'Intro email sent with context.',
     });
     const finalOutcome = app.services.recommendations.updateFollowThrough({
       recommendationId: recommendation.id,
-      actorUserId: 'admin_trial',
+      actorUserId: 'admin_system',
       status: 'meeting_scheduled',
       notes: 'Call booked for next Tuesday.',
     });
@@ -73,7 +73,7 @@ test('outcome updates are traceable and emit expected events by recommendation',
 });
 
 test('event querying filters by recommendationId, eventType, and userId', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: true });
+  const { app, cleanup } = createIsolatedApp({ seed: true });
 
   try {
     const recommendation = prepareApprovedRecommendation(app);
@@ -84,7 +84,7 @@ test('event querying filters by recommendationId, eventType, and userId', () => 
     });
     app.services.recommendations.updateFollowThrough({
       recommendationId: recommendation.id,
-      actorUserId: 'admin_trial',
+      actorUserId: 'admin_system',
       status: 'intro_sent',
       notes: 'Intro sent for API filter test.',
     });
@@ -122,8 +122,8 @@ test('event querying filters by recommendationId, eventType, and userId', () => 
   }
 });
 
-test('weekly report snapshot reflects outcomes and event counts after trial actions', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: true });
+test('weekly report snapshot reflects outcomes and event counts after admin actions', () => {
+  const { app, cleanup } = createIsolatedApp({ seed: true });
 
   try {
     const recommendation = prepareApprovedRecommendation(app);
@@ -134,7 +134,7 @@ test('weekly report snapshot reflects outcomes and event counts after trial acti
     });
     app.services.recommendations.updateFollowThrough({
       recommendationId: recommendation.id,
-      actorUserId: 'admin_trial',
+      actorUserId: 'admin_system',
       status: 'intro_sent',
       notes: 'Intro sent for report snapshot.',
     });

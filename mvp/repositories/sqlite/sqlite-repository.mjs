@@ -104,7 +104,7 @@ function mapConnectionReadiness(row) {
 }
 
 /**
- * SQLite adapter for trial repositories.
+ * SQLite adapter for the MVP repository.
  * Storage-specific details stay here; services consume repository methods only.
  */
 export class SqliteTrialRepository extends UserRepository {

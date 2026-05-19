@@ -4,7 +4,7 @@ import {
   getUserCep,
   getUserCompleteness,
   getUserMeetingReadiness,
-  listTrialUsers,
+  listUsers,
   listUserRecommendations,
   respondToRecommendation,
   runWeeklyMatching,
@@ -14,15 +14,15 @@ import {
   startMeetingReadiness,
   updateFollowThrough,
   updateRecommendationMeetingStatus,
-} from './api';
+} from "../api";
 import type {
-  TrialCepEntry,
-  TrialCompletenessResult,
+  CepEntry,
+  CompletenessResult,
+  Recommendation,
+  AppUser,
   TrialMeetingReadinessResponse,
   TrialMeetingReadinessStatus,
-  TrialRecommendation,
-  TrialUser,
-} from './types';
+} from "../types";
 
 const READINESS_LABELS: Record<TrialMeetingReadinessStatus, string> = {
   excellent: 'Excellent',
@@ -71,19 +71,19 @@ function statusFromScore(score: number, canUseMic: boolean): TrialMeetingReadine
   return 'failed';
 }
 
-export default function TrialConnectPage() {
-  const [users, setUsers] = useState<TrialUser[]>([]);
+export default function AdminConnectPage() {
+  const [users, setUsers] = useState<AppUser[]>([]);
   const [selectedUserId, setSelectedUserId] = useState('');
-  const [recommendations, setRecommendations] = useState<TrialRecommendation[]>([]);
+  const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [meetingUrlById, setMeetingUrlById] = useState<Record<string, string>>({});
   const [scheduledAtById, setScheduledAtById] = useState<Record<string, string>>({});
-  const [activeCep, setActiveCep] = useState<TrialCepEntry | null>(null);
+  const [activeCep, setActiveCep] = useState<CepEntry | null>(null);
   const [cepIsActive, setCepIsActive] = useState(false);
   const [cepFocusText, setCepFocusText] = useState('');
   const [cepSaving, setCepSaving] = useState(false);
-  const [completeness, setCompleteness] = useState<TrialCompletenessResult | null>(null);
+  const [completeness, setCompleteness] = useState<CompletenessResult | null>(null);
   const [readiness, setReadiness] = useState<TrialMeetingReadinessResponse | null>(null);
   const [readinessChecking, setReadinessChecking] = useState(false);
 
@@ -111,7 +111,7 @@ export default function TrialConnectPage() {
   }
 
   useEffect(() => {
-    listTrialUsers()
+    listUsers()
       .then((nextUsers) => {
         setUsers(nextUsers);
         if (nextUsers[0]) {

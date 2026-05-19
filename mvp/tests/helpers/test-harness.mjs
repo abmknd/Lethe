@@ -5,7 +5,7 @@ import { createTrialAppContext } from '../../services/app-context.mjs';
 import { ensureSchema, openTrialDatabase } from '../../db/database.mjs';
 import { clearAllTrialData } from '../../db/bootstrap.mjs';
 
-function makeTempDbPath(prefix = 'lethe-trial-test-') {
+function makeTempDbPath(prefix = 'relethe-test-') {
   const tempDir = mkdtempSync(path.join(os.tmpdir(), prefix));
   return {
     tempDir,
@@ -13,7 +13,7 @@ function makeTempDbPath(prefix = 'lethe-trial-test-') {
   };
 }
 
-export function createIsolatedTrialApp(options = {}) {
+export function createIsolatedApp(options = {}) {
   const { seed = false, reset = true, dbPath: providedDbPath } = options;
   const created = providedDbPath ? null : makeTempDbPath();
   const dbPath = providedDbPath ?? created.dbPath;

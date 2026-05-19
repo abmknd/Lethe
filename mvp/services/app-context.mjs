@@ -1,6 +1,6 @@
 import { createDeterministicMatcher } from '../matching/deterministic-matcher.mjs';
 import { openTrialDatabase, resolveDefaultDbPath, ensureSchema } from '../db/database.mjs';
-import { SqliteTrialRepository } from '../repositories/sqlite/sqlite-trial-repository.mjs';
+import { SqliteTrialRepository } from '../repositories/sqlite/sqlite-repository.mjs';
 import { OnboardingService } from './onboarding-service.mjs';
 import { WeeklyMatchingService } from './weekly-matching-service.mjs';
 import { AdminReviewService } from './admin-review-service.mjs';

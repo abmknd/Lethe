@@ -80,7 +80,7 @@ async function runWeeklyViaApi(app) {
   try {
     const address = server.address();
     assert(address && typeof address === 'object', 'Expected API server to bind to an address.');
-    const response = await fetch(`http://127.0.0.1:${address.port}/api/trial/matching/run-weekly`, {
+    const response = await fetch(`http://127.0.0.1:${address.port}/api/v1/matching/run-weekly`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ maxRecommendationsPerUser: 5 }),
@@ -105,7 +105,7 @@ async function fetchAdminContextViaApi(app, recommendationId) {
     const address = server.address();
     assert(address && typeof address === 'object', 'Expected API server to bind to an address.');
     const response = await fetch(
-      `http://127.0.0.1:${address.port}/api/trial/admin/recommendations/${encodeURIComponent(recommendationId)}/context`,
+      `http://127.0.0.1:${address.port}/api/v1/admin/recommendations/${encodeURIComponent(recommendationId)}/context`,
       { method: 'GET' },
     );
     assert(response.ok, `Expected API admin context HTTP 200, got ${response.status}.`);
@@ -120,7 +120,7 @@ const app = createTrialAppContext({
 });
 
 try {
-  log('1) Reset + seed trial data');
+  log('1) Reset + seed data');
   const seeded = app.services.setup.initialize({ reset: true, seed: true });
   assert((seeded.usersSeeded ?? 0) > 0, 'Expected seeded users > 0.');
 
@@ -165,7 +165,7 @@ try {
     'Expected explanationSupportSnapshot in recommendation_generated payload.',
   );
 
-  log('3) Confirm API parity for /api/trial/matching/run-weekly');
+  log('3) Confirm API parity for /api/v1/matching/run-weekly');
   const apiRunResult = await runWeeklyViaApi(app);
   assert(Boolean(apiRunResult.runId), 'Expected runId from API weekly run route.');
   const persistedApiRun = readRecommendationRun(app.db, apiRunResult.runId);
@@ -212,7 +212,7 @@ try {
   try {
     app.services.adminReview.decide({
       recommendationId,
-      adminId: 'admin_trial',
+      adminId: 'admin_system',
       decision: 'approve',
       rationale: 'short',
     });
@@ -225,7 +225,7 @@ try {
   log('6) Validate first-write-wins concurrency behavior');
   const firstDecision = app.services.adminReview.decide({
     recommendationId,
-    adminId: 'admin_trial',
+    adminId: 'admin_system',
     decision: 'approve',
     rationale: 'This intro has strong fit and clear mutual value.',
   });
@@ -241,7 +241,7 @@ try {
 
   const introOutcome = app.services.recommendations.updateFollowThrough({
     recommendationId,
-    actorUserId: 'admin_trial',
+    actorUserId: 'admin_system',
     status: 'intro_sent',
     notes: 'Intro sent during smoke validation.',
   });
@@ -249,7 +249,7 @@ try {
 
   const meetingOutcome = app.services.recommendations.updateFollowThrough({
     recommendationId,
-    actorUserId: 'admin_trial',
+    actorUserId: 'admin_system',
     status: 'meeting_scheduled',
     notes: 'Meeting scheduled during smoke validation.',
   });
@@ -268,7 +268,7 @@ try {
   try {
     app.services.adminReview.decide({
       recommendationId,
-      adminId: 'admin_trial',
+      adminId: 'admin_system',
       decision: 'reject',
       rationale: 'Second decision should conflict after the first update.',
     });

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { listTrialEvents, listTrialUsers } from './api';
-import type { TrialEvent, TrialUser } from './types';
+import { listEvents, listUsers } from "../api";
+import type { AppEvent, AppUser } from "../types";
 
 function readQueryParam(key: string) {
   const params = new URLSearchParams(window.location.search);
@@ -42,16 +42,16 @@ async function copyText(value: string) {
   }
 }
 
-export default function TrialEventsPage() {
-  const [events, setEvents] = useState<TrialEvent[]>([]);
-  const [users, setUsers] = useState<TrialUser[]>([]);
+export default function AdminEventsPage() {
+  const [events, setEvents] = useState<AppEvent[]>([]);
+  const [users, setUsers] = useState<AppUser[]>([]);
   const [selectedUserId, setSelectedUserId] = useState(() => readQueryParam('userId'));
   const [eventType, setEventType] = useState(() => readQueryParam('eventType'));
   const [recommendationId, setRecommendationId] = useState(() => readQueryParam('recommendationId'));
   const [message, setMessage] = useState('');
 
   async function refresh() {
-    const nextEvents = await listTrialEvents({
+    const nextEvents = await listEvents({
       userId: selectedUserId || undefined,
       eventType: eventType || undefined,
       recommendationId: recommendationId || undefined,
@@ -61,7 +61,7 @@ export default function TrialEventsPage() {
   }
 
   useEffect(() => {
-    listTrialUsers()
+    listUsers()
       .then((nextUsers) => setUsers(nextUsers))
       .catch((error) => {
         setMessage(error instanceof Error ? error.message : 'Failed to load users');

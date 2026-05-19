@@ -59,7 +59,7 @@ export function createTrialApiServer({ services, dbPath }) {
     const path = getPath(url);
 
     try {
-      if (req.method === 'GET' && path === '/api/trial/health') {
+      if (req.method === 'GET' && path === '/api/v1/health') {
         sendJson(res, 200, {
           ok: true,
           dbPath,
@@ -67,7 +67,7 @@ export function createTrialApiServer({ services, dbPath }) {
         return;
       }
 
-      if (req.method === 'POST' && path === '/api/trial/init') {
+      if (req.method === 'POST' && path === '/api/v1/init') {
         const body = await readJsonBody(req);
         const result = services.setup.initialize({
           reset: Boolean(body.reset),
@@ -81,14 +81,14 @@ export function createTrialApiServer({ services, dbPath }) {
         return;
       }
 
-      if (req.method === 'GET' && path === '/api/trial/users') {
+      if (req.method === 'GET' && path === '/api/v1/users') {
         sendJson(res, 200, {
           users: services.onboarding.listUsers(),
         });
         return;
       }
 
-      const userPublicProfileMatch = path.match(/^\/api\/trial\/users\/([^/]+)\/profile\/public$/);
+      const userPublicProfileMatch = path.match(/^\/api\/v1\/users\/([^/]+)\/profile\/public$/);
       if (userPublicProfileMatch && req.method === 'GET') {
         const idOrHandle = decodeURIComponent(userPublicProfileMatch[1]);
         let profile = services.onboarding.getUserProfile(idOrHandle);
@@ -115,7 +115,7 @@ export function createTrialApiServer({ services, dbPath }) {
         return;
       }
 
-      const userProfileMatch = path.match(/^\/api\/trial\/users\/([^/]+)\/profile$/);
+      const userProfileMatch = path.match(/^\/api\/v1\/users\/([^/]+)\/profile$/);
       if (userProfileMatch) {
         const userId = decodeURIComponent(userProfileMatch[1]);
 
@@ -145,7 +145,7 @@ export function createTrialApiServer({ services, dbPath }) {
         }
       }
 
-      const userContextMatch = path.match(/^\/api\/trial\/users\/([^/]+)\/context$/);
+      const userContextMatch = path.match(/^\/api\/v1\/users\/([^/]+)\/context$/);
       if (userContextMatch && req.method === 'GET') {
         const userId = decodeURIComponent(userContextMatch[1]);
         const context = services.profileContext.getViewerSafeUserContext(userId);
@@ -153,7 +153,7 @@ export function createTrialApiServer({ services, dbPath }) {
         return;
       }
 
-      const userRecommendationsMatch = path.match(/^\/api\/trial\/users\/([^/]+)\/recommendations$/);
+      const userRecommendationsMatch = path.match(/^\/api\/v1\/users\/([^/]+)\/recommendations$/);
       if (userRecommendationsMatch && req.method === 'GET') {
         const userId = decodeURIComponent(userRecommendationsMatch[1]);
         const status = url.searchParams.get('status') ?? undefined;
@@ -165,7 +165,7 @@ export function createTrialApiServer({ services, dbPath }) {
         return;
       }
 
-      if (req.method === 'POST' && path === '/api/trial/matching/run-weekly') {
+      if (req.method === 'POST' && path === '/api/v1/matching/run-weekly') {
         const body = await readJsonBody(req);
         const result = services.weeklyMatching.runWeeklyMatching({
           maxRecommendationsPerUser: Number(body.maxRecommendationsPerUser ?? 5),
@@ -178,20 +178,20 @@ export function createTrialApiServer({ services, dbPath }) {
         return;
       }
 
-      if (req.method === 'GET' && path === '/api/trial/admin/recommendations') {
+      if (req.method === 'GET' && path === '/api/v1/admin/recommendations') {
         const status = url.searchParams.get('status') ?? 'pending_review';
         const recommendations = services.adminReview.listQueue({ status });
         sendJson(res, 200, { recommendations });
         return;
       }
 
-      const adminDecisionMatch = path.match(/^\/api\/trial\/admin\/recommendations\/([^/]+)\/decision$/);
+      const adminDecisionMatch = path.match(/^\/api\/v1\/admin\/recommendations\/([^/]+)\/decision$/);
       if (adminDecisionMatch && req.method === 'POST') {
         const recommendationId = decodeURIComponent(adminDecisionMatch[1]);
         const body = await readJsonBody(req);
         const result = services.adminReview.decide({
           recommendationId,
-          adminId: body.adminId ?? 'admin_trial',
+          adminId: body.adminId ?? 'admin_system',
           decision: body.decision,
           rationale: body.rationale,
         });
@@ -210,7 +210,7 @@ export function createTrialApiServer({ services, dbPath }) {
             if (emailResult.ok) {
               services.recommendations.updateFollowThrough({
                 recommendationId,
-                actorUserId: body.adminId ?? 'admin_trial',
+                actorUserId: body.adminId ?? 'admin_system',
                 status: 'intro_sent',
                 notes: null,
               });
@@ -222,7 +222,7 @@ export function createTrialApiServer({ services, dbPath }) {
         return;
       }
 
-      const adminContextMatch = path.match(/^\/api\/trial\/admin\/recommendations\/([^/]+)\/context$/);
+      const adminContextMatch = path.match(/^\/api\/v1\/admin\/recommendations\/([^/]+)\/context$/);
       if (adminContextMatch && req.method === 'GET') {
         const recommendationId = decodeURIComponent(adminContextMatch[1]);
         const context = services.profileContext.getRecommendationContext(recommendationId);
@@ -231,7 +231,7 @@ export function createTrialApiServer({ services, dbPath }) {
       }
 
       const recommendationParticipantsContextMatch = path.match(
-        /^\/api\/trial\/recommendations\/([^/]+)\/participants-context$/,
+        /^\/api\/v1\/recommendations\/([^/]+)\/participants-context$/,
       );
       if (recommendationParticipantsContextMatch && req.method === 'GET') {
         const recommendationId = decodeURIComponent(recommendationParticipantsContextMatch[1]);
@@ -240,7 +240,7 @@ export function createTrialApiServer({ services, dbPath }) {
         return;
       }
 
-      const recommendationResponseMatch = path.match(/^\/api\/trial\/recommendations\/([^/]+)\/respond$/);
+      const recommendationResponseMatch = path.match(/^\/api\/v1\/recommendations\/([^/]+)\/respond$/);
       if (recommendationResponseMatch && req.method === 'POST') {
         const recommendationId = decodeURIComponent(recommendationResponseMatch[1]);
         const body = await readJsonBody(req);
@@ -254,7 +254,7 @@ export function createTrialApiServer({ services, dbPath }) {
         return;
       }
 
-      const meetingMatch = path.match(/^\/api\/trial\/recommendations\/([^/]+)\/meeting$/);
+      const meetingMatch = path.match(/^\/api\/v1\/recommendations\/([^/]+)\/meeting$/);
       if (meetingMatch) {
         const recommendationId = decodeURIComponent(meetingMatch[1]);
 
@@ -282,7 +282,7 @@ export function createTrialApiServer({ services, dbPath }) {
         }
       }
 
-      const meetingStatusMatch = path.match(/^\/api\/trial\/recommendations\/([^/]+)\/meeting\/status$/);
+      const meetingStatusMatch = path.match(/^\/api\/v1\/recommendations\/([^/]+)\/meeting\/status$/);
       if (meetingStatusMatch && req.method === 'POST') {
         const recommendationId = decodeURIComponent(meetingStatusMatch[1]);
         const body = await readJsonBody(req);
@@ -297,7 +297,7 @@ export function createTrialApiServer({ services, dbPath }) {
         return;
       }
 
-      const insightMatch = path.match(/^\/api\/trial\/recommendations\/([^/]+)\/insight$/);
+      const insightMatch = path.match(/^\/api\/v1\/recommendations\/([^/]+)\/insight$/);
       if (insightMatch && req.method === 'POST') {
         const recommendationId = decodeURIComponent(insightMatch[1]);
         const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -323,7 +323,7 @@ export function createTrialApiServer({ services, dbPath }) {
         return;
       }
 
-      const followThroughMatch = path.match(/^\/api\/trial\/recommendations\/([^/]+)\/follow-through$/);
+      const followThroughMatch = path.match(/^\/api\/v1\/recommendations\/([^/]+)\/follow-through$/);
       if (followThroughMatch && req.method === 'POST') {
         const recommendationId = decodeURIComponent(followThroughMatch[1]);
         const body = await readJsonBody(req);
@@ -341,7 +341,7 @@ export function createTrialApiServer({ services, dbPath }) {
         return;
       }
 
-      if (req.method === 'GET' && path === '/api/trial/events') {
+      if (req.method === 'GET' && path === '/api/v1/events') {
         const limit = Number(url.searchParams.get('limit') ?? 200);
         const userId = url.searchParams.get('userId') ?? undefined;
         const eventType = url.searchParams.get('eventType') ?? undefined;
@@ -358,7 +358,7 @@ export function createTrialApiServer({ services, dbPath }) {
         return;
       }
 
-      const userCompletenessMatch = path.match(/^\/api\/trial\/users\/([^/]+)\/completeness$/);
+      const userCompletenessMatch = path.match(/^\/api\/v1\/users\/([^/]+)\/completeness$/);
       if (userCompletenessMatch && req.method === 'GET') {
         const userId = decodeURIComponent(userCompletenessMatch[1]);
         const result = services.completeness.getCompleteness(userId);
@@ -395,7 +395,7 @@ export function createTrialApiServer({ services, dbPath }) {
         return;
       }
 
-      const userCepMatch = path.match(/^\/api\/trial\/users\/([^/]+)\/cep$/);
+      const userCepMatch = path.match(/^\/api\/v1\/users\/([^/]+)\/cep$/);
       if (userCepMatch) {
         const userId = decodeURIComponent(userCepMatch[1]);
 
@@ -420,7 +420,7 @@ export function createTrialApiServer({ services, dbPath }) {
         }
       }
 
-      if (req.method === 'GET' && path === '/api/trial/report') {
+      if (req.method === 'GET' && path === '/api/v1/report') {
         const windowDays = Number(url.searchParams.get('windowDays') ?? 7);
         const fromIso = url.searchParams.get('from') ?? undefined;
         const toIso = url.searchParams.get('to') ?? undefined;

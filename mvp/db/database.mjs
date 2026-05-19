@@ -4,7 +4,7 @@ import { DatabaseSync } from 'node:sqlite';
 import { SCHEMA_SQL } from './schema.mjs';
 
 export function resolveDefaultDbPath(projectRoot = process.cwd()) {
-  return path.resolve(projectRoot, 'mvp', 'data', 'lethe-trial.sqlite');
+  return path.resolve(projectRoot, 'mvp', 'data', 'relethe-mvp.sqlite');
 }
 
 export function openTrialDatabase(dbPath = resolveDefaultDbPath()) {
@@ -22,8 +22,8 @@ export function openTrialDatabase(dbPath = resolveDefaultDbPath()) {
 }
 
 export function ensureSchema(db) {
-  // Ensure local trial schema is compatible with the current code contracts.
-  // If not, rebuild (local-first reset behavior is acceptable for the trial).
+  // Ensure local schema is compatible with the current code contracts.
+  // If not, rebuild (local-first reset behavior is acceptable for local dev).
   if (!isSchemaCompatible(db)) {
     rebuildSchema(db);
   }

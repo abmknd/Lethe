@@ -243,4 +243,4 @@ export const SEEDED_USERS = [
   },
 ];
 
-export const DEFAULT_ADMIN_ID = 'admin_trial';
+export const DEFAULT_ADMIN_ID = 'admin_system';

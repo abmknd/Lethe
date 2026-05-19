@@ -1,15 +1,15 @@
 import { useEffect, useMemo, useState } from 'react';
-import { getTrialUserProfile, listTrialUsers, saveTrialUserProfile } from './api';
-import { DAY_OPTIONS, formatSlot } from './time';
-import type { TrialAvailabilitySlot, TrialUser, TrialUserProfile } from './types';
+import { getUserProfile, listUsers, saveUserProfile } from "../api";
+import { DAY_OPTIONS, formatSlot } from "../time";
+import type { AvailabilitySlot, AppUser, UserProfile } from "../types";
 
-const defaultSlot: TrialAvailabilitySlot = {
+const defaultSlot: AvailabilitySlot = {
   dayOfWeek: 1,
   startHour: 18,
   endHour: 19,
 };
 
-function emptyProfile(userId: string): TrialUserProfile {
+function emptyProfile(userId: string): UserProfile {
   return {
     user: {
       id: userId,
@@ -39,7 +39,7 @@ function emptyProfile(userId: string): TrialUserProfile {
   };
 }
 
-function normalizeProfileForUi(profile: TrialUserProfile): TrialUserProfile {
+function normalizeProfileForUi(profile: UserProfile): UserProfile {
   return {
     ...profile,
     preferences: {
@@ -64,7 +64,7 @@ function parseCsv(value: string) {
     .filter(Boolean);
 }
 
-function validateProfile(profile: TrialUserProfile) {
+function validateProfile(profile: UserProfile) {
   if (!profile.user.displayName.trim()) {
     return 'Display name is required.';
   }
@@ -110,16 +110,16 @@ function validateProfile(profile: TrialUserProfile) {
   return null;
 }
 
-export default function TrialOnboardingPage() {
-  const [users, setUsers] = useState<TrialUser[]>([]);
+export default function AdminOnboardingPage() {
+  const [users, setUsers] = useState<AppUser[]>([]);
   const [selectedUserId, setSelectedUserId] = useState('');
-  const [profile, setProfile] = useState<TrialUserProfile | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [message, setMessage] = useState('');
   const [isSaving, setIsSaving] = useState(false);
-  const [newSlot, setNewSlot] = useState<TrialAvailabilitySlot>(defaultSlot);
+  const [newSlot, setNewSlot] = useState<AvailabilitySlot>(defaultSlot);
 
   useEffect(() => {
-    listTrialUsers()
+    listUsers()
       .then((nextUsers) => {
         setUsers(nextUsers);
         if (nextUsers[0]) {
@@ -136,7 +136,7 @@ export default function TrialOnboardingPage() {
       return;
     }
 
-    getTrialUserProfile(selectedUserId)
+    getUserProfile(selectedUserId)
       .then((nextProfile) => {
         setProfile(normalizeProfileForUi(nextProfile));
       })
@@ -154,7 +154,7 @@ export default function TrialOnboardingPage() {
   const objectivesCsv = useMemo(() => (profile?.preferences.objectives ?? []).join(', '), [profile]);
   const blockedCsv = useMemo(() => (profile?.preferences.blockedUserIds ?? []).join(', '), [profile]);
 
-  function updateProfile(mutator: (current: TrialUserProfile) => TrialUserProfile) {
+  function updateProfile(mutator: (current: UserProfile) => UserProfile) {
     setProfile((current) => {
       if (!current) {
         return current;
@@ -197,7 +197,7 @@ export default function TrialOnboardingPage() {
     }
 
     try {
-      const saved = await saveTrialUserProfile(profile.user.id, profile);
+      const saved = await saveUserProfile(profile.user.id, profile);
       setProfile(normalizeProfileForUi(saved));
       setMessage('Onboarding/settings data saved to SQLite.');
     } catch (error) {

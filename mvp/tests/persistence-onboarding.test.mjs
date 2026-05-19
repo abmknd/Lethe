@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createIsolatedTrialApp } from './helpers/trial-test-harness.mjs';
+import { createIsolatedApp } from './helpers/test-harness.mjs';
 import { buildProfileFixture } from './fixtures/profile-fixtures.mjs';
 
-test('schema initializes with required trial tables', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: false });
+test('schema initializes with required tables', () => {
+  const { app, cleanup } = createIsolatedApp({ seed: false });
 
   try {
     const tables = app.db
@@ -38,7 +38,7 @@ test('schema initializes with required trial tables', () => {
 });
 
 test('onboarding persists users, preferences, and availability', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: false });
+  const { app, cleanup } = createIsolatedApp({ seed: false });
 
   try {
     const payload = buildProfileFixture({
@@ -62,7 +62,7 @@ test('onboarding persists users, preferences, and availability', () => {
 });
 
 test('onboarding save-reload survives app restart on isolated db', () => {
-  const first = createIsolatedTrialApp({ seed: false });
+  const first = createIsolatedApp({ seed: false });
   const dbPath = first.dbPath;
 
   try {
@@ -82,7 +82,7 @@ test('onboarding save-reload survives app restart on isolated db', () => {
 
     first.app.close();
 
-    const reopened = createIsolatedTrialApp({ seed: false, reset: false, dbPath });
+    const reopened = createIsolatedApp({ seed: false, reset: false, dbPath });
     try {
       const profile = reopened.app.services.onboarding.getUserProfile('user_reload_1');
       assert.ok(profile, 'expected persisted profile after restart');
@@ -98,7 +98,7 @@ test('onboarding save-reload survives app restart on isolated db', () => {
 });
 
 test('settings updates persist across subsequent saves', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: false });
+  const { app, cleanup } = createIsolatedApp({ seed: false });
 
   try {
     const userId = 'user_settings_1';
@@ -135,7 +135,7 @@ test('settings updates persist across subsequent saves', () => {
 });
 
 test('calibration choices persist with normalization rules', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: false });
+  const { app, cleanup } = createIsolatedApp({ seed: false });
 
   try {
     const payload = buildProfileFixture({

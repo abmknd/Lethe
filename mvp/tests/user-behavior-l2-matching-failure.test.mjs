@@ -5,7 +5,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
-import { createIsolatedTrialApp } from './helpers/trial-test-harness.mjs';
+import { createIsolatedApp } from './helpers/test-harness.mjs';
 import { buildProfileFixture } from './fixtures/profile-fixtures.mjs';
 import {
   buildChrisNakamura,
@@ -21,7 +21,7 @@ import {
 // When the only candidate in the pool is a fellow founder, the system should score that
 // pairing lower on roleFit. The declared preference IS used in the scoring engine.
 test('L2-S1: roleFit score is reduced when candidate userType does not match declared preferredUserTypes', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: false });
+  const { app, cleanup } = createIsolatedApp({ seed: false });
   try {
     app.services.onboarding.saveUserProfile(buildChrisNakamura());
 
@@ -60,7 +60,7 @@ test('L2-S1: roleFit score is reduced when candidate userType does not match dec
 // preferredUserType, the system should either produce no match or disclose the mismatch clearly.
 // GAP: no pool-composition disclosure — the system silently matches across typelines.
 test('L2-S1: no investor in pool — system matches Chris with a founder without disclosure (gap)', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: false });
+  const { app, cleanup } = createIsolatedApp({ seed: false });
   try {
     app.services.onboarding.saveUserProfile(buildChrisNakamura());
     app.services.onboarding.saveUserProfile(buildMarcusWebb());
@@ -85,7 +85,7 @@ test('L2-S1: no investor in pool — system matches Chris with a founder without
 // CRITICAL BUG: the matching engine has no same-organization exclusion filter.
 // This test will FAIL until same-org deduplication is implemented.
 test('L2-S8 [BUG]: same-org users are excluded from each other\'s candidate pool', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: false });
+  const { app, cleanup } = createIsolatedApp({ seed: false });
   try {
     app.services.onboarding.saveUserProfile(buildZaraHussain());
     app.services.onboarding.saveUserProfile(buildColleagueAtBigTelco());
@@ -110,7 +110,7 @@ test('L2-S8 [BUG]: same-org users are excluded from each other\'s candidate pool
 // With only out-of-domain users in the pool, the matcher should produce no match or a
 // low-confidence match with an explicit domain-density disclosure.
 test('L2-S10: niche-domain user with no in-domain peers in pool produces no high-confidence match', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: false });
+  const { app, cleanup } = createIsolatedApp({ seed: false });
   try {
     app.services.onboarding.saveUserProfile(buildEleanorHughes());
     app.services.onboarding.saveUserProfile(buildMarcusWebb());
@@ -139,7 +139,7 @@ test('L2-S10: niche-domain user with no in-domain peers in pool produces no high
 // L2-S2: The rationale should only cite interests or tags that the user actually declared.
 // Test that no rationale line fabricates a domain the user did not mention.
 test('L2-S2: rationale lines reference declared profile data — no fabricated interests', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: false });
+  const { app, cleanup } = createIsolatedApp({ seed: false });
   try {
     app.services.onboarding.saveUserProfile(buildMarcusWebb());
     app.services.onboarding.saveUserProfile(buildLogisticsOperatorMentor());

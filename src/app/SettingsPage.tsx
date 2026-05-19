@@ -205,7 +205,7 @@ export default function SettingsPage() {
       try {
         const { data: { session } } = await supabase.auth.getSession();
         const token = session?.access_token;
-        const data = await apiFetch(`/api/trial/users/${user.id}/profile`, undefined, token) as Record<string, unknown>;
+        const data = await apiFetch(`/api/v1/users/${user.id}/profile`, undefined, token) as Record<string, unknown>;
         const profile = data.profile as Record<string, unknown> | undefined;
         if (!profile) return;
 
@@ -248,7 +248,7 @@ export default function SettingsPage() {
       const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
       await apiFetch(
-        `/api/trial/users/${user.id}/profile`,
+        `/api/v1/users/${user.id}/profile`,
         {
           method: 'PUT',
           body: JSON.stringify({
@@ -850,7 +850,7 @@ export default function SettingsPage() {
                   <div className="flex items-start justify-between">
                     <div>
                       <div className="text-[13px] font-medium text-white/88">Preference Assistant (Prototype)</div>
-                      <div className="text-[12px] font-light text-white/[0.25] mt-[2px]">Not used in the trial matching engine</div>
+                      <div className="text-[12px] font-light text-white/[0.25] mt-[2px]">Not used in the matching engine</div>
                     </div>
                   </div>
                   <div className="mt-3 rounded-xl bg-[#7FFF00]/[0.04] border border-[#7FFF00]/[0.12] px-5 py-4 flex items-start gap-4">

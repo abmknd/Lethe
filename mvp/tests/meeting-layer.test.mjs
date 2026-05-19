@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createIsolatedTrialApp } from './helpers/trial-test-harness.mjs';
+import { createIsolatedApp } from './helpers/test-harness.mjs';
 
 function prepareAcceptedRecommendation(app) {
   app.services.weeklyMatching.runWeeklyMatching({ maxRecommendationsPerUser: 3 });
@@ -10,7 +10,7 @@ function prepareAcceptedRecommendation(app) {
   const recommendation = pending[0];
   app.services.adminReview.decide({
     recommendationId: recommendation.id,
-    adminId: 'admin_trial',
+    adminId: 'admin_system',
     decision: 'approve',
     rationale: 'Approved for meeting layer validation.',
   });
@@ -23,7 +23,7 @@ function prepareAcceptedRecommendation(app) {
 }
 
 test('meeting layer creates provider-agnostic manual-link meeting for a recommendation', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: true });
+  const { app, cleanup } = createIsolatedApp({ seed: true });
 
   try {
     const recommendation = prepareAcceptedRecommendation(app);
@@ -31,7 +31,7 @@ test('meeting layer creates provider-agnostic manual-link meeting for a recommen
 
     const meeting = app.services.meetings.createMeetingForRecommendation({
       recommendationId: recommendation.id,
-      actorUserId: 'admin_trial',
+      actorUserId: 'admin_system',
       provider: 'manual_link',
       meetingUrl: 'https://meet.example.com/lethe-test',
       scheduledAt,
@@ -65,13 +65,13 @@ test('meeting layer creates provider-agnostic manual-link meeting for a recommen
 });
 
 test('meeting status updates sync completed outcome and status event', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: true });
+  const { app, cleanup } = createIsolatedApp({ seed: true });
 
   try {
     const recommendation = prepareAcceptedRecommendation(app);
     app.services.meetings.createMeetingForRecommendation({
       recommendationId: recommendation.id,
-      actorUserId: 'admin_trial',
+      actorUserId: 'admin_system',
       provider: 'manual_link',
       meetingUrl: 'https://meet.example.com/lethe-test',
       status: 'scheduled',
@@ -79,7 +79,7 @@ test('meeting status updates sync completed outcome and status event', () => {
 
     const completed = app.services.meetings.updateMeetingStatus({
       recommendationId: recommendation.id,
-      actorUserId: 'admin_trial',
+      actorUserId: 'admin_system',
       status: 'completed',
       notes: 'Meeting completed successfully.',
     });
@@ -103,7 +103,7 @@ test('meeting status updates sync completed outcome and status event', () => {
 });
 
 test('meeting layer validates provider, status, and existing recommendation', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: true });
+  const { app, cleanup } = createIsolatedApp({ seed: true });
 
   try {
     const recommendation = prepareAcceptedRecommendation(app);

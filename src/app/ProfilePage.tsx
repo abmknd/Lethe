@@ -19,8 +19,8 @@ import ArcticonsTetherfi from "../imports/ArcticonsTetherfi";
 import { PostOptionsMenu } from "./components/PostOptionsMenu";
 import { EditProfileModal, type ProfileData } from "./components/EditProfileModal";
 import { useAuth } from "./context/AuthContext";
-import { getTrialUserProfile, saveTrialUserProfile } from "./trial/api";
-import type { TrialUserProfile } from "./trial/types";
+import { getUserProfile, saveUserProfile } from "./api";
+import type { UserProfile } from "./types";
 import { toast } from "sonner";
 
 // Profile page component for Relethe app
@@ -151,7 +151,7 @@ export default function ProfilePage() {
   const { user, getAccessToken } = useAuth();
   const [isEditProfileModalOpen, setIsEditProfileModalOpen] = useState(false);
   const [profileLocation, setProfileLocation] = useState('');
-  const [loadedProfile, setLoadedProfile] = useState<TrialUserProfile | null>(null);
+  const [loadedProfile, setLoadedProfile] = useState<UserProfile | null>(null);
   const [profileData, setProfileData] = useState<ProfileData>({
     name: "",
     handle: "",
@@ -172,7 +172,7 @@ export default function ProfilePage() {
     (async () => {
       const token = await getAccessToken();
       try {
-        const profile = await getTrialUserProfile(user.id, token);
+        const profile = await getUserProfile(user.id, token);
         setLoadedProfile(profile);
         setProfileData((prev) => ({
           ...prev,
@@ -193,7 +193,7 @@ export default function ProfilePage() {
     try {
       const token = await getAccessToken();
       const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      await saveTrialUserProfile(
+      await saveUserProfile(
         user.id,
         {
           user: {

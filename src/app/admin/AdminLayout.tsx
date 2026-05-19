@@ -7,7 +7,7 @@ const linkClass = ({ isActive }: { isActive: boolean }) =>
       : 'border-white/15 text-white/55 hover:text-white/80 hover:border-white/30'
   }`;
 
-export default function TrialLayout() {
+export default function AdminLayout() {
   return (
     <div className="min-h-screen bg-[#060a06] text-white/85">
       <header className="border-b border-white/10">

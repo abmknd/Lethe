@@ -73,7 +73,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
   try {
     // ── health (open) ────────────────────────────────────────────────────────
 
-    if (req.method === "GET" && path === "/api/trial/health") {
+    if (req.method === "GET" && path === "/api/v1/health") {
       return json({ ok: true });
     }
 
@@ -83,11 +83,11 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
     // ── users ─────────────────────────────────────────────────────────────────
 
-    if (req.method === "GET" && path === "/api/trial/users") {
+    if (req.method === "GET" && path === "/api/v1/users") {
       return json({ users: await repository.listUsers() });
     }
 
-    const userPublicProfileMatch = path.match(/^\/api\/trial\/users\/([^/]+)\/profile\/public$/);
+    const userPublicProfileMatch = path.match(/^\/api\/v1\/users\/([^/]+)\/profile\/public$/);
     if (userPublicProfileMatch && req.method === "GET") {
       const idOrHandle = decodeURIComponent(userPublicProfileMatch[1]);
       let profile = await repository.getUserProfile(idOrHandle);
@@ -99,7 +99,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
       return json({ profile: toPublicProfile(profile) });
     }
 
-    const userProfileMatch = path.match(/^\/api\/trial\/users\/([^/]+)\/profile$/);
+    const userProfileMatch = path.match(/^\/api\/v1\/users\/([^/]+)\/profile$/);
     if (userProfileMatch) {
       const userId = decodeURIComponent(userProfileMatch[1]);
       requireSelf(auth, userId);
@@ -122,7 +122,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
       }
     }
 
-    const userContextMatch = path.match(/^\/api\/trial\/users\/([^/]+)\/context$/);
+    const userContextMatch = path.match(/^\/api\/v1\/users\/([^/]+)\/context$/);
     if (userContextMatch && req.method === "GET") {
       const userId = decodeURIComponent(userContextMatch[1]);
       requireSelf(auth, userId);
@@ -131,7 +131,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
       return json({ context: profile });
     }
 
-    const userRecsMatch = path.match(/^\/api\/trial\/users\/([^/]+)\/recommendations$/);
+    const userRecsMatch = path.match(/^\/api\/v1\/users\/([^/]+)\/recommendations$/);
     if (userRecsMatch && req.method === "GET") {
       const userId = decodeURIComponent(userRecsMatch[1]);
       requireSelf(auth, userId);
@@ -140,7 +140,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
       return json({ recommendations });
     }
 
-    const userCompletenessMatch = path.match(/^\/api\/trial\/users\/([^/]+)\/completeness$/);
+    const userCompletenessMatch = path.match(/^\/api\/v1\/users\/([^/]+)\/completeness$/);
     if (userCompletenessMatch && req.method === "GET") {
       const userId = decodeURIComponent(userCompletenessMatch[1]);
       requireSelf(auth, userId);
@@ -219,13 +219,13 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
     // ── admin (TODO: admin role auth — out of scope for ticket #1) ───────────
 
-    if (req.method === "GET" && path === "/api/trial/admin/recommendations") {
+    if (req.method === "GET" && path === "/api/v1/admin/recommendations") {
       const status = url.searchParams.get("status") ?? "pending_review";
       const recommendations = await repository.listAdminRecommendations({ status });
       return json({ recommendations });
     }
 
-    const adminDecisionMatch = path.match(/^\/api\/trial\/admin\/recommendations\/([^/]+)\/decision$/);
+    const adminDecisionMatch = path.match(/^\/api\/v1\/admin\/recommendations\/([^/]+)\/decision$/);
     if (adminDecisionMatch && req.method === "POST") {
       const recommendationId = decodeURIComponent(adminDecisionMatch[1]);
       const body = await readJsonBody(req);
@@ -256,7 +256,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
       const updated = await repository.updateRecommendationStatusIfPending(recommendationId, newStatus, nowIso());
       if (!updated) return json({ error: "Recommendation is no longer pending review." }, 409);
 
-      const adminId = String(body.adminId ?? "admin_trial");
+      const adminId = String(body.adminId ?? "admin_system");
       await repository.recordAdminDecision({
         id: `decision_${randomUUID()}`,
         recommendationId,
@@ -315,7 +315,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
       return json({ ok: true, recommendationId, status: newStatus, decision: normalizedDecision, rationale });
     }
 
-    const adminContextMatch = path.match(/^\/api\/trial\/admin\/recommendations\/([^/]+)\/context$/);
+    const adminContextMatch = path.match(/^\/api\/v1\/admin\/recommendations\/([^/]+)\/context$/);
     if (adminContextMatch && req.method === "GET") {
       const recommendationId = decodeURIComponent(adminContextMatch[1]);
       const context = await repository.getRecommendationContext(recommendationId);
@@ -325,7 +325,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
     // ── recommendations ───────────────────────────────────────────────────────
 
-    const insightMatch = path.match(/^\/api\/trial\/recommendations\/([^/]+)\/insight$/);
+    const insightMatch = path.match(/^\/api\/v1\/recommendations\/([^/]+)\/insight$/);
     if (insightMatch && req.method === "POST") {
       const recommendationId = decodeURIComponent(insightMatch[1]);
       const anthropicKey = Deno.env.get("ANTHROPIC_API_KEY");
@@ -386,7 +386,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
       return json({ ok: true, insightText });
     }
 
-    const participantsContextMatch = path.match(/^\/api\/trial\/recommendations\/([^/]+)\/participants-context$/);
+    const participantsContextMatch = path.match(/^\/api\/v1\/recommendations\/([^/]+)\/participants-context$/);
     if (participantsContextMatch && req.method === "GET") {
       const recommendationId = decodeURIComponent(participantsContextMatch[1]);
       const context = await repository.getRecommendationParticipantsContext(recommendationId);
@@ -394,7 +394,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
       return json({ context });
     }
 
-    const respondMatch = path.match(/^\/api\/trial\/recommendations\/([^/]+)\/respond$/);
+    const respondMatch = path.match(/^\/api\/v1\/recommendations\/([^/]+)\/respond$/);
     if (respondMatch && req.method === "POST") {
       const recommendationId = decodeURIComponent(respondMatch[1]);
       const body = await readJsonBody(req);
@@ -438,7 +438,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
       return json({ ok: true, recommendationId, status: nextStatus, decision });
     }
 
-    const followThroughMatch = path.match(/^\/api\/trial\/recommendations\/([^/]+)\/follow-through$/);
+    const followThroughMatch = path.match(/^\/api\/v1\/recommendations\/([^/]+)\/follow-through$/);
     if (followThroughMatch && req.method === "POST") {
       const recommendationId = decodeURIComponent(followThroughMatch[1]);
       const body = await readJsonBody(req);
@@ -481,7 +481,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
     // ── events ────────────────────────────────────────────────────────────────
 
-    if (req.method === "GET" && path === "/api/trial/events") {
+    if (req.method === "GET" && path === "/api/v1/events") {
       const limit = Number(url.searchParams.get("limit") ?? 200);
       const events = await repository.listEvents({
         limit: Number.isFinite(limit) ? Math.max(1, Math.min(1000, limit)) : 200,
@@ -494,7 +494,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
     // ── report ────────────────────────────────────────────────────────────────
 
-    if (req.method === "GET" && path === "/api/trial/report") {
+    if (req.method === "GET" && path === "/api/v1/report") {
       const windowDays = Number(url.searchParams.get("windowDays") ?? 7);
       const toIso = url.searchParams.get("to") ?? new Date().toISOString();
       const fromIso = url.searchParams.get("from")
@@ -528,7 +528,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
     // ── weekly_cep ────────────────────────────────────────────────────────────
 
-    const cepMatch = path.match(/^\/api\/trial\/users\/([^/]+)\/cep$/);
+    const cepMatch = path.match(/^\/api\/v1\/users\/([^/]+)\/cep$/);
     if (cepMatch) {
       const userId = decodeURIComponent(cepMatch[1]);
       requireSelf(auth, userId);
@@ -554,7 +554,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
     // ── meetings ──────────────────────────────────────────────────────────────
 
-    const meetingMatch = path.match(/^\/api\/trial\/recommendations\/([^/]+)\/meeting$/);
+    const meetingMatch = path.match(/^\/api\/v1\/recommendations\/([^/]+)\/meeting$/);
     if (meetingMatch) {
       const recommendationId = decodeURIComponent(meetingMatch[1]);
 
@@ -602,6 +602,112 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
         return json({ meeting });
       }
+    }
+
+    // ── messaging ─────────────────────────────────────────────────────────────
+
+    if (req.method === "GET" && path === "/api/v1/conversations") {
+      const conversations = await repository.listConversationsForUser(auth.userId);
+      return json({ conversations });
+    }
+
+    if (req.method === "POST" && path === "/api/v1/conversations") {
+      const body = await readJsonBody(req);
+      const otherUserId = String(body.otherUserId ?? "").trim();
+      if (!otherUserId) return json({ error: "otherUserId is required." }, 400);
+      if (otherUserId === auth.userId) {
+        return json({ error: "Cannot start a conversation with yourself." }, 400);
+      }
+
+      const existing = await repository.findConversationBetween(auth.userId, otherUserId);
+      if (existing) return json({ conversation: existing });
+
+      const unlockingId = await repository.findUnlockingRecommendationId(auth.userId, otherUserId);
+      if (!unlockingId) {
+        return json({ error: "Conversation is not unlocked for this pair." }, 403);
+      }
+
+      const conversation = await repository.createConversation({
+        userA: auth.userId,
+        userB: otherUserId,
+        unlockedByRecommendationId: unlockingId,
+        createdAt: nowIso(),
+      });
+
+      await repository.appendEvents([{
+        id: `evt_${randomUUID()}`,
+        eventType: EVENT_TYPES.CONVERSATION_CREATED ?? "conversation_created",
+        actorUserId: auth.userId,
+        targetUserId: otherUserId,
+        recommendationId: unlockingId,
+        payload: { conversationId: conversation.id },
+        createdAt: nowIso(),
+      }]);
+
+      return json({ conversation }, 201);
+    }
+
+    const messagesMatch = path.match(/^\/api\/v1\/conversations\/([^/]+)\/messages$/);
+    if (messagesMatch) {
+      const conversationId = decodeURIComponent(messagesMatch[1]);
+      const conversation = await repository.getConversationById(conversationId);
+      if (!conversation) return json({ error: "Conversation not found." }, 404);
+      if (![conversation.participantA, conversation.participantB].includes(auth.userId)) {
+        return json({ error: "Forbidden: not a participant." }, 403);
+      }
+
+      if (req.method === "GET") {
+        const limit = Number(url.searchParams.get("limit") ?? 50);
+        const before = url.searchParams.get("before") ?? undefined;
+        const messages = await repository.listMessages(conversationId, {
+          limit: Number.isFinite(limit) ? limit : 50,
+          before,
+        });
+        return json({ messages });
+      }
+
+      if (req.method === "POST") {
+        const body = await readJsonBody(req);
+        const messageBody = String(body.body ?? "").trim();
+        if (!messageBody) return json({ error: "body is required." }, 400);
+        if (messageBody.length > 4000) {
+          return json({ error: "body exceeds 4000 characters." }, 400);
+        }
+
+        const id = String(body.id ?? `msg_${randomUUID()}`);
+        const createdAt = nowIso();
+        const message = await repository.sendMessage({
+          id, conversationId, senderId: auth.userId, body: messageBody, createdAt,
+        });
+
+        const peerId = conversation.participantA === auth.userId
+          ? conversation.participantB
+          : conversation.participantA;
+
+        await repository.appendEvents([{
+          id: `evt_${randomUUID()}`,
+          eventType: EVENT_TYPES.MESSAGE_SENT ?? "message_sent",
+          actorUserId: auth.userId,
+          targetUserId: peerId,
+          recommendationId: conversation.unlockedByRecommendationId,
+          payload: { conversationId, messageId: id },
+          createdAt,
+        }]);
+
+        return json({ message }, 201);
+      }
+    }
+
+    const readMatch = path.match(/^\/api\/v1\/conversations\/([^/]+)\/read$/);
+    if (readMatch && req.method === "POST") {
+      const conversationId = decodeURIComponent(readMatch[1]);
+      const conversation = await repository.getConversationById(conversationId);
+      if (!conversation) return json({ error: "Conversation not found." }, 404);
+      if (![conversation.participantA, conversation.participantB].includes(auth.userId)) {
+        return json({ error: "Forbidden: not a participant." }, 403);
+      }
+      await repository.markConversationRead(conversationId, auth.userId, nowIso());
+      return json({ ok: true });
     }
 
     return json({ error: "Route not found." }, 404);

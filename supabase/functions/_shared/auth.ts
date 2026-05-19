@@ -1,6 +1,6 @@
-// Supabase JWT verification + trial users.id resolution for Edge Function routes.
+// Supabase JWT verification + users.id resolution for Edge Function routes.
 // Verifies the bearer token, then resolves (or provisions on first login) the
-// trial users.id (TEXT) keyed off auth.users.id (UUID via users.auth_id).
+// users.id (TEXT) keyed off auth.users.id (UUID via users.auth_id).
 
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { repository } from "./repository.ts";

@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createIsolatedTrialApp } from './helpers/trial-test-harness.mjs';
+import { createIsolatedApp } from './helpers/test-harness.mjs';
 
 test('meeting readiness records latest provider-agnostic result', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: true });
+  const { app, cleanup } = createIsolatedApp({ seed: true });
 
   try {
     const [user] = app.services.onboarding.listUsers();
@@ -42,7 +42,7 @@ test('meeting readiness records latest provider-agnostic result', () => {
 });
 
 test('expired meeting readiness displays as untested recently', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: true });
+  const { app, cleanup } = createIsolatedApp({ seed: true });
 
   try {
     const [user] = app.services.onboarding.listUsers();
@@ -65,7 +65,7 @@ test('expired meeting readiness displays as untested recently', () => {
 });
 
 test('meeting readiness validates user and status', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: true });
+  const { app, cleanup } = createIsolatedApp({ seed: true });
 
   try {
     const [user] = app.services.onboarding.listUsers();
