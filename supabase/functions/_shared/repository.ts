@@ -301,6 +301,12 @@ function mapRecommendation(row: Record<string, unknown>): Recommendation {
 
 export class PostgresRepository {
 
+  // ── health ─────────────────────────────────────────────────────────────────
+
+  async pingDatabase(): Promise<void> {
+    await sql`SELECT 1`;
+  }
+
   // ── users ──────────────────────────────────────────────────────────────────
 
   async listUsers(): Promise<User[]> {

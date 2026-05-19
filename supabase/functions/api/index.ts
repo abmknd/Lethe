@@ -77,6 +77,11 @@ Deno.serve(async (req: Request): Promise<Response> => {
       return json({ ok: true });
     }
 
+    if (req.method === "GET" && path === "/api/v1/health/db") {
+      await repository.pingDatabase();
+      return json({ ok: true });
+    }
+
     // ── auth gate (everything below requires a valid Supabase JWT) ──────────
 
     const auth = await requireAuth(req);
