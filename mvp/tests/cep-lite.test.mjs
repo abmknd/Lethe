@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createIsolatedTrialApp } from './helpers/trial-test-harness.mjs';
+import { createIsolatedApp } from './helpers/test-harness.mjs';
 import { isCepActive, cepExpiresAt, CEP_EXPIRY_DAYS } from '../domain/models.mjs';
 import { generateInsightText } from '../context/insight-generation.mjs';
 
@@ -30,7 +30,7 @@ test('cepExpiresAt adds CEP_EXPIRY_DAYS to createdAt', () => {
 // ─── Service contract ─────────────────────────────────────────────────────────
 
 test('submitFocus persists a CEP entry and returns it', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: true });
+  const { app, cleanup } = createIsolatedApp({ seed: true });
   try {
     const users = app.services.onboarding.listUsers();
     const user = users[0];
@@ -46,7 +46,7 @@ test('submitFocus persists a CEP entry and returns it', () => {
 });
 
 test('getActiveFocus returns null when no CEP submitted', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: true });
+  const { app, cleanup } = createIsolatedApp({ seed: true });
   try {
     const users = app.services.onboarding.listUsers();
     const user = users[0];
@@ -58,7 +58,7 @@ test('getActiveFocus returns null when no CEP submitted', () => {
 });
 
 test('getActiveFocus returns entry when active', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: true });
+  const { app, cleanup } = createIsolatedApp({ seed: true });
   try {
     const users = app.services.onboarding.listUsers();
     const user = users[0];
@@ -72,7 +72,7 @@ test('getActiveFocus returns entry when active', () => {
 });
 
 test('getActiveFocus returns null for expired entry', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: true });
+  const { app, cleanup } = createIsolatedApp({ seed: true });
   try {
     const users = app.services.onboarding.listUsers();
     const user = users[0];
@@ -94,7 +94,7 @@ test('getActiveFocus returns null for expired entry', () => {
 });
 
 test('getFocus returns expired entry (raw, no active check)', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: true });
+  const { app, cleanup } = createIsolatedApp({ seed: true });
   try {
     const users = app.services.onboarding.listUsers();
     const user = users[0];
@@ -116,7 +116,7 @@ test('getFocus returns expired entry (raw, no active check)', () => {
 });
 
 test('submitFocus overwrites prior CEP for the same user', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: true });
+  const { app, cleanup } = createIsolatedApp({ seed: true });
   try {
     const users = app.services.onboarding.listUsers();
     const user = users[0];
@@ -133,7 +133,7 @@ test('submitFocus overwrites prior CEP for the same user', () => {
 });
 
 test('clearFocus removes the CEP entry', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: true });
+  const { app, cleanup } = createIsolatedApp({ seed: true });
   try {
     const users = app.services.onboarding.listUsers();
     const user = users[0];
@@ -150,7 +150,7 @@ test('clearFocus removes the CEP entry', () => {
 });
 
 test('listActiveFocuses returns only non-expired entries', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: true });
+  const { app, cleanup } = createIsolatedApp({ seed: true });
   try {
     const users = app.services.onboarding.listUsers();
     assert.ok(users.length >= 2, 'need at least 2 seeded users');
@@ -178,7 +178,7 @@ test('listActiveFocuses returns only non-expired entries', () => {
 });
 
 test('getActiveFocusMap returns only requested active entries', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: true });
+  const { app, cleanup } = createIsolatedApp({ seed: true });
   try {
     const users = app.services.onboarding.listUsers();
     assert.ok(users.length >= 2);
@@ -202,7 +202,7 @@ test('getActiveFocusMap returns only requested active entries', () => {
 });
 
 test('submitFocus throws for unknown user', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: true });
+  const { app, cleanup } = createIsolatedApp({ seed: true });
   try {
     assert.throws(
       () => app.services.cep.submitFocus('nonexistent_user_id', { focusText: 'test' }),
@@ -214,7 +214,7 @@ test('submitFocus throws for unknown user', () => {
 });
 
 test('submitFocus truncates text to 280 characters', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: true });
+  const { app, cleanup } = createIsolatedApp({ seed: true });
   try {
     const users = app.services.onboarding.listUsers();
     const user = users[0];
@@ -277,7 +277,7 @@ test('generateInsightText still returns ≥2 sentences with no CEP', () => {
 // ─── Matching integration: CEP boost appears in whyMatched ───────────────────
 
 test('weekly matching includes CEP boost note when both users have active focus', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: true });
+  const { app, cleanup } = createIsolatedApp({ seed: true });
   try {
     const users = app.services.onboarding.listUsers();
     assert.ok(users.length >= 2);

@@ -10,6 +10,8 @@ export const EVENT_TYPES = Object.freeze({
   MEETING_STATUS_UPDATED: 'meeting_status_updated',
   MEETING_READINESS_STARTED: 'meeting_readiness_started',
   MEETING_READINESS_RECORDED: 'meeting_readiness_recorded',
+  CONVERSATION_CREATED: 'conversation_created',
+  MESSAGE_SENT: 'message_sent',
 });
 
 export const EVENT_TYPE_VALUES = Object.freeze(Object.values(EVENT_TYPES));

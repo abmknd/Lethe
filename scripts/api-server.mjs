@@ -19,7 +19,7 @@ const server = createTrialApiServer({
 
 server.listen(port, () => {
   // eslint-disable-next-line no-console
-  console.log(`Lethe trial API listening on http://localhost:${port}`);
+  console.log(`Relethe API listening on http://localhost:${port}`);
   // eslint-disable-next-line no-console
   console.log(`SQLite database: ${app.dbPath}`);
 });

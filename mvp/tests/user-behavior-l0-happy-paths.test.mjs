@@ -4,7 +4,7 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createIsolatedTrialApp } from './helpers/trial-test-harness.mjs';
+import { createIsolatedApp } from './helpers/test-harness.mjs';
 import {
   buildMarcusWebb,
   buildLogisticsOperatorMentor,
@@ -22,7 +22,7 @@ function approveRecommendationForUser(app, userId) {
   assert.ok(rec, `expected a pending recommendation for user ${userId}`);
   app.services.adminReview.decide({
     recommendationId: rec.id,
-    adminId: 'admin_trial',
+    adminId: 'admin_system',
     decision: 'approve',
     rationale: 'Strong ask-offer fit confirmed by reviewer for L0 happy path test.',
   });
@@ -32,7 +32,7 @@ function approveRecommendationForUser(app, userId) {
 // L0-S1: Marcus (Builder, logistics founder) is matched with a logistics operator mentor.
 // Validates the full intro loop: match → rationale → admin approval → user accept → outcome → events.
 test('L0-S1: complete Builder-to-Operator happy path — full intro loop end-to-end', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: false });
+  const { app, cleanup } = createIsolatedApp({ seed: false });
   try {
     app.services.onboarding.saveUserProfile(buildMarcusWebb());
     app.services.onboarding.saveUserProfile(buildLogisticsOperatorMentor());
@@ -63,14 +63,14 @@ test('L0-S1: complete Builder-to-Operator happy path — full intro loop end-to-
 
     app.services.recommendations.updateFollowThrough({
       recommendationId: rec.id,
-      actorUserId: 'admin_trial',
+      actorUserId: 'admin_system',
       status: 'intro_sent',
       notes: 'Intro email sent to both parties.',
     });
 
     app.services.recommendations.updateFollowThrough({
       recommendationId: rec.id,
-      actorUserId: 'admin_trial',
+      actorUserId: 'admin_system',
       status: 'meeting_scheduled',
       notes: 'Call booked for next week.',
     });
@@ -96,7 +96,7 @@ test('L0-S1: complete Builder-to-Operator happy path — full intro loop end-to-
 // L0-S2: Clara (Thinker, UX researcher) is matched with a peer researcher.
 // Validates same-archetype peer matching on shared domain interest.
 test('L0-S2: Thinker-to-Thinker peer match — shared domain generates strong rationale', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: false });
+  const { app, cleanup } = createIsolatedApp({ seed: false });
   try {
     app.services.onboarding.saveUserProfile(buildClaraOsei());
     app.services.onboarding.saveUserProfile(buildPeerResearcher());
@@ -118,7 +118,7 @@ test('L0-S2: Thinker-to-Thinker peer match — shared domain generates strong ra
 // L0-S4: Priya (Operator, angel investor) is matched with a devtools founder.
 // Validates complementarity-driven investor-to-founder match.
 test('L0-S4: Operator-to-Builder match — investor ask-offer complementarity', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: false });
+  const { app, cleanup } = createIsolatedApp({ seed: false });
   try {
     app.services.onboarding.saveUserProfile(buildPriyaNair());
     app.services.onboarding.saveUserProfile(buildDevtoolsFounder());
@@ -139,7 +139,7 @@ test('L0-S4: Operator-to-Builder match — investor ask-offer complementarity', 
 // L0-S5: Daniel (Builder, indie hacker) is matched with a peer at the same stage.
 // Validates symmetric peer-to-peer match with accountability intent.
 test('L0-S5: symmetric Builder-to-Builder peer match — accountability intent', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: false });
+  const { app, cleanup } = createIsolatedApp({ seed: false });
   try {
     app.services.onboarding.saveUserProfile(buildDanielHartmann());
     app.services.onboarding.saveUserProfile(buildPeerIndieHacker());
@@ -160,7 +160,7 @@ test('L0-S5: symmetric Builder-to-Builder peer match — accountability intent',
 // L0 (general): match rationale contains only non-empty string lines.
 // Validates rationale shape contract across all archetypes.
 test('L0 (general): rationale lines are non-empty strings for all generated matches', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: true });
+  const { app, cleanup } = createIsolatedApp({ seed: true });
   try {
     app.services.weeklyMatching.runWeeklyMatching({ maxRecommendationsPerUser: 3 });
 
@@ -184,7 +184,7 @@ test('L0 (general): rationale lines are non-empty strings for all generated matc
 // L0 (general): scores are positive and sorted in descending order.
 // Validates the ranking contract for all generated recommendations.
 test('L0 (general): match scores are positive and ranked in descending order', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: true });
+  const { app, cleanup } = createIsolatedApp({ seed: true });
   try {
     app.services.weeklyMatching.runWeeklyMatching({ maxRecommendationsPerUser: 5 });
 
@@ -209,7 +209,7 @@ test('L0 (general): match scores are positive and ranked in descending order', (
 // L0 (general): user can pass a recommendation and the decision is persisted.
 // Validates the pass path of the intro loop.
 test('L0 (general): user can pass a recommendation — decision and event persisted', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: false });
+  const { app, cleanup } = createIsolatedApp({ seed: false });
   try {
     app.services.onboarding.saveUserProfile(buildMarcusWebb());
     app.services.onboarding.saveUserProfile(buildLogisticsOperatorMentor());
@@ -237,7 +237,7 @@ test('L0 (general): user can pass a recommendation — decision and event persis
 // L0-S3 (general): weekly report snapshot reflects accepted outcomes.
 // Validates that the reporting layer captures real happy-path signal.
 test('L0-S3: weekly report reflects accepted match outcomes and event counts', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: false });
+  const { app, cleanup } = createIsolatedApp({ seed: false });
   try {
     app.services.onboarding.saveUserProfile(buildMarcusWebb());
     app.services.onboarding.saveUserProfile(buildLogisticsOperatorMentor());
@@ -252,7 +252,7 @@ test('L0-S3: weekly report reflects accepted match outcomes and event counts', (
     });
     app.services.recommendations.updateFollowThrough({
       recommendationId: rec.id,
-      actorUserId: 'admin_trial',
+      actorUserId: 'admin_system',
       status: 'intro_sent',
       notes: 'Intro sent for report snapshot test.',
     });

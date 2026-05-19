@@ -5,7 +5,7 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createIsolatedTrialApp } from './helpers/trial-test-harness.mjs';
+import { createIsolatedApp } from './helpers/test-harness.mjs';
 import { buildProfileFixture } from './fixtures/profile-fixtures.mjs';
 import {
   buildMeiChen,
@@ -20,7 +20,7 @@ import {
 // L3-S2: James has matchingEnabled: false on his user record and matchEnabled: false
 // in preferences. The matching engine must honour both flags.
 test('L3-S2: user with matchingEnabled: false is excluded from match generation entirely', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: false });
+  const { app, cleanup } = createIsolatedApp({ seed: false });
   try {
     app.services.onboarding.saveUserProfile(buildJamesOsei());
     app.services.onboarding.saveUserProfile(buildLogisticsOperatorMentor());
@@ -36,7 +36,7 @@ test('L3-S2: user with matchingEnabled: false is excluded from match generation 
 
 // L3-S2 (symmetric): James should also not appear as a candidate for other users.
 test('L3-S2: user with matchingEnabled: false is excluded as a candidate for other users', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: false });
+  const { app, cleanup } = createIsolatedApp({ seed: false });
   try {
     app.services.onboarding.saveUserProfile(buildJamesOsei());
     app.services.onboarding.saveUserProfile(buildLogisticsOperatorMentor());
@@ -54,7 +54,7 @@ test('L3-S2: user with matchingEnabled: false is excluded as a candidate for oth
 // L3-S3: Camille explicitly disabled matching via preferences.matchEnabled: false.
 // The engine must exclude her both as a source and as a candidate.
 test('L3-S3: user with preferences.matchEnabled: false receives no match and is excluded as candidate', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: false });
+  const { app, cleanup } = createIsolatedApp({ seed: false });
   try {
     app.services.onboarding.saveUserProfile(buildCamilleFontaine());
     app.services.onboarding.saveUserProfile(buildPeerResearcher());
@@ -78,7 +78,7 @@ test('L3-S3: user with preferences.matchEnabled: false receives no match and is 
 // L3-S4: William has empty asks, offers, and matchIntent.
 // The completeness gate now blocks him from the matching pool entirely.
 test('L3-S4: passive lurker with empty profile receives zero matches — completeness gate blocks entry', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: false });
+  const { app, cleanup } = createIsolatedApp({ seed: false });
   try {
     app.services.onboarding.saveUserProfile(buildWilliamCastillo());
     app.services.onboarding.saveUserProfile(buildMarcusWebb());
@@ -95,7 +95,7 @@ test('L3-S4: passive lurker with empty profile receives zero matches — complet
 // L3-S1: Mei has a valid profile, a pending match is generated, but she never opens the match card.
 // The recommendation should persist in pending_review state indefinitely — no auto-expiry today.
 test('L3-S1: pending match stays in pending_review state when user never responds', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: false });
+  const { app, cleanup } = createIsolatedApp({ seed: false });
   try {
     app.services.onboarding.saveUserProfile(buildMeiChen());
     app.services.onboarding.saveUserProfile(
@@ -110,7 +110,7 @@ test('L3-S1: pending match stays in pending_review state when user never respond
 
     app.services.adminReview.decide({
       recommendationId: meiPending.id,
-      adminId: 'admin_trial',
+      adminId: 'admin_system',
       decision: 'approve',
       rationale: 'Approved for L3-S1 bypass test — Mei will never respond.',
     });
@@ -128,7 +128,7 @@ test('L3-S1: pending match stays in pending_review state when user never respond
 // After the first accept, the pool is exhausted (only the referrer was relevant).
 // The system has no second-hook mechanism — this test documents the re-engagement gap.
 test('L3-S5: referral user accepts first match but has no further reason to stay — re-engagement gap (gap)', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: false });
+  const { app, cleanup } = createIsolatedApp({ seed: false });
   try {
     const referrer = buildProfileFixture({
       user: { id: 'referrer_user', displayName: 'Trusted Friend', handle: 'trusted.friend', isActive: true, matchingEnabled: true },
@@ -178,7 +178,7 @@ test('L3-S5: referral user accepts first match but has no further reason to stay
     if (pending.length > 0) {
       app.services.adminReview.decide({
         recommendationId: pending[0].id,
-        adminId: 'admin_trial',
+        adminId: 'admin_system',
         decision: 'approve',
         rationale: 'Referral match approved for L3-S5 test.',
       });
@@ -207,7 +207,7 @@ test('L3-S5: referral user accepts first match but has no further reason to stay
 // After re-activation, she engaged with the feed but did not convert back to matching.
 // The test documents that a pending match remains in state during dormancy.
 test('L3-S7: pending match state is preserved during user dormancy and available on re-activation', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: false });
+  const { app, cleanup } = createIsolatedApp({ seed: false });
   try {
     const sofia = buildProfileFixture({
       user: {
@@ -244,7 +244,7 @@ test('L3-S7: pending match state is preserved during user dormancy and available
     if (sofiaPending) {
       app.services.adminReview.decide({
         recommendationId: sofiaPending.id,
-        adminId: 'admin_trial',
+        adminId: 'admin_system',
         decision: 'approve',
         rationale: 'Approved for L3-S7 dormancy test.',
       });

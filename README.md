@@ -53,10 +53,10 @@ npm run demo:smoke      # wipe, reseed, smoke check, then start servers
 | `npm run demo` | Install → seed → start API + frontend |
 | `npm run demo:reset` | Reset DB → seed → start API + frontend |
 | `npm run demo:smoke` | Reset → seed → smoke check → start API + frontend |
-| `npm run trial:test:backend` | Run all backend unit tests (20/20) |
-| `npm run trial:run-weekly` | Run the matching engine manually |
-| `npm run trial:report:weekly` | Print metrics snapshot to terminal |
-| `npm run trial:smoke` | Smoke check: init → match → admin → response → outcome |
+| `npm run mvp:test:backend` | Run all backend unit tests (20/20) |
+| `npm run mvp:run-weekly` | Run the matching engine manually |
+| `npm run mvp:report:weekly` | Print metrics snapshot to terminal |
+| `npm run mvp:smoke` | Smoke check: init → match → admin → response → outcome |
 
 ---
 
@@ -73,5 +73,5 @@ feature/* → mvp → demo/main
 ## Further reading
 
 - [Product & Intelligence Roadmap](./docs/) — product direction, intelligence sequencing, engineering phases
-- [Demo runbook](./docs/trial-demo-runbook.md) — full walkthrough and acceptance checklist
-- [Local-first architecture](./docs/trial-local-first-architecture.md) — why SQLite, why local-only for trial
+- [Demo runbook](./docs/archive/trial/trial-demo-runbook.md) — full walkthrough and acceptance checklist
+- [Local-first architecture](./docs/archive/trial/trial-local-first-architecture.md) — why SQLite, why local-only for trial

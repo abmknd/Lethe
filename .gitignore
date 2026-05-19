@@ -8,3 +8,4 @@ mvp/data/*.sqlite
 mvp/data/*.sqlite-shm
 mvp/data/*.sqlite-wal
 CLAUDE.md
+supabase/.temp

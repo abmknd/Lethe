@@ -1,22 +1,27 @@
 import type {
   RecommendationParticipantsContextResponse,
-  TrialAdminRecommendation,
-  TrialAdminRecommendationContext,
-  TrialCepEntry,
-  TrialCompletenessResult,
-  TrialCepResponse,
-  TrialEvent,
-  TrialMeeting,
+  AdminRecommendation,
+  AdminRecommendationContext,
+  CepEntry,
+  CompletenessResult,
+  CepResponse,
+  Conversation,
+  ConversationListItem,
+  AppEvent,
+  Meeting,
+  Message,
+  PublicProfile,
+  Recommendation,
+  AppUser,
   TrialMeetingReadinessResponse,
   TrialMeetingReadinessStatus,
-  TrialPublicProfile,
-  TrialRecommendation,
-  TrialUser,
   UserContextResponse,
-  TrialUserProfile,
+  UserProfile,
 } from './types';
 
-const API_BASE = (import.meta.env.VITE_TRIAL_API_BASE_URL as string | undefined) ?? 'http://localhost:8787';
+const API_BASE = (import.meta.env.VITE_API_BASE_URL as string | undefined)
+  ?? (import.meta.env.VITE_TRIAL_API_BASE_URL as string | undefined)
+  ?? 'http://localhost:8787';
 
 async function request<T>(path: string, init?: RequestInit, token?: string): Promise<T> {
   const headers: Record<string, string> = {
@@ -38,56 +43,56 @@ async function request<T>(path: string, init?: RequestInit, token?: string): Pro
   return body;
 }
 
-export function getTrialApiBaseUrl() {
+export function getApiBaseUrl() {
   return API_BASE;
 }
 
-export async function initializeTrialData(options?: { reset?: boolean; seed?: boolean }) {
-  return request<{ ok: boolean; seeded?: boolean; usersSeeded?: number; users?: number }>('/api/trial/init', {
+export async function initializeData(options?: { reset?: boolean; seed?: boolean }) {
+  return request<{ ok: boolean; seeded?: boolean; usersSeeded?: number; users?: number }>('/api/v1/init', {
     method: 'POST',
     body: JSON.stringify(options ?? {}),
   });
 }
 
-export async function listTrialUsers(token?: string) {
-  const result = await request<{ users: TrialUser[] }>('/api/trial/users', undefined, token);
+export async function listUsers(token?: string) {
+  const result = await request<{ users: AppUser[] }>('/api/v1/users', undefined, token);
   return result.users;
 }
 
-export async function getTrialUserProfile(userId: string, token?: string) {
-  const result = await request<{ profile: TrialUserProfile }>(
-    `/api/trial/users/${encodeURIComponent(userId)}/profile`,
+export async function getUserProfile(userId: string, token?: string) {
+  const result = await request<{ profile: UserProfile }>(
+    `/api/v1/users/${encodeURIComponent(userId)}/profile`,
     undefined,
     token,
   );
   return result.profile;
 }
 
-export async function getTrialUserPublicProfile(idOrHandle: string, token?: string) {
-  const result = await request<{ profile: TrialPublicProfile }>(
-    `/api/trial/users/${encodeURIComponent(idOrHandle)}/profile/public`,
+export async function getUserPublicProfile(idOrHandle: string, token?: string) {
+  const result = await request<{ profile: PublicProfile }>(
+    `/api/v1/users/${encodeURIComponent(idOrHandle)}/profile/public`,
     undefined,
     token,
   );
   return result.profile;
 }
 
-export async function getTrialUserContext(userId: string, token?: string) {
+export async function getUserContext(userId: string, token?: string) {
   const result = await request<{ context: UserContextResponse }>(
-    `/api/trial/users/${encodeURIComponent(userId)}/context`,
+    `/api/v1/users/${encodeURIComponent(userId)}/context`,
     undefined,
     token,
   );
   return result.context;
 }
 
-export async function saveTrialUserProfile(
+export async function saveUserProfile(
   userId: string,
-  profile: Omit<TrialUserProfile, 'updatedAt'>,
+  profile: Omit<UserProfile, 'updatedAt'>,
   token?: string,
 ) {
-  const result = await request<{ profile: TrialUserProfile }>(
-    `/api/trial/users/${encodeURIComponent(userId)}/profile`,
+  const result = await request<{ profile: UserProfile }>(
+    `/api/v1/users/${encodeURIComponent(userId)}/profile`,
     { method: 'PUT', body: JSON.stringify(profile) },
     token,
   );
@@ -105,7 +110,7 @@ export async function runWeeklyMatching(maxRecommendationsPerUser = 5, token?: s
       recommendationsGenerated: number;
       maxRecommendationsPerUser: number;
     };
-  }>('/api/trial/matching/run-weekly', {
+  }>('/api/v1/matching/run-weekly', {
     method: 'POST',
     body: JSON.stringify({ maxRecommendationsPerUser }),
   }, token);
@@ -113,8 +118,8 @@ export async function runWeeklyMatching(maxRecommendationsPerUser = 5, token?: s
 
 export async function listUserRecommendations(userId: string, status?: string, token?: string) {
   const qs = status ? `?status=${encodeURIComponent(status)}` : '';
-  const result = await request<{ recommendations: TrialRecommendation[] }>(
-    `/api/trial/users/${encodeURIComponent(userId)}/recommendations${qs}`,
+  const result = await request<{ recommendations: Recommendation[] }>(
+    `/api/v1/users/${encodeURIComponent(userId)}/recommendations${qs}`,
     undefined,
     token,
   );
@@ -122,8 +127,8 @@ export async function listUserRecommendations(userId: string, status?: string, t
 }
 
 export async function listAdminRecommendations(status = 'pending_review', token?: string) {
-  const result = await request<{ recommendations: TrialAdminRecommendation[] }>(
-    `/api/trial/admin/recommendations?status=${encodeURIComponent(status)}`,
+  const result = await request<{ recommendations: AdminRecommendation[] }>(
+    `/api/v1/admin/recommendations?status=${encodeURIComponent(status)}`,
     undefined,
     token,
   );
@@ -137,7 +142,7 @@ export async function submitAdminDecision(params: {
   rationale: string;
 }, token?: string) {
   return request<{ ok: boolean }>(
-    `/api/trial/admin/recommendations/${encodeURIComponent(params.recommendationId)}/decision`,
+    `/api/v1/admin/recommendations/${encodeURIComponent(params.recommendationId)}/decision`,
     {
       method: 'POST',
       body: JSON.stringify({
@@ -151,8 +156,8 @@ export async function submitAdminDecision(params: {
 }
 
 export async function getAdminRecommendationContext(recommendationId: string, token?: string) {
-  const result = await request<{ context: TrialAdminRecommendationContext }>(
-    `/api/trial/admin/recommendations/${encodeURIComponent(recommendationId)}/context`,
+  const result = await request<{ context: AdminRecommendationContext }>(
+    `/api/v1/admin/recommendations/${encodeURIComponent(recommendationId)}/context`,
     undefined,
     token,
   );
@@ -161,7 +166,7 @@ export async function getAdminRecommendationContext(recommendationId: string, to
 
 export async function getRecommendationParticipantsContext(recommendationId: string, token?: string) {
   const result = await request<{ context: RecommendationParticipantsContextResponse }>(
-    `/api/trial/recommendations/${encodeURIComponent(recommendationId)}/participants-context`,
+    `/api/v1/recommendations/${encodeURIComponent(recommendationId)}/participants-context`,
     undefined,
     token,
   );
@@ -173,7 +178,7 @@ export async function respondToRecommendation(params: {
   userId: string;
   decision: 'accept' | 'pass';
 }, token?: string) {
-  return request<{ ok: boolean }>(`/api/trial/recommendations/${encodeURIComponent(params.recommendationId)}/respond`, {
+  return request<{ ok: boolean }>(`/api/v1/recommendations/${encodeURIComponent(params.recommendationId)}/respond`, {
     method: 'POST',
     body: JSON.stringify({
       userId: params.userId,
@@ -188,7 +193,7 @@ export async function updateFollowThrough(params: {
   status: 'intro_sent' | 'meeting_scheduled' | 'completed' | 'no_follow_through';
   notes?: string;
 }, token?: string) {
-  return request<{ ok: boolean }>(`/api/trial/recommendations/${encodeURIComponent(params.recommendationId)}/follow-through`, {
+  return request<{ ok: boolean }>(`/api/v1/recommendations/${encodeURIComponent(params.recommendationId)}/follow-through`, {
     method: 'POST',
     body: JSON.stringify({
       actorUserId: params.actorUserId,
@@ -207,8 +212,8 @@ export async function saveRecommendationMeeting(params: {
   status?: string;
   notes?: string;
 }, token?: string) {
-  return request<{ ok: boolean; meeting: TrialMeeting }>(
-    `/api/trial/recommendations/${encodeURIComponent(params.recommendationId)}/meeting`,
+  return request<{ ok: boolean; meeting: Meeting }>(
+    `/api/v1/recommendations/${encodeURIComponent(params.recommendationId)}/meeting`,
     {
       method: 'PUT',
       body: JSON.stringify({
@@ -230,8 +235,8 @@ export async function updateRecommendationMeetingStatus(params: {
   status: string;
   notes?: string;
 }, token?: string) {
-  return request<{ ok: boolean; meeting: TrialMeeting }>(
-    `/api/trial/recommendations/${encodeURIComponent(params.recommendationId)}/meeting/status`,
+  return request<{ ok: boolean; meeting: Meeting }>(
+    `/api/v1/recommendations/${encodeURIComponent(params.recommendationId)}/meeting/status`,
     {
       method: 'POST',
       body: JSON.stringify({
@@ -244,7 +249,7 @@ export async function updateRecommendationMeetingStatus(params: {
   );
 }
 
-export async function listTrialEvents(filters?: { userId?: string; eventType?: string; recommendationId?: string; limit?: number }, token?: string) {
+export async function listEvents(filters?: { userId?: string; eventType?: string; recommendationId?: string; limit?: number }, token?: string) {
   const params = new URLSearchParams();
   if (filters?.userId) {
     params.set('userId', filters.userId);
@@ -260,16 +265,16 @@ export async function listTrialEvents(filters?: { userId?: string; eventType?: s
   }
 
   const qs = params.toString();
-  const result = await request<{ events: TrialEvent[] }>(`/api/trial/events${qs ? `?${qs}` : ''}`, undefined, token);
+  const result = await request<{ events: AppEvent[] }>(`/api/v1/events${qs ? `?${qs}` : ''}`, undefined, token);
   return result.events;
 }
 
-export async function getUserCep(userId: string, token?: string): Promise<TrialCepResponse> {
-  return request<TrialCepResponse>(`/api/trial/users/${encodeURIComponent(userId)}/cep`, undefined, token);
+export async function getUserCep(userId: string, token?: string): Promise<CepResponse> {
+  return request<CepResponse>(`/api/v1/users/${encodeURIComponent(userId)}/cep`, undefined, token);
 }
 
-export async function saveUserCep(userId: string, focusText: string, token?: string): Promise<TrialCepEntry> {
-  const result = await request<{ cep: TrialCepEntry }>(`/api/trial/users/${encodeURIComponent(userId)}/cep`, {
+export async function saveUserCep(userId: string, focusText: string, token?: string): Promise<CepEntry> {
+  const result = await request<{ cep: CepEntry }>(`/api/v1/users/${encodeURIComponent(userId)}/cep`, {
     method: 'PUT',
     body: JSON.stringify({ focusText }),
   }, token);
@@ -277,14 +282,14 @@ export async function saveUserCep(userId: string, focusText: string, token?: str
 }
 
 export async function clearUserCep(userId: string, token?: string): Promise<void> {
-  await request<{ ok: boolean }>(`/api/trial/users/${encodeURIComponent(userId)}/cep`, {
+  await request<{ ok: boolean }>(`/api/v1/users/${encodeURIComponent(userId)}/cep`, {
     method: 'DELETE',
   }, token);
 }
 
-export async function getUserCompleteness(userId: string, token?: string): Promise<TrialCompletenessResult> {
-  const result = await request<{ completeness: TrialCompletenessResult }>(
-    `/api/trial/users/${encodeURIComponent(userId)}/completeness`,
+export async function getUserCompleteness(userId: string, token?: string): Promise<CompletenessResult> {
+  const result = await request<{ completeness: CompletenessResult }>(
+    `/api/v1/users/${encodeURIComponent(userId)}/completeness`,
     undefined,
     token,
   );
@@ -334,4 +339,57 @@ export async function saveMeetingReadinessResult(params: {
       ...params,
     }),
   }, token);
+}
+
+// ── messaging ────────────────────────────────────────────────────────────────
+
+export async function listConversations(token?: string): Promise<ConversationListItem[]> {
+  const result = await request<{ conversations: ConversationListItem[] }>(
+    '/api/v1/conversations', undefined, token,
+  );
+  return result.conversations;
+}
+
+export async function startConversation(otherUserId: string, token?: string): Promise<Conversation> {
+  const result = await request<{ conversation: Conversation }>(
+    '/api/v1/conversations',
+    { method: 'POST', body: JSON.stringify({ otherUserId }) },
+    token,
+  );
+  return result.conversation;
+}
+
+export async function listMessages(
+  conversationId: string,
+  options?: { limit?: number; before?: string },
+  token?: string,
+): Promise<Message[]> {
+  const params = new URLSearchParams();
+  if (options?.limit) params.set('limit', String(options.limit));
+  if (options?.before) params.set('before', options.before);
+  const qs = params.toString();
+  const result = await request<{ messages: Message[] }>(
+    `/api/v1/conversations/${encodeURIComponent(conversationId)}/messages${qs ? `?${qs}` : ''}`,
+    undefined, token,
+  );
+  return result.messages;
+}
+
+export async function sendMessage(
+  conversationId: string, body: string, clientId?: string, token?: string,
+): Promise<Message> {
+  const result = await request<{ message: Message }>(
+    `/api/v1/conversations/${encodeURIComponent(conversationId)}/messages`,
+    { method: 'POST', body: JSON.stringify({ body, id: clientId }) },
+    token,
+  );
+  return result.message;
+}
+
+export async function markConversationRead(conversationId: string, token?: string): Promise<void> {
+  await request<{ ok: boolean }>(
+    `/api/v1/conversations/${encodeURIComponent(conversationId)}/read`,
+    { method: 'POST', body: JSON.stringify({}) },
+    token,
+  );
 }

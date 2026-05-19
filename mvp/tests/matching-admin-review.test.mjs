@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
-import { createIsolatedTrialApp } from './helpers/trial-test-harness.mjs';
+import { createIsolatedApp } from './helpers/test-harness.mjs';
 import { buildProfileFixture } from './fixtures/profile-fixtures.mjs';
 import { createDeterministicMatcher } from '../matching/deterministic-matcher.mjs';
 
@@ -151,7 +151,7 @@ function createHistoricalRecommendation(app, { runId, sourceUserId, targetUserId
 }
 
 test('deterministic matcher excludes blocked/local/no-overlap/history and keeps valid candidate', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: false });
+  const { app, cleanup } = createIsolatedApp({ seed: false });
 
   try {
     const profiles = buildScenarioProfiles();
@@ -186,7 +186,7 @@ test('deterministic matcher excludes blocked/local/no-overlap/history and keeps 
 });
 
 test('deterministic matcher enforces recommendation cap, rank ordering, and explanation shape', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: true });
+  const { app, cleanup } = createIsolatedApp({ seed: true });
 
   try {
     const result = app.services.weeklyMatching.runWeeklyMatching({ maxRecommendationsPerUser: 3 });
@@ -218,7 +218,7 @@ test('deterministic matcher enforces recommendation cap, rank ordering, and expl
 });
 
 test('admin review rejects invalid decision and short rationale', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: true });
+  const { app, cleanup } = createIsolatedApp({ seed: true });
 
   try {
     app.services.weeklyMatching.runWeeklyMatching({ maxRecommendationsPerUser: 2 });
@@ -230,7 +230,7 @@ test('admin review rejects invalid decision and short rationale', () => {
       () =>
         app.services.adminReview.decide({
           recommendationId,
-          adminId: 'admin_trial',
+          adminId: 'admin_system',
           decision: 'maybe',
           rationale: 'This should not pass validation.',
         }),
@@ -241,7 +241,7 @@ test('admin review rejects invalid decision and short rationale', () => {
       () =>
         app.services.adminReview.decide({
           recommendationId,
-          adminId: 'admin_trial',
+          adminId: 'admin_system',
           decision: 'approve',
           rationale: 'short',
         }),
@@ -253,7 +253,7 @@ test('admin review rejects invalid decision and short rationale', () => {
 });
 
 test('admin review accepts valid decision and persists decision + approved event', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: true });
+  const { app, cleanup } = createIsolatedApp({ seed: true });
 
   try {
     app.services.weeklyMatching.runWeeklyMatching({ maxRecommendationsPerUser: 2 });
@@ -263,7 +263,7 @@ test('admin review accepts valid decision and persists decision + approved event
 
     const decision = app.services.adminReview.decide({
       recommendationId,
-      adminId: 'admin_trial',
+      adminId: 'admin_system',
       decision: 'approve',
       rationale: 'Strong ask-offer fit and clear shared intent for intro.',
     });
@@ -289,7 +289,7 @@ test('admin review accepts valid decision and persists decision + approved event
 });
 
 test('admin review first-write-wins conflict and non-pending transition enforcement', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: true });
+  const { app, cleanup } = createIsolatedApp({ seed: true });
 
   try {
     app.services.weeklyMatching.runWeeklyMatching({ maxRecommendationsPerUser: 2 });
@@ -299,7 +299,7 @@ test('admin review first-write-wins conflict and non-pending transition enforcem
 
     app.services.adminReview.decide({
       recommendationId,
-      adminId: 'admin_trial',
+      adminId: 'admin_system',
       decision: 'approve',
       rationale: 'First decision should persist and lock state transition.',
     });
@@ -308,7 +308,7 @@ test('admin review first-write-wins conflict and non-pending transition enforcem
       () =>
         app.services.adminReview.decide({
           recommendationId,
-          adminId: 'admin_trial',
+          adminId: 'admin_system',
           decision: 'reject',
           rationale: 'Second decision should conflict and be rejected.',
         }),

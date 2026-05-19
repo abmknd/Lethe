@@ -8,8 +8,8 @@ import GenderIcon from "../imports/Gender";
 import ReletheLogo from "../imports/ReletheLogo";
 import { PostCard } from './components/PostCard';
 import { useAuth } from './context/AuthContext';
-import { getTrialUserPublicProfile } from './trial/api';
-import type { TrialPublicProfile } from './trial/types';
+import { getUserPublicProfile } from "./api";
+import type { PublicProfile } from "./types";
 
 function initials(name: string) {
   return name.split(' ').map((p) => p[0] ?? '').join('').slice(0, 2).toUpperCase();
@@ -32,7 +32,7 @@ interface DisplayUser {
   posts: never[];
 }
 
-function toDisplayUser(profile: TrialPublicProfile, fallbackUsername: string): DisplayUser {
+function toDisplayUser(profile: PublicProfile, fallbackUsername: string): DisplayUser {
   return {
     username: profile.handle ?? fallbackUsername,
     name: profile.name,
@@ -69,7 +69,7 @@ export default function OtherUserProfilePage() {
     (async () => {
       const token = await getAccessToken();
       try {
-        const profile = await getTrialUserPublicProfile(username, token);
+        const profile = await getUserPublicProfile(username, token);
         setUser(toDisplayUser(profile, username));
         setLoadState('ready');
       } catch (err) {

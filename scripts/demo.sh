@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# demo.sh — local demo runner for the Lethe trial branch
+# demo.sh — local demo runner for the Relethe MVP branch
 #
 # Usage:
 #   bash scripts/demo.sh          — full setup + start
@@ -11,7 +11,7 @@
 #   2. Installs dependencies if needed
 #   3. Seeds the local SQLite database (--reset wipes and reseeds)
 #   4. Optionally runs the smoke check
-#   5. Starts the trial API (localhost:8787) and frontend (localhost:5173)
+#   5. Starts the API (localhost:8787) and frontend (localhost:5173)
 #   6. Cleans up both processes on Ctrl+C
 
 set -euo pipefail
@@ -32,7 +32,7 @@ dim()  { echo -e "${DIM}$*${RESET}"; }
 # ── banner ────────────────────────────────────────────────────────────────────
 echo ""
 echo -e "${BOLD}  L E T H E  —  local demo${RESET}"
-echo -e "${DIM}  trial backend + UI, running entirely on your machine${RESET}"
+echo -e "${DIM}  MVP backend + UI, running entirely on your machine${RESET}"
 echo ""
 
 # ── args ──────────────────────────────────────────────────────────────────────
@@ -86,16 +86,16 @@ fi
 # ── seed database ─────────────────────────────────────────────────────────────
 if [ "$DO_RESET" = true ]; then
   log "Resetting and seeding database..."
-  npm run trial:init:reset
+  npm run mvp:init:reset
 else
   log "Seeding database (use --reset to wipe first)..."
-  npm run trial:init
+  npm run mvp:init
 fi
 
 # ── smoke check ───────────────────────────────────────────────────────────────
 if [ "$DO_SMOKE" = true ]; then
   log "Running smoke check..."
-  npm run trial:smoke
+  npm run mvp:smoke
   echo ""
 fi
 
@@ -112,9 +112,9 @@ cleanup() {
 }
 trap cleanup INT TERM
 
-# ── start trial API ───────────────────────────────────────────────────────────
-log "Starting trial API on http://localhost:8787 ..."
-npm run trial:api &
+# ── start API ───────────────────────────────────────────────────────────
+log "Starting API on http://localhost:8787 ..."
+npm run mvp:api &
 API_PID=$!
 
 # Give the API a moment to bind before the frontend starts hitting it

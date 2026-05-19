@@ -15,7 +15,7 @@ try {
   const report = app.services.weeklyReport.generateSnapshot({ windowDays: days });
 
   // eslint-disable-next-line no-console
-  console.log('Weekly trial report');
+  console.log('Weekly report');
   // eslint-disable-next-line no-console
   console.log(`Window: ${report.window.fromIso} -> ${report.window.toIso}`);
   // eslint-disable-next-line no-console

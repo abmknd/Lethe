@@ -12,7 +12,7 @@ import { Step9FinishRegistration } from './kyc/Step9FinishRegistration';
 import { Step10Verify } from './kyc/Step10Verify';
 import { KYCDone } from './kyc/KYCDone';
 import { KYCPaused } from './kyc/KYCPaused';
-import { saveTrialUserProfile } from '../trial/api';
+import { saveUserProfile } from "../api";
 import { toast } from 'sonner';
 
 const OBJECTIVE_LABELS = [
@@ -119,7 +119,7 @@ export function KYCModal({ isOpen, onClose, onComplete, userId, accessToken }: K
     }
     try {
       const timezone = data.timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone;
-      await saveTrialUserProfile(
+      await saveUserProfile(
         userId,
         {
           user: {

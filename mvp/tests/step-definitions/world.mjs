@@ -1,5 +1,5 @@
 import { World, Before, After, setWorldConstructor } from '@cucumber/cucumber';
-import { createIsolatedTrialApp } from '../helpers/trial-test-harness.mjs';
+import { createIsolatedApp } from '../helpers/test-harness.mjs';
 import {
   buildMarcusWebb,
   buildLogisticsOperatorMentor,
@@ -59,7 +59,7 @@ class LetheWorld extends World {
   // --- Setup helpers ---
 
   initApp() {
-    const { app, cleanup } = createIsolatedTrialApp({ seed: false });
+    const { app, cleanup } = createIsolatedApp({ seed: false });
     this.app = app;
     this._cleanup = cleanup;
   }

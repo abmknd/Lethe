@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
-import { initializeTrialData, listTrialUsers, getTrialApiBaseUrl, runWeeklyMatching } from './api';
-import type { TrialUser } from './types';
+import { initializeData, listUsers, getApiBaseUrl, runWeeklyMatching } from "../api";
+import type { AppUser } from "../types";
 
-export default function TrialHomePage() {
-  const [users, setUsers] = useState<TrialUser[]>([]);
+export default function AdminHomePage() {
+  const [users, setUsers] = useState<AppUser[]>([]);
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   async function refreshUsers() {
-    const nextUsers = await listTrialUsers();
+    const nextUsers = await listUsers();
     setUsers(nextUsers);
   }
 
@@ -21,7 +21,7 @@ export default function TrialHomePage() {
   async function handleInit(reset: boolean) {
     setIsLoading(true);
     try {
-      const result = await initializeTrialData({ reset, seed: true });
+      const result = await initializeData({ reset, seed: true });
       await refreshUsers();
       setMessage(
         result.seeded
@@ -54,7 +54,7 @@ export default function TrialHomePage() {
       <section className="bg-[#0d140d] border border-white/10 rounded-xl p-5">
         <h2 className="text-base font-semibold mb-2">Trial controls</h2>
         <p className="text-sm text-white/60 mb-4">
-          API base: <span className="text-white/80">{getTrialApiBaseUrl()}</span>
+          API base: <span className="text-white/80">{getApiBaseUrl()}</span>
         </p>
 
         <div className="flex flex-wrap gap-3">

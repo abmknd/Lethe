@@ -1,11 +1,11 @@
-export interface TrialCompletenessResult {
+export interface CompletenessResult {
   userId: string;
   isEligible: boolean;
   missingFields: string[];
   completenessScore: number;
 }
 
-export interface TrialCepEntry {
+export interface CepEntry {
   id: string;
   userId: string;
   focusText: string;
@@ -13,8 +13,8 @@ export interface TrialCepEntry {
   expiresAt: string;
 }
 
-export interface TrialCepResponse {
-  cep: TrialCepEntry | null;
+export interface CepResponse {
+  cep: CepEntry | null;
   isActive: boolean;
 }
 
@@ -47,7 +47,7 @@ export interface TrialMeetingReadinessResponse {
   displayStatus: TrialMeetingReadinessStatus;
 }
 
-export interface TrialUser {
+export interface AppUser {
   id: string;
   displayName: string;
   handle: string;
@@ -58,7 +58,7 @@ export interface TrialUser {
   matchingEnabled: boolean;
 }
 
-export interface TrialAvailabilitySlot {
+export interface AvailabilitySlot {
   dayOfWeek: number;
   startHour: number;
   endHour: number;
@@ -67,7 +67,7 @@ export interface TrialAvailabilitySlot {
   timezone?: string;
 }
 
-export interface TrialPreferences {
+export interface Preferences {
   matchIntent: string[];
   offers: string[];
   asks: string[];
@@ -83,14 +83,14 @@ export interface TrialPreferences {
   blockedUserIds: string[];
 }
 
-export interface TrialUserProfile {
-  user: TrialUser;
-  preferences: TrialPreferences;
-  availability: TrialAvailabilitySlot[];
+export interface UserProfile {
+  user: AppUser;
+  preferences: Preferences;
+  availability: AvailabilitySlot[];
   updatedAt?: string;
 }
 
-export interface TrialPublicProfile {
+export interface PublicProfile {
   id: string;
   name: string;
   handle: string | null;
@@ -101,7 +101,7 @@ export interface TrialPublicProfile {
   objectives: string[];
 }
 
-export interface TrialRecommendation {
+export interface Recommendation {
   id: string;
   runId: string;
   userId: string;
@@ -125,12 +125,12 @@ export interface TrialRecommendation {
     outcomeStatus?: string | null;
     notes: string | null;
   };
-  meeting: TrialMeeting | null;
+  meeting: Meeting | null;
   createdAt: string;
   updatedAt: string;
 }
 
-export interface TrialMeeting {
+export interface Meeting {
   id: string;
   recommendationId: string;
   provider: string;
@@ -145,7 +145,7 @@ export interface TrialMeeting {
   updatedAt: string;
 }
 
-export interface TrialAdminRecommendation {
+export interface AdminRecommendation {
   id: string;
   runId: string;
   userId: string;
@@ -178,7 +178,7 @@ export interface TrialAdminRecommendation {
   createdAt: string;
 }
 
-export interface TrialEvent {
+export interface AppEvent {
   id: string;
   eventType: string;
   actorUserId: string | null;
@@ -189,7 +189,7 @@ export interface TrialEvent {
   createdAt: string;
 }
 
-export interface TrialEvidenceReference {
+export interface EvidenceReference {
   entityType: string;
   entityId: string;
   fieldPath: string;
@@ -220,7 +220,7 @@ export interface ParticipantContext {
     calibrationChoices: string[];
     availabilityDigest: string;
   };
-  evidence: TrialEvidenceReference[];
+  evidence: EvidenceReference[];
 }
 
 export interface UserContextResponse {
@@ -244,7 +244,7 @@ export interface RecommendationParticipantsContextResponse {
       askOfferBridges: string[];
       calibrationAlignment: string[];
     };
-    evidence: TrialEvidenceReference[];
+    evidence: EvidenceReference[];
   };
   meta: {
     strategy: string;
@@ -252,7 +252,7 @@ export interface RecommendationParticipantsContextResponse {
   };
 }
 
-export interface TrialUserContext {
+export interface UserContextDetail {
   userId: string;
   summary: string;
   extractionSupport: {
@@ -272,10 +272,10 @@ export interface TrialUserContext {
     localOnly: boolean;
     meetingFormat: string;
   };
-  evidence: TrialEvidenceReference[];
+  evidence: EvidenceReference[];
 }
 
-export interface TrialRecommendationContextSupport {
+export interface RecommendationContextSupport {
   recommendationId: string;
   runId: string;
   headline: string;
@@ -309,16 +309,39 @@ export interface TrialRecommendationContextSupport {
       outcomeUpdatedAt: string | null;
     }>;
   };
-  evidence: TrialEvidenceReference[];
+  evidence: EvidenceReference[];
   generatedAt: string | null;
 }
 
-export interface TrialAdminRecommendationContext {
-  sourceContext: TrialUserContext;
-  candidateContext: TrialUserContext;
-  explanationSupport: TrialRecommendationContextSupport;
+export interface AdminRecommendationContext {
+  sourceContext: UserContextDetail;
+  candidateContext: UserContextDetail;
+  explanationSupport: RecommendationContextSupport;
   meta: {
     strategy: string;
     snapshotUsed: boolean;
   };
+}
+
+export interface Conversation {
+  id: string;
+  participantA: string;
+  participantB: string;
+  unlockedByRecommendationId: string | null;
+  createdAt: string;
+  lastMessageAt: string | null;
+}
+
+export interface ConversationListItem extends Conversation {
+  peer: { id: string; name: string; handle: string | null };
+  lastMessagePreview: { body: string; senderId: string; createdAt: string } | null;
+  unreadCount: number;
+}
+
+export interface Message {
+  id: string;
+  conversationId: string;
+  senderId: string;
+  body: string;
+  createdAt: string;
 }

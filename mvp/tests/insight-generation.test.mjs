@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { generateInsightText } from '../context/insight-generation.mjs';
-import { createIsolatedTrialApp } from './helpers/trial-test-harness.mjs';
+import { createIsolatedApp } from './helpers/test-harness.mjs';
 
 function makeProfile({ name, handle, location, userType, preferredUserTypes, asks, offers, matchIntent, interests, objectives } = {}) {
   return {
@@ -96,7 +96,7 @@ test('generateInsightText — always produces at least 2 sentences', () => {
 });
 
 test('generateInsightText — output is stored in recommendation after weekly matching', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: true });
+  const { app, cleanup } = createIsolatedApp({ seed: true });
 
   try {
     app.services.weeklyMatching.runWeeklyMatching({ maxRecommendationsPerUser: 3 });
@@ -114,7 +114,7 @@ test('generateInsightText — output is stored in recommendation after weekly ma
 });
 
 test('generateInsightText — insight is available on user-facing recommendation list', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: true });
+  const { app, cleanup } = createIsolatedApp({ seed: true });
 
   try {
     app.services.weeklyMatching.runWeeklyMatching({ maxRecommendationsPerUser: 3 });
@@ -124,7 +124,7 @@ test('generateInsightText — insight is available on user-facing recommendation
     const rec = pending[0];
     app.services.adminReview.decide({
       recommendationId: rec.id,
-      adminId: 'admin_trial',
+      adminId: 'admin_system',
       decision: 'approve',
       rationale: 'Insight generation test approval.',
     });

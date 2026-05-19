@@ -14,12 +14,12 @@ import CommunityPage from "./CommunityPage";
 import NotFound from "./NotFound";
 import AuthPage from "./AuthPage";
 import ProtectedRoute from "./ProtectedRoute";
-import TrialLayout from "./trial/TrialLayout";
-import TrialHomePage from "./trial/TrialHomePage";
-import TrialOnboardingPage from "./trial/TrialOnboardingPage";
-import TrialConnectPage from "./trial/TrialConnectPage";
-import TrialAdminPage from "./trial/TrialAdminPage";
-import TrialEventsPage from "./trial/TrialEventsPage";
+import AdminLayout from "./admin/AdminLayout";
+import AdminHomePage from "./admin/AdminHomePage";
+import AdminOnboardingPage from "./admin/AdminOnboardingPage";
+import AdminConnectPage from "./admin/AdminConnectPage";
+import AdminReviewPage from "./admin/AdminReviewPage";
+import AdminEventsPage from "./admin/AdminEventsPage";
 
 const baseUrl = import.meta.env.BASE_URL;
 const routerOptions = baseUrl === "/" ? undefined : { basename: baseUrl.replace(/\/$/, "") };
@@ -55,27 +55,27 @@ export const router = createBrowserRouter([
       },
       {
         path: "mvp",
-        Component: TrialLayout,
+        Component: AdminLayout,
         children: [
           {
             index: true,
-            Component: TrialHomePage,
+            Component: AdminHomePage,
           },
           {
             path: "onboarding",
-            Component: TrialOnboardingPage,
+            Component: AdminOnboardingPage,
           },
           {
             path: "connect",
-            Component: TrialConnectPage,
+            Component: AdminConnectPage,
           },
           {
             path: "admin",
-            Component: TrialAdminPage,
+            Component: AdminReviewPage,
           },
           {
             path: "events",
-            Component: TrialEventsPage,
+            Component: AdminEventsPage,
           },
         ],
       },

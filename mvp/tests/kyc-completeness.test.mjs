@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { checkProfileCompleteness, COMPLETENESS_FIELDS } from '../domain/completeness.mjs';
-import { createIsolatedTrialApp } from './helpers/trial-test-harness.mjs';
+import { createIsolatedApp } from './helpers/test-harness.mjs';
 import { buildProfileFixture } from './fixtures/profile-fixtures.mjs';
 import {
   buildTylerBrooks,
@@ -105,7 +105,7 @@ test('null profile returns ineligible with score 0', () => {
 // ─── Service: CompletenessService ────────────────────────────────────────────
 
 test('getCompleteness returns null for unknown user', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: false });
+  const { app, cleanup } = createIsolatedApp({ seed: false });
   try {
     const result = app.services.completeness.getCompleteness('no_such_user');
     assert.equal(result, null);
@@ -115,7 +115,7 @@ test('getCompleteness returns null for unknown user', () => {
 });
 
 test('getCompleteness returns eligible result for complete seed profile', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: true });
+  const { app, cleanup } = createIsolatedApp({ seed: true });
   try {
     const users = app.services.onboarding.listUsers();
     const user = users.find((u) => u.isActive && u.matchingEnabled);
@@ -133,7 +133,7 @@ test('getCompleteness returns eligible result for complete seed profile', () => 
 });
 
 test('filterEligibleProfiles excludes profiles with empty asks', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: false });
+  const { app, cleanup } = createIsolatedApp({ seed: false });
   try {
     app.services.onboarding.saveUserProfile(buildTylerBrooks());
     app.services.onboarding.saveUserProfile(buildLogisticsOperatorMentor());
@@ -153,7 +153,7 @@ test('filterEligibleProfiles excludes profiles with empty asks', () => {
 // ─── Integration: matching gate ───────────────────────────────────────────────
 
 test('matching run skips incomplete users and reports usersSkippedIncomplete', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: false });
+  const { app, cleanup } = createIsolatedApp({ seed: false });
   try {
     app.services.onboarding.saveUserProfile(buildTylerBrooks());
     app.services.onboarding.saveUserProfile(buildLogisticsOperatorMentor());
@@ -166,7 +166,7 @@ test('matching run skips incomplete users and reports usersSkippedIncomplete', (
 });
 
 test('complete profiles still receive recommendations after gate is applied', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: false });
+  const { app, cleanup } = createIsolatedApp({ seed: false });
   try {
     app.services.onboarding.saveUserProfile(buildMarcusWebb());
     app.services.onboarding.saveUserProfile(buildLogisticsOperatorMentor());
@@ -181,7 +181,7 @@ test('complete profiles still receive recommendations after gate is applied', ()
 });
 
 test('empty-asks user receives zero recommendations (completeness gate)', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: false });
+  const { app, cleanup } = createIsolatedApp({ seed: false });
   try {
     app.services.onboarding.saveUserProfile(buildTylerBrooks());
     app.services.onboarding.saveUserProfile(buildLogisticsOperatorMentor());
@@ -196,7 +196,7 @@ test('empty-asks user receives zero recommendations (completeness gate)', () => 
 });
 
 test('empty-offers user receives zero recommendations (completeness gate)', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: false });
+  const { app, cleanup } = createIsolatedApp({ seed: false });
   try {
     app.services.onboarding.saveUserProfile(buildEthanPark());
     app.services.onboarding.saveUserProfile(buildLogisticsOperatorMentor());
@@ -211,7 +211,7 @@ test('empty-offers user receives zero recommendations (completeness gate)', () =
 });
 
 test('no-availability user receives zero recommendations (completeness gate)', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: false });
+  const { app, cleanup } = createIsolatedApp({ seed: false });
   try {
     const noAvailability = buildProfileFixture({
       user: { id: 'no_avail_user', displayName: 'No Avail', handle: 'no.avail', email: 'no@avail.test' },
@@ -230,7 +230,7 @@ test('no-availability user receives zero recommendations (completeness gate)', (
 });
 
 test('passive user (matchEnabled=false) receives zero recommendations (completeness gate)', () => {
-  const { app, cleanup } = createIsolatedTrialApp({ seed: false });
+  const { app, cleanup } = createIsolatedApp({ seed: false });
   try {
     const passive = buildProfileFixture({
       user: { id: 'passive_user', displayName: 'Passive User', handle: 'passive', email: 'p@test.test' },
