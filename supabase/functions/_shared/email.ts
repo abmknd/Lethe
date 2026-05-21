@@ -52,6 +52,25 @@ async function sendOne(
   return res.json();
 }
 
+// Wrap sendOne so a single send failure can't reject the whole Promise.all
+// and crash the admin approval flow. The caller (admin approval) records
+// intro_sent only when at least one recipient was successfully notified.
+async function sendOneSafe(
+  apiKey: string,
+  to: string,
+  subject: string,
+  html: string,
+): Promise<{ ok: true; id: string } | { ok: false; reason: string }> {
+  try {
+    const result = await sendOne(apiKey, to, subject, html);
+    return { ok: true, id: result.id };
+  } catch (err) {
+    const reason = err instanceof Error ? err.message : String(err);
+    console.error("[email] send failed:", reason);
+    return { ok: false, reason };
+  }
+}
+
 export async function sendIntroEmails({
   requesterProfile,
   candidateProfile,
@@ -82,7 +101,7 @@ export async function sendIntroEmails({
   }
 
   const [r1, r2] = await Promise.all([
-    sendOne(
+    sendOneSafe(
       apiKey,
       requester.email,
       `Meet ${candidate.name} on Relethe`,
@@ -94,7 +113,7 @@ export async function sendIntroEmails({
         insightText,
       }),
     ),
-    sendOne(
+    sendOneSafe(
       apiKey,
       candidate.email,
       `${requester.name} would like to meet you on Relethe`,
@@ -108,5 +127,14 @@ export async function sendIntroEmails({
     ),
   ]);
 
-  return { ok: true, ids: [r1.id, r2.id] };
+  const ids = [r1, r2].filter((r) => r.ok).map((r) => (r as { ok: true; id: string }).id);
+  const failures = [r1, r2].filter((r) => !r.ok) as { ok: false; reason: string }[];
+
+  if (ids.length === 0) {
+    return { ok: false, reason: failures[0]?.reason ?? "all_sends_failed" };
+  }
+  if (failures.length > 0) {
+    console.warn(`[email] partial send: ${ids.length} of 2 succeeded`);
+  }
+  return { ok: true, ids };
 }
