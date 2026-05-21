@@ -1,7 +1,7 @@
 const RESEND_API = "https://api.resend.com/emails";
 
 function fromAddress(): string {
-  return Deno.env.get("RESEND_FROM_EMAIL") ?? "Lethe <intros@lethe.so>";
+  return Deno.env.get("RESEND_FROM_EMAIL") ?? "Relethe <intros@mail.relethe.com>";
 }
 
 function buildIntroHtml({
@@ -25,9 +25,9 @@ function buildIntroHtml({
 </p>
 ${why ? `<blockquote>${why}</blockquote>` : ""}
 <p>
-  Reply to this email to get in touch, or log in to Lethe to view their full profile.
+  Reply to this email to get in touch, or log in to Relethe to view their full profile.
 </p>
-<p>— The Lethe team</p>
+<p>— The Relethe team</p>
   `.trim();
 }
 
@@ -85,7 +85,7 @@ export async function sendIntroEmails({
     sendOne(
       apiKey,
       requester.email,
-      `Meet ${candidate.name} on Lethe`,
+      `Meet ${candidate.name} on Relethe`,
       buildIntroHtml({
         recipientName: requester.name,
         otherName: candidate.name,
@@ -97,7 +97,7 @@ export async function sendIntroEmails({
     sendOne(
       apiKey,
       candidate.email,
-      `${requester.name} would like to meet you on Lethe`,
+      `${requester.name} would like to meet you on Relethe`,
       buildIntroHtml({
         recipientName: candidate.name,
         otherName: requester.name,

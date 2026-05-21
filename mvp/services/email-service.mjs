@@ -1,7 +1,7 @@
 const RESEND_API = 'https://api.resend.com/emails';
 
 function fromAddress() {
-  return process.env.RESEND_FROM_EMAIL ?? 'Lethe <intros@lethe.so>';
+  return process.env.RESEND_FROM_EMAIL ?? 'Relethe <intros@mail.relethe.com>';
 }
 
 function buildIntroHtml({ recipientName, otherName, otherBio, otherIntroText, insightText }) {
@@ -13,9 +13,9 @@ function buildIntroHtml({ recipientName, otherName, otherBio, otherIntroText, in
 </p>
 ${why ? `<blockquote>${why}</blockquote>` : ''}
 <p>
-  Reply to this email to get in touch, or log in to Lethe to view their full profile.
+  Reply to this email to get in touch, or log in to Relethe to view their full profile.
 </p>
-<p>— The Lethe team</p>
+<p>— The Relethe team</p>
   `.trim();
 }
 
@@ -54,7 +54,7 @@ export async function sendIntroEmails({ requesterProfile, candidateProfile, insi
     sendOne({
       apiKey,
       to: requester.email,
-      subject: `Meet ${candidate.name} on Lethe`,
+      subject: `Meet ${candidate.name} on Relethe`,
       html: buildIntroHtml({
         recipientName: requester.name,
         otherName: candidate.name,
@@ -66,7 +66,7 @@ export async function sendIntroEmails({ requesterProfile, candidateProfile, insi
     sendOne({
       apiKey,
       to: candidate.email,
-      subject: `${requester.name} would like to meet you on Lethe`,
+      subject: `${requester.name} would like to meet you on Relethe`,
       html: buildIntroHtml({
         recipientName: candidate.name,
         otherName: requester.name,
