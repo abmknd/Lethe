@@ -52,9 +52,13 @@ test('signup SOURCES enum matches waitlist_source_check constraint', async () =>
 });
 
 test('migration filenames are sortable and unique', async () => {
+  // readdir() on Linux (and inside GitHub Actions) does not guarantee
+  // alphabetical order, so sort defensively before asserting properties
+  // of the sequence.
   const files = (await readdir(MIGRATIONS_DIR))
     .filter((f) => f.endsWith('.sql'))
-    .filter((f) => !f.startsWith('_'));
+    .filter((f) => !f.startsWith('_'))
+    .sort();
 
   const timestamps = files.map((f) => {
     const m = f.match(/^(\d{14})_/);
@@ -68,7 +72,4 @@ test('migration filenames are sortable and unique', async () => {
     timestamps.length,
     `Duplicate migration timestamps detected: ${timestamps.join(', ')}`,
   );
-
-  const sorted = [...timestamps].sort();
-  assert.deepEqual(timestamps, sorted, 'Migrations on disk should already be in timestamp order');
 });
