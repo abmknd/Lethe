@@ -10,7 +10,9 @@ import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
-const SIGNUP_FN = resolve(REPO_ROOT, 'supabase/functions/signup/index.ts');
+// The signup function's SOURCES enum lives in the pure ESM contract module
+// (imported by both the Deno edge handler and the Node contract tests).
+const SIGNUP_CONTRACT = resolve(REPO_ROOT, 'supabase/functions/signup/contract.mjs');
 const MIGRATIONS_DIR = resolve(REPO_ROOT, 'supabase/migrations');
 const WAITLIST_COLUMNS_MIGRATION = resolve(
   MIGRATIONS_DIR,
@@ -18,7 +20,10 @@ const WAITLIST_COLUMNS_MIGRATION = resolve(
 );
 
 function extractStringLiteralArray(text, identifier) {
-  const re = new RegExp(`${identifier}\\s*=\\s*\\[([^\\]]+)\\]`);
+  // Tolerates both `IDENT = [...]` and `IDENT = Object.freeze([...])`.
+  const re = new RegExp(
+    `${identifier}\\s*=\\s*(?:Object\\.freeze\\(\\s*)?\\[([^\\]]+)\\]`,
+  );
   const match = text.match(re);
   if (!match) return null;
   return [...match[1].matchAll(/"([^"]+)"|'([^']+)'/g)].map((m) => m[1] ?? m[2]);
@@ -34,12 +39,15 @@ function extractSqlInList(text, constraintName) {
   return [...match[1].matchAll(/'([^']+)'/g)].map((m) => m[1]);
 }
 
-test('signup SOURCES enum matches waitlist_source_check constraint', async () => {
-  const signupSrc = await readFile(SIGNUP_FN, 'utf8');
+test('signup SIGNUP_SOURCES enum matches waitlist_source_check constraint', async () => {
+  const contractSrc = await readFile(SIGNUP_CONTRACT, 'utf8');
   const migrationSrc = await readFile(WAITLIST_COLUMNS_MIGRATION, 'utf8');
 
-  const codeSources = extractStringLiteralArray(signupSrc, 'SOURCES');
-  assert.ok(codeSources && codeSources.length > 0, 'Expected to parse SOURCES from signup/index.ts');
+  const codeSources = extractStringLiteralArray(contractSrc, 'SIGNUP_SOURCES');
+  assert.ok(
+    codeSources && codeSources.length > 0,
+    'Expected to parse SIGNUP_SOURCES from signup/contract.mjs',
+  );
 
   const sqlSources = extractSqlInList(migrationSrc, 'waitlist_source_check');
   assert.ok(sqlSources && sqlSources.length > 0, 'Expected to parse waitlist_source_check IN list from migration');
@@ -47,7 +55,7 @@ test('signup SOURCES enum matches waitlist_source_check constraint', async () =>
   assert.deepEqual(
     [...codeSources].sort(),
     [...sqlSources].sort(),
-    `signup SOURCES (${codeSources.join(',')}) drifted from waitlist_source_check (${sqlSources.join(',')})`,
+    `signup SIGNUP_SOURCES (${codeSources.join(',')}) drifted from waitlist_source_check (${sqlSources.join(',')})`,
   );
 });
 
