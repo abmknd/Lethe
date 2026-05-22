@@ -12,7 +12,7 @@ jobs:
       - name: Ping API health endpoint
         env:
           API_HEALTH_URL: ${{ vars.API_HEALTH_URL }}
-          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          SUPABASE_ANON_KEY: ${{ secrets.ANON_KEY }}
         run: |
           if [ -z "$API_HEALTH_URL" ]; then
             echo "API_HEALTH_URL repository variable is not set" >&2
