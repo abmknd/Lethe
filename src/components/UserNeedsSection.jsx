@@ -18,8 +18,8 @@ const CARDS = [
 // then scaled up via 2D ctx.drawImage. Lighting: surface normals + specular +
 // chartreuse spot + vignette. Identical physics config as the reference.
 
-const BASE  = { r: 2,   g: 4,   b: 2   }; // #020402
-const LIGHT = { r: 127, g: 255, b: 0   }; // #7FFF00
+const BASE  = { r: 5,   g: 7,   b: 10  }; // #05070A
+const LIGHT = { r: 199, g: 255, b: 60  }; // #C7FF3C
 
 function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
 
@@ -34,13 +34,13 @@ function mulberry32(seed) {
 
 function createWaterSim(canvas, container) {
   // Config values matching the reference component's property-control defaults
-  const LIGHT_INTENSITY   = 1.05;
-  const LIGHT_SIZE        = 0.30;
-  const LIGHT_MOTION_SPD  = 0.09;
+  const LIGHT_INTENSITY   = 0.15;
+  const LIGHT_SIZE        = 0.50;
+  const LIGHT_MOTION_SPD  = 0.08;
   const POKE_STRENGTH     = 0.70;
   const POKE_RADIUS       = 0.030;
   const DENSITY           = 1.2;
-  const DAMPING           = 0.987;
+  const DAMPING           = 0.985;
   const SPEED             = 1.0;
   const AUTO_RATE         = 0.7;   // ripples per second
   const AUTO_STRENGTH     = 0.22;
@@ -337,13 +337,14 @@ export default function UserNeedsSection() {
           overflow: hidden;
         }
 
-        /* Canvas fills the sticky viewport */
+        /* Canvas fills the sticky viewport — explicit z-index 0 anchors the stack */
         #water-bg {
           position: absolute;
           inset: 0;
           width: 100%;
           height: 100%;
           display: block;
+          z-index: 0;
           cursor: none; /* keep site-wide custom cursor; no crosshair */
         }
 
@@ -351,7 +352,7 @@ export default function UserNeedsSection() {
         .un-vig {
           position: absolute;
           inset: 0;
-          z-index: 2;
+          z-index: 1;
           pointer-events: none;
           background: radial-gradient(
             ellipse 80% 80% at 50% 50%,
@@ -360,14 +361,14 @@ export default function UserNeedsSection() {
           );
         }
 
-        /* Cards stage */
+        /* Cards stage — sits clearly above water (z 2) and vignette (z 1) */
         .un-stage {
           position: absolute;
           inset: 0;
           display: flex;
           align-items: center;
           justify-content: center;
-          z-index: 10;
+          z-index: 20;
           pointer-events: none;
         }
 
@@ -375,23 +376,23 @@ export default function UserNeedsSection() {
            dark glass, deep shadow, centred layout, rounded per design system */
         .un-card {
           position: absolute;
+          z-index: 1;           /* explicit within stacking context of .un-stage */
           width: min(540px, 88vw);
           padding: 48px 52px 52px;
-          background: rgba(3, 6, 3, 0.70);
+          background: rgba(3, 6, 3, 0.88); /* opaque enough to read over water */
           backdrop-filter: blur(20px) saturate(1.2);
           -webkit-backdrop-filter: blur(20px) saturate(1.2);
-          border: 1px solid rgba(255,255,255,0.07);
-          border-radius: var(--radius-lg);     /* 16px — matches FoundingCohort cards */
+          border: 1px solid rgba(255,255,255,0.10);
+          border-radius: var(--radius-lg);
           box-shadow:
-            0 40px 100px rgba(0,0,0,0.75),
-            0 12px 32px  rgba(0,0,0,0.50),
-            inset 0 1px 0 rgba(255,255,255,0.04);
+            0 40px 100px rgba(0,0,0,0.80),
+            0 12px 32px  rgba(0,0,0,0.55),
+            inset 0 1px 0 rgba(255,255,255,0.05);
           display: flex;
           flex-direction: column;
           align-items: center;
           text-align: center;
           will-change: transform, opacity;
-          transform-style: preserve-3d;
           pointer-events: all;
           cursor: none;
         }
@@ -466,7 +467,7 @@ export default function UserNeedsSection() {
           bottom: 32px;
           left: 50%;
           transform: translateX(-50%);
-          z-index: 20;
+          z-index: 30;
           display: flex;
           gap: 8px;
           align-items: center;
