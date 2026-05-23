@@ -5,295 +5,180 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 gsap.registerPlugin(ScrollTrigger);
 
 const CARDS = [
-  "I have a podcast and need to meet the kind of guests my audience hasn't heard yet.",
-  "I'm raising a seed round and need warm intros to operators who've actually done it.",
-  "I'm writing a book and need researchers who think in the same direction I do.",
-  "I run a climate fund and need founders who are serious, not just interesting.",
+  { label: "The Connector", text: "I have a podcast and need to meet the kind of guests my audience hasn't heard yet." },
+  { label: "The Builder",   text: "I'm raising a seed round and need warm intros to operators who've actually done it." },
+  { label: "The Thinker",   text: "I'm writing a book and need researchers who think in the same direction I do." },
+  { label: "The Investor",  text: "I run a climate fund and need founders who are serious, not just interesting." },
 ];
 
-// ─── Water Canvas Controller ────────────────────────────────────────────────
-function createWaterController(canvas) {
+// ─── Orb canvas ──────────────────────────────────────────────────────────────
+// Six radial-gradient "orbs" composited in screen mode on a near-black fill.
+// Each orb follows a slow sinusoidal path. The overlapping screen blends create
+// the organic plasma pools seen in the reference image, but in Relethe's
+// chartreuse / white / black palette.
+function initOrbs(canvas) {
   const ctx = canvas.getContext("2d");
-  const offscreen = document.createElement("canvas");
-  const offCtx = offscreen.getContext("2d");
+  let W = 0, H = 0, raf = 0;
 
-  let W, H, simW, simH, buf1, buf2;
-  let rafId = null;
-  let spawnTimer = null;
-  let scrollProgress = 0;
+  const ORBS = [
+    // Large ambient chartreuse wash (barely moves — creates permanent tint)
+    { bx:0.50, by:0.50, r:0.88, rgb:[127,255,0],   a:0.045, fx:0.9e-4, fy:0.9e-4, ax:0.06, ay:0.06, ph:0.5 },
+    // Primary bright orb — upper-left quadrant
+    { bx:0.30, by:0.46, r:0.60, rgb:[127,255,0],   a:0.170, fx:2.6e-4, fy:2.0e-4, ax:0.22, ay:0.17, ph:0.0 },
+    // Secondary — lower-right
+    { bx:0.72, by:0.54, r:0.52, rgb:[127,255,0],   a:0.130, fx:1.8e-4, fy:3.3e-4, ax:0.26, ay:0.23, ph:2.5 },
+    // Hot-spot highlight (pale chartreuse, small, intense) — creates the bright
+    // region where two main orbs meet, matching the near-white cores in the ref
+    { bx:0.50, by:0.36, r:0.26, rgb:[210,255,170], a:0.260, fx:3.9e-4, fy:2.7e-4, ax:0.10, ay:0.19, ph:1.2 },
+    // Bottom-left accent
+    { bx:0.16, by:0.74, r:0.38, rgb:[ 93,200,0],   a:0.105, fx:3.1e-4, fy:1.6e-4, ax:0.19, ay:0.14, ph:3.8 },
+    // Top-right accent
+    { bx:0.84, by:0.26, r:0.36, rgb:[160,255, 60], a:0.115, fx:2.2e-4, fy:4.1e-4, ax:0.14, ay:0.21, ph:1.7 },
+  ];
 
-  const BASE_R = 5, BASE_G = 7, BASE_B = 5;
-  const PEAK_R = 127, PEAK_G = 255, PEAK_B = 0;
-  const THRESHOLD = 30;
-  const BASE_DAMPING = 0.985;
-
-  function init() {
-    W = canvas.width;
-    H = canvas.height;
-    const scale = W < 768 ? 0.3 : 0.5;
-    simW = Math.max(4, Math.ceil(W * scale));
-    simH = Math.max(4, Math.ceil(H * scale));
-    buf1 = new Float32Array(simW * simH);
-    buf2 = new Float32Array(simW * simH);
-    offscreen.width = simW;
-    offscreen.height = simH;
+  function resize() {
+    const p = canvas.parentElement;
+    W = canvas.width  = (p ? p.clientWidth  : 0) || window.innerWidth;
+    H = canvas.height = (p ? p.clientHeight : 0) || window.innerHeight;
   }
 
-  function getProgressMult() {
-    if (scrollProgress < 0.5) return 0.4 + scrollProgress * 1.2;
-    return 1.0 - (scrollProgress - 0.5) * 1.4;
-  }
-
-  function addRipple(x, y, radius, strength) {
-    const sx = Math.floor((x / W) * simW);
-    const sy = Math.floor((y / H) * simH);
-    const r = Math.ceil(radius);
-    for (let dy = -r; dy <= r; dy++) {
-      for (let dx = -r; dx <= r; dx++) {
-        const nx = sx + dx, ny = sy + dy;
-        if (nx >= 0 && nx < simW && ny >= 0 && ny < simH) {
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist <= r) buf1[ny * simW + nx] += strength * (1 - dist / r);
-        }
-      }
+  function draw(ts) {
+    ctx.fillStyle = "#020402";
+    ctx.fillRect(0, 0, W, H);
+    ctx.globalCompositeOperation = "screen";
+    for (const o of ORBS) {
+      const x = (o.bx + Math.sin(ts * o.fx * Math.PI * 2 + o.ph)        * o.ax) * W;
+      const y = (o.by + Math.sin(ts * o.fy * Math.PI * 2 + o.ph + 1.57) * o.ay) * H;
+      const r = o.r * Math.min(W, H);
+      const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+      const [R, G, B] = o.rgb;
+      g.addColorStop(0,   `rgba(${R},${G},${B},${o.a})`);
+      g.addColorStop(0.30,`rgba(${R},${G},${B},${+(o.a * 0.58).toFixed(3)})`);
+      g.addColorStop(0.65,`rgba(${R},${G},${B},${+(o.a * 0.15).toFixed(3)})`);
+      g.addColorStop(1,   `rgba(${R},${G},${B},0)`);
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, W, H);
     }
+    ctx.globalCompositeOperation = "source-over";
   }
 
-  function scheduleSpawn() {
-    spawnTimer = setTimeout(() => {
-      const mult = Math.max(0.3, getProgressMult());
-      addRipple(
-        Math.random() * W,
-        Math.random() * H,
-        2 + Math.random() * 2,
-        (180 + Math.random() * 75) * mult
-      );
-      scheduleSpawn();
-    }, 600 + Math.random() * 300);
-  }
+  function loop(ts) { draw(ts); raf = requestAnimationFrame(loop); }
 
-  function update() {
-    const mult = Math.max(0.3, getProgressMult());
-    const damping = BASE_DAMPING - (mult - 0.3) * 0.008;
-    for (let y = 1; y < simH - 1; y++) {
-      for (let x = 1; x < simW - 1; x++) {
-        const idx = y * simW + x;
-        const val =
-          (buf1[(y - 1) * simW + x] +
-            buf1[(y + 1) * simW + x] +
-            buf1[y * simW + (x - 1)] +
-            buf1[y * simW + (x + 1)]) / 2 - buf2[idx];
-        buf2[idx] = val * damping;
-      }
-    }
-    const tmp = buf1; buf1 = buf2; buf2 = tmp;
-  }
-
-  function render() {
-    const imgData = offCtx.createImageData(simW, simH);
-    const d = imgData.data;
-    for (let i = 0; i < simW * simH; i++) {
-      const h = Math.abs(buf1[i]);
-      let r = BASE_R, g = BASE_G, b = BASE_B;
-      if (h > THRESHOLD) {
-        const t = Math.min((h - THRESHOLD) / (255 - THRESHOLD), 1) * 0.12;
-        r = Math.round(BASE_R + (PEAK_R - BASE_R) * t);
-        g = Math.round(BASE_G + (PEAK_G - BASE_G) * t);
-        b = Math.round(BASE_B + (PEAK_B - BASE_B) * t);
-      }
-      const p = i * 4;
-      d[p] = r; d[p + 1] = g; d[p + 2] = b; d[p + 3] = 255;
-    }
-    offCtx.putImageData(imgData, 0, 0);
-    ctx.imageSmoothingEnabled = false;
-    ctx.drawImage(offscreen, 0, 0, W, H);
-  }
-
-  function loop() {
-    update();
-    render();
-    rafId = requestAnimationFrame(loop);
-  }
-
-  init();
-  loop();
-  scheduleSpawn();
+  resize();
+  raf = requestAnimationFrame(loop);
 
   return {
-    setScrollProgress(p) { scrollProgress = p; },
-    activateBurst() {
-      const count = 8 + Math.floor(Math.random() * 5);
-      for (let i = 0; i < count; i++) {
-        setTimeout(() => addRipple(
-          Math.random() * W, Math.random() * H,
-          3 + Math.random() * 2, 200 + Math.random() * 55
-        ), (i * 400) / count);
-      }
-    },
-    resize() { init(); },
-    destroy() {
-      cancelAnimationFrame(rafId);
-      clearTimeout(spawnTimer);
-    },
+    resize,
+    destroy: () => cancelAnimationFrame(raf),
   };
 }
 
-// ─── Component ──────────────────────────────────────────────────────────────
+// ─── Component ───────────────────────────────────────────────────────────────
 export default function UserNeedsSection() {
   const canvasRef    = useRef(null);
   const containerRef = useRef(null);
-  const waterRef     = useRef(null);
   const cardRefs     = useRef([]);
-  const turbRefs     = useRef([]);
-  const dispRefs     = useRef([]);
-  const seedsRef     = useRef([0, 10, 20, 30]);
-  const ratesRef     = useRef([0.004, 0.004, 0.004, 0.004]);
+  const dotRefs      = useRef([]);
 
-  // Canvas init + resize
+  // Canvas: init + ResizeObserver
   useEffect(() => {
-    const canvas    = canvasRef.current;
-    const container = containerRef.current;
-    if (!canvas || !container) return;
-
-    let water = null;
-
-    const initOrResize = () => {
-      const w = container.clientWidth;
-      const h = container.clientHeight;
-      if (!w || !h) return;
-      canvas.width  = w;
-      canvas.height = h;
-      if (!water) {
-        water = createWaterController(canvas);
-        waterRef.current = water;
-      } else {
-        water.resize();
-      }
-    };
-
-    const ro = new ResizeObserver(initOrResize);
-    ro.observe(container);
-    initOrResize();
-
-    return () => {
-      water?.destroy();
-      ro.disconnect();
-    };
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const orbs = initOrbs(canvas);
+    const ro = new ResizeObserver(() => orbs.resize());
+    ro.observe(canvas.parentElement);
+    return () => { orbs.destroy(); ro.disconnect(); };
   }, []);
 
-  // GSAP ScrollTrigger + ticker
+  // GSAP: pin section + scrub card transitions
   useEffect(() => {
     const cards = cardRefs.current;
-    if (!cards.every(Boolean)) return;
+    const dots  = dotRefs.current;
+    if (!cards.every(Boolean) || !dots.every(Boolean)) return;
 
-    // Set initial state
-    gsap.set(cards, { y: 80, opacity: 0, scale: 0.96 });
+    const gctx = gsap.context(() => {
+      // Initial states
+      gsap.set(cards, { opacity: 0, y: 40, scale: 0.97 });
+      gsap.set(dots,  { scaleX: 1, opacity: 0.25 });
 
-    const ctx = gsap.context(() => {
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: "#user-needs",
-          start: "top top",
-          end: "bottom top",
-          scrub: 1,
-          pin: ".un-sticky",
-          anticipatePin: 1,
-          onEnter: () => waterRef.current?.activateBurst(),
-          onUpdate: (self) => waterRef.current?.setScrollProgress(self.progress),
-        },
+      // Timeline total = 10 units, mapped to 400vh of pinned scroll.
+      // Each card occupies a 2.5-unit slot (~100vh).
+      // Slot: in (0.5u) → hold (~1.5u) → out (0.5u)
+      const tl = gsap.timeline({ defaults: { ease: "power2.inOut" } });
+
+      function addCard(card, dot, inAt, outAt) {
+        tl.fromTo(card, { opacity:0, y:40, scale:0.97 }, { opacity:1, y:0, scale:1, duration:0.5 }, inAt);
+        tl.fromTo(dot,  { scaleX:1, opacity:0.25 },      { scaleX:3.5, opacity:1, duration:0.5 }, inAt);
+        if (outAt !== null) {
+          tl.to(card, { opacity:0, y:-40, scale:0.97, duration:0.5 }, outAt);
+          tl.to(dot,  { scaleX:1, opacity:0.25, duration:0.5 }, outAt);
+        }
+      }
+
+      addCard(cards[0], dots[0], 0.0,  2.0);   // slot 0–2.5
+      addCard(cards[1], dots[1], 2.5,  4.5);   // slot 2.5–5.0
+      addCard(cards[2], dots[2], 5.0,  7.0);   // slot 5.0–7.5
+      addCard(cards[3], dots[3], 7.5,  null);  // slot 7.5–10, holds
+
+      // Pad to ensure card 4 has full hold time
+      tl.set({}, {}, 10);
+
+      ScrollTrigger.create({
+        trigger:  containerRef.current,
+        start:    "top top",
+        end:      "+=400%",     // 400vh of pinned scroll (4 cards × ~100vh)
+        pin:      true,
+        scrub:    1.5,
+        animation: tl,
       });
+    }, containerRef);
 
-      // Card 1 in (0–12%)
-      tl.fromTo(cards[0],
-        { y: 80, opacity: 0, scale: 0.96 },
-        { y: 0, opacity: 1, scale: 1, ease: "power2.out", duration: 0.12 }, 0);
-      // Card 1 out (20–30%)
-      tl.to(cards[0],
-        { y: -60, opacity: 0, scale: 0.97, ease: "power1.in", duration: 0.10 }, 0.20);
-
-      // Card 2 in (20–32%)
-      tl.fromTo(cards[1],
-        { y: 80, opacity: 0, scale: 0.96 },
-        { y: 0, opacity: 1, scale: 1, ease: "power2.out", duration: 0.12 }, 0.20);
-      // Card 2 out (40–50%)
-      tl.to(cards[1],
-        { y: -60, opacity: 0, scale: 0.97, ease: "power1.in", duration: 0.10 }, 0.40);
-
-      // Card 3 in (40–52%)
-      tl.fromTo(cards[2],
-        { y: 80, opacity: 0, scale: 0.96 },
-        { y: 0, opacity: 1, scale: 1, ease: "power2.out", duration: 0.12 }, 0.40);
-      // Card 3 out (60–70%)
-      tl.to(cards[2],
-        { y: -60, opacity: 0, scale: 0.97, ease: "power1.in", duration: 0.10 }, 0.60);
-
-      // Card 4 in (60–72%)
-      tl.fromTo(cards[3],
-        { y: 80, opacity: 0, scale: 0.96 },
-        { y: 0, opacity: 1, scale: 1, ease: "power2.out", duration: 0.12 }, 0.60);
-      // Card 4 hold (72–100%)
-      tl.to(cards[3], { opacity: 1, duration: 0.28 }, 0.72);
-    });
-
-    // Ticker: animate liquid border seeds
-    const tickerCb = () => {
-      turbRefs.current.forEach((el, i) => {
-        if (!el) return;
-        seedsRef.current[i] += ratesRef.current[i];
-        el.setAttribute("seed", String(seedsRef.current[i]));
-      });
-    };
-    gsap.ticker.add(tickerCb);
-
-    return () => {
-      gsap.ticker.remove(tickerCb);
-      ctx.revert();
-    };
+    return () => gctx.revert();
   }, []);
-
-  const onEnter = (i) => {
-    const disp = dispRefs.current[i];
-    if (disp) gsap.to(disp, { attr: { scale: 9 }, duration: 0.3 });
-    ratesRef.current[i] = 0.009;
-    const ring = cardRefs.current[i]?.querySelector(".card-glow-ring");
-    if (ring) ring.style.animationDuration = "1.4s";
-  };
-
-  const onLeave = (i) => {
-    const disp = dispRefs.current[i];
-    if (disp) gsap.to(disp, { attr: { scale: 4 }, duration: 0.3 });
-    ratesRef.current[i] = 0.004;
-    const ring = cardRefs.current[i]?.querySelector(".card-glow-ring");
-    if (ring) ring.style.animationDuration = "3s";
-  };
 
   return (
     <>
       <style>{`
-        @property --angle {
-          syntax: '<angle>';
-          initial-value: 0deg;
-          inherits: false;
-        }
+        /* ── Section shell ─────────────────────────────────────────── */
         #user-needs {
-          height: 500vh;
-          overflow: hidden;
           position: relative;
-        }
-        .un-sticky {
-          position: sticky;
-          top: 0;
           height: 100vh;
-          width: 100%;
           overflow: hidden;
         }
+
+        /* ── Orb canvas ─────────────────────────────────────────────── */
         #water-bg {
           position: absolute;
           inset: 0;
           width: 100%;
           height: 100%;
-          z-index: 0;
+          display: block;
         }
+
+        /* ── Film grain (inline SVG feTurbulence, screen blend) ───── */
+        .un-grain {
+          position: absolute;
+          inset: 0;
+          z-index: 2;
+          pointer-events: none;
+          mix-blend-mode: screen;
+          opacity: 0.10;
+        }
+
+        /* ── Vignette: focuses eye on centre card ────────────────── */
+        .un-vignette {
+          position: absolute;
+          inset: 0;
+          z-index: 3;
+          pointer-events: none;
+          background: radial-gradient(
+            ellipse 72% 72% at 50% 50%,
+            transparent 20%,
+            rgba(2,4,2,0.68) 100%
+          );
+        }
+
+        /* ── Cards stage ─────────────────────────────────────────── */
         .un-cards-stage {
           position: absolute;
           inset: 0;
@@ -301,131 +186,160 @@ export default function UserNeedsSection() {
           align-items: center;
           justify-content: center;
           z-index: 10;
-          padding-bottom: 8vh;
         }
+
+        /* ── Card shell ───────────────────────────────────────────── */
         .un-card {
           position: absolute;
-          width: 560px;
-          height: 280px;
-          border-radius: 12px;
-          background: rgba(10, 12, 10, 0.82);
+          width: min(600px, 88vw);
+          padding: 44px 52px 48px;
+          background: rgba(2, 4, 2, 0.72);
+          border: 1px solid rgba(255,255,255,0.15);
+          border-radius: 2px;          /* near-sharp — bounding-box aesthetic */
           will-change: transform, opacity;
-          cursor: none;
         }
-        .card-border {
+
+        /* Chartreuse corner bracket — top-left */
+        .un-card::before {
+          content: '';
           position: absolute;
-          inset: 0;
-          border-radius: 12px;
-          border: 1px solid rgba(127, 255, 0, 0.35);
-          box-shadow: 0 0 12px rgba(127, 255, 0, 0.15),
-                      inset 0 0 8px rgba(127, 255, 0, 0.05);
-          pointer-events: none;
-          z-index: 1;
+          top: -1px; left: -1px;
+          width: 20px; height: 20px;
+          border-top:  2px solid rgba(127,255,0,0.72);
+          border-left: 2px solid rgba(127,255,0,0.72);
         }
-        .card-glow-ring {
+        /* Chartreuse corner bracket — bottom-right */
+        .un-card::after {
+          content: '';
           position: absolute;
-          inset: -1px;
-          border-radius: 13px;
-          background: conic-gradient(
-            from var(--angle),
-            transparent 0%,
-            rgba(127, 255, 0, 0.6) 8%,
-            transparent 16%
-          );
-          -webkit-mask:
-            linear-gradient(#fff 0 0) content-box,
-            linear-gradient(#fff 0 0);
-          -webkit-mask-composite: xor;
-          mask-composite: exclude;
-          padding: 1px;
-          animation: spin-glow 3s linear infinite;
-          pointer-events: none;
-          z-index: 2;
+          bottom: -1px; right: -1px;
+          width: 20px; height: 20px;
+          border-bottom: 2px solid rgba(127,255,0,0.72);
+          border-right:  2px solid rgba(127,255,0,0.72);
         }
-        @keyframes spin-glow {
-          to { --angle: 360deg; }
-        }
-        .card-content {
-          position: absolute;
-          inset: 0;
-          z-index: 3;
+
+        /* Eyebrow label */
+        .un-card-label {
+          font-family: var(--font-sans);
+          font-size: 9px;
+          font-weight: 400;
+          letter-spacing: 0.28em;
+          text-transform: uppercase;
+          color: rgba(127,255,0,0.65);
+          margin-bottom: 22px;
           display: flex;
           align-items: center;
-          justify-content: center;
-          padding: 32px 40px;
+          gap: 10px;
         }
-        .card-content p {
-          font-family: 'Cormorant Garamond', Georgia, serif;
+        .un-card-label::after {
+          content: '';
+          flex: 1;
+          height: 1px;
+          background: rgba(127,255,0,0.20);
+        }
+
+        /* Quote body */
+        .un-card-text {
+          font-family: var(--font-display);
           font-style: italic;
-          font-weight: 400;
-          font-size: 20px;
-          color: #D0D0C8;
-          line-height: 1.6;
-          text-align: center;
-          max-width: 460px;
+          font-weight: 300;
+          font-size: clamp(20px, 2.2vw, 27px);
+          color: rgba(255,255,255,0.88);
+          line-height: 1.56;
+          letter-spacing: -0.01em;
           margin: 0;
         }
+
+        /* Chartreuse rule */
+        .un-card-rule {
+          width: 38px;
+          height: 1px;
+          background: rgba(127,255,0,0.40);
+          margin-top: 26px;
+        }
+
+        /* ── Progress dots ────────────────────────────────────────── */
+        .un-dots {
+          position: absolute;
+          bottom: 36px;
+          left: 50%;
+          transform: translateX(-50%);
+          z-index: 20;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+        .un-dot {
+          width: 6px;
+          height: 2px;
+          border-radius: 1px;
+          background: rgba(127,255,0,0.55);
+          transform-origin: left center;
+          will-change: transform, opacity;
+        }
+
+        /* ── Responsive ──────────────────────────────────────────── */
         @media (max-width: 767px) {
           .un-card {
-            width: 88vw;
-            height: auto;
-            min-height: 200px;
+            padding: 28px 24px 32px;
           }
-          .card-border {
-            filter: url(#liquid-border-0) !important;
+          .un-card-text {
+            font-size: 19px;
+          }
+          .un-dots {
+            bottom: 24px;
           }
         }
       `}</style>
 
-      {/* One SVG filter per card */}
-      <svg style={{ position: "absolute", width: 0, height: 0, overflow: "hidden" }}>
-        <defs>
-          {CARDS.map((_, i) => (
-            <filter key={i} id={`liquid-border-${i}`} x="-5%" y="-5%" width="110%" height="110%">
-              <feTurbulence
-                ref={(el) => (turbRefs.current[i] = el)}
-                type="fractalNoise"
-                baseFrequency="0.015 0.025"
-                numOctaves="3"
-                seed={String(i * 10)}
-                result="noise"
-              />
-              <feDisplacementMap
-                ref={(el) => (dispRefs.current[i] = el)}
-                in="SourceGraphic"
-                in2="noise"
-                scale="4"
-                xChannelSelector="R"
-                yChannelSelector="G"
-              />
-            </filter>
-          ))}
-        </defs>
-      </svg>
+      <section id="user-needs" ref={containerRef}>
+        {/* Orb canvas */}
+        <canvas ref={canvasRef} id="water-bg" />
 
-      <section id="user-needs">
-        <div className="un-sticky" ref={containerRef}>
-          <canvas ref={canvasRef} id="water-bg" />
-          <div className="un-cards-stage">
-            {CARDS.map((text, i) => (
-              <div
-                key={i}
-                className="un-card"
-                ref={(el) => (cardRefs.current[i] = el)}
-                onMouseEnter={() => onEnter(i)}
-                onMouseLeave={() => onLeave(i)}
-              >
-                <div
-                  className="card-border"
-                  style={{ filter: `url(#liquid-border-${i})` }}
-                />
-                <div className="card-glow-ring" />
-                <div className="card-content">
-                  <p>{text}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+        {/* Film grain — inline SVG feTurbulence */}
+        <svg
+          className="un-grain"
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <filter id="un-noise-filter">
+            <feTurbulence
+              type="fractalNoise"
+              baseFrequency="0.68 0.68"
+              numOctaves="4"
+              stitchTiles="stitch"
+            />
+          </filter>
+          <rect width="100%" height="100%" filter="url(#un-noise-filter)" />
+        </svg>
+
+        {/* Radial vignette */}
+        <div className="un-vignette" />
+
+        {/* Cards */}
+        <div className="un-cards-stage">
+          {CARDS.map((card, i) => (
+            <div
+              key={i}
+              className="un-card"
+              ref={(el) => (cardRefs.current[i] = el)}
+            >
+              <div className="un-card-label">{card.label}</div>
+              <p className="un-card-text">{card.text}</p>
+              <div className="un-card-rule" />
+            </div>
+          ))}
+        </div>
+
+        {/* Progress indicator */}
+        <div className="un-dots">
+          {CARDS.map((_, i) => (
+            <div
+              key={i}
+              className="un-dot"
+              ref={(el) => (dotRefs.current[i] = el)}
+            />
+          ))}
         </div>
       </section>
     </>
