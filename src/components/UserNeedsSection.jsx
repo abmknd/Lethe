@@ -6,7 +6,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 // ─── Card data ────────────────────────────────────────────────────────────────
 const CARDS = [
-  { label: "The Connector", text: "I have a podcast and need to meet the kind of guests my audience hasn't heard yet." },
+  { label: "The Creator",   text: "I have a podcast and need to meet the kind of guests my audience hasn't heard yet." },
   { label: "The Builder",   text: "I'm raising a seed round and need warm intros to operators who've actually done it." },
   { label: "The Thinker",   text: "I'm writing a book and need researchers who think in the same direction I do." },
   { label: "The Investor",  text: "I run a climate fund and need founders who are serious, not just interesting." },
@@ -249,7 +249,7 @@ export default function UserNeedsSection() {
         const r  = card.getBoundingClientRect();
         const dx = ((e.clientX - r.left) / r.width  - 0.5) * 2;
         const dy = ((e.clientY - r.top)  / r.height - 0.5) * 2;
-        gsap.to(card, { rotateY: dx*9, rotateX: -dy*6, transformPerspective: 900, duration: 0.25, ease: "power2.out" });
+        gsap.to(card, { rotateY: dx*20, rotateX: -dy*14, transformPerspective: 700, duration: 0.2, ease: "power2.out" });
         if (Math.random() < 0.06) {
           const sim = waterRef.current;
           const cx  = (r.left + r.width*.5)  / window.innerWidth;
@@ -269,9 +269,9 @@ export default function UserNeedsSection() {
   // ── Dancy character reveal ─────────────────────────────────────────────────
   const animateChars = (cardEl) => {
     gsap.fromTo(
-      cardEl.querySelectorAll(".un-ch"),
-      { opacity: 0, y: 14, rotation: () => (Math.random() - 0.5) * 14 },
-      { opacity: 1, y: 0, rotation: 0, stagger: 0.018, duration: 0.42, ease: "back.out(1.8)" }
+      cardEl.querySelectorAll(".un-word"),
+      { opacity: 0, y: 16, rotation: () => (Math.random() - 0.5) * 10 },
+      { opacity: 1, y: 0, rotation: 0, stagger: 0.055, duration: 0.50, ease: "back.out(1.8)" }
     );
   };
 
@@ -382,7 +382,7 @@ export default function UserNeedsSection() {
           background: rgba(3, 6, 3, 0.88); /* opaque enough to read over water */
           backdrop-filter: blur(20px) saturate(1.2);
           -webkit-backdrop-filter: blur(20px) saturate(1.2);
-          border: 1px solid rgba(255,255,255,0.10);
+          border: 1px solid rgba(127,255,0,0.30);
           border-radius: var(--radius-lg);
           box-shadow:
             0 40px 100px rgba(0,0,0,0.80),
@@ -433,21 +433,26 @@ export default function UserNeedsSection() {
           margin-bottom: 20px;
         }
 
-        /* Quote body — large Cormorant italic, centred, matching the reference */
+        /* Quote body — exactly matches the .relethe-story-line spec */
         .un-text {
           font-family: var(--font-display);
           font-style: italic;
           font-weight: 300;
-          font-size: clamp(22px, 2.4vw, 30px);
-          color: rgba(255,255,255,0.86);
-          line-height: 1.50;
-          letter-spacing: -0.02em;
+          font-size: clamp(24px, 3.2vw, 44px);
+          color: rgba(255,255,255,0.88);
+          line-height: 1.35;
+          letter-spacing: -0.01em;
           margin: 0;
+          /* normal word-wrap — lines break between words, never mid-word */
+          word-break: normal;
+          overflow-wrap: normal;
         }
 
-        /* Character spans for dancy typed reveal */
-        .un-ch {
+        /* Word spans for dancy reveal — inline-block keeps each word intact
+           but allows the browser to wrap lines between words naturally */
+        .un-word {
           display: inline-block;
+          white-space: nowrap;
           opacity: 0;
           will-change: transform, opacity;
         }
@@ -511,13 +516,14 @@ export default function UserNeedsSection() {
 
                 <div className="un-label">{card.label}</div>
 
-                {/* Split into character spans for the dancy reveal */}
+                {/* Split into word spans — lines break naturally between words;
+                    each word bounces in individually for the dancy effect */}
                 <p className="un-text" aria-label={card.text}>
-                  {card.text.split("").map((ch, j) =>
-                    ch === " "
-                      ? <span key={j}>&nbsp;</span>
-                      : <span key={j} className="un-ch">{ch}</span>
-                  )}
+                  {card.text.split(" ").map((word, j, arr) => (
+                    <span key={j} className="un-word">
+                      {word}{j < arr.length - 1 ? " " : ""}
+                    </span>
+                  ))}
                 </p>
 
                 <div className="un-rule" />
