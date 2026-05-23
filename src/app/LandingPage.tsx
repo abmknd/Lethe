@@ -398,7 +398,7 @@ export default function LandingPage() {
       next();
     }
 
-    ScrollTrigger.create({
+    const storyTrigger = ScrollTrigger.create({
       trigger: "#relethe-story",
       start: "top 70%",
       once: true,
@@ -406,7 +406,7 @@ export default function LandingPage() {
     });
 
     return () => {
-      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+      storyTrigger.kill(); // kill only this trigger — not every trigger on the page
       if (storySection) {
         storySection.removeEventListener('mouseenter', onMouseEnter);
         storySection.removeEventListener('mouseleave', onMouseLeave);
