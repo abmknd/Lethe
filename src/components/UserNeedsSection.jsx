@@ -4,6 +4,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
+// ─── Card data ────────────────────────────────────────────────────────────────
 const CARDS = [
   { label: "The Connector", text: "I have a podcast and need to meet the kind of guests my audience hasn't heard yet." },
   { label: "The Builder",   text: "I'm raising a seed round and need warm intros to operators who've actually done it." },
@@ -11,30 +12,129 @@ const CARDS = [
   { label: "The Investor",  text: "I run a climate fund and need founders who are serious, not just interesting." },
 ];
 
-// ─── Orb canvas ──────────────────────────────────────────────────────────────
-// Six radial-gradient "orbs" composited in screen mode on a near-black fill.
-// Each orb follows a slow sinusoidal path. The overlapping screen blends create
-// the organic plasma pools seen in the reference image, but in Relethe's
-// chartreuse / white / black palette.
-function initOrbs(canvas) {
-  const ctx = canvas.getContext("2d");
-  let W = 0, H = 0, raf = 0;
+// ─── WebGL shaders ────────────────────────────────────────────────────────────
+const VERT = `#version 300 es
+in  vec2 a_pos;
+out vec2 v_uv;
+void main() {
+  v_uv        = a_pos * 0.5 + 0.5;
+  gl_Position = vec4(a_pos, 0.0, 1.0);
+}`;
 
-  const ORBS = [
-    // Large ambient chartreuse wash (barely moves — creates permanent tint)
-    { bx:0.50, by:0.50, r:0.88, rgb:[127,255,0],   a:0.045, fx:0.9e-4, fy:0.9e-4, ax:0.06, ay:0.06, ph:0.5 },
-    // Primary bright orb — upper-left quadrant
-    { bx:0.30, by:0.46, r:0.60, rgb:[127,255,0],   a:0.170, fx:2.6e-4, fy:2.0e-4, ax:0.22, ay:0.17, ph:0.0 },
-    // Secondary — lower-right
-    { bx:0.72, by:0.54, r:0.52, rgb:[127,255,0],   a:0.130, fx:1.8e-4, fy:3.3e-4, ax:0.26, ay:0.23, ph:2.5 },
-    // Hot-spot highlight (pale chartreuse, small, intense) — creates the bright
-    // region where two main orbs meet, matching the near-white cores in the ref
-    { bx:0.50, by:0.36, r:0.26, rgb:[210,255,170], a:0.260, fx:3.9e-4, fy:2.7e-4, ax:0.10, ay:0.19, ph:1.2 },
-    // Bottom-left accent
-    { bx:0.16, by:0.74, r:0.38, rgb:[ 93,200,0],   a:0.105, fx:3.1e-4, fy:1.6e-4, ax:0.19, ay:0.14, ph:3.8 },
-    // Top-right accent
-    { bx:0.84, by:0.26, r:0.36, rgb:[160,255, 60], a:0.115, fx:2.2e-4, fy:4.1e-4, ax:0.14, ay:0.21, ph:1.7 },
-  ];
+// Display: reads CPU-uploaded height field, renders dark-water + chartreuse reflection
+const FRAG = `#version 300 es
+precision highp float;
+uniform sampler2D u_h;
+uniform vec2      u_tx;
+in  vec2 v_uv;
+out vec4 out_col;
+
+float dec(float v) { return (v - 0.498) * 20.0; }
+
+void main() {
+  float h  = dec(texture(u_h, v_uv).r);
+  float hl = dec(texture(u_h, v_uv - vec2(u_tx.x, 0.0)).r);
+  float hr = dec(texture(u_h, v_uv + vec2(u_tx.x, 0.0)).r);
+  float hu = dec(texture(u_h, v_uv - vec2(0.0, u_tx.y)).r);
+  float hd = dec(texture(u_h, v_uv + vec2(0.0, u_tx.y)).r);
+
+  // Surface slope — drives chartreuse shimmer
+  float slope   = length(vec2(hr - hl, hd - hu));
+  float shimmer = clamp(slope * 3.0 + abs(h) * 0.55, 0.0, 1.0);
+
+  vec3 dark = vec3(0.008, 0.016, 0.008);  // #020402
+  vec3 ch   = vec3(0.498, 1.000, 0.000);  // #7FFF00
+
+  // Blend: dark water to chartreuse reflection on wave crests
+  vec3 col = mix(dark, ch, pow(shimmer, 1.35) * 0.60);
+  // Constant dim ambient green tint so the water reads "alive" even flat
+  col += ch * 0.012;
+
+  out_col = vec4(col, 1.0);
+}`;
+
+// ─── Water controller ─────────────────────────────────────────────────────────
+function createWater(canvas) {
+  const gl = canvas.getContext("webgl2");
+  if (!gl) return null;
+
+  const SIM = 256;
+  let W = 0, H = 0, raf = 0;
+  let b1 = new Float32Array(SIM * SIM); // height at t
+  let b2 = new Float32Array(SIM * SIM); // height at t-1
+  const u8 = new Uint8Array(SIM * SIM);
+  let spawnId = null;
+
+  // Shader
+  function mkShader(src, type) {
+    const s = gl.createShader(type);
+    gl.shaderSource(s, src);
+    gl.compileShader(s);
+    return s;
+  }
+  const prog = gl.createProgram();
+  gl.attachShader(prog, mkShader(VERT, gl.VERTEX_SHADER));
+  gl.attachShader(prog, mkShader(FRAG, gl.FRAGMENT_SHADER));
+  gl.linkProgram(prog);
+  gl.useProgram(prog);
+
+  // Fullscreen quad
+  const qbuf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, qbuf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+  const posLoc = gl.getAttribLocation(prog, "a_pos");
+  gl.enableVertexAttribArray(posLoc);
+  gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
+
+  const uH  = gl.getUniformLocation(prog, "u_h");
+  const uTx = gl.getUniformLocation(prog, "u_tx");
+  gl.uniform1i(uH, 0);
+  gl.uniform2f(uTx, 1 / SIM, 1 / SIM);
+
+  // Single-channel 8-bit texture (R8 — linear filterable in WebGL2)
+  const tex = gl.createTexture();
+  gl.activeTexture(gl.TEXTURE0);
+  gl.bindTexture(gl.TEXTURE_2D, tex);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+  // ── Physics ─────────────────────────────────────────────────────────────────
+  function step() {
+    for (let y = 1; y < SIM - 1; y++) {
+      for (let x = 1; x < SIM - 1; x++) {
+        const i = y * SIM + x;
+        const h = (b1[(y-1)*SIM+x] + b1[(y+1)*SIM+x] +
+                   b1[y*SIM+(x-1)] + b1[y*SIM+(x+1)]) * 0.5 - b2[i];
+        b2[i] = h * 0.986; // damping
+      }
+    }
+    const tmp = b1; b1 = b2; b2 = tmp;
+  }
+
+  // Add ripple impulse at normalised position
+  function addImpulse(xn, yn, rn, str) {
+    const cx = Math.floor(xn * SIM);
+    const cy = Math.floor(yn * SIM);
+    const r  = Math.ceil(rn * SIM);
+    for (let dy = -r; dy <= r; dy++) {
+      for (let dx = -r; dx <= r; dx++) {
+        const nx = cx + dx, ny = cy + dy;
+        if (nx >= 0 && nx < SIM && ny >= 0 && ny < SIM) {
+          const d = Math.sqrt(dx * dx + dy * dy);
+          if (d <= r) b1[ny * SIM + nx] += str * (1 - d / r);
+        }
+      }
+    }
+  }
+
+  // Ambient spawner — keeps the surface permanently alive
+  function spawnAmbient() {
+    addImpulse(Math.random(), Math.random(), 0.025 + Math.random() * 0.022, 0.55 + Math.random() * 0.4);
+    spawnId = setTimeout(spawnAmbient, 650 + Math.random() * 420);
+  }
+  spawnAmbient();
 
   function resize() {
     const p = canvas.parentElement;
@@ -42,304 +142,382 @@ function initOrbs(canvas) {
     H = canvas.height = (p ? p.clientHeight : 0) || window.innerHeight;
   }
 
-  function draw(ts) {
-    ctx.fillStyle = "#020402";
-    ctx.fillRect(0, 0, W, H);
-    ctx.globalCompositeOperation = "screen";
-    for (const o of ORBS) {
-      const x = (o.bx + Math.sin(ts * o.fx * Math.PI * 2 + o.ph)        * o.ax) * W;
-      const y = (o.by + Math.sin(ts * o.fy * Math.PI * 2 + o.ph + 1.57) * o.ay) * H;
-      const r = o.r * Math.min(W, H);
-      const g = ctx.createRadialGradient(x, y, 0, x, y, r);
-      const [R, G, B] = o.rgb;
-      g.addColorStop(0,   `rgba(${R},${G},${B},${o.a})`);
-      g.addColorStop(0.30,`rgba(${R},${G},${B},${+(o.a * 0.58).toFixed(3)})`);
-      g.addColorStop(0.65,`rgba(${R},${G},${B},${+(o.a * 0.15).toFixed(3)})`);
-      g.addColorStop(1,   `rgba(${R},${G},${B},0)`);
-      ctx.fillStyle = g;
-      ctx.fillRect(0, 0, W, H);
+  function frame() {
+    step();
+    // Encode float → uint8 for R8 upload
+    for (let i = 0; i < SIM * SIM; i++) {
+      u8[i] = Math.max(0, Math.min(255, b1[i] * 12.75 + 127.5)) | 0;
     }
-    ctx.globalCompositeOperation = "source-over";
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.R8, SIM, SIM, 0, gl.RED, gl.UNSIGNED_BYTE, u8);
+    gl.viewport(0, 0, W, H);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    raf = requestAnimationFrame(frame);
   }
 
-  function loop(ts) { draw(ts); raf = requestAnimationFrame(loop); }
-
   resize();
-  raf = requestAnimationFrame(loop);
+  frame();
 
-  return {
-    resize,
-    destroy: () => cancelAnimationFrame(raf),
-  };
+  return { addImpulse, resize, destroy() { cancelAnimationFrame(raf); clearTimeout(spawnId); } };
 }
 
-// ─── Component ───────────────────────────────────────────────────────────────
+// ─── Component ────────────────────────────────────────────────────────────────
 export default function UserNeedsSection() {
   const canvasRef    = useRef(null);
-  const containerRef = useRef(null);
+  const sectionRef   = useRef(null);
+  const waterRef     = useRef(null);
   const cardRefs     = useRef([]);
   const dotRefs      = useRef([]);
+  // Track which cards have had their char animation fired
+  const charDoneRef  = useRef([false, false, false, false]);
 
-  // Canvas: init + ResizeObserver
+  // ── WebGL water setup ──────────────────────────────────────────────────────
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const orbs = initOrbs(canvas);
-    const ro = new ResizeObserver(() => orbs.resize());
+    const water = createWater(canvas);
+    waterRef.current = water;
+
+    const ro = new ResizeObserver(() => water?.resize());
     ro.observe(canvas.parentElement);
-    return () => { orbs.destroy(); ro.disconnect(); };
+
+    // Click → water tap
+    const onClick = (e) => {
+      const rect = canvas.getBoundingClientRect();
+      water?.addImpulse(
+        (e.clientX - rect.left) / rect.width,
+        (e.clientY - rect.top)  / rect.height,
+        0.04, 2.5
+      );
+    };
+    canvas.addEventListener("click", onClick);
+
+    return () => {
+      water?.destroy();
+      ro.disconnect();
+      canvas.removeEventListener("click", onClick);
+    };
   }, []);
 
-  // GSAP: pin section + scrub card transitions
+  // ── Card tilt (3-D perspective on hover) ──────────────────────────────────
+  const setupTilt = (card) => {
+    if (!card) return;
+    const onMove = (e) => {
+      const r  = card.getBoundingClientRect();
+      const dx = ((e.clientX - r.left) / r.width  - 0.5) * 2; // -1 to 1
+      const dy = ((e.clientY - r.top)  / r.height - 0.5) * 2;
+      gsap.to(card, {
+        rotateY:  dx * 9,
+        rotateX: -dy * 6,
+        transformPerspective: 900,
+        ease: "power2.out",
+        duration: 0.25,
+      });
+      // Pulse water under the card too
+      const cx = (r.left + r.width  * 0.5) / window.innerWidth;
+      const cy = (r.top  + r.height * 0.5) / window.innerHeight;
+      if (Math.random() < 0.08) {
+        waterRef.current?.addImpulse(cx + (Math.random()-0.5)*0.1, cy + (Math.random()-0.5)*0.1, 0.022, 0.35);
+      }
+    };
+    const onLeave = () => {
+      gsap.to(card, { rotateX: 0, rotateY: 0, duration: 0.7, ease: "power3.out" });
+    };
+    card.addEventListener("mousemove", onMove);
+    card.addEventListener("mouseleave", onLeave);
+    return () => {
+      card.removeEventListener("mousemove", onMove);
+      card.removeEventListener("mouseleave", onLeave);
+    };
+  };
+
+  // Attach tilt listeners after mount
+  useEffect(() => {
+    const cleanups = cardRefs.current.map(setupTilt);
+    return () => cleanups.forEach(fn => fn?.());
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // ── Dancy character animation (fires once per card entry) ─────────────────
+  const animateChars = (cardEl) => {
+    const spans = cardEl.querySelectorAll(".un-ch");
+    gsap.fromTo(
+      spans,
+      { opacity: 0, y: 14, rotation: () => (Math.random() - 0.5) * 12 },
+      { opacity: 1, y: 0, rotation: 0, stagger: 0.018, duration: 0.45, ease: "back.out(1.7)" }
+    );
+  };
+
+  // ── GSAP scroll: CSS-sticky section + scrubbed timeline ───────────────────
   useEffect(() => {
     const cards = cardRefs.current;
     const dots  = dotRefs.current;
     if (!cards.every(Boolean) || !dots.every(Boolean)) return;
 
     const gctx = gsap.context(() => {
-      // Initial states
-      gsap.set(cards, { opacity: 0, y: 40, scale: 0.97 });
-      gsap.set(dots,  { scaleX: 1, opacity: 0.25 });
+      // Cards start hidden; chars start hidden via inline style on spans
+      gsap.set(cards, { opacity: 0, y: 44, scale: 0.97 });
+      gsap.set(dots,  { scaleX: 1, opacity: 0.22 });
 
-      // Timeline total = 10 units, mapped to 400vh of pinned scroll.
-      // Each card occupies a 2.5-unit slot (~100vh).
-      // Slot: in (0.5u) → hold (~1.5u) → out (0.5u)
+      // Timeline total = 10 units spanning 400vh of sticky scroll
+      // Card slots: 0–2.5, 2.5–5.0, 5.0–7.5, 7.5–10
       const tl = gsap.timeline({ defaults: { ease: "power2.inOut" } });
 
-      function addCard(card, dot, inAt, outAt) {
-        tl.fromTo(card, { opacity:0, y:40, scale:0.97 }, { opacity:1, y:0, scale:1, duration:0.5 }, inAt);
-        tl.fromTo(dot,  { scaleX:1, opacity:0.25 },      { scaleX:3.5, opacity:1, duration:0.5 }, inAt);
-        if (outAt !== null) {
-          tl.to(card, { opacity:0, y:-40, scale:0.97, duration:0.5 }, outAt);
-          tl.to(dot,  { scaleX:1, opacity:0.25, duration:0.5 }, outAt);
-        }
-      }
+      [0, 2.5, 5.0, 7.5].forEach((inAt, i) => {
+        const outAt = i < 3 ? inAt + 2.0 : null;
+        // Card opacity/position
+        tl.fromTo(cards[i],
+          { opacity: 0, y: 44, scale: 0.97 },
+          { opacity: 1, y: 0,  scale: 1,    duration: 0.5 }, inAt);
+        if (outAt) tl.to(cards[i], { opacity: 0, y: -44, scale: 0.97, duration: 0.5 }, outAt);
+        // Progress dot
+        tl.fromTo(dots[i],
+          { scaleX: 1,   opacity: 0.22 },
+          { scaleX: 3.5, opacity: 1,    duration: 0.5 }, inAt);
+        if (outAt) tl.to(dots[i], { scaleX: 1, opacity: 0.22, duration: 0.5 }, outAt);
+      });
 
-      addCard(cards[0], dots[0], 0.0,  2.0);   // slot 0–2.5
-      addCard(cards[1], dots[1], 2.5,  4.5);   // slot 2.5–5.0
-      addCard(cards[2], dots[2], 5.0,  7.0);   // slot 5.0–7.5
-      addCard(cards[3], dots[3], 7.5,  null);  // slot 7.5–10, holds
+      tl.set({}, {}, 10); // pad to 10 so card 4 has hold time
 
-      // Pad to ensure card 4 has full hold time
-      tl.set({}, {}, 10);
+      // The card entry progress thresholds (0–1) for char animation
+      const ENTRY_P = [0, 0.25, 0.50, 0.75];
 
       ScrollTrigger.create({
-        trigger:  containerRef.current,
-        start:    "top top",
-        end:      "+=400%",     // 400vh of pinned scroll (4 cards × ~100vh)
-        pin:      true,
-        scrub:    1.5,
+        trigger: sectionRef.current,
+        start:   "top top",
+        end:     "bottom bottom", // 500vh section → 400vh of sticky scroll
+        scrub:   1,
         animation: tl,
+        onUpdate(self) {
+          const p = self.progress;
+          ENTRY_P.forEach((ep, i) => {
+            if (p >= ep + 0.01 && !charDoneRef.current[i]) {
+              charDoneRef.current[i] = true;
+              animateChars(cards[i]);
+            }
+            if (p < ep) charDoneRef.current[i] = false; // reset on scroll-back
+          });
+        },
       });
-    }, containerRef);
+    }, sectionRef);
 
     return () => gctx.revert();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // ── JSX ───────────────────────────────────────────────────────────────────
   return (
     <>
       <style>{`
-        /* ── Section shell ─────────────────────────────────────────── */
+        /* ── Tall scroll container — CSS sticky does the pinning ─────────── */
         #user-needs {
+          height: 500vh;
           position: relative;
+        }
+        .un-sticky {
+          position: sticky;
+          top: 0;
           height: 100vh;
           overflow: hidden;
         }
 
-        /* ── Orb canvas ─────────────────────────────────────────────── */
+        /* ── Canvas ──────────────────────────────────────────────────────── */
         #water-bg {
           position: absolute;
           inset: 0;
           width: 100%;
           height: 100%;
           display: block;
+          cursor: crosshair;
         }
 
-        /* ── Film grain (inline SVG feTurbulence, screen blend) ───── */
-        .un-grain {
+        /* ── Vignette ─────────────────────────────────────────────────────── */
+        .un-vig {
           position: absolute;
           inset: 0;
           z-index: 2;
           pointer-events: none;
-          mix-blend-mode: screen;
-          opacity: 0.10;
-        }
-
-        /* ── Vignette: focuses eye on centre card ────────────────── */
-        .un-vignette {
-          position: absolute;
-          inset: 0;
-          z-index: 3;
-          pointer-events: none;
           background: radial-gradient(
-            ellipse 72% 72% at 50% 50%,
-            transparent 20%,
-            rgba(2,4,2,0.68) 100%
+            ellipse 80% 80% at 50% 50%,
+            transparent 18%,
+            rgba(2,4,2,0.78) 100%
           );
         }
 
-        /* ── Cards stage ─────────────────────────────────────────── */
-        .un-cards-stage {
+        /* ── Cards stage ─────────────────────────────────────────────────── */
+        .un-stage {
           position: absolute;
           inset: 0;
           display: flex;
           align-items: center;
           justify-content: center;
           z-index: 10;
+          pointer-events: none;
         }
 
-        /* ── Card shell ───────────────────────────────────────────── */
+        /* ── Card — styled after the reference screenshot ─────────────────
+           Dark glass, deep shadow, Cormorant text, no border-radius to match
+           that architectural panel feel. Corner brackets replace a full border. */
         .un-card {
           position: absolute;
-          width: min(600px, 88vw);
-          padding: 44px 52px 48px;
-          background: rgba(2, 4, 2, 0.72);
-          border: 1px solid rgba(255,255,255,0.15);
-          border-radius: 2px;          /* near-sharp — bounding-box aesthetic */
+          width: min(540px, 88vw);
+          padding: 48px 52px 52px;
+          background: rgba(3, 6, 3, 0.68);
+          backdrop-filter: blur(18px) saturate(1.3);
+          -webkit-backdrop-filter: blur(18px) saturate(1.3);
+          box-shadow:
+            0 32px 80px rgba(0,0,0,0.72),
+            0 8px 24px rgba(0,0,0,0.55),
+            inset 0 1px 0 rgba(255,255,255,0.05);
+          border-radius: 3px;
           will-change: transform, opacity;
+          transform-style: preserve-3d;
+          pointer-events: all;
+          cursor: none;
         }
 
-        /* Chartreuse corner bracket — top-left */
-        .un-card::before {
-          content: '';
-          position: absolute;
-          top: -1px; left: -1px;
-          width: 20px; height: 20px;
-          border-top:  2px solid rgba(127,255,0,0.72);
-          border-left: 2px solid rgba(127,255,0,0.72);
-        }
-        /* Chartreuse corner bracket — bottom-right */
+        /* Chartreuse L-brackets (bounding-box aesthetic from reference) */
+        .un-card::before,
         .un-card::after {
           content: '';
           position: absolute;
+          width: 22px;
+          height: 22px;
+        }
+        .un-card::before {
+          top: -1px; left: -1px;
+          border-top:  1.5px solid rgba(127,255,0,0.65);
+          border-left: 1.5px solid rgba(127,255,0,0.65);
+        }
+        .un-card::after {
           bottom: -1px; right: -1px;
-          width: 20px; height: 20px;
-          border-bottom: 2px solid rgba(127,255,0,0.72);
-          border-right:  2px solid rgba(127,255,0,0.72);
+          border-bottom: 1.5px solid rgba(127,255,0,0.65);
+          border-right:  1.5px solid rgba(127,255,0,0.65);
         }
 
-        /* Eyebrow label */
-        .un-card-label {
+        /* Dim white border around full card */
+        .un-card-border {
+          position: absolute;
+          inset: 0;
+          border: 1px solid rgba(255,255,255,0.08);
+          border-radius: 3px;
+          pointer-events: none;
+        }
+
+        /* ── Label ────────────────────────────────────────────────────────── */
+        .un-label {
           font-family: var(--font-sans);
-          font-size: 9px;
+          font-size: 8px;
           font-weight: 400;
-          letter-spacing: 0.28em;
+          letter-spacing: 0.32em;
           text-transform: uppercase;
-          color: rgba(127,255,0,0.65);
-          margin-bottom: 22px;
+          color: rgba(127,255,0,0.60);
+          margin-bottom: 24px;
           display: flex;
           align-items: center;
-          gap: 10px;
+          gap: 12px;
         }
-        .un-card-label::after {
+        .un-label::after {
           content: '';
           flex: 1;
           height: 1px;
-          background: rgba(127,255,0,0.20);
+          background: rgba(127,255,0,0.18);
         }
 
-        /* Quote body */
-        .un-card-text {
+        /* ── Quote text — mirrors the reference screenshot typography ─────── */
+        .un-text {
           font-family: var(--font-display);
           font-style: italic;
           font-weight: 300;
-          font-size: clamp(20px, 2.2vw, 27px);
-          color: rgba(255,255,255,0.88);
-          line-height: 1.56;
-          letter-spacing: -0.01em;
+          font-size: clamp(22px, 2.4vw, 30px);
+          color: rgba(255,255,255,0.84);
+          line-height: 1.52;
+          letter-spacing: -0.02em;
           margin: 0;
+          /* no word-break — let the split spans handle it */
         }
 
-        /* Chartreuse rule */
-        .un-card-rule {
-          width: 38px;
+        /* Individual character spans for dancy typed animation */
+        .un-ch {
+          display: inline-block;
+          opacity: 0; /* starts hidden; GSAP reveals on entry */
+          will-change: transform, opacity;
+        }
+
+        /* ── Rule ─────────────────────────────────────────────────────────── */
+        .un-rule {
+          width: 32px;
           height: 1px;
-          background: rgba(127,255,0,0.40);
-          margin-top: 26px;
+          background: rgba(127,255,0,0.38);
+          margin-top: 28px;
         }
 
-        /* ── Progress dots ────────────────────────────────────────── */
+        /* ── Progress dots ────────────────────────────────────────────────── */
         .un-dots {
           position: absolute;
-          bottom: 36px;
+          bottom: 32px;
           left: 50%;
           transform: translateX(-50%);
           z-index: 20;
           display: flex;
+          gap: 8px;
           align-items: center;
-          gap: 10px;
         }
         .un-dot {
           width: 6px;
           height: 2px;
           border-radius: 1px;
-          background: rgba(127,255,0,0.55);
+          background: rgba(127,255,0,0.50);
           transform-origin: left center;
           will-change: transform, opacity;
         }
 
-        /* ── Responsive ──────────────────────────────────────────── */
         @media (max-width: 767px) {
-          .un-card {
-            padding: 28px 24px 32px;
-          }
-          .un-card-text {
-            font-size: 19px;
-          }
-          .un-dots {
-            bottom: 24px;
-          }
+          .un-card { padding: 32px 28px 36px; }
+          .un-text  { font-size: 20px; }
+          .un-dots  { bottom: 20px; }
         }
       `}</style>
 
-      <section id="user-needs" ref={containerRef}>
-        {/* Orb canvas */}
-        <canvas ref={canvasRef} id="water-bg" />
+      {/* ── 500vh scroll container with CSS sticky inner ───────────────────── */}
+      <section id="user-needs" ref={sectionRef}>
+        <div className="un-sticky">
 
-        {/* Film grain — inline SVG feTurbulence */}
-        <svg
-          className="un-grain"
-          aria-hidden="true"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <filter id="un-noise-filter">
-            <feTurbulence
-              type="fractalNoise"
-              baseFrequency="0.68 0.68"
-              numOctaves="4"
-              stitchTiles="stitch"
-            />
-          </filter>
-          <rect width="100%" height="100%" filter="url(#un-noise-filter)" />
-        </svg>
+          {/* WebGL water canvas */}
+          <canvas ref={canvasRef} id="water-bg" />
 
-        {/* Radial vignette */}
-        <div className="un-vignette" />
+          {/* Radial vignette */}
+          <div className="un-vig" />
 
-        {/* Cards */}
-        <div className="un-cards-stage">
-          {CARDS.map((card, i) => (
-            <div
-              key={i}
-              className="un-card"
-              ref={(el) => (cardRefs.current[i] = el)}
-            >
-              <div className="un-card-label">{card.label}</div>
-              <p className="un-card-text">{card.text}</p>
-              <div className="un-card-rule" />
-            </div>
-          ))}
-        </div>
+          {/* Cards */}
+          <div className="un-stage">
+            {CARDS.map((card, i) => (
+              <div
+                key={i}
+                className="un-card"
+                ref={(el) => (cardRefs.current[i] = el)}
+              >
+                <div className="un-card-border" />
+                <div className="un-label">{card.label}</div>
+                {/* Text split into individual character spans for the dancy effect */}
+                <p className="un-text" aria-label={card.text}>
+                  {card.text.split("").map((ch, j) =>
+                    ch === " "
+                      ? <span key={j}>&nbsp;</span>
+                      : <span key={j} className="un-ch">{ch}</span>
+                  )}
+                </p>
+                <div className="un-rule" />
+              </div>
+            ))}
+          </div>
 
-        {/* Progress indicator */}
-        <div className="un-dots">
-          {CARDS.map((_, i) => (
-            <div
-              key={i}
-              className="un-dot"
-              ref={(el) => (dotRefs.current[i] = el)}
-            />
-          ))}
+          {/* Progress indicator */}
+          <div className="un-dots">
+            {CARDS.map((_, i) => (
+              <div key={i} className="un-dot" ref={(el) => (dotRefs.current[i] = el)} />
+            ))}
+          </div>
+
         </div>
       </section>
     </>
