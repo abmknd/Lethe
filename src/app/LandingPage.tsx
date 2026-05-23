@@ -9,6 +9,7 @@ import ReletheLogo from "../imports/ReletheLogo";
 import DiagnosticSection from "./components/DiagnosticSection";
 import FoundingCohort from "./components/FoundingCohort";
 import FoundingMember from "./components/FoundingMember";
+import UserNeedsSection from "../components/UserNeedsSection";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -1300,6 +1301,8 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+
+      <UserNeedsSection />
 
       {/* STORY (typewriter) */}
       <section id="relethe-story">
