@@ -227,7 +227,8 @@ export default function UserNeedsSection() {
   const sectionRef  = useRef(null);
   const stickyRef   = useRef(null);
   const waterRef    = useRef(null);
-  const cardRefs    = useRef([]);
+  const cardRefs    = useRef([]);   // outer shell — scroll animation target (opacity/y/scale)
+  const innerRefs   = useRef([]);   // inner visual — tilt target (rotateX/rotateY)
   const dotRefs     = useRef([]);
   const charDone    = useRef([false, false, false, false]);
 
@@ -242,26 +243,43 @@ export default function UserNeedsSection() {
   }, []);
 
   // ── Card 3-D tilt ──────────────────────────────────────────────────────────
+  // Tilt targets the INNER visual div, not the outer shell.
+  // The outer shell owns opacity/y/scale via the scrub timeline — keeping
+  // them on separate elements prevents GSAP from overwriting each other's
+  // transform state during scrub updates (which was causing cards 1-3 to snap).
   useEffect(() => {
-    const cleanups = cardRefs.current.map((card) => {
-      if (!card) return null;
+    const cleanups = cardRefs.current.map((card, i) => {
+      const inner = innerRefs.current[i];
+      if (!card || !inner) return null;
+
       const onMove = (e) => {
         const r  = card.getBoundingClientRect();
-        const dx = ((e.clientX - r.left) / r.width  - 0.5) * 2;
+        const dx = ((e.clientX - r.left) / r.width  - 0.5) * 2; // -1 to 1
         const dy = ((e.clientY - r.top)  / r.height - 0.5) * 2;
-        gsap.to(card, { rotateY: dx*20, rotateX: -dy*14, transformPerspective: 700, duration: 0.2, ease: "power2.out" });
+        // Apply tilt to inner only — outer is untouched by this tween
+        gsap.to(inner, {
+          rotateY: dx * 22,
+          rotateX: -dy * 15,
+          transformPerspective: 650,
+          duration: 0.18,
+          ease: "power2.out",
+        });
+        // Occasionally send a water ripple at a random point near the card centre
         if (Math.random() < 0.06) {
-          const sim = waterRef.current;
-          const cx  = (r.left + r.width*.5)  / window.innerWidth;
-          const cy  = (r.top  + r.height*.5) / window.innerHeight;
-          sim?.onPointerDown({ clientX: r.left + r.width*.5 + (Math.random()-.5)*r.width*.6,
-                               clientY: r.top  + r.height*.5 + (Math.random()-.5)*r.height*.6 });
+          waterRef.current?.onPointerDown({
+            clientX: r.left + r.width  * (0.2 + Math.random() * 0.6),
+            clientY: r.top  + r.height * (0.2 + Math.random() * 0.6),
+          });
         }
       };
-      const onLeave = () => gsap.to(card, { rotateX:0, rotateY:0, duration:0.7, ease:"power3.out" });
+      const onLeave = () => gsap.to(inner, { rotateX: 0, rotateY: 0, duration: 0.7, ease: "power3.out" });
+
       card.addEventListener("mousemove",  onMove);
       card.addEventListener("mouseleave", onLeave);
-      return () => { card.removeEventListener("mousemove", onMove); card.removeEventListener("mouseleave", onLeave); };
+      return () => {
+        card.removeEventListener("mousemove",  onMove);
+        card.removeEventListener("mouseleave", onLeave);
+      };
     });
     return () => cleanups.forEach(fn => fn?.());
   }, []);
@@ -316,6 +334,11 @@ export default function UserNeedsSection() {
           });
         },
       });
+
+      // Recalculate all trigger positions after this 500vh block is in the layout.
+      // Fixes mobile: iOS viewport height changes (address bar show/hide) and
+      // any layout shift from the sticky section can misplace downstream triggers.
+      ScrollTrigger.refresh();
     }, sectionRef);
 
     return () => gctx.revert();
@@ -372,14 +395,23 @@ export default function UserNeedsSection() {
           pointer-events: none;
         }
 
-        /* ── Card ── matching reference screenshot:
-           dark glass, deep shadow, centred layout, rounded per design system */
+        /* ── Card outer shell — scroll animation target only (no visuals here) */
         .un-card {
           position: absolute;
-          z-index: 1;           /* explicit within stacking context of .un-stage */
+          z-index: 1;
           width: min(540px, 88vw);
+          will-change: transform, opacity;
+          pointer-events: all;
+          cursor: none;
+        }
+
+        /* ── Card inner — tilt target + all visuals ─────────────────────────
+           Keeping tilt on a separate element from the scroll-animated outer
+           prevents GSAP scrub from overwriting rotateX/rotateY mid-tween. */
+        .un-card-inner {
+          width: 100%;
           padding: 48px 52px 52px;
-          background: rgba(3, 6, 3, 0.88); /* opaque enough to read over water */
+          background: rgba(3, 6, 3, 0.88);
           backdrop-filter: blur(20px) saturate(1.2);
           -webkit-backdrop-filter: blur(20px) saturate(1.2);
           border: 1px solid rgba(127,255,0,0.30);
@@ -392,9 +424,8 @@ export default function UserNeedsSection() {
           flex-direction: column;
           align-items: center;
           text-align: center;
-          will-change: transform, opacity;
-          pointer-events: all;
-          cursor: none;
+          will-change: transform;
+          transform-style: preserve-3d;
         }
 
         /* Glowing dot + ring — from reference screenshot */
@@ -487,7 +518,7 @@ export default function UserNeedsSection() {
         }
 
         @media (max-width: 767px) {
-          .un-card { padding: 36px 28px 40px; }
+          .un-card-inner { padding: 36px 28px 40px; }
           .un-text  { font-size: 20px; }
           .un-dots  { bottom: 20px; }
         }
@@ -504,11 +535,8 @@ export default function UserNeedsSection() {
 
           <div className="un-stage">
             {CARDS.map((card, i) => (
-              <div
-                key={i}
-                className="un-card"
-                ref={(el) => (cardRefs.current[i] = el)}
-              >
+              <div key={i} className="un-card" ref={(el) => (cardRefs.current[i] = el)}>
+                <div className="un-card-inner" ref={(el) => (innerRefs.current[i] = el)}>
                 {/* Glowing dot — reference screenshot detail */}
                 <div className="un-dot-wrap">
                   <div className="un-dot-inner" />
@@ -527,6 +555,7 @@ export default function UserNeedsSection() {
                 </p>
 
                 <div className="un-rule" />
+                </div>
               </div>
             ))}
           </div>
