@@ -243,10 +243,10 @@ export default function UserNeedsSection() {
   }, []);
 
   // ── Card 3-D tilt ──────────────────────────────────────────────────────────
-  // Tilt targets the INNER visual div, not the outer shell.
-  // The outer shell owns opacity/y/scale via the scrub timeline — keeping
-  // them on separate elements prevents GSAP from overwriting each other's
-  // transform state during scrub updates (which was causing cards 1-3 to snap).
+  // Pure CSS transform — no GSAP involved. GSAP's scrub ticker was killing
+  // each rotateX/rotateY tween before it could settle (new gsap.to() calls
+  // overwrite the previous one on every mousemove). Direct style + CSS
+  // transition runs on the compositor thread and nothing can interfere.
   useEffect(() => {
     const cleanups = cardRefs.current.map((card, i) => {
       const inner = innerRefs.current[i];
@@ -254,17 +254,10 @@ export default function UserNeedsSection() {
 
       const onMove = (e) => {
         const r  = card.getBoundingClientRect();
-        const dx = ((e.clientX - r.left) / r.width  - 0.5) * 2; // -1 to 1
+        const dx = ((e.clientX - r.left) / r.width  - 0.5) * 2; // -1 → 1
         const dy = ((e.clientY - r.top)  / r.height - 0.5) * 2;
-        // Apply tilt to inner only — outer is untouched by this tween
-        gsap.to(inner, {
-          rotateY: dx * 22,
-          rotateX: -dy * 15,
-          transformPerspective: 650,
-          duration: 0.18,
-          ease: "power2.out",
-        });
-        // Occasionally send a water ripple at a random point near the card centre
+        inner.style.transform =
+          `perspective(650px) rotateY(${(dx * 22).toFixed(2)}deg) rotateX(${(-dy * 15).toFixed(2)}deg)`;
         if (Math.random() < 0.06) {
           waterRef.current?.onPointerDown({
             clientX: r.left + r.width  * (0.2 + Math.random() * 0.6),
@@ -272,7 +265,7 @@ export default function UserNeedsSection() {
           });
         }
       };
-      const onLeave = () => gsap.to(inner, { rotateX: 0, rotateY: 0, duration: 0.7, ease: "power3.out" });
+      const onLeave = () => { inner.style.transform = "perspective(650px) rotateY(0deg) rotateX(0deg)"; };
 
       card.addEventListener("mousemove",  onMove);
       card.addEventListener("mouseleave", onLeave);
@@ -424,7 +417,8 @@ export default function UserNeedsSection() {
           flex-direction: column;
           align-items: center;
           text-align: center;
-          will-change: transform;
+          /* CSS transition drives the tilt — smooth, compositor-only, GSAP-free */
+          transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1);
           transform-style: preserve-3d;
         }
 
