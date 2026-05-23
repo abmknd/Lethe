@@ -318,12 +318,23 @@ export default function UserNeedsSection() {
         scrub:     1,
         animation: tl,
         onUpdate(self) {
+          const p = self.progress;
+
+          // All 4 cards are position:absolute stacked at the same coordinates.
+          // Card 4 is last in DOM, so it sits on top in z-order and swallows
+          // every mousemove — even at opacity:0 — making cards 1–3 untiltable.
+          // Fix: only the currently-visible card gets pointer-events:all.
+          const activeIdx = p < 0.25 ? 0 : p < 0.50 ? 1 : p < 0.75 ? 2 : 3;
+          cards.forEach((card, i) => {
+            card.style.pointerEvents = i === activeIdx ? 'all' : 'none';
+          });
+
           ENTRY_P.forEach((ep, i) => {
-            if (self.progress >= ep + 0.01 && !charDone.current[i]) {
+            if (p >= ep + 0.01 && !charDone.current[i]) {
               charDone.current[i] = true;
               animateChars(cards[i]);
             }
-            if (self.progress < ep) charDone.current[i] = false;
+            if (p < ep) charDone.current[i] = false;
           });
         },
       });
@@ -394,7 +405,7 @@ export default function UserNeedsSection() {
           z-index: 1;
           width: min(540px, 88vw);
           will-change: transform, opacity;
-          pointer-events: all;
+          pointer-events: none; /* JS controls this — only the active card gets 'all' */
           cursor: none;
         }
 
