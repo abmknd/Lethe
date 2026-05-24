@@ -83,7 +83,7 @@ Deno.serve(async (req) => {
           <table cellpadding="0" cellspacing="0">
             <tr>
               <td style="padding-right:14px;vertical-align:middle">
-                <img src="https://relethe.com/abiola.jpg" width="48" height="48" alt="Abiola" style="border-radius:50%;display:block;object-fit:cover">
+                <img src="https://raw.githubusercontent.com/abmknd/relethe/main/assets/abiola.jpg" width="48" height="48" alt="Abiola" style="border-radius:50%;display:block;object-fit:cover">
               </td>
               <td style="vertical-align:middle">
                 <p style="margin:0;font-size:14px;color:#e8e8e8;font-weight:600">Abiola Makinde</p>
