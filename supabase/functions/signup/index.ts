@@ -93,17 +93,8 @@ Deno.serve(async (req) => {
         </td></tr>
         <tr><td style="padding-bottom:48px">
           <p style="margin:0 0 20px;font-size:14px;color:#888;font-style:italic">Stay gracious,</p>
-          <table cellpadding="0" cellspacing="0">
-            <tr>
-              <td style="padding-right:14px;vertical-align:middle">
-                <img src="https://raw.githubusercontent.com/abmknd/relethe/main/assets/abiola.jpg" width="48" height="48" alt="Abiola" style="border-radius:50%;display:block;width:48px;height:48px;object-fit:cover">
-              </td>
-              <td style="vertical-align:middle">
-                <p style="margin:0;font-size:14px;color:#e8e8e8;font-weight:600">Abiola Makinde</p>
-                <p style="margin:4px 0 0;font-size:12px;color:#888;font-family:monospace;letter-spacing:.05em">Co-founder, Relethe</p>
-              </td>
-            </tr>
-          </table>
+          <p style="margin:0;font-size:14px;color:#e8e8e8;font-weight:600">Abiola Makinde</p>
+          <p style="margin:4px 0 0;font-size:12px;color:#888;font-family:monospace;letter-spacing:.05em">Co-founder, Relethe</p>
         </td></tr>
         <tr><td style="border-top:1px solid #222;padding-top:24px">
           <p style="margin:0;font-size:11px;color:#444;font-family:monospace;letter-spacing:.05em">relethe.com</p>
