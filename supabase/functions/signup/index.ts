@@ -63,7 +63,7 @@ Deno.serve(async (req) => {
           reply_to: "abiola@relethe.com",
           to: [email],
           subject: "You signed up. Good call.",
-          text: `You're on the Relethe waitlist.\nWe'll reach out when it's time. Don't hold your breath, but don't forget about us either.\n\nStay gracious,\n\nAbiola Makinde\nCo-founder, Relethe`,
+          text: `You're on the Relethe waitlist.\nWe'll reach out when it's time. Don't hold your breath, but don't forget about us either.\n\nStay gracious,\n\nAbi\nCo-founder, Relethe`,
           html: `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -98,11 +98,11 @@ Deno.serve(async (req) => {
         </td></tr>
         <tr><td style="padding-bottom:48px">
           <p class="sub-text" style="margin:0 0 20px;font-size:14px;color:#555555;font-style:italic">Stay gracious,</p>
-          <p class="body-text" style="margin:0;font-size:14px;color:#111111;font-weight:600">Abiola Makinde</p>
+          <p class="body-text" style="margin:0;font-size:14px;color:#111111;font-weight:600">Abi</p>
           <p class="mono-text" style="margin:4px 0 0;font-size:12px;color:#777777;font-family:monospace;letter-spacing:.05em">Co-founder, Relethe</p>
         </td></tr>
         <tr><td class="divider" style="border-top:1px solid #dddddd;padding-top:24px">
-          <p class="mono-text" style="margin:0;font-size:11px;color:#777777;font-family:monospace;letter-spacing:.05em">relethe.com</p>
+          <p class="mono-text" style="margin:0;font-size:11px;color:#777777;font-family:monospace;letter-spacing:.05em;text-decoration:none"><span style="color:inherit;text-decoration:none">relethe.com</span></p>
         </td></tr>
       </table>
     </td></tr>
