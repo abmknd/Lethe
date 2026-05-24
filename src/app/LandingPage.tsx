@@ -66,6 +66,7 @@ export default function LandingPage() {
     const country = await getCountry();
     const { error } = await supabase.from("waitlist").insert({ email: email1, country });
     if (error) {
+      console.error("[waitlist] hero insert failed:", error.code, error.message, error.details);
       if (error.code === "23505") {
         setShowHeroDuplicate(true);
         setDiagnosticEmail(email1);
@@ -86,6 +87,7 @@ export default function LandingPage() {
     const country = await getCountry();
     const { error } = await supabase.from("waitlist").insert({ email: email2, country });
     if (error) {
+      console.error("[waitlist] signup insert failed:", error.code, error.message, error.details);
       if (error.code === "23505") {
         setShowSignupDuplicate(true);
         setDiagnosticEmail(email2);
