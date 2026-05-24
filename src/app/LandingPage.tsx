@@ -1,5 +1,4 @@
 ﻿import { useState, useEffect, useRef, FormEvent } from "react";
-import { supabase } from "../lib/supabase";
 import { signup } from "../lib/signup";
 import { useNavigate } from "react-router";
 import gsap from "gsap";
@@ -44,14 +43,6 @@ export default function LandingPage() {
 
   const navigate = useNavigate();
 
-const sendConfirmationEmail = async (email: string) => {
-    try {
-      await supabase.functions.invoke("send-confirmation", { body: { email } });
-    } catch {
-      // silently fail — confirmation email is best-effort
-    }
-  };
-
   const handleHeroSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!email1) return;
@@ -64,7 +55,6 @@ const sendConfirmationEmail = async (email: string) => {
       setHeroError("Something went wrong. Please try again.");
       setIsSubmitting1(false);
     } else {
-      await sendConfirmationEmail(email1);
       setDiagnosticEmail(email1);
       setShowHeroSuccess(true);
     }
@@ -82,7 +72,6 @@ const sendConfirmationEmail = async (email: string) => {
       setSignupError("Something went wrong. Please try again.");
       setIsSubmitting2(false);
     } else {
-      await sendConfirmationEmail(email2);
       setDiagnosticEmail(email2);
       setShowSignupSuccess(true);
     }
