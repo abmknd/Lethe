@@ -9,6 +9,7 @@ import ReletheLogo from "../imports/ReletheLogo";
 import DiagnosticSection from "./components/DiagnosticSection";
 import FoundingCohort from "./components/FoundingCohort";
 import FoundingMember from "./components/FoundingMember";
+import UserNeedsSection from "../components/UserNeedsSection";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -397,15 +398,21 @@ export default function LandingPage() {
       next();
     }
 
-    ScrollTrigger.create({
-      trigger: "#relethe-story",
-      start: "top 70%",
-      once: true,
-      onEnter: playStory,
-    });
+    // IntersectionObserver is more reliable than ScrollTrigger on mobile:
+    // it is viewport-relative and does not depend on layout-position calculations
+    // that ScrollTrigger can get wrong after the 500 vh UserNeedsSection changes
+    // the total page height on iOS / Android.
+    const storyEl = document.getElementById('relethe-story');
+    const storyIO = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        storyIO.disconnect();
+        playStory();
+      }
+    }, { threshold: 0.15 });
+    if (storyEl) storyIO.observe(storyEl);
 
     return () => {
-      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+      storyIO.disconnect();
       if (storySection) {
         storySection.removeEventListener('mouseenter', onMouseEnter);
         storySection.removeEventListener('mouseleave', onMouseLeave);
@@ -1300,6 +1307,8 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+
+      <UserNeedsSection />
 
       {/* STORY (typewriter) */}
       <section id="relethe-story">
