@@ -23,6 +23,6 @@ jobs:
             exit 1
           fi
           curl --fail --silent --show-error --max-time 30 \
-  -H "apikey: $SUPABASE_ANON_KEY" \
-  -H "Authorization: Bearer $SUPABASE_ANON_KEY" \
-  "$API_HEALTH_URL"
+            -H "apikey: $SUPABASE_ANON_KEY" \
+            -H "Authorization: Bearer $SUPABASE_ANON_KEY" \
+            "$API_HEALTH_URL"
