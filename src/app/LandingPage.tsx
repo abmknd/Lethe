@@ -1245,21 +1245,23 @@ const sendConfirmationEmail = async (email: string) => {
         </h1>
         <p className="relethe-hero-h2">Everything you dream of achieving lies within the unexplored gap in your network.</p>
         {!showHeroSuccess && !showHeroDuplicate ? (
-          <form className="relethe-hero-form" onSubmit={handleHeroSubmit}>
-            <input
-              type="email"
-              placeholder="your@email.com"
-              required
-              autoComplete="off"
-              value={email1}
-              onChange={(e) => { setEmail1(e.target.value); setHeroError(null); }}
-            />
-            <button type="submit" className="group" disabled={isSubmitting1}>
-              <span>{isSubmitting1 ? "Joining..." : "Get an early taste"}</span>
-              {!isSubmitting1 && <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" strokeWidth={1.5} />}
-            </button>
-          </form>
-          {heroError && <p style={{ fontFamily: 'var(--mono)', fontSize: '11px', color: 'rgba(255,80,80,0.8)', marginTop: '12px', letterSpacing: '.06em' }}>{heroError}</p>}
+          <>
+            <form className="relethe-hero-form" onSubmit={handleHeroSubmit}>
+              <input
+                type="email"
+                placeholder="your@email.com"
+                required
+                autoComplete="off"
+                value={email1}
+                onChange={(e) => { setEmail1(e.target.value); setHeroError(null); }}
+              />
+              <button type="submit" className="group" disabled={isSubmitting1}>
+                <span>{isSubmitting1 ? "Joining..." : "Get an early taste"}</span>
+                {!isSubmitting1 && <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" strokeWidth={1.5} />}
+              </button>
+            </form>
+            {heroError && <p style={{ fontFamily: 'var(--mono)', fontSize: '11px', color: 'rgba(255,80,80,0.8)', marginTop: '12px', letterSpacing: '.06em' }}>{heroError}</p>}
+          </>
         ) : showHeroDuplicate ? (
           <div className="relethe-form-success">
             <p className="relethe-form-success-title">{"You're already on the list."}</p>
@@ -1774,21 +1776,23 @@ const sendConfirmationEmail = async (email: string) => {
           Relethe is in private beta. The founding cohort shapes how the matching engine learns. Join before it closes.
         </p>
         {!showSignupSuccess && !showSignupDuplicate ? (
-          <form className="relethe-signup-form relethe-reveal" onSubmit={handleSignupSubmit}>
-            <input
-              type="email"
-              placeholder="your@email.com"
-              required
-              autoComplete="off"
-              value={email2}
-              onChange={(e) => { setEmail2(e.target.value); setSignupError(null); }}
-            />
-            <button type="submit" className="group" disabled={isSubmitting2}>
-              <span>{isSubmitting2 ? "Joining..." : "Get an early taste"}</span>
-              {!isSubmitting2 && <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" strokeWidth={1.5} />}
-            </button>
-          </form>
-          {signupError && <p style={{ fontFamily: 'var(--mono)', fontSize: '11px', color: 'rgba(255,80,80,0.8)', marginTop: '12px', letterSpacing: '.06em' }}>{signupError}</p>}
+          <>
+            <form className="relethe-signup-form relethe-reveal" onSubmit={handleSignupSubmit}>
+              <input
+                type="email"
+                placeholder="your@email.com"
+                required
+                autoComplete="off"
+                value={email2}
+                onChange={(e) => { setEmail2(e.target.value); setSignupError(null); }}
+              />
+              <button type="submit" className="group" disabled={isSubmitting2}>
+                <span>{isSubmitting2 ? "Joining..." : "Get an early taste"}</span>
+                {!isSubmitting2 && <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" strokeWidth={1.5} />}
+              </button>
+            </form>
+            {signupError && <p style={{ fontFamily: 'var(--mono)', fontSize: '11px', color: 'rgba(255,80,80,0.8)', marginTop: '12px', letterSpacing: '.06em' }}>{signupError}</p>}
+          </>
         ) : showSignupDuplicate ? (
           <div className="relethe-form-success">
             <p className="relethe-form-success-title">{"You're already on the list."}</p>
