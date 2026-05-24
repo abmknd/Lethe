@@ -65,14 +65,27 @@ Deno.serve(async (req) => {
           subject: "You signed up. Good call.",
           text: `You're on the Relethe waitlist.\nWe'll reach out when it's time. Don't hold your breath, but don't forget about us either.\n\nStay gracious,\n\nAbiola Makinde\nCo-founder, Relethe`,
           html: `<!DOCTYPE html>
-<html>
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
-<body style="margin:0;padding:0;background:#0a0a0a;font-family:Georgia,serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;padding:48px 24px">
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="only dark">
+  <meta name="supported-color-schemes" content="dark">
+  <style>
+    :root { color-scheme: only dark; }
+    body { background-color: #0a0a0a !important; color: #e8e8e8 !important; }
+    @media (prefers-color-scheme: light) {
+      body { background-color: #0a0a0a !important; }
+      .wrapper { background-color: #0a0a0a !important; }
+    }
+  </style>
+</head>
+<body style="margin:0;padding:0;background-color:#0a0a0a !important;font-family:Georgia,serif;">
+  <table class="wrapper" width="100%" cellpadding="0" cellspacing="0" style="background-color:#0a0a0a;padding:48px 24px">
     <tr><td align="center">
       <table width="100%" cellpadding="0" cellspacing="0" style="max-width:480px">
         <tr><td style="padding-bottom:40px">
-          <p style="margin:0;font-family:monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#7fff00">Relethe</p>
+          <img src="https://raw.githubusercontent.com/abmknd/relethe/main/public/logomark.png" width="32" height="32" alt="Relethe" style="display:block">
         </td></tr>
         <tr><td style="padding-bottom:32px">
           <p style="margin:0 0 20px;font-size:16px;line-height:1.7;color:#e8e8e8">You're on the Relethe waitlist.</p>
@@ -83,7 +96,7 @@ Deno.serve(async (req) => {
           <table cellpadding="0" cellspacing="0">
             <tr>
               <td style="padding-right:14px;vertical-align:middle">
-                <img src="https://raw.githubusercontent.com/abmknd/relethe/main/assets/abiola.jpg" width="48" height="48" alt="Abiola" style="border-radius:50%;display:block;object-fit:cover">
+                <img src="https://raw.githubusercontent.com/abmknd/relethe/main/assets/abiola.jpg" width="48" height="48" alt="Abiola" style="border-radius:50%;display:block;width:48px;height:48px;object-fit:cover">
               </td>
               <td style="vertical-align:middle">
                 <p style="margin:0;font-size:14px;color:#e8e8e8;font-weight:600">Abiola Makinde</p>
