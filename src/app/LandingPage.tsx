@@ -1,5 +1,6 @@
 ﻿import { useState, useEffect, useRef, FormEvent } from "react";
 import { supabase } from "../lib/supabase";
+import { signup } from "../lib/signup";
 import { useNavigate } from "react-router";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -22,6 +23,8 @@ export default function LandingPage() {
   const [showSignupDuplicate, setShowSignupDuplicate] = useState(false);
   const [isSubmitting1, setIsSubmitting1] = useState(false);
   const [isSubmitting2, setIsSubmitting2] = useState(false);
+  const [heroError, setHeroError] = useState<string | null>(null);
+  const [signupError, setSignupError] = useState<string | null>(null);
   const [diagnosticEmail, setDiagnosticEmail] = useState<string | null>(null);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -41,17 +44,7 @@ export default function LandingPage() {
 
   const navigate = useNavigate();
 
-  const getCountry = async (): Promise<string | null> => {
-    try {
-      const res = await fetch("https://ipapi.co/json/");
-      const data = await res.json();
-      return (data.country_name as string) ?? null;
-    } catch {
-      return null;
-    }
-  };
-
-  const sendConfirmationEmail = async (email: string) => {
+const sendConfirmationEmail = async (email: string) => {
     try {
       await supabase.functions.invoke("send-confirmation", { body: { email } });
     } catch {
@@ -63,40 +56,36 @@ export default function LandingPage() {
     e.preventDefault();
     if (!email1) return;
     setIsSubmitting1(true);
-    const country = await getCountry();
-    const { error } = await supabase.from("waitlist").insert({ email: email1, country });
-    if (error) {
-      if (error.code === "23505") {
-        setShowHeroDuplicate(true);
-        setDiagnosticEmail(email1);
-      } else {
-        setIsSubmitting1(false);
-      }
-      return;
+    const result = await signup({ email: email1, source: "hero" });
+    if (result.status === "duplicate") {
+      setShowHeroDuplicate(true);
+      setDiagnosticEmail(email1);
+    } else if (result.status === "error") {
+      setHeroError("Something went wrong. Please try again.");
+      setIsSubmitting1(false);
+    } else {
+      await sendConfirmationEmail(email1);
+      setDiagnosticEmail(email1);
+      setShowHeroSuccess(true);
     }
-    await sendConfirmationEmail(email1);
-    setDiagnosticEmail(email1);
-    setShowHeroSuccess(true);
   };
 
   const handleSignupSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!email2) return;
     setIsSubmitting2(true);
-    const country = await getCountry();
-    const { error } = await supabase.from("waitlist").insert({ email: email2, country });
-    if (error) {
-      if (error.code === "23505") {
-        setShowSignupDuplicate(true);
-        setDiagnosticEmail(email2);
-      } else {
-        setIsSubmitting2(false);
-      }
-      return;
+    const result = await signup({ email: email2, source: "signup" });
+    if (result.status === "duplicate") {
+      setShowSignupDuplicate(true);
+      setDiagnosticEmail(email2);
+    } else if (result.status === "error") {
+      setSignupError("Something went wrong. Please try again.");
+      setIsSubmitting2(false);
+    } else {
+      await sendConfirmationEmail(email2);
+      setDiagnosticEmail(email2);
+      setShowSignupSuccess(true);
     }
-    await sendConfirmationEmail(email2);
-    setDiagnosticEmail(email2);
-    setShowSignupSuccess(true);
   };
 
   const handlePlayDemo = () => {
@@ -1156,7 +1145,7 @@ export default function LandingPage() {
           #relethe-demo    { padding: 80px 24px; }
           #relethe-see     { padding: 80px 0; }
           #relethe-signup  { padding: 100px 24px; }
-          .relethe-footer  { padding: 40px 24px; flex-direction: column; align-items: flex-start; gap: 20px; }
+          .relethe-footer  { padding: 32px 24px; flex-direction: row; align-items: center; justify-content: space-between; gap: 0; }
           .relethe-footer-tag { display: none; }
           .relethe-see-header { padding: 0 24px; }
           .relethe-nav-links a { display: none; }
@@ -1177,6 +1166,12 @@ export default function LandingPage() {
           .relethe-product-card { width: 280px; }
           .relethe-cards-track  { padding: 32px 24px 48px; }
           .relethe-section-label { margin-bottom: 32px; }
+        }
+
+        /* ── Hide custom cursor on touch / mobile — no pointer to track ── */
+        @media (hover: none), (pointer: coarse) {
+          #relethe-cur-dot,
+          #relethe-cur-ring { display: none !important; }
         }
 
         /* ── Reduced motion ── */
@@ -1250,20 +1245,23 @@ export default function LandingPage() {
         </h1>
         <p className="relethe-hero-h2">Everything you dream of achieving lies within the unexplored gap in your network.</p>
         {!showHeroSuccess && !showHeroDuplicate ? (
-          <form className="relethe-hero-form" onSubmit={handleHeroSubmit}>
-            <input
-              type="email"
-              placeholder="your@email.com"
-              required
-              autoComplete="off"
-              value={email1}
-              onChange={(e) => setEmail1(e.target.value)}
-            />
-            <button type="submit" className="group" disabled={isSubmitting1}>
-              <span>{isSubmitting1 ? "Joining..." : "Get an early taste"}</span>
-              {!isSubmitting1 && <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" strokeWidth={1.5} />}
-            </button>
-          </form>
+          <>
+            <form className="relethe-hero-form" onSubmit={handleHeroSubmit}>
+              <input
+                type="email"
+                placeholder="your@email.com"
+                required
+                autoComplete="off"
+                value={email1}
+                onChange={(e) => { setEmail1(e.target.value); setHeroError(null); }}
+              />
+              <button type="submit" className="group" disabled={isSubmitting1}>
+                <span>{isSubmitting1 ? "Joining..." : "Get an early taste"}</span>
+                {!isSubmitting1 && <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" strokeWidth={1.5} />}
+              </button>
+            </form>
+            {heroError && <p style={{ fontFamily: 'var(--mono)', fontSize: '11px', color: 'rgba(255,80,80,0.8)', marginTop: '12px', letterSpacing: '.06em' }}>{heroError}</p>}
+          </>
         ) : showHeroDuplicate ? (
           <div className="relethe-form-success">
             <p className="relethe-form-success-title">{"You're already on the list."}</p>
@@ -1778,20 +1776,23 @@ export default function LandingPage() {
           Relethe is in private beta. The founding cohort shapes how the matching engine learns. Join before it closes.
         </p>
         {!showSignupSuccess && !showSignupDuplicate ? (
-          <form className="relethe-signup-form relethe-reveal" onSubmit={handleSignupSubmit}>
-            <input
-              type="email"
-              placeholder="your@email.com"
-              required
-              autoComplete="off"
-              value={email2}
-              onChange={(e) => setEmail2(e.target.value)}
-            />
-            <button type="submit" className="group" disabled={isSubmitting2}>
-              <span>{isSubmitting2 ? "Joining..." : "Get an early taste"}</span>
-              {!isSubmitting2 && <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" strokeWidth={1.5} />}
-            </button>
-          </form>
+          <>
+            <form className="relethe-signup-form relethe-reveal" onSubmit={handleSignupSubmit}>
+              <input
+                type="email"
+                placeholder="your@email.com"
+                required
+                autoComplete="off"
+                value={email2}
+                onChange={(e) => { setEmail2(e.target.value); setSignupError(null); }}
+              />
+              <button type="submit" className="group" disabled={isSubmitting2}>
+                <span>{isSubmitting2 ? "Joining..." : "Get an early taste"}</span>
+                {!isSubmitting2 && <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" strokeWidth={1.5} />}
+              </button>
+            </form>
+            {signupError && <p style={{ fontFamily: 'var(--mono)', fontSize: '11px', color: 'rgba(255,80,80,0.8)', marginTop: '12px', letterSpacing: '.06em' }}>{signupError}</p>}
+          </>
         ) : showSignupDuplicate ? (
           <div className="relethe-form-success">
             <p className="relethe-form-success-title">{"You're already on the list."}</p>
@@ -1837,7 +1838,7 @@ export default function LandingPage() {
           Networking without the performance.
         </span>
         <a href="https://www.linkedin.com/company/relethe" target="_blank" rel="noopener noreferrer" className="relethe-footer-link" style={{ padding: '12px 0', display: 'inline-block' }}>
-          LinkedIn ↗
+          LinkedIn
         </a>
       </footer>
     </>
