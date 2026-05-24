@@ -22,6 +22,8 @@ export default function LandingPage() {
   const [showSignupDuplicate, setShowSignupDuplicate] = useState(false);
   const [isSubmitting1, setIsSubmitting1] = useState(false);
   const [isSubmitting2, setIsSubmitting2] = useState(false);
+  const [heroError, setHeroError] = useState<string | null>(null);
+  const [signupError, setSignupError] = useState<string | null>(null);
   const [diagnosticEmail, setDiagnosticEmail] = useState<string | null>(null);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -71,6 +73,7 @@ export default function LandingPage() {
         setShowHeroDuplicate(true);
         setDiagnosticEmail(email1);
       } else {
+        setHeroError("Something went wrong. Please try again.");
         setIsSubmitting1(false);
       }
       return;
@@ -92,6 +95,7 @@ export default function LandingPage() {
         setShowSignupDuplicate(true);
         setDiagnosticEmail(email2);
       } else {
+        setSignupError("Something went wrong. Please try again.");
         setIsSubmitting2(false);
       }
       return;
@@ -1265,13 +1269,14 @@ export default function LandingPage() {
               required
               autoComplete="off"
               value={email1}
-              onChange={(e) => setEmail1(e.target.value)}
+              onChange={(e) => { setEmail1(e.target.value); setHeroError(null); }}
             />
             <button type="submit" className="group" disabled={isSubmitting1}>
               <span>{isSubmitting1 ? "Joining..." : "Get an early taste"}</span>
               {!isSubmitting1 && <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" strokeWidth={1.5} />}
             </button>
           </form>
+          {heroError && <p style={{ fontFamily: 'var(--mono)', fontSize: '11px', color: 'rgba(255,80,80,0.8)', marginTop: '12px', letterSpacing: '.06em' }}>{heroError}</p>}
         ) : showHeroDuplicate ? (
           <div className="relethe-form-success">
             <p className="relethe-form-success-title">{"You're already on the list."}</p>
@@ -1793,13 +1798,14 @@ export default function LandingPage() {
               required
               autoComplete="off"
               value={email2}
-              onChange={(e) => setEmail2(e.target.value)}
+              onChange={(e) => { setEmail2(e.target.value); setSignupError(null); }}
             />
             <button type="submit" className="group" disabled={isSubmitting2}>
               <span>{isSubmitting2 ? "Joining..." : "Get an early taste"}</span>
               {!isSubmitting2 && <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" strokeWidth={1.5} />}
             </button>
           </form>
+          {signupError && <p style={{ fontFamily: 'var(--mono)', fontSize: '11px', color: 'rgba(255,80,80,0.8)', marginTop: '12px', letterSpacing: '.06em' }}>{signupError}</p>}
         ) : showSignupDuplicate ? (
           <div className="relethe-form-success">
             <p className="relethe-form-success-title">{"You're already on the list."}</p>
