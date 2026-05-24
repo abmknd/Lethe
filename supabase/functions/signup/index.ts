@@ -50,6 +50,26 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Send confirmation email via Resend (best-effort — don't fail signup if email fails)
+    try {
+      await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${Deno.env.get("RESEND_API_KEY")}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          from: "Abi from Relethe <abi@mail.relethe.com>",
+          reply_to: "abiola@relethe.com",
+          to: [email],
+          subject: "You signed up. Good call.",
+          text: `You're on the Relethe waitlist.\nWe'll reach out when it's time. Don't hold your breath, but don't forget about us either.\n\nAbi from Relethe.`,
+        }),
+      });
+    } catch (emailErr) {
+      console.error("email send failed:", emailErr);
+    }
+
     return new Response(JSON.stringify({ status: "created", email }), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
