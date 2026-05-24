@@ -70,10 +70,12 @@ function createWaterSim(canvas, container) {
   }
 
   function resize() {
-    const rect = container.getBoundingClientRect();
+    // Use innerWidth/innerHeight so the canvas always fills the full
+    // viewport even when getBoundingClientRect returns a stale or
+    // incorrectly-narrow value on iOS during layout.
     const dpr = clamp(window.devicePixelRatio || 1, 1, 2);
-    W = canvas.width  = Math.max(1, Math.floor(rect.width  * dpr));
-    H = canvas.height = Math.max(1, Math.floor(rect.height * dpr));
+    W = canvas.width  = Math.max(1, Math.floor(window.innerWidth  * dpr));
+    H = canvas.height = Math.max(1, Math.floor(window.innerHeight * dpr));
     ctx = canvas.getContext("2d");
     if (ctx) ctx.setTransform(1, 0, 0, 1, 0, 0);
     initSim();
@@ -312,11 +314,12 @@ export default function UserNeedsSection() {
       const ENTRY_P = [0, 0.25, 0.50, 0.75];
 
       ScrollTrigger.create({
-        trigger:   sectionRef.current,
-        start:     "top top",
-        end:       "bottom bottom",
-        scrub:     1,
-        animation: tl,
+        trigger:          sectionRef.current,
+        start:            "top top",
+        end:              "bottom bottom",
+        scrub:            1,
+        animation:        tl,
+        invalidateOnRefresh: true, // recalc when iOS address bar shows/hides
         onUpdate(self) {
           const p = self.progress;
 
@@ -356,11 +359,14 @@ export default function UserNeedsSection() {
         #user-needs {
           height: 500vh;
           position: relative;
+          width: 100%;
         }
         .un-sticky {
           position: sticky;
           top: 0;
+          width: 100%;
           height: 100vh;
+          height: 100svh; /* excludes iOS address bar — fixes card clipping */
           overflow: hidden;
         }
 

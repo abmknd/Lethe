@@ -1156,7 +1156,7 @@ export default function LandingPage() {
           #relethe-demo    { padding: 80px 24px; }
           #relethe-see     { padding: 80px 0; }
           #relethe-signup  { padding: 100px 24px; }
-          .relethe-footer  { padding: 40px 24px; flex-direction: column; align-items: flex-start; gap: 20px; }
+          .relethe-footer  { padding: 32px 24px; flex-direction: row; align-items: center; justify-content: space-between; gap: 0; }
           .relethe-footer-tag { display: none; }
           .relethe-see-header { padding: 0 24px; }
           .relethe-nav-links a { display: none; }
@@ -1177,6 +1177,12 @@ export default function LandingPage() {
           .relethe-product-card { width: 280px; }
           .relethe-cards-track  { padding: 32px 24px 48px; }
           .relethe-section-label { margin-bottom: 32px; }
+        }
+
+        /* ── Hide custom cursor on touch / mobile — no pointer to track ── */
+        @media (hover: none), (pointer: coarse) {
+          #relethe-cur-dot,
+          #relethe-cur-ring { display: none !important; }
         }
 
         /* ── Reduced motion ── */
@@ -1837,7 +1843,7 @@ export default function LandingPage() {
           Networking without the performance.
         </span>
         <a href="https://www.linkedin.com/company/relethe" target="_blank" rel="noopener noreferrer" className="relethe-footer-link" style={{ padding: '12px 0', display: 'inline-block' }}>
-          LinkedIn ↗
+          LinkedIn
         </a>
       </footer>
     </>
