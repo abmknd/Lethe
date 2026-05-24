@@ -1,6 +1,6 @@
 ﻿import { useState, useEffect, FormEvent } from "react";
 import { createPortal } from "react-dom";
-import { supabase } from "../../lib/supabase";
+import { signup } from "../../lib/signup";
 
 type Community = "independents" | "epistemics" | "social_impact";
 type Archetype = "underdistributed" | "signal_seeker" | "isolated_practitioner" | "blocked_mover";
@@ -326,14 +326,8 @@ export default function DiagnosticModal({ isOpen, onClose, onEmailSubmitted, onC
     e.preventDefault();
     if (!email.trim()) return;
     setIsSubmitting(true);
-    let isDuplicate = false;
-    try {
-      const res = await fetch("https://ipapi.co/json/");
-      const geo = await res.json().catch(() => ({}));
-      const country = geo.country_name ?? null;
-      const { error } = await supabase.from("waitlist").insert({ email: email.trim(), name: name.trim() || null, source: "diagnostic", country });
-      if (error?.code === "23505") isDuplicate = true;
-    } catch { /* best-effort */ }
+    const result = await signup({ email: email.trim(), name: name.trim() || undefined, source: "diagnostic" });
+    const isDuplicate = result.status === "duplicate";
     onEmailSubmitted(email.trim());
     setIsSubmitting(false);
     if (isDuplicate) {
