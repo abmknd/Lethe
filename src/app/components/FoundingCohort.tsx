@@ -219,7 +219,7 @@ export default function FoundingCohort() {
 
       <section
         className="cohort-section"
-        style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}
+        style={{ borderTop: "1px solid rgba(255,255,255,0.07)", display: "none" }}
       >
         <h2 className="cohort-heading relethe-reveal">You'll be in good company</h2>
         <div className="cohort-grid">
