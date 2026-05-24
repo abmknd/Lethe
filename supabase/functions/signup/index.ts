@@ -63,7 +63,7 @@ Deno.serve(async (req) => {
           reply_to: "abiola@relethe.com",
           to: [email],
           subject: "You signed up. Good call.",
-          text: `You're on the Relethe waitlist.\nWe'll reach out when it's time. Don't hold your breath, but don't forget about us either.\n\nAbi from Relethe.`,
+          text: `You're on the Relethe waitlist.\nWe'll reach out when it's time. Don't hold your breath, but don't forget about us either.\n\nStay gracious,\n\nAbiola Makinde\nCo-founder, Relethe`,
         }),
       });
     } catch (emailErr) {
