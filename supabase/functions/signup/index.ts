@@ -69,21 +69,19 @@ Deno.serve(async (req) => {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="color-scheme" content="only dark">
-  <meta name="supported-color-schemes" content="dark">
+  <meta name="color-scheme" content="light">
+  <meta name="supported-color-schemes" content="light">
   <style>
-    :root { color-scheme: only dark; }
+    :root { color-scheme: light; }
     body { background-color: #0a0a0a !important; color: #e8e8e8 !important; }
-    @media (prefers-color-scheme: light) {
-      body { background-color: #0a0a0a !important; }
-      .wrapper { background-color: #0a0a0a !important; }
-    }
+    .wrapper { background-color: #0a0a0a !important; }
+    .inner { background-color: #0a0a0a !important; }
   </style>
 </head>
-<body style="margin:0;padding:0;background-color:#0a0a0a !important;font-family:Georgia,serif;">
-  <table class="wrapper" width="100%" cellpadding="0" cellspacing="0" style="background-color:#0a0a0a;padding:48px 24px">
+<body bgcolor="#0a0a0a" style="margin:0;padding:0;background-color:#0a0a0a !important;font-family:Georgia,serif;">
+  <table class="wrapper" width="100%" cellpadding="0" cellspacing="0" bgcolor="#0a0a0a" style="background-color:#0a0a0a !important;padding:48px 24px">
     <tr><td align="center">
-      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:480px">
+      <table class="inner" width="100%" cellpadding="0" cellspacing="0" bgcolor="#0a0a0a" style="max-width:480px;background-color:#0a0a0a !important">
         <tr><td style="padding-bottom:40px">
           <img src="https://raw.githubusercontent.com/abmknd/relethe/main/public/logomark.png" width="32" height="32" alt="Relethe" style="display:block">
         </td></tr>
