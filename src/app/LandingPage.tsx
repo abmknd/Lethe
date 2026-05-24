@@ -1,5 +1,6 @@
 ﻿import { useState, useEffect, useRef, FormEvent } from "react";
 import { supabase } from "../lib/supabase";
+import { signup } from "../lib/signup";
 import { useNavigate } from "react-router";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -43,17 +44,7 @@ export default function LandingPage() {
 
   const navigate = useNavigate();
 
-  const getCountry = async (): Promise<string | null> => {
-    try {
-      const res = await fetch("https://ipapi.co/json/");
-      const data = await res.json();
-      return (data.country_name as string) ?? null;
-    } catch {
-      return null;
-    }
-  };
-
-  const sendConfirmationEmail = async (email: string) => {
+const sendConfirmationEmail = async (email: string) => {
     try {
       await supabase.functions.invoke("send-confirmation", { body: { email } });
     } catch {
@@ -65,44 +56,36 @@ export default function LandingPage() {
     e.preventDefault();
     if (!email1) return;
     setIsSubmitting1(true);
-    const country = await getCountry();
-    const { error } = await supabase.from("waitlist").insert({ email: email1, country });
-    if (error) {
-      console.error("[waitlist] hero insert failed:", error.code, error.message, error.details);
-      if (error.code === "23505") {
-        setShowHeroDuplicate(true);
-        setDiagnosticEmail(email1);
-      } else {
-        setHeroError("Something went wrong. Please try again.");
-        setIsSubmitting1(false);
-      }
-      return;
+    const result = await signup({ email: email1, source: "hero" });
+    if (result.status === "duplicate") {
+      setShowHeroDuplicate(true);
+      setDiagnosticEmail(email1);
+    } else if (result.status === "error") {
+      setHeroError("Something went wrong. Please try again.");
+      setIsSubmitting1(false);
+    } else {
+      await sendConfirmationEmail(email1);
+      setDiagnosticEmail(email1);
+      setShowHeroSuccess(true);
     }
-    await sendConfirmationEmail(email1);
-    setDiagnosticEmail(email1);
-    setShowHeroSuccess(true);
   };
 
   const handleSignupSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!email2) return;
     setIsSubmitting2(true);
-    const country = await getCountry();
-    const { error } = await supabase.from("waitlist").insert({ email: email2, country });
-    if (error) {
-      console.error("[waitlist] signup insert failed:", error.code, error.message, error.details);
-      if (error.code === "23505") {
-        setShowSignupDuplicate(true);
-        setDiagnosticEmail(email2);
-      } else {
-        setSignupError("Something went wrong. Please try again.");
-        setIsSubmitting2(false);
-      }
-      return;
+    const result = await signup({ email: email2, source: "signup" });
+    if (result.status === "duplicate") {
+      setShowSignupDuplicate(true);
+      setDiagnosticEmail(email2);
+    } else if (result.status === "error") {
+      setSignupError("Something went wrong. Please try again.");
+      setIsSubmitting2(false);
+    } else {
+      await sendConfirmationEmail(email2);
+      setDiagnosticEmail(email2);
+      setShowSignupSuccess(true);
     }
-    await sendConfirmationEmail(email2);
-    setDiagnosticEmail(email2);
-    setShowSignupSuccess(true);
   };
 
   const handlePlayDemo = () => {
