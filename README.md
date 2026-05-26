@@ -137,9 +137,41 @@ Click back in the Terminal / PowerShell window and press **Ctrl+C**.
 ### Troubleshooting
 
 - **"command not found: npm" or "git"** — close and reopen Terminal / PowerShell. If still broken, redo step 1.
-- **The app loads but says "Signups not allowed for otp"** — that's a Supabase setting, not your computer. Ping Nabil.
+- **The app says "We don't recognize this email"** — that email isn't on the cohort whitelist yet. See *Admit a new cohort member* below.
 - **You see "Lethe" instead of "Relethe" somewhere** — that's a bug to log, not a setup problem.
 - **Anything else broken** — screenshot Terminal + the browser and send to Nabil.
+
+---
+
+## Admit a new cohort member (founder runbook)
+
+Relethe is invite-only. `/sign-in` will reject any email that isn't already in Supabase. Before someone can sign in — including your own QA test accounts — you have to add them to the whitelist.
+
+### Steps
+
+1. Open the [Supabase dashboard](https://supabase.com/dashboard) → **relethe-mvp** project.
+2. Left sidebar → **Authentication → Users**.
+3. Top right → **"Add user" → "Create new user"**.
+4. Enter their email address.
+5. ✅ Tick **"Auto Confirm User"** (so they don't have to confirm separately).
+6. Click **Create user**.
+7. Tell the new member they can now go to the site and sign in with that email — they'll get a magic link.
+
+### When to do this
+
+- Before sending any cohort invitation.
+- Before QA: pre-create every test inbox you plan to use (User A, User B, etc.).
+- One at a time per invitee. There's no bulk import in this runbook — if you ever need bulk, ping Nabil.
+
+### What "Auto Confirm" does
+
+Skips the email-confirmation step. The user goes straight to "ready to sign in." Always tick it for cohort additions — there's no separate sign-up flow to confirm them later.
+
+### What to do if you added the wrong email
+
+- Find the user in **Authentication → Users**.
+- Click the three-dot menu on their row → **Delete user**.
+- Re-add the correct email.
 
 ---
 

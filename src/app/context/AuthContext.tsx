@@ -13,6 +13,18 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
+// Translate raw Supabase auth errors into user-facing copy.
+// Relethe runs an invite-only cohort, so unknown emails get a friendlier
+// message that points them at the waitlist instead of leaking the raw
+// "Signups not allowed for otp" Supabase string.
+function translateAuthError(message: string): string {
+  const lower = message.toLowerCase();
+  if (lower.includes("signups not allowed")) {
+    return "We don't recognize this email. If you were invited, double-check it matches your invitation. Otherwise, request access from the home page.";
+  }
+  return message;
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
@@ -33,9 +45,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   async function signInWithEmail(email: string): Promise<{ error: string | null }> {
     const { error } = await supabase.auth.signInWithOtp({
       email,
-      options: { shouldCreateUser: true },
+      options: { shouldCreateUser: false },
     });
-    return { error: error?.message ?? null };
+    return { error: error ? translateAuthError(error.message) : null };
   }
 
   async function signOut(): Promise<void> {
