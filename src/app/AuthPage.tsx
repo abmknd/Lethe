@@ -127,9 +127,21 @@ export default function AuthPage() {
               />
 
               {stage === "error" && (
-                <p style={{ color: "rgba(220,80,80,0.9)", fontSize: 12, margin: "0 0 16px" }}>
-                  {errorMsg}
-                </p>
+                <div style={{ margin: "0 0 16px" }}>
+                  <p style={{ color: "rgba(220,80,80,0.9)", fontSize: 12, margin: 0 }}>
+                    {errorMsg}
+                  </p>
+                  {errorMsg.toLowerCase().includes("don't recognize") && (
+                    <p style={{ fontSize: 12, margin: "8px 0 0" }}>
+                      <a
+                        href="/"
+                        style={{ color: "rgba(173,255,47,0.8)", textDecoration: "underline" }}
+                      >
+                        Request access →
+                      </a>
+                    </p>
+                  )}
+                </div>
               )}
 
               <button
