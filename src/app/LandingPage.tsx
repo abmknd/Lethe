@@ -25,6 +25,9 @@ export default function LandingPage() {
   const [heroError, setHeroError] = useState<string | null>(null);
   const [signupError, setSignupError] = useState<string | null>(null);
   const [diagnosticEmail, setDiagnosticEmail] = useState<string | null>(null);
+  const [showDemoGate, setShowDemoGate] = useState(false);
+  const [demoPassword, setDemoPassword] = useState("");
+  const [demoPasswordError, setDemoPasswordError] = useState(false);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const cursorDotRef = useRef<HTMLDivElement>(null);
@@ -1384,10 +1387,48 @@ export default function LandingPage() {
         </div>
         <button
           className="relethe-view-demo-btn"
-          onClick={() => navigate("/feed")}
+          onClick={() => { setShowDemoGate(true); setDemoPassword(""); setDemoPasswordError(false); }}
         >
           View full demo
         </button>
+
+        {showDemoGate && (
+          <div style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(5,7,5,0.92)", backdropFilter: "blur(16px)", display: "flex", alignItems: "center", justifyContent: "center" }}
+            onClick={(e) => { if (e.target === e.currentTarget) setShowDemoGate(false); }}
+          >
+            <div style={{ width: "min(400px, 90vw)", padding: "48px 40px", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "20px", display: "flex", flexDirection: "column", alignItems: "center", gap: "24px" }}>
+              <img src="/logomark.png" width={32} height={32} alt="Relethe" />
+              <div style={{ textAlign: "center" }}>
+                <p style={{ fontFamily: "var(--mono)", fontSize: "11px", letterSpacing: ".2em", textTransform: "uppercase", color: "var(--ch)", margin: "0 0 8px" }}>Private Access</p>
+                <p style={{ fontFamily: "var(--display)", fontSize: "22px", color: "var(--text)", margin: 0 }}>Enter access code</p>
+              </div>
+              <form style={{ width: "100%", display: "flex", flexDirection: "column", gap: "12px" }}
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (demoPassword === "relethelive") {
+                    setShowDemoGate(false);
+                    navigate("/feed");
+                  } else {
+                    setDemoPasswordError(true);
+                  }
+                }}
+              >
+                <input
+                  type="password"
+                  placeholder="Access code"
+                  autoFocus
+                  value={demoPassword}
+                  onChange={(e) => { setDemoPassword(e.target.value); setDemoPasswordError(false); }}
+                  style={{ width: "100%", background: "rgba(255,255,255,0.05)", border: `1px solid ${demoPasswordError ? "rgba(255,80,80,0.5)" : "rgba(255,255,255,0.1)"}`, borderRadius: "10px", padding: "14px 16px", fontFamily: "var(--mono)", fontSize: "13px", color: "var(--text)", outline: "none", boxSizing: "border-box" }}
+                />
+                {demoPasswordError && <p style={{ fontFamily: "var(--mono)", fontSize: "11px", color: "rgba(255,80,80,0.8)", margin: 0, letterSpacing: ".06em" }}>Incorrect access code.</p>}
+                <button type="submit" style={{ width: "100%", padding: "14px", background: "var(--ch)", border: "none", borderRadius: "10px", fontFamily: "var(--mono)", fontSize: "11px", letterSpacing: ".2em", textTransform: "uppercase", color: "#050705", cursor: "none", fontWeight: 600 }}>
+                  Enter
+                </button>
+              </form>
+            </div>
+          </div>
+        )}
       </section>
 
       {/* SEE IT */}
