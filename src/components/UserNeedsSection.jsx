@@ -346,6 +346,9 @@ export default function UserNeedsSection() {
       // Fixes mobile: iOS viewport height changes (address bar show/hide) and
       // any layout shift from the sticky section can misplace downstream triggers.
       ScrollTrigger.refresh();
+      // Secondary refresh after fonts/images settle on mobile
+      setTimeout(() => ScrollTrigger.refresh(), 500);
+      window.addEventListener('load', () => ScrollTrigger.refresh(), { once: true });
     }, sectionRef);
 
     return () => gctx.revert();
