@@ -536,7 +536,7 @@ export default function LandingPage() {
           background: var(--dark);
           color: var(--text);
           font-family: var(--mono);
-          overflow-x: hidden;
+          overflow-x: clip;
           cursor: none;
         }
 
