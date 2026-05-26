@@ -1,39 +1,17 @@
 // Public signup Edge Function — single backend path for all waitlist
 // submissions from the landing page funnel. Deploy with verify_jwt = false.
+//
+// Pure input/output contract lives in ./contract.mjs so it can be tested
+// from Node CI without Supabase credentials.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { corsPreflightResponse, json } from "../_shared/cors.ts";
-
-const SOURCES = ["hero", "signup", "diagnostic", "founding"] as const;
-type Source = typeof SOURCES[number];
-
-interface SignupInput {
-  email: string;
-  source: Source;
-  name?: string | null;
-}
-
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-function hashEmail(email: string): string {
-  // Stable non-reversible-ish digest for logs. Not crypto, just PII reduction.
-  let h = 0;
-  for (let i = 0; i < email.length; i++) h = (h * 31 + email.charCodeAt(i)) | 0;
-  return (h >>> 0).toString(16);
-}
-
-function parseInput(body: unknown): SignupInput | { error: string } {
-  if (!body || typeof body !== "object") return { error: "Invalid body" };
-  const b = body as Record<string, unknown>;
-  const email = typeof b.email === "string" ? b.email.trim().toLowerCase() : "";
-  const source = b.source as Source;
-  const name = typeof b.name === "string" ? b.name.trim() || null : null;
-  if (!email || !EMAIL_RE.test(email) || email.length > 254) {
-    return { error: "Invalid email" };
-  }
-  if (!SOURCES.includes(source)) return { error: "Invalid source" };
-  return { email, source, name };
-}
+import {
+  buildWaitlistRow,
+  classifyInsertResult,
+  hashEmail,
+  parseSignupInput,
+} from "./contract.mjs";
 
 async function enrichCountry(req: Request): Promise<string | null> {
   const ip =
@@ -65,9 +43,9 @@ Deno.serve(async (req: Request): Promise<Response> => {
     return json({ error: "Invalid JSON" }, 400);
   }
 
-  const parsed = parseInput(body);
-  if ("error" in parsed) return json({ error: parsed.error }, 400);
-  const { email, source, name } = parsed;
+  const parsed = parseSignupInput(body);
+  if (!parsed.ok) return json({ error: parsed.error }, 400);
+  const { email, source, name } = parsed.value;
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
   const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
@@ -81,17 +59,17 @@ Deno.serve(async (req: Request): Promise<Response> => {
   });
 
   const country = await enrichCountry(req);
-
-  const row: Record<string, unknown> = { email, source, country };
-  if (name) row.name = name;
+  const row = buildWaitlistRow({ email, source, name, country });
 
   const { error } = await admin.from("waitlist").insert(row);
+  const outcome = classifyInsertResult(error);
 
-  if (error) {
-    if (error.code === "23505") {
-      console.log(`[signup] source=${source} status=duplicate email_h=${hashEmail(email)}`);
-      return json({ status: "duplicate", email });
-    }
+  if (outcome.status === "duplicate") {
+    console.log(`[signup] source=${source} status=duplicate email_h=${hashEmail(email)}`);
+    return json({ status: "duplicate", email });
+  }
+
+  if (outcome.status === "error") {
     console.error(`[signup] insert failed source=${source} email_h=${hashEmail(email)}`, error);
     return json({ error: "Internal error" }, 500);
   }

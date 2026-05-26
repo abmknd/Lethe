@@ -1,7 +1,7 @@
 const RESEND_API = "https://api.resend.com/emails";
 
 function fromAddress(): string {
-  return Deno.env.get("RESEND_FROM_EMAIL") ?? "Lethe <intros@lethe.so>";
+  return Deno.env.get("RESEND_FROM_EMAIL") ?? "Relethe <intros@mail.relethe.com>";
 }
 
 function buildIntroHtml({

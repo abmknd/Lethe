@@ -59,10 +59,12 @@ function assert(condition, label, detail) {
 // ── setup ─────────────────────────────────────────────────────────────────────
 
 const TS = Date.now();
-const ALICE_EMAIL = `rls-alice-${TS}@lethe-test.invalid`;
-const BOB_EMAIL   = `rls-bob-${TS}@lethe-test.invalid`;
+const ALICE_EMAIL   = `rls-alice-${TS}@lethe-test.invalid`;
+const BOB_EMAIL     = `rls-bob-${TS}@lethe-test.invalid`;
+const CHARLIE_EMAIL = `rls-charlie-${TS}@lethe-test.invalid`;
 const ALICE_ID    = `test_alice_${TS}`;
 const BOB_ID      = `test_bob_${TS}`;
+const CHARLIE_ID  = `test_charlie_${TS}`;
 const RUN_ID      = `run_rls_test_${TS}`;
 const REC_ID      = `rec_rls_test_${TS}`;
 const MEETING_ID  = `meeting_rls_test_${TS}`;
@@ -71,6 +73,9 @@ const ALICE_READINESS_ID = `readiness_rls_test_alice_${TS}`;
 const BOB_READINESS_ID = `readiness_rls_test_bob_${TS}`;
 const ALICE_CEP_ID = `cep_rls_test_alice_${TS}`;
 const BOB_CEP_ID   = `cep_rls_test_bob_${TS}`;
+const CONV_ID      = `conv_rls_test_${TS}`;
+const MSG_ALICE_ID = `msg_rls_alice_${TS}`;
+const MSG_BOB_ID   = `msg_rls_bob_${TS}`;
 const nowIso      = () => new Date().toISOString();
 
 async function createSessionViaMagicLink(email) {
@@ -105,16 +110,19 @@ async function createSessionViaMagicLink(email) {
 
 async function setup() {
   // Create auth users and obtain real authenticated JWTs via generated magic links.
-  const aliceSession = await createSessionViaMagicLink(ALICE_EMAIL);
-  const bobSession = await createSessionViaMagicLink(BOB_EMAIL);
-  const aliceAuthId = aliceSession.authId;
-  const bobAuthId = bobSession.authId;
+  const aliceSession   = await createSessionViaMagicLink(ALICE_EMAIL);
+  const bobSession     = await createSessionViaMagicLink(BOB_EMAIL);
+  const charlieSession = await createSessionViaMagicLink(CHARLIE_EMAIL);
+  const aliceAuthId   = aliceSession.authId;
+  const bobAuthId     = bobSession.authId;
+  const charlieAuthId = charlieSession.authId;
 
   // Insert Relethe user rows via service role (bypasses RLS).
   const now = nowIso();
   for (const [id, authId, name] of [
-    [ALICE_ID, aliceAuthId, "Alice Test"],
-    [BOB_ID,   bobAuthId,   "Bob Test"],
+    [ALICE_ID,   aliceAuthId,   "Alice Test"],
+    [BOB_ID,     bobAuthId,     "Bob Test"],
+    [CHARLIE_ID, charlieAuthId, "Charlie Test"],
   ]) {
     const { error } = await admin.from("users").insert({
       id, auth_id: authId, name,
@@ -126,7 +134,7 @@ async function setup() {
   }
 
   // Insert preferences for each user
-  for (const [userId] of [[ALICE_ID], [BOB_ID]]) {
+  for (const [userId] of [[ALICE_ID], [BOB_ID], [CHARLIE_ID]]) {
     const { error } = await admin.from("preferences").insert({
       id: `pref_${userId}`, user_id: userId,
       match_intent: [], offers: [], asks: [],
@@ -213,31 +221,68 @@ async function setup() {
     if (error) throw new Error(`Insert weekly_cep ${userId}: ${error.message}`);
   }
 
+  // ── conversations + messages seed (Alice <> Bob, Charlie excluded) ─────────
+  // participant_a < participant_b is required by the CHECK constraint;
+  // ALICE_ID/BOB_ID/CHARLIE_ID derive from "test_alice|bob|charlie_${TS}",
+  // which already sort in that order.
+  const [pA, pB] = ALICE_ID < BOB_ID ? [ALICE_ID, BOB_ID] : [BOB_ID, ALICE_ID];
+  const { error: convErr } = await admin.from("conversations").insert({
+    id: CONV_ID,
+    participant_a: pA,
+    participant_b: pB,
+    unlocked_by_recommendation_id: REC_ID,
+    created_at: now,
+    last_message_at: now,
+  });
+  if (convErr) throw new Error(`Insert conversation: ${convErr.message}`);
+
+  const { error: msgAErr } = await admin.from("messages").insert({
+    id: MSG_ALICE_ID,
+    conversation_id: CONV_ID,
+    sender_id: ALICE_ID,
+    body: "hello from alice",
+    created_at: now,
+  });
+  if (msgAErr) throw new Error(`Insert seed message (alice): ${msgAErr.message}`);
+
+  const { error: msgBErr } = await admin.from("messages").insert({
+    id: MSG_BOB_ID,
+    conversation_id: CONV_ID,
+    sender_id: BOB_ID,
+    body: "hello from bob",
+    created_at: now,
+  });
+  if (msgBErr) throw new Error(`Insert seed message (bob): ${msgBErr.message}`);
+
   return {
-    aliceAuthId, bobAuthId,
+    aliceAuthId, bobAuthId, charlieAuthId,
     alice: aliceSession.client,
     bob: bobSession.client,
+    charlie: charlieSession.client,
   };
 }
 
 // ── teardown ──────────────────────────────────────────────────────────────────
 
-async function teardown(aliceAuthId, bobAuthId) {
+async function teardown(aliceAuthId, bobAuthId, charlieAuthId) {
   await admin.from("events").delete().eq("id", EVENT_ID);
   await admin.from("connection_readiness").delete().in("id", [ALICE_READINESS_ID, BOB_READINESS_ID]);
   await admin.from("weekly_cep").delete().in("id", [ALICE_CEP_ID, BOB_CEP_ID]);
+  // messages + conversation_reads cascade from conversations.
+  await admin.from("conversations").delete().eq("id", CONV_ID);
   await admin.from("meetings").delete().eq("id", MEETING_ID);
   await admin.from("recommendations").delete().eq("id", REC_ID);
   await admin.from("recommendation_runs").delete().eq("id", RUN_ID);
 
   // Deleting auth users cascades to the users table via ON DELETE CASCADE.
-  await admin.auth.admin.deleteUser(aliceAuthId);
-  await admin.auth.admin.deleteUser(bobAuthId);
+  if (aliceAuthId)   await admin.auth.admin.deleteUser(aliceAuthId);
+  if (bobAuthId)     await admin.auth.admin.deleteUser(bobAuthId);
+  if (charlieAuthId) await admin.auth.admin.deleteUser(charlieAuthId);
 }
 
 // ── tests ─────────────────────────────────────────────────────────────────────
 
-async function runTests({ alice, bob }) {
+async function runTests({ alice, bob, charlie }) {
   // ── users ──────────────────────────────────────────────────────────────────
 
   console.log("\nusers");
@@ -413,16 +458,184 @@ async function runTests({ alice, bob }) {
     "Bob cannot read Alice's meeting",
     `got: ${JSON.stringify(bobMeetings)}`,
   );
+
+  // ── conversations (Phase 8 messaging) ──────────────────────────────────────
+
+  console.log("\nconversations");
+
+  const { data: aliceConvs } = await alice.from("conversations").select("id");
+  assert(
+    aliceConvs?.some((c) => c.id === CONV_ID),
+    "Alice can read her own conversation",
+    `got: ${JSON.stringify(aliceConvs)}`,
+  );
+
+  const { data: bobConvs } = await bob.from("conversations").select("id");
+  assert(
+    bobConvs?.some((c) => c.id === CONV_ID),
+    "Bob can read the same conversation (he is a participant)",
+  );
+
+  const { data: charlieConvs } = await charlie.from("conversations").select("id").eq("id", CONV_ID);
+  assert(
+    charlieConvs?.length === 0,
+    "Charlie (non-participant) cannot read the conversation",
+    `got: ${JSON.stringify(charlieConvs)}`,
+  );
+
+  // No client INSERT policy exists; insert must be rejected.
+  const { error: clientConvInsertErr } = await alice.from("conversations").insert({
+    id: `conv_bad_${Date.now()}`,
+    participant_a: ALICE_ID < CHARLIE_ID ? ALICE_ID : CHARLIE_ID,
+    participant_b: ALICE_ID < CHARLIE_ID ? CHARLIE_ID : ALICE_ID,
+    created_at: nowIso(),
+  });
+  assert(
+    clientConvInsertErr != null,
+    "Alice cannot create a conversation directly (must go through edge function)",
+  );
+
+  // ── messages ───────────────────────────────────────────────────────────────
+
+  console.log("\nmessages");
+
+  const { data: aliceMsgs } = await alice.from("messages").select("id, sender_id");
+  assert(
+    aliceMsgs?.length === 2 &&
+      aliceMsgs.some((m) => m.id === MSG_ALICE_ID) &&
+      aliceMsgs.some((m) => m.id === MSG_BOB_ID),
+    "Alice can read both messages in her conversation",
+    `got: ${JSON.stringify(aliceMsgs)}`,
+  );
+
+  const { data: charlieMsgs } = await charlie.from("messages").select("id").eq("conversation_id", CONV_ID);
+  assert(
+    charlieMsgs?.length === 0,
+    "Charlie cannot read messages in a conversation he is not in",
+    `got: ${JSON.stringify(charlieMsgs)}`,
+  );
+
+  const { error: aliceSendOwnErr } = await alice.from("messages").insert({
+    id: `msg_alice_own_${Date.now()}`,
+    conversation_id: CONV_ID,
+    sender_id: ALICE_ID,
+    body: "alice sends in her own conversation",
+    created_at: nowIso(),
+  });
+  assert(
+    !aliceSendOwnErr,
+    "Alice can send a message in her own conversation",
+    aliceSendOwnErr?.message,
+  );
+
+  const { error: aliceImpersonateBobErr } = await alice.from("messages").insert({
+    id: `msg_alice_as_bob_${Date.now()}`,
+    conversation_id: CONV_ID,
+    sender_id: BOB_ID,
+    body: "alice impersonating bob",
+    created_at: nowIso(),
+  });
+  assert(
+    aliceImpersonateBobErr != null,
+    "Alice cannot send a message with sender_id = Bob",
+  );
+
+  const { error: charlieSendErr } = await charlie.from("messages").insert({
+    id: `msg_charlie_intrudes_${Date.now()}`,
+    conversation_id: CONV_ID,
+    sender_id: CHARLIE_ID,
+    body: "charlie intrudes",
+    created_at: nowIso(),
+  });
+  assert(
+    charlieSendErr != null,
+    "Charlie cannot send a message in a conversation he is not in",
+  );
+
+  // ── conversation_reads (read watermark) ────────────────────────────────────
+
+  console.log("\nconversation_reads");
+
+  const { error: aliceWatermarkErr } = await alice.from("conversation_reads").insert({
+    conversation_id: CONV_ID,
+    user_id: ALICE_ID,
+    last_read_at: nowIso(),
+  });
+  assert(
+    !aliceWatermarkErr,
+    "Alice can insert her own read watermark for her conversation",
+    aliceWatermarkErr?.message,
+  );
+
+  const { error: aliceWriteBobWatermarkErr } = await alice.from("conversation_reads").insert({
+    conversation_id: CONV_ID,
+    user_id: BOB_ID,
+    last_read_at: nowIso(),
+  });
+  assert(
+    aliceWriteBobWatermarkErr != null,
+    "Alice cannot insert a read watermark for Bob",
+  );
+
+  // Bob seeds his own watermark via service role, then we verify Alice cannot see it.
+  await admin.from("conversation_reads").upsert({
+    conversation_id: CONV_ID,
+    user_id: BOB_ID,
+    last_read_at: nowIso(),
+  });
+
+  const { data: aliceReads } = await alice.from("conversation_reads")
+    .select("user_id")
+    .eq("conversation_id", CONV_ID);
+  assert(
+    aliceReads?.length === 1 && aliceReads[0].user_id === ALICE_ID,
+    "Alice can only read her own watermark (not Bob's)",
+    `got: ${JSON.stringify(aliceReads)}`,
+  );
+
+  const { data: charlieReads } = await charlie.from("conversation_reads")
+    .select("user_id")
+    .eq("conversation_id", CONV_ID);
+  assert(
+    charlieReads?.length === 0,
+    "Charlie cannot read any watermarks in a conversation he is not in",
+    `got: ${JSON.stringify(charlieReads)}`,
+  );
+
+  const newWatermark = new Date(Date.now() + 60_000).toISOString();
+  const { data: updatedRows, error: aliceUpdateErr } = await alice.from("conversation_reads")
+    .update({ last_read_at: newWatermark })
+    .match({ conversation_id: CONV_ID, user_id: ALICE_ID })
+    .select("user_id, last_read_at");
+  const updatedTs = updatedRows?.[0]?.last_read_at;
+  const updatedMatches = updatedTs && new Date(updatedTs).getTime() === new Date(newWatermark).getTime();
+  assert(
+    !aliceUpdateErr && updatedMatches,
+    "Alice can update her own watermark",
+    aliceUpdateErr?.message ?? `want: ${newWatermark} got: ${JSON.stringify(updatedRows)}`,
+  );
+
+  const { data: aliceUpdateBobAttempt } = await alice.from("conversation_reads")
+    .update({ last_read_at: nowIso() })
+    .eq("conversation_id", CONV_ID)
+    .eq("user_id", BOB_ID)
+    .select("user_id");
+  assert(
+    !aliceUpdateBobAttempt || aliceUpdateBobAttempt.length === 0,
+    "Alice cannot update Bob's watermark",
+    `got: ${JSON.stringify(aliceUpdateBobAttempt)}`,
+  );
 }
 
 // ── main ──────────────────────────────────────────────────────────────────────
 
 console.log("Setting up test users…");
-let aliceAuthId, bobAuthId;
+let aliceAuthId, bobAuthId, charlieAuthId;
 try {
   const ctx = await setup();
-  aliceAuthId = ctx.aliceAuthId;
-  bobAuthId   = ctx.bobAuthId;
+  aliceAuthId   = ctx.aliceAuthId;
+  bobAuthId     = ctx.bobAuthId;
+  charlieAuthId = ctx.charlieAuthId;
 
   console.log("Running RLS checks…");
   await runTests(ctx);
@@ -430,9 +643,9 @@ try {
   console.error("\nSetup failed:", err.message);
   process.exit(1);
 } finally {
-  if (aliceAuthId && bobAuthId) {
+  if (aliceAuthId || bobAuthId || charlieAuthId) {
     console.log("\nCleaning up…");
-    await teardown(aliceAuthId, bobAuthId);
+    await teardown(aliceAuthId, bobAuthId, charlieAuthId);
   }
 }
 
