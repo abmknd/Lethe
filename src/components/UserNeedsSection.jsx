@@ -295,13 +295,21 @@ export default function UserNeedsSection() {
     if (!cards.every(Boolean) || !dots.every(Boolean)) return;
 
     const gctx = gsap.context(() => {
-      gsap.set(cards, { opacity: 0, y: 44, scale: 0.97 });
-      gsap.set(dots,  { scaleX: 1, opacity: 0.22 });
+      // Card 0 starts fully visible — no empty-background wait on scroll entry
+      gsap.set(cards[0], { opacity: 1, y: 0, scale: 1 });
+      gsap.set(cards.slice(1), { opacity: 0, y: 44, scale: 0.97 });
+      gsap.set(dots[0],  { scaleX: 3.5, opacity: 1 });
+      gsap.set(dots.slice(1), { scaleX: 1, opacity: 0.22 });
 
       const tl = gsap.timeline({ defaults: { ease: "power2.inOut" } });
 
-      // 4 equal card slots across the 10-unit timeline (= 400vh sticky scroll)
-      [0, 2.5, 5.0, 7.5].forEach((inAt, i) => {
+      // Card 0 only needs to animate OUT — it starts visible
+      tl.to(cards[0], { opacity:0, y:-44, scale:0.97, duration:0.5 }, 2.0);
+      tl.to(dots[0],  { scaleX:1, opacity:0.22, duration:0.5 }, 2.0);
+
+      // Cards 1–3 animate in then out
+      [1, 2, 3].forEach((i) => {
+        const inAt  = i * 2.5;
         const outAt = i < 3 ? inAt + 2.0 : null;
         tl.fromTo(cards[i], { opacity:0, y:44, scale:0.97 }, { opacity:1, y:0, scale:1, duration:0.5 }, inAt);
         if (outAt) tl.to(cards[i], { opacity:0, y:-44, scale:0.97, duration:0.5 }, outAt);
@@ -319,14 +327,17 @@ export default function UserNeedsSection() {
         end:              "bottom bottom",
         scrub:            1,
         animation:        tl,
-        invalidateOnRefresh: true, // recalc when iOS address bar shows/hides
+        invalidateOnRefresh: true,
+        onEnter() {
+          // Trigger card 0 char animation immediately on section entry
+          if (!charDone.current[0]) {
+            charDone.current[0] = true;
+            animateChars(cards[0]);
+          }
+        },
         onUpdate(self) {
           const p = self.progress;
 
-          // All 4 cards are position:absolute stacked at the same coordinates.
-          // Card 4 is last in DOM, so it sits on top in z-order and swallows
-          // every mousemove — even at opacity:0 — making cards 1–3 untiltable.
-          // Fix: only the currently-visible card gets pointer-events:all.
           const activeIdx = p < 0.25 ? 0 : p < 0.50 ? 1 : p < 0.75 ? 2 : 3;
           cards.forEach((card, i) => {
             card.style.pointerEvents = i === activeIdx ? 'all' : 'none';
