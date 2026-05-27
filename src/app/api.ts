@@ -18,6 +18,7 @@ import type {
   UserContextResponse,
   UserProfile,
 } from './types';
+import { supabase } from '../lib/supabase';
 
 const API_BASE = (import.meta.env.VITE_API_BASE_URL as string | undefined)
   ?? (import.meta.env.VITE_TRIAL_API_BASE_URL as string | undefined)
@@ -99,8 +100,8 @@ export async function saveUserProfile(
   return result.profile;
 }
 
-export async function runWeeklyMatching(maxRecommendationsPerUser = 5, token?: string) {
-  return request<{
+export async function runWeeklyMatching(maxRecommendationsPerUser = 5) {
+  const { data, error } = await supabase.functions.invoke<{
     ok: boolean;
     runId: string;
     startedAt: string;
@@ -110,10 +111,13 @@ export async function runWeeklyMatching(maxRecommendationsPerUser = 5, token?: s
       recommendationsGenerated: number;
       maxRecommendationsPerUser: number;
     };
-  }>('/api/v1/matching/run-weekly', {
-    method: 'POST',
-    body: JSON.stringify({ maxRecommendationsPerUser }),
-  }, token);
+  }>('run-weekly-matching', {
+    body: { maxRecommendationsPerUser },
+  });
+  if (error || !data) {
+    throw new Error(error?.message ?? 'Failed to run weekly matching');
+  }
+  return data;
 }
 
 export async function listUserRecommendations(userId: string, status?: string, token?: string) {
