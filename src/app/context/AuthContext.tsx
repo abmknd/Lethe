@@ -45,7 +45,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   async function signInWithEmail(email: string): Promise<{ error: string | null }> {
     const { error } = await supabase.auth.signInWithOtp({
       email,
-      options: { shouldCreateUser: false },
+      options: {
+        shouldCreateUser: false,
+        // Send the magic link back to a dedicated callback route that
+        // establishes the session and forwards to onboarding. Uses the
+        // current origin so it works for localhost and each deployed URL.
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+      },
     });
     return { error: error ? translateAuthError(error.message) : null };
   }

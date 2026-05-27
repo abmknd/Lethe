@@ -13,6 +13,7 @@ import CommunitiesPage from "./CommunitiesPage";
 import CommunityPage from "./CommunityPage";
 import NotFound from "./NotFound";
 import AuthPage from "./AuthPage";
+import AuthCallback from "./AuthCallback";
 import ProtectedRoute from "./ProtectedRoute";
 import AdminLayout from "./admin/AdminLayout";
 import AdminHomePage from "./admin/AdminHomePage";
@@ -37,6 +38,10 @@ export const router = createBrowserRouter([
       {
         path: "auth",
         Component: AuthPage,
+      },
+      {
+        path: "auth/callback",
+        Component: AuthCallback,
       },
       {
         Component: ProtectedRoute,

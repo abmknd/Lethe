@@ -11,4 +11,16 @@ if (!supabaseUrl || !supabaseAnonKey) {
   );
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    // Magic links are opened from email, often in a different browser/device
+    // than the one that requested them. The implicit flow returns the session
+    // in the URL hash and needs no per-browser code verifier, so the link
+    // works regardless of where it's opened. detectSessionInUrl lets the
+    // client parse that hash automatically on load.
+    flowType: "implicit",
+    detectSessionInUrl: true,
+    persistSession: true,
+    autoRefreshToken: true,
+  },
+});
