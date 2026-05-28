@@ -2,6 +2,7 @@
 // Triggered via HTTP POST (Vercel cron or manual).
 // Ports WeeklyMatchingService.runWeeklyMatching() to async/Deno.
 
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { corsPreflightResponse, json } from "../_shared/cors.ts";
 import { repository } from "../_shared/repository.ts";
 
@@ -12,9 +13,51 @@ import { buildRecommendationGenerationSnapshot } from "../../../mvp/context/prof
 
 const matcher = createDeterministicMatcher();
 
+// Verify the caller is an admin. Returns null on success or a Response on failure.
+// Identity is established by decoding the user JWT in the Authorization header
+// against the Supabase Auth service (auth.getUser). Authorization is a
+// comma-separated email allowlist read from the ADMIN_EMAILS function secret.
+async function authorizeAdmin(req: Request): Promise<Response | null> {
+  const supabaseUrl = Deno.env.get("SUPABASE_URL");
+  const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (!supabaseUrl || !serviceRoleKey) {
+    console.error("[run-weekly-matching] missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY");
+    return json({ error: "Server misconfiguration." }, 500);
+  }
+
+  const adminEmails = (Deno.env.get("ADMIN_EMAILS") ?? "")
+    .split(",")
+    .map((entry) => entry.trim().toLowerCase())
+    .filter(Boolean);
+  if (adminEmails.length === 0) {
+    console.error("[run-weekly-matching] ADMIN_EMAILS is not set");
+    return json({ error: "Server misconfiguration." }, 500);
+  }
+
+  const authHeader = req.headers.get("authorization") ?? "";
+  const match = authHeader.match(/^Bearer\s+(.+)$/i);
+  if (!match) return json({ error: "Authentication required." }, 401);
+  const token = match[1];
+
+  const admin = createClient(supabaseUrl, serviceRoleKey, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  });
+  const { data, error } = await admin.auth.getUser(token);
+  if (error || !data?.user) return json({ error: "Invalid session." }, 401);
+
+  const email = (data.user.email ?? "").toLowerCase();
+  if (!email || !adminEmails.includes(email)) {
+    return json({ error: "Admin access required." }, 403);
+  }
+  return null;
+}
+
 Deno.serve(async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") return corsPreflightResponse();
   if (req.method !== "POST") return json({ error: "Method not allowed." }, 405);
+
+  const authFailure = await authorizeAdmin(req);
+  if (authFailure) return authFailure;
 
   let maxRecommendationsPerUser = 5;
   try {
