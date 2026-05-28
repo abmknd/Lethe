@@ -15,6 +15,7 @@ import NotFound from "./NotFound";
 import AuthPage from "./AuthPage";
 import AuthCallback from "./AuthCallback";
 import ProtectedRoute from "./ProtectedRoute";
+import AdminRoute from "./AdminRoute";
 import AdminLayout from "./admin/AdminLayout";
 import AdminHomePage from "./admin/AdminHomePage";
 import AdminOnboardingPage from "./admin/AdminOnboardingPage";
@@ -59,28 +60,33 @@ export const router = createBrowserRouter([
         ],
       },
       {
-        path: "mvp",
-        Component: AdminLayout,
+        Component: AdminRoute,
         children: [
           {
-            index: true,
-            Component: AdminHomePage,
-          },
-          {
-            path: "onboarding",
-            Component: AdminOnboardingPage,
-          },
-          {
-            path: "connect",
-            Component: AdminConnectPage,
-          },
-          {
-            path: "admin",
-            Component: AdminReviewPage,
-          },
-          {
-            path: "events",
-            Component: AdminEventsPage,
+            path: "mvp",
+            Component: AdminLayout,
+            children: [
+              {
+                index: true,
+                Component: AdminHomePage,
+              },
+              {
+                path: "onboarding",
+                Component: AdminOnboardingPage,
+              },
+              {
+                path: "connect",
+                Component: AdminConnectPage,
+              },
+              {
+                path: "admin",
+                Component: AdminReviewPage,
+              },
+              {
+                path: "events",
+                Component: AdminEventsPage,
+              },
+            ],
           },
         ],
       },
