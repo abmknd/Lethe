@@ -1,3 +1,4 @@
+import { supabase } from '../lib/supabase';
 import type {
   RecommendationParticipantsContextResponse,
   AdminRecommendation,
@@ -18,7 +19,6 @@ import type {
   UserContextResponse,
   UserProfile,
 } from './types';
-import { supabase } from '../lib/supabase';
 
 const API_BASE = (import.meta.env.VITE_API_BASE_URL as string | undefined)
   ?? (import.meta.env.VITE_TRIAL_API_BASE_URL as string | undefined)
@@ -29,7 +29,12 @@ async function request<T>(path: string, init?: RequestInit, token?: string): Pro
     'content-type': 'application/json',
     ...(init?.headers as Record<string, string> | undefined),
   };
-  if (token) headers['authorization'] = `Bearer ${token}`;
+  let bearer = token;
+  if (!bearer) {
+    const { data } = await supabase.auth.getSession();
+    bearer = data.session?.access_token ?? undefined;
+  }
+  if (bearer) headers['authorization'] = `Bearer ${bearer}`;
 
   const response = await fetch(`${API_BASE}${path}`, {
     ...init,

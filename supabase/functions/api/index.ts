@@ -16,6 +16,7 @@ import {
   RECOMMENDATION_STATUSES,
   OUTCOME_STATUSES,
   READINESS_STATUSES,
+  MEETING_STATUSES,
   nowIso,
 } from "../../../mvp/domain/models.mjs";
 import { EVENT_TYPES } from "../../../mvp/domain/events.mjs";
@@ -607,6 +608,49 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
         return json({ meeting });
       }
+    }
+
+    const meetingStatusMatch = path.match(/^\/api\/v1\/recommendations\/([^/]+)\/meeting\/status$/);
+    if (meetingStatusMatch && req.method === "POST") {
+      const recommendationId = decodeURIComponent(meetingStatusMatch[1]);
+      const recommendation = await repository.getRecommendationById(recommendationId);
+      if (!recommendation) return json({ error: "Recommendation not found." }, 404);
+      if (recommendation.userId !== auth.userId) {
+        return json({ error: "Forbidden: not your recommendation." }, 403);
+      }
+
+      const body = await readJsonBody(req);
+      const status = String(body.status ?? "").trim().toLowerCase();
+      if (!Object.values(MEETING_STATUSES).includes(status)) {
+        return json({ error: "Invalid meeting status." }, 400);
+      }
+
+      const existing = await repository.getMeetingForRecommendation(recommendationId);
+      if (!existing) return json({ error: "Meeting not found for recommendation." }, 404);
+
+      const meeting = await repository.updateMeetingStatus(recommendationId, status);
+      const outcomeStatus = MEETING_OUTCOME_MAP[status];
+      if (outcomeStatus) {
+        await repository.upsertOutcome({
+          id: `outcome_${randomUUID()}`,
+          recommendationId,
+          outcomeStatus,
+          notes: body.notes as string ?? null,
+          updatedAt: nowIso(),
+        });
+      }
+
+      await repository.appendEvents([{
+        id: `evt_${randomUUID()}`,
+        eventType: EVENT_TYPES.MEETING_STATUS_UPDATED ?? "MEETING_STATUS_UPDATED",
+        actorUserId: auth.userId,
+        targetUserId: recommendation.userId,
+        recommendationId,
+        payload: { meetingId: meeting?.id, status, notes: body.notes ?? null },
+        createdAt: nowIso(),
+      }]);
+
+      return json({ ok: true, meeting });
     }
 
     // ── messaging ─────────────────────────────────────────────────────────────
