@@ -51,3 +51,22 @@ export function requireSelf(auth: AuthContext, userId: string): void {
     throw new AuthError(403, "Forbidden: not your resource.");
   }
 }
+
+// Authorize the caller as an admin. Identity comes from requireAuth(); the
+// allowlist is the ADMIN_EMAILS function secret (comma-separated). Same shape
+// as the standalone run-weekly-matching function uses.
+export async function requireAdmin(req: Request): Promise<AuthContext> {
+  const auth = await requireAuth(req);
+  const adminEmails = (Deno.env.get("ADMIN_EMAILS") ?? "")
+    .split(",")
+    .map((entry) => entry.trim().toLowerCase())
+    .filter(Boolean);
+  if (adminEmails.length === 0) {
+    throw new AuthError(500, "Server misconfiguration: ADMIN_EMAILS not set.");
+  }
+  const email = (auth.email ?? "").toLowerCase();
+  if (!email || !adminEmails.includes(email)) {
+    throw new AuthError(403, "Admin access required.");
+  }
+  return auth;
+}

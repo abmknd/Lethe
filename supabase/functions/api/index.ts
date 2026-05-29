@@ -5,7 +5,7 @@
 
 import { corsPreflightResponse, json } from "../_shared/cors.ts";
 import { repository, toPublicProfile } from "../_shared/repository.ts";
-import { AuthError, requireAuth, requireSelf } from "../_shared/auth.ts";
+import { AuthError, requireAuth, requireAdmin, requireSelf } from "../_shared/auth.ts";
 import { sendIntroEmails } from "../_shared/email.ts";
 
 import {
@@ -222,9 +222,10 @@ Deno.serve(async (req: Request): Promise<Response> => {
       return json({ readiness, isActive: isReadinessActive(readiness), displayStatus: readiness.status });
     }
 
-    // ── admin (TODO: admin role auth — out of scope for ticket #1) ───────────
+    // ── admin (gated by ADMIN_EMAILS allowlist) ───────────────────────────────
 
     if (req.method === "GET" && path === "/api/v1/admin/recommendations") {
+      await requireAdmin(req);
       const status = url.searchParams.get("status") ?? "pending_review";
       const recommendations = await repository.listAdminRecommendations({ status });
       return json({ recommendations });
@@ -232,6 +233,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
     const adminDecisionMatch = path.match(/^\/api\/v1\/admin\/recommendations\/([^/]+)\/decision$/);
     if (adminDecisionMatch && req.method === "POST") {
+      await requireAdmin(req);
       const recommendationId = decodeURIComponent(adminDecisionMatch[1]);
       const body = await readJsonBody(req);
 
@@ -322,6 +324,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
     const adminContextMatch = path.match(/^\/api\/v1\/admin\/recommendations\/([^/]+)\/context$/);
     if (adminContextMatch && req.method === "GET") {
+      await requireAdmin(req);
       const recommendationId = decodeURIComponent(adminContextMatch[1]);
       const context = await repository.getRecommendationContext(recommendationId);
       if (!context) return json({ error: "Recommendation not found." }, 404);
