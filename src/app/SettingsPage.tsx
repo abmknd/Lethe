@@ -12,8 +12,7 @@ import GoogleIcon from '../imports/Container-120-20';
 import AppleIcon from '../imports/Container-120-24';
 import { toast } from 'sonner';
 import { useAuth } from './context/AuthContext';
-import { supabase } from '../lib/supabase';
-import { apiFetch } from '../lib/api';
+import { getUserProfile, saveUserProfile } from './api';
 
 // ── availability helpers ───────────────────────────────────────────────────────
 
@@ -215,10 +214,7 @@ export default function SettingsPage() {
     if (!user?.id) return;
     (async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
-        const token = session?.access_token;
-        const data = await apiFetch(`/api/v1/users/${user.id}/profile`, undefined, token) as Record<string, unknown>;
-        const profile = data.profile as Record<string, unknown> | undefined;
+        const profile = await getUserProfile(user.id) as unknown as Record<string, unknown> | undefined;
         if (!profile) return;
 
         const u = profile.user as Record<string, unknown> | undefined;
@@ -284,8 +280,6 @@ export default function SettingsPage() {
     if (!user?.id) return;
     setSaving(true);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      const token = session?.access_token;
       const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
       const notificationPrefs = Object.fromEntries(
@@ -295,35 +289,32 @@ export default function SettingsPage() {
         ]),
       );
 
-      await apiFetch(
-        `/api/v1/users/${user.id}/profile`,
+      await saveUserProfile(
+        user.id,
         {
-          method: 'PUT',
-          body: JSON.stringify({
-            user: {
-              location,
-              matchingEnabled: !pauseMeetings,
-              timezone,
-              dob: dob || null,
-            },
-            preferences: {
-              interests,
-              introText,
-              localOnly: localMatchesOnly,
-              meetingFormat: MEETING_FORMAT_VALUES[meetingFormat],
-              matchIntent: goals.filter((g) => g.active).map((g) => g.label),
-              preferredLocations: whereBased === 'Anywhere in the world' ? [] : [whereBased],
-              languages,
-              meetingFrequency: FREQUENCY_LABEL_TO_VALUE[meetingFrequency] ?? 'every_week',
-              learnAbout,
-              askAbout,
-              whoToMeet,
-              notificationPrefs,
-            },
-            availability: availabilityToSlots(availability, timezone),
-          }),
-        },
-        token,
+          user: {
+            id: user.id,
+            location,
+            matchingEnabled: !pauseMeetings,
+            timezone,
+            dob: dob || null,
+          },
+          preferences: {
+            interests,
+            introText,
+            localOnly: localMatchesOnly,
+            meetingFormat: MEETING_FORMAT_VALUES[meetingFormat],
+            matchIntent: goals.filter((g) => g.active).map((g) => g.label),
+            preferredLocations: whereBased === 'Anywhere in the world' ? [] : [whereBased],
+            languages,
+            meetingFrequency: FREQUENCY_LABEL_TO_VALUE[meetingFrequency] ?? 'every_week',
+            learnAbout,
+            askAbout,
+            whoToMeet,
+            notificationPrefs,
+          },
+          availability: availabilityToSlots(availability, timezone),
+        } as never,
       );
 
       setIsDirty(false);

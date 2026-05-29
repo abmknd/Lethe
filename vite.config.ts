@@ -3,9 +3,7 @@ import path from 'path'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 
-const TRIAL_API_PORT = process.env.LETHE_TRIAL_API_PORT ?? '8787';
-
-export default defineConfig(({ command }) => ({
+export default defineConfig(() => ({
   base: '/',
   envPrefix: ['VITE_', 'NEXT_PUBLIC_'],
   plugins: [
@@ -18,12 +16,4 @@ export default defineConfig(({ command }) => ({
     },
   },
   assetsInclude: ['**/*.svg', '**/*.csv'],
-  server: {
-    proxy: {
-      '/api': {
-        target: `http://localhost:${TRIAL_API_PORT}`,
-        changeOrigin: false,
-      },
-    },
-  },
 }))

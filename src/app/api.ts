@@ -1,3 +1,4 @@
+import { supabase } from '../lib/supabase';
 import type {
   RecommendationParticipantsContextResponse,
   AdminRecommendation,
@@ -18,18 +19,26 @@ import type {
   UserContextResponse,
   UserProfile,
 } from './types';
-import { supabase } from '../lib/supabase';
 
-const API_BASE = (import.meta.env.VITE_API_BASE_URL as string | undefined)
-  ?? (import.meta.env.VITE_TRIAL_API_BASE_URL as string | undefined)
-  ?? 'http://localhost:8787';
+const API_BASE = import.meta.env.VITE_API_BASE_URL as string | undefined;
+if (!API_BASE) {
+  throw new Error(
+    'VITE_API_BASE_URL is required. Set it to the deployed Supabase Edge Function URL ' +
+    '(e.g. https://<project-ref>.supabase.co/functions/v1/api).',
+  );
+}
 
 async function request<T>(path: string, init?: RequestInit, token?: string): Promise<T> {
   const headers: Record<string, string> = {
     'content-type': 'application/json',
     ...(init?.headers as Record<string, string> | undefined),
   };
-  if (token) headers['authorization'] = `Bearer ${token}`;
+  let bearer = token;
+  if (!bearer) {
+    const { data } = await supabase.auth.getSession();
+    bearer = data.session?.access_token ?? undefined;
+  }
+  if (bearer) headers['authorization'] = `Bearer ${bearer}`;
 
   const response = await fetch(`${API_BASE}${path}`, {
     ...init,
@@ -42,17 +51,6 @@ async function request<T>(path: string, init?: RequestInit, token?: string): Pro
   }
 
   return body;
-}
-
-export function getApiBaseUrl() {
-  return API_BASE;
-}
-
-export async function initializeData(options?: { reset?: boolean; seed?: boolean }) {
-  return request<{ ok: boolean; seeded?: boolean; usersSeeded?: number; users?: number }>('/api/v1/init', {
-    method: 'POST',
-    body: JSON.stringify(options ?? {}),
-  });
 }
 
 export async function listUsers(token?: string) {

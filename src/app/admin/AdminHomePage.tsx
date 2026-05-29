@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { initializeData, listUsers, getApiBaseUrl, runWeeklyMatching } from "../api";
+import { listUsers, runWeeklyMatching } from "../api";
 import type { AppUser } from "../types";
 
 export default function AdminHomePage() {
@@ -18,23 +18,6 @@ export default function AdminHomePage() {
     });
   }, []);
 
-  async function handleInit(reset: boolean) {
-    setIsLoading(true);
-    try {
-      const result = await initializeData({ reset, seed: true });
-      await refreshUsers();
-      setMessage(
-        result.seeded
-          ? `Database initialized and seeded (${result.usersSeeded ?? 0} users).`
-          : `Database already initialized (${result.users ?? users.length} users).`,
-      );
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : 'Failed to initialize data');
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
   async function handleRunMatching() {
     setIsLoading(true);
     try {
@@ -52,26 +35,9 @@ export default function AdminHomePage() {
   return (
     <div className="space-y-6">
       <section className="bg-[#0d140d] border border-white/10 rounded-xl p-5">
-        <h2 className="text-base font-semibold mb-2">Trial controls</h2>
-        <p className="text-sm text-white/60 mb-4">
-          API base: <span className="text-white/80">{getApiBaseUrl()}</span>
-        </p>
+        <h2 className="text-base font-semibold mb-2">Operator controls</h2>
 
         <div className="flex flex-wrap gap-3">
-          <button
-            disabled={isLoading}
-            onClick={() => handleInit(false)}
-            className="px-4 py-2 text-sm rounded-md bg-[#7FFF00]/15 border border-[#7FFF00]/35 text-[#c9ff87] disabled:opacity-50"
-          >
-            Init/Seed
-          </button>
-          <button
-            disabled={isLoading}
-            onClick={() => handleInit(true)}
-            className="px-4 py-2 text-sm rounded-md bg-white/10 border border-white/20 text-white/80 disabled:opacity-50"
-          >
-            Reset + Seed
-          </button>
           <button
             disabled={isLoading}
             onClick={handleRunMatching}
@@ -95,18 +61,7 @@ export default function AdminHomePage() {
       </section>
 
       <section className="bg-[#0d140d] border border-white/10 rounded-xl p-5">
-        <h2 className="text-base font-semibold mb-3">Demo checklist</h2>
-        <ol className="text-sm text-white/70 space-y-1 list-decimal pl-5">
-          <li>Save one user in Onboarding with intent/offers/asks/availability.</li>
-          <li>Run weekly matching from Home or Recommendations.</li>
-          <li>Approve and reject in Admin (both require rationale).</li>
-          <li>Verify event history in Events (filter by recommendation id).</li>
-          <li>Show accept/pass and follow-through in Recommendations.</li>
-        </ol>
-      </section>
-
-      <section className="bg-[#0d140d] border border-white/10 rounded-xl p-5">
-        <h2 className="text-base font-semibold mb-3">Seeded users ({users.length})</h2>
+        <h2 className="text-base font-semibold mb-3">Users ({users.length})</h2>
         <div className="grid md:grid-cols-2 gap-3">
           {users.map((user) => (
             <div key={user.id} className="border border-white/10 rounded-lg p-3 bg-black/20">
@@ -115,7 +70,7 @@ export default function AdminHomePage() {
               <p className="text-sm text-white/65 mt-1">{user.location}</p>
             </div>
           ))}
-          {users.length === 0 && <p className="text-sm text-white/60">No users seeded yet.</p>}
+          {users.length === 0 && <p className="text-sm text-white/60">No users yet.</p>}
         </div>
       </section>
     </div>
