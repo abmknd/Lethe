@@ -1,7 +1,8 @@
-// Lethe API — Supabase Edge Function
-// Port of mvp/api/server.mjs for Deno runtime.
-// Domain modules (models, events, services) are imported via relative paths
-// from the project root. Run `supabase functions serve` from the project root.
+// Relethe API — Supabase Edge Function
+// Single backend for the Relethe app (Onboarding, Settings, Connect, Matches,
+// Admin review, CEP, meeting readiness, messaging). Domain modules (models,
+// events, completeness) are imported via relative paths from the project root.
+// Run `supabase functions serve` from the project root.
 
 import { corsPreflightResponse, json } from "../_shared/cors.ts";
 import { repository, toPublicProfile } from "../_shared/repository.ts";
