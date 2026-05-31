@@ -85,7 +85,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
   try {
     const [profiles, pairHistory] = await Promise.all([
       repository.listUsersForMatching(),
-      repository.listPairHistory({ sinceDays: 90 }),
+      repository.listPairHistory({ sinceDays: 180 }),
     ]);
 
     const candidateMap = matcher.matchUsers(profiles, pairHistory);

@@ -325,7 +325,7 @@ test('admin review first-write-wins conflict and non-pending transition enforcem
 
 test('scoring weight vector produces expected output for a known input pair', () => {
   // Weights: complementarity 0.2, reciprocalComplementarity 0.1, roleFit 0.15,
-  //          intent 0.2, interests 0.15, intro 0.1, availability 0.1 → total 1.0
+  //          intent 0.2, interests 0.15, objectives 0.1, availability 0.1 → total 1.0
   const matcher = createDeterministicMatcher({ topN: 5 });
 
   const source = {
@@ -376,8 +376,8 @@ test('scoring weight vector produces expected output for a known input pair', ()
   //               candidate wants profile type? 'designer' in ['designer','operator'] YES. → 1.0 → *0.15 = 0.15
   // intentRatio: ['collaboration'] vs ['collaboration'] = 1.0 → *0.2 = 0.20
   // interestRatio: ['product'] vs ['product'] = 1.0 → *0.15 = 0.15
-  // introScore: both empty → 0 → *0.1 = 0
-  // availabilityScore: 2h overlap → min(1, 2/3) ≈ 0.667 → *0.1 = 0.0667
-  // base = 0.10 + 0.10 + 0.15 + 0.20 + 0.15 + 0 + 0.0667 = 0.7667 → score = round(76.67) = 77
-  assert.equal(rec.score, 77, 'expected score 77 given the current weight vector');
+  // objectivesScore: neither side sets objectives → 0 → *0.1 = 0
+  // availabilityScore: 2h overlap → min(1, 2/1.5) = 1.0 → *0.1 = 0.10
+  // base = 0.10 + 0.10 + 0.15 + 0.20 + 0.15 + 0 + 0.10 = 0.80 → score = round(80) = 80
+  assert.equal(rec.score, 80, 'expected score 80 given the current weight vector');
 });

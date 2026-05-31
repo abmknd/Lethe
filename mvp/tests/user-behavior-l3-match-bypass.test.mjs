@@ -220,11 +220,14 @@ test('L3-S7: pending match state is preserved during user dormancy and available
       },
       preferences: {
         userType: 'researcher',
-        preferredUserTypes: ['researcher', 'consultant'],
-        matchIntent: ['mentorship', 'peer exchange'],
-        offers: ['economics research', 'policy analysis'],
-        asks: ['research mentor', 'economics faculty advisor'],
-        interests: ['economics', 'policy', 'research'],
+        preferredUserTypes: ['operator', 'consultant'],
+        // Cross-signal overlap with the operator mentor below — required to clear
+        // the 2-of-3 primary-signal gate added in #80.5. Dormancy is the behavior
+        // under test, so the pair must actually generate a recommendation.
+        matchIntent: ['mentorship', 'knowledge sharing'],
+        offers: ['economics research', 'saas product feedback'],
+        asks: ['startup strategy', 'research mentor'],
+        interests: ['policy', 'supply chain', 'research'],
         introText: 'Graduate student in economics. Looking for a research mentor.',
         matchEnabled: true,
         blockedUserIds: [],

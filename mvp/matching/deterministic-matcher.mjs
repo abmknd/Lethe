@@ -174,6 +174,8 @@ export function createDeterministicMatcher({ topN = 5, recentIntroDays = 45 } = 
     matchUsers(users, pairHistory = new Map(), cepMap = new Map()) {
       const now = new Date();
       const recommendationsByUser = new Map();
+      let skippedByMinSignals = 0;
+      let skippedByRecentSuccess = 0;
 
       for (const profile of users) {
         const scored = [];
@@ -238,7 +240,17 @@ export function createDeterministicMatcher({ topN = 5, recentIntroDays = 45 } = 
             ? new Set((candidate.preferences.preferredUserTypes ?? []).map(normalizeToken)).has(normalizeToken(profile.preferences.userType))
             : false;
           const roleFitRatio = ((profileWantsCandidate ? 1 : 0) + (candidateWantsProfile ? 1 : 0)) / 2;
-          if (intentRatio === 0 && interestRatio < 0.15 && complementarityRatio === 0) {
+
+          // Require at least 2 of 3 primary signals to fire above a minimum threshold.
+          // Caveat (per #80.5): on small cohorts this may be too aggressive. If a run
+          // produces zero recommendations, relax back to the previous single-signal rule.
+          // The skip counter logged at the end of matchUsers makes this observable.
+          const primarySignalsFiring =
+            (intentRatio >= 0.1 ? 1 : 0) +
+            (interestRatio >= 0.15 ? 1 : 0) +
+            (complementarityRatio >= 0.1 ? 1 : 0);
+          if (primarySignalsFiring < 2) {
+            skippedByMinSignals += 1;
             continue;
           }
 
@@ -248,12 +260,26 @@ export function createDeterministicMatcher({ topN = 5, recentIntroDays = 45 } = 
             continue;
           }
 
+          // Successful-match cooldown — skip if this pair has been successfully introduced
+          // within the past 180 days. Caller's listPairHistory({ sinceDays: 180 }) defines
+          // the window, so any matching row here is in-window.
+          const hasRecentSuccessfulIntro = historyRows.some((row) =>
+            ['accepted', 'intro_sent', 'completed'].includes(row.status),
+          );
+          if (hasRecentSuccessfulIntro) {
+            skippedByRecentSuccess += 1;
+            continue;
+          }
+
           if (isRecentIntro(historyRows, now, recentIntroDays)) {
             continue;
           }
 
-          const introScore = jaccardScore(toTokenSet(profile.preferences.introText), toTokenSet(candidate.preferences.introText));
-          const availabilityScore = Math.min(1, overlap.overlapHours / 3);
+          const objectivesScore = jaccardScore(
+            new Set((profile.preferences.objectives ?? []).map(normalizeToken)),
+            new Set((candidate.preferences.objectives ?? []).map(normalizeToken)),
+          );
+          const availabilityScore = Math.min(1, overlap.overlapHours / 1.5);
           const historicalPenalty = Math.min(20, historyRows.length * 4);
 
           const baseScore =
@@ -262,7 +288,7 @@ export function createDeterministicMatcher({ topN = 5, recentIntroDays = 45 } = 
             roleFitRatio * 0.15 +
             intentRatio * 0.2 +
             interestRatio * 0.15 +
-            introScore * 0.1 +
+            objectivesScore * 0.1 +
             availabilityScore * 0.1;
 
           const profileCep = cepMap.get(profile.user.id) ?? null;
@@ -295,7 +321,7 @@ export function createDeterministicMatcher({ topN = 5, recentIntroDays = 45 } = 
               `Intent overlap ${(intentRatio * 100).toFixed(0)}%`,
               `Interest overlap ${(interestRatio * 100).toFixed(0)}%`,
               `Availability overlap ${overlap.overlapHours.toFixed(1)}h (timezone-normalized)`,
-              `Intro similarity ${(introScore * 100).toFixed(0)}%`,
+              `Objectives overlap ${(objectivesScore * 100).toFixed(0)}%`,
               ...cepNote,
             ],
           });
@@ -336,6 +362,10 @@ export function createDeterministicMatcher({ topN = 5, recentIntroDays = 45 } = 
             })),
         );
       }
+
+      console.log(
+        `[matcher] Skipped pairs: ${skippedByMinSignals} by min-signal filter, ${skippedByRecentSuccess} by recent-success cooldown.`,
+      );
 
       return recommendationsByUser;
     },
