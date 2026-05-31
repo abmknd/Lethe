@@ -185,7 +185,7 @@ export function createDeterministicMatcher({ topN = 5, recentIntroDays = 45 } = 
             continue;
           }
 
-          if (!candidate.user.isActive || !candidate.user.matchingEnabled || !candidate.preferences.matchEnabled) {
+          if (!candidate.user.isActive || !candidate.user.matchingEnabled) {
             continue;
           }
 

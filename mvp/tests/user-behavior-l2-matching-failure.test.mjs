@@ -35,7 +35,6 @@ test('L2-S1: roleFit score is reduced when candidate userType does not match dec
         asks: ['product growth experience'],
         interests: ['consumer apps', 'growth', 'product'],
         introText: 'B2C founder looking for growth peers and investors.',
-        matchEnabled: true,
         blockedUserIds: [],
       },
       availability: [{ dayOfWeek: 1, startHour: 14, endHour: 16, timezone: 'UTC' }],

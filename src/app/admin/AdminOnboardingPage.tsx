@@ -34,7 +34,6 @@ function emptyProfile(userId: string): UserProfile {
       introText: '',
       meetingFormat: 'video',
       localOnly: false,
-      matchEnabled: true,
       blockedUserIds: [],
     },
     availability: [],
@@ -555,22 +554,6 @@ export default function AdminOnboardingPage() {
                     user: {
                       ...current.user,
                       matchingEnabled: event.target.checked,
-                    },
-                  }))
-                }
-              />
-              Consent to matching
-            </label>
-            <label className="inline-flex items-center gap-2 text-white/75">
-              <input
-                type="checkbox"
-                checked={profile.preferences.matchEnabled}
-                onChange={(event) =>
-                  updateProfile((current) => ({
-                    ...current,
-                    preferences: {
-                      ...current.preferences,
-                      matchEnabled: event.target.checked,
                     },
                   }))
                 }

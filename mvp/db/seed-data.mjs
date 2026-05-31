@@ -21,7 +21,6 @@ export const SEEDED_USERS = [
         'Product designer exploring AI and human communication. Looking for thoughtful builders and research-minded operators.',
       meetingFormat: 'video',
       localOnly: false,
-      matchEnabled: true,
       blockedUserIds: [],
     },
     availability: [
@@ -52,7 +51,6 @@ export const SEEDED_USERS = [
         'Independent product designer focused on ethical design frameworks for emerging technology.',
       meetingFormat: 'video',
       localOnly: false,
-      matchEnabled: true,
       blockedUserIds: [],
     },
     availability: [
@@ -82,7 +80,6 @@ export const SEEDED_USERS = [
       introText: 'SaaS founder building for African businesses and looking for design-thinking collaborators.',
       meetingFormat: 'video',
       localOnly: false,
-      matchEnabled: true,
       blockedUserIds: [],
     },
     availability: [
@@ -112,7 +109,6 @@ export const SEEDED_USERS = [
       introText: 'Research scientist studying memory and decision-making in AI-mediated environments.',
       meetingFormat: 'video',
       localOnly: false,
-      matchEnabled: true,
       blockedUserIds: [],
     },
     availability: [
@@ -142,7 +138,6 @@ export const SEEDED_USERS = [
       introText: 'UX researcher curious about complex systems and where design meets research.',
       meetingFormat: 'voice',
       localOnly: false,
-      matchEnabled: true,
       blockedUserIds: [],
     },
     availability: [
@@ -172,7 +167,6 @@ export const SEEDED_USERS = [
       introText: 'Climate tech founder building resilience infrastructure and seeking design-heavy thinkers.',
       meetingFormat: 'video',
       localOnly: false,
-      matchEnabled: true,
       blockedUserIds: [],
     },
     availability: [
@@ -202,7 +196,6 @@ export const SEEDED_USERS = [
       introText: 'Design leader mentoring one builder this quarter and focused on long-term team quality.',
       meetingFormat: 'video',
       localOnly: false,
-      matchEnabled: true,
       blockedUserIds: [],
     },
     availability: [
@@ -232,7 +225,6 @@ export const SEEDED_USERS = [
       introText: 'Creative technologist building generative tools for artists and searching for design collaborators.',
       meetingFormat: 'voice',
       localOnly: false,
-      matchEnabled: true,
       blockedUserIds: [],
     },
     availability: [

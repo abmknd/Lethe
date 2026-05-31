@@ -79,7 +79,6 @@ export interface Preferences {
   introText: string;
   meetingFormat: string;
   localOnly: boolean;
-  matchEnabled: boolean;
   blockedUserIds: string[];
 }
 

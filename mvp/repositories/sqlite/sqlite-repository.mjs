@@ -514,7 +514,6 @@ export class SqliteTrialRepository extends UserRepository {
         introText: preferences.introText,
         meetingFormat: preferences.meetingFormat,
         localOnly: preferences.localOnly,
-        matchEnabled: user.matchingEnabled,
         blockedUserIds: preferences.blockedUserIds,
         languages: preferences.languages ?? [],
         meetingFrequency: preferences.meetingFrequency ?? 'every_week',
@@ -539,7 +538,7 @@ export class SqliteTrialRepository extends UserRepository {
       this.upsertUser({
         ...user,
         bio: user.bio || preferences.introText || '',
-        matchingEnabled: user.matchingEnabled && preferences.matchEnabled,
+        matchingEnabled: user.matchingEnabled,
       });
 
       this.upsertPreferences({
@@ -573,8 +572,7 @@ export class SqliteTrialRepository extends UserRepository {
     return this.listUsers()
       .filter((user) => user.isActive && user.matchingEnabled)
       .map((user) => this.getUserProfile(user.id))
-      .filter((profile) => profile !== null)
-      .filter((profile) => profile.preferences.matchEnabled);
+      .filter((profile) => profile !== null);
   }
 
   createRecommendationRun({ id, runType, status, startedAt }) {

@@ -331,7 +331,6 @@ test('scoring weight vector produces expected output for a known input pair', ()
   const source = {
     user: { id: 'score_src', isActive: true, matchingEnabled: true, location: 'Montreal, Canada', timezone: 'UTC' },
     preferences: {
-      matchEnabled: true,
       blockedUserIds: [],
       localOnly: false,
       matchIntent: ['collaboration'],
@@ -348,7 +347,6 @@ test('scoring weight vector produces expected output for a known input pair', ()
   const candidate = {
     user: { id: 'score_cand', isActive: true, matchingEnabled: true, location: 'Toronto, Canada', timezone: 'UTC' },
     preferences: {
-      matchEnabled: true,
       blockedUserIds: [],
       localOnly: false,
       matchIntent: ['collaboration'],

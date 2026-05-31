@@ -40,7 +40,6 @@ export function buildProfileFixture(overrides = {}) {
       introText: 'I enjoy connecting with people building useful tools.',
       meetingFormat: 'video',
       localOnly: false,
-      matchEnabled: true,
       blockedUserIds: [],
       ...(overrides.preferences ?? {}),
     },

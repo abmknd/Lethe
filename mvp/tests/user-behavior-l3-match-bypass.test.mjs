@@ -17,8 +17,8 @@ import {
   buildPeerResearcher,
 } from './fixtures/persona-fixtures.mjs';
 
-// L3-S2: James has matchingEnabled: false on his user record and matchEnabled: false
-// in preferences. The matching engine must honour both flags.
+// L3-S2: James has matchingEnabled: false on his user record. The matching engine
+// must honour that flag and exclude him both as a source and as a candidate.
 test('L3-S2: user with matchingEnabled: false is excluded from match generation entirely', () => {
   const { app, cleanup } = createIsolatedApp({ seed: false });
   try {
@@ -51,9 +51,11 @@ test('L3-S2: user with matchingEnabled: false is excluded as a candidate for oth
   }
 });
 
-// L3-S3: Camille explicitly disabled matching via preferences.matchEnabled: false.
-// The engine must exclude her both as a source and as a candidate.
-test('L3-S3: user with preferences.matchEnabled: false receives no match and is excluded as candidate', () => {
+// L3-S3: Camille disabled matching (user.matchingEnabled: false) and has no
+// availability. The engine must exclude her both as a source and as a candidate.
+// (Functionally overlaps with L3-S2 since preferences.matchEnabled was removed
+// in #79.4 — kept as a separate persona-driven assertion.)
+test('L3-S3: user with matching disabled receives no match and is excluded as candidate', () => {
   const { app, cleanup } = createIsolatedApp({ seed: false });
   try {
     app.services.onboarding.saveUserProfile(buildCamilleFontaine());
@@ -62,7 +64,7 @@ test('L3-S3: user with preferences.matchEnabled: false receives no match and is 
     app.services.weeklyMatching.runWeeklyMatching({ maxRecommendationsPerUser: 3 });
 
     const camilleRecs = app.services.recommendations.listForUser('camille_fontaine');
-    assert.equal(camilleRecs.length, 0, 'expected no matches generated for Camille with matchEnabled: false');
+    assert.equal(camilleRecs.length, 0, 'expected no matches generated for Camille with matching disabled');
 
     const peerRecs = app.services.recommendations.listForUser('peer_researcher');
     const camilleIsCandidate = peerRecs.some((r) => r.candidateUserId === 'camille_fontaine');
@@ -140,7 +142,6 @@ test('L3-S5: referral user accepts first match but has no further reason to stay
         asks: ['growth marketing expertise'],
         interests: ['growth', 'marketing', 'product'],
         introText: 'Referred Yuki to Lethe. Building a growth-stage company.',
-        matchEnabled: true,
         blockedUserIds: [],
       },
       availability: [{ dayOfWeek: 2, startHour: 10, endHour: 12, timezone: 'UTC' }],
@@ -163,7 +164,6 @@ test('L3-S5: referral user accepts first match but has no further reason to stay
         asks: ['startup experience', 'growth tactics'],
         interests: ['growth', 'product', 'marketing'],
         introText: 'Growth hacker at a US company. Joined to reconnect with a trusted friend.',
-        matchEnabled: true,
         blockedUserIds: [],
       },
       availability: [{ dayOfWeek: 2, startHour: 10, endHour: 12, timezone: 'UTC' }],
@@ -229,7 +229,6 @@ test('L3-S7: pending match state is preserved during user dormancy and available
         asks: ['startup strategy', 'research mentor'],
         interests: ['policy', 'supply chain', 'research'],
         introText: 'Graduate student in economics. Looking for a research mentor.',
-        matchEnabled: true,
         blockedUserIds: [],
       },
       availability: [{ dayOfWeek: 3, startHour: 16, endHour: 18, timezone: 'UTC' }],
