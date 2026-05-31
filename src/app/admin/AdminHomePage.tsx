@@ -66,7 +66,7 @@ export default function AdminHomePage() {
           {users.map((user) => (
             <div key={user.id} className="border border-white/10 rounded-lg p-3 bg-black/20">
               <p className="font-medium">{user.displayName}</p>
-              <p className="text-xs uppercase tracking-[0.1em] text-white/50">@{user.handle}</p>
+              <p className="text-xs uppercase tracking-[0.1em] text-white/50">@{user.handle ?? '—'}</p>
               <p className="text-sm text-white/65 mt-1">{user.location}</p>
             </div>
           ))}

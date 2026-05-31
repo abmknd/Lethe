@@ -369,7 +369,7 @@ export default function AdminConnectPage() {
             >
               {users.map((user) => (
                 <option key={user.id} value={user.id}>
-                  {user.displayName} (@{user.handle})
+                  {user.displayName} (@{user.handle ?? '—'})
                 </option>
               ))}
             </select>
@@ -510,7 +510,7 @@ export default function AdminConnectPage() {
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <p className="font-medium text-white/90">{recommendation.candidate.displayName}</p>
-                  <p className="text-sm text-white/60">@{recommendation.candidate.handle}</p>
+                  <p className="text-sm text-white/60">@{recommendation.candidate.handle ?? '—'}</p>
                   <p className="text-sm text-white/60">{recommendation.candidate.location}</p>
                 </div>
                 <div className="text-right">

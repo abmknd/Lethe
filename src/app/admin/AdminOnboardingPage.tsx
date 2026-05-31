@@ -219,7 +219,7 @@ export default function AdminOnboardingPage() {
         >
           {users.map((user) => (
             <option key={user.id} value={user.id}>
-              {user.displayName} (@{user.handle})
+              {user.displayName} (@{user.handle ?? '—'})
             </option>
           ))}
         </select>
