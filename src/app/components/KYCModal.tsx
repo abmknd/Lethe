@@ -8,7 +8,9 @@ import { Step5Hobbies } from './kyc/Step5Hobbies';
 import { Step6Intro } from './kyc/Step6Intro';
 import { Step7ProfileImage } from './kyc/Step7ProfileImage';
 import { Step8Socials } from './kyc/Step8Socials';
+import { Step9Role } from './kyc/Step9Role';
 import { KYCDone } from './kyc/KYCDone';
+import { ROLE_OPTIONS } from '../constants/roles';
 import { KYCPaused } from './kyc/KYCPaused';
 import { saveUserProfile } from "../api";
 import { toast } from 'sonner';
@@ -16,11 +18,6 @@ import { toast } from 'sonner';
 const OBJECTIVE_LABELS = [
   'Build in public', 'Find a cofounder', 'Grow my network', 'Meet interesting people',
   'Get mentored', 'Mentor others', 'Explore new fields', 'Share knowledge',
-];
-
-const WHO_LABELS = [
-  'Are in the same field as me', 'Are in an adjacent field', 'Are building something',
-  "Have perspectives I don't", 'Are earlier in their career', 'Are further along than me',
 ];
 
 const WHERE_LABELS = [
@@ -52,6 +49,8 @@ export interface KYCData {
     github: string;
   };
   profileImage: string;
+  userType: number | null;
+  preferredUserTypes: Set<number>;
 }
 
 export function KYCModal({ isOpen, onClose, onComplete, userId, accessToken }: KYCModalProps) {
@@ -59,7 +58,7 @@ export function KYCModal({ isOpen, onClose, onComplete, userId, accessToken }: K
   const [direction, setDirection] = useState<'forward' | 'back'>('forward');
   const [isComplete, setIsComplete] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
-  const TOTAL_STEPS = 8;
+  const TOTAL_STEPS = 9;
 
   const [data, setData] = useState<KYCData>({
     city: null,
@@ -77,6 +76,8 @@ export function KYCModal({ isOpen, onClose, onComplete, userId, accessToken }: K
       github: '',
     },
     profileImage: '',
+    userType: null,
+    preferredUserTypes: new Set(),
   });
 
   const updateData = (updates: Partial<KYCData>) => {
@@ -88,6 +89,7 @@ export function KYCModal({ isOpen, onClose, onComplete, userId, accessToken }: K
     if (currentStep === 3) return data.objectives.size > 0;
     if (currentStep === 4) return (data.meetWho.size + data.meetWhere.size) > 0;
     if (currentStep === 6) return data.intro.length >= 60;
+    if (currentStep === 9) return data.userType !== null && data.preferredUserTypes.size > 0;
     return true;
   };
 
@@ -128,7 +130,10 @@ export function KYCModal({ isOpen, onClose, onComplete, userId, accessToken }: K
             interests: [...data.hobbies],
             objectives: [...data.objectives].map((i) => OBJECTIVE_LABELS[i]).filter(Boolean),
             matchIntent: [...data.objectives].map((i) => OBJECTIVE_LABELS[i]).filter(Boolean),
-            preferredUserTypes: [...data.meetWho].map((i) => WHO_LABELS[i]).filter(Boolean),
+            userType: data.userType !== null ? ROLE_OPTIONS[data.userType] : '',
+            preferredUserTypes: [...data.preferredUserTypes]
+              .map((i) => ROLE_OPTIONS[i])
+              .filter(Boolean),
             preferredLocations: [...data.meetWhere]
               .map((i) => WHERE_LABELS[i])
               .filter((l) => l && l !== 'Anywhere in the world'),
@@ -241,6 +246,12 @@ export function KYCModal({ isOpen, onClose, onComplete, userId, accessToken }: K
               />
               <Step8Socials
                 isActive={currentStep === 8}
+                direction={direction}
+                data={data}
+                updateData={updateData}
+              />
+              <Step9Role
+                isActive={currentStep === 9}
                 direction={direction}
                 data={data}
                 updateData={updateData}
