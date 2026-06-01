@@ -12,7 +12,7 @@ import { Step9Role } from './kyc/Step9Role';
 import { KYCDone } from './kyc/KYCDone';
 import { ROLE_OPTIONS } from '../constants/roles';
 import { KYCPaused } from './kyc/KYCPaused';
-import { saveUserProfile } from "../api";
+import { getUserProfile, saveUserProfile } from "../api";
 import { toast } from 'sonner';
 
 const OBJECTIVE_LABELS = [
@@ -115,17 +115,31 @@ export function KYCModal({ isOpen, onClose, onComplete, userId, accessToken }: K
       return;
     }
     try {
+      // Pre-fetch the existing profile so we merge KYC data on top instead of
+      // wiping fields we don't touch — especially availability, which the
+      // backend re-writes from whatever array we send (so [] = delete all).
+      let existing: Awaited<ReturnType<typeof getUserProfile>> | null = null;
+      try {
+        existing = await getUserProfile(userId, accessToken);
+      } catch {
+        // First-time KYC may have no profile yet — fall through with null.
+      }
+
       const timezone = data.timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone;
       await saveUserProfile(
         userId,
         {
           user: {
+            ...(existing?.user ?? {}),
             id: userId,
             location: data.city ?? '',
             timezone,
             matchingEnabled: true,
+            // Public bio mirrors the KYC intro so ProfilePage doesn't render '—'.
+            bio: data.intro,
           },
           preferences: {
+            ...(existing?.preferences ?? {}),
             introText: data.intro,
             interests: [...data.hobbies],
             objectives: [...data.objectives].map((i) => OBJECTIVE_LABELS[i]).filter(Boolean),
@@ -138,7 +152,7 @@ export function KYCModal({ isOpen, onClose, onComplete, userId, accessToken }: K
               .map((i) => WHERE_LABELS[i])
               .filter((l) => l && l !== 'Anywhere in the world'),
           },
-          availability: [],
+          availability: existing?.availability ?? [],
         } as never,
         accessToken,
       );
