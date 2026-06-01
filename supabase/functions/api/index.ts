@@ -262,8 +262,16 @@ Deno.serve(async (req: Request): Promise<Response> => {
       }
 
       const newStatus = statusMap[normalizedDecision];
-      const updated = await repository.updateRecommendationStatusIfPending(recommendationId, newStatus, nowIso());
+      const decidedAt = nowIso();
+      const updated = await repository.updateRecommendationStatusIfPending(recommendationId, newStatus, decidedAt);
       if (!updated) return json({ error: "Recommendation is no longer pending review." }, 409);
+      // #76.1 — also transition the reverse-direction recommendation (A→B + B→A)
+      // so the same pair never re-appears in the admin queue.
+      await repository.cascadeStatusToReversePair(
+        { userId: recommendation.userId, candidateUserId: recommendation.candidateUserId },
+        newStatus,
+        decidedAt,
+      );
 
       const adminId = String(body.adminId ?? "admin_system");
       await repository.recordAdminDecision({

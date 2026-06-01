@@ -628,12 +628,24 @@ export class PostgresRepository {
   async listAdminRecommendations({ status = 'pending_review' }: { status?: string } = {}): Promise<
     Array<Recommendation & { rationale?: string; adminId?: string; decidedAt?: string }>
   > {
+    // Per #76.1 — the matcher generates A→B and B→A for every matched pair.
+    // Dedup at the queue level so each pair shows up once (highest-scoring
+    // direction wins; created_at breaks ties). On approval the cascade method
+    // below transitions both directions, so the reverse never re-surfaces.
     const rows = await sql`
-      SELECT r.*, ad.rationale, ad.admin_id, ad.decided_at
-      FROM recommendations r
-      LEFT JOIN admin_decisions ad ON ad.recommendation_id = r.id
-      WHERE r.status = ${status}
-      ORDER BY r.created_at DESC
+      SELECT * FROM (
+        SELECT r.*, ad.rationale, ad.admin_id, ad.decided_at,
+          ROW_NUMBER() OVER (
+            PARTITION BY LEAST(r.source_user_id, r.target_user_id),
+                         GREATEST(r.source_user_id, r.target_user_id)
+            ORDER BY r.score DESC, r.created_at ASC
+          ) AS pair_rank
+        FROM recommendations r
+        LEFT JOIN admin_decisions ad ON ad.recommendation_id = r.id
+        WHERE r.status = ${status}
+      ) deduped
+      WHERE pair_rank = 1
+      ORDER BY created_at DESC
     `;
     return rows.map((row) => ({
       ...mapRecommendation(row),
@@ -641,6 +653,25 @@ export class PostgresRepository {
       adminId: row.admin_id as string | undefined,
       decidedAt: row.decided_at as string | undefined,
     }));
+  }
+
+  // Cascade an approve/reject decision to the reverse-direction recommendation
+  // for the same pair so the admin queue never re-surfaces it. Silent — no
+  // separate admin_decision or event is recorded for the reverse row; audit
+  // trail is the forward row plus this pair key.
+  async cascadeStatusToReversePair(
+    rec: { userId: string; candidateUserId: string },
+    newStatus: string,
+    updatedAt: string,
+  ): Promise<number> {
+    const result = await sql`
+      UPDATE recommendations
+      SET status = ${newStatus}, updated_at = ${updatedAt}
+      WHERE status = 'pending_review'
+        AND source_user_id = ${rec.candidateUserId}
+        AND target_user_id = ${rec.userId}
+    `;
+    return result.count ?? 0;
   }
 
   async getRecommendationById(id: string): Promise<Recommendation | null> {

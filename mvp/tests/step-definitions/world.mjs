@@ -87,8 +87,12 @@ class LetheWorld extends World {
 
   approveMatchFor(name) {
     const uid = this.userId(name);
-    const pending = this.app.services.adminReview.listQueue({ status: 'pending_review' });
-    const rec = pending.find((r) => r.userId === uid);
+    // After #76.1 the admin queue is deduped to one row per unordered pair, so
+    // the surviving row may have `uid` as the candidate rather than the source.
+    // Fetch via listForUser (joins on source) so we get the user-direction row
+    // — AdminReviewService.decide then cascades the reverse direction too.
+    const userPending = this.app.services.recommendations.listForUser(uid, { status: 'pending_review' });
+    const rec = userPending[0];
     if (!rec) throw new Error(`No pending recommendation found for "${name}"`);
     this.app.services.adminReview.decide({
       recommendationId: rec.id,

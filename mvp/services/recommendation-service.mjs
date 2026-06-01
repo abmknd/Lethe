@@ -30,7 +30,8 @@ export class RecommendationService {
       throw new Error('Recommendation not found.');
     }
 
-    if (recommendation.userId !== userId) {
+    // Either side of the pair can respond — recommendations are symmetric after #76.1.
+    if (recommendation.userId !== userId && recommendation.candidateUserId !== userId) {
       throw new Error('User is not allowed to respond to this recommendation.');
     }
 

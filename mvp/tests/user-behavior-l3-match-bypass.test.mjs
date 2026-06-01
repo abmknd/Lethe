@@ -107,7 +107,11 @@ test('L3-S1: pending match stays in pending_review state when user never respond
     app.services.weeklyMatching.runWeeklyMatching({ maxRecommendationsPerUser: 3 });
 
     const pending = app.services.adminReview.listQueue({ status: 'pending_review' });
-    const meiPending = pending.find((r) => r.userId === 'mei_chen');
+    // After #76.1 the admin queue is deduped — fetch via Mei's listForUser so we
+    // always get the source-direction row for her (whichever direction survived
+    // in the queue, the approval cascade will resolve the reverse anyway).
+    const meiUserRecs = app.services.recommendations.listForUser('mei_chen', { status: 'pending_review' });
+    const meiPending = meiUserRecs[0];
     assert.ok(meiPending, 'expected a pending recommendation for Mei');
 
     app.services.adminReview.decide({
@@ -242,7 +246,8 @@ test('L3-S7: pending match state is preserved during user dormancy and available
     app.services.weeklyMatching.runWeeklyMatching({ maxRecommendationsPerUser: 3 });
 
     const pending = app.services.adminReview.listQueue({ status: 'pending_review' });
-    const sofiaPending = pending.find((r) => r.userId === 'sofia_reyes');
+    const sofiaUserRecs = app.services.recommendations.listForUser('sofia_reyes', { status: 'pending_review' });
+    const sofiaPending = sofiaUserRecs[0];
     if (sofiaPending) {
       app.services.adminReview.decide({
         recommendationId: sofiaPending.id,

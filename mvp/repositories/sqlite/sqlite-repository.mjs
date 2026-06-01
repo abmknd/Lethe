@@ -745,38 +745,49 @@ export class SqliteTrialRepository extends UserRepository {
   }
 
   listAdminRecommendations({ status = 'pending_review' } = {}) {
+    // Per #76.1 — matcher emits A→B and B→A for every matched pair. Dedup by
+    // unordered {source, target} so each pair shows up once in the queue.
+    // Highest-scoring direction wins; created_at breaks ties.
     const rows = this.db
       .prepare(
         `
-        SELECT
-          r.id,
-          r.run_id,
-          r.source_user_id,
-          r.target_user_id,
-          r.rank,
-          r.score,
-          r.status,
-          r.why_matched,
-          r.insight_text,
-          r.created_at,
-          source.name AS source_name,
-          source.handle AS source_handle,
-          source.location AS source_location,
-          source.timezone AS source_timezone,
-          target.name AS target_name,
-          target.handle AS target_handle,
-          target.location AS target_location,
-          target.timezone AS target_timezone,
-          ad.decision AS admin_decision,
-          ad.rationale AS admin_rationale,
-          ad.decided_at AS admin_decided_at,
-          ad.admin_id AS admin_id
-        FROM recommendations r
-        JOIN users source ON source.id = r.source_user_id
-        JOIN users target ON target.id = r.target_user_id
-        LEFT JOIN admin_decisions ad ON ad.recommendation_id = r.id
-        WHERE r.status = :status
-        ORDER BY r.created_at DESC, r.score DESC
+        SELECT * FROM (
+          SELECT
+            r.id,
+            r.run_id,
+            r.source_user_id,
+            r.target_user_id,
+            r.rank,
+            r.score,
+            r.status,
+            r.why_matched,
+            r.insight_text,
+            r.created_at,
+            source.name AS source_name,
+            source.handle AS source_handle,
+            source.location AS source_location,
+            source.timezone AS source_timezone,
+            target.name AS target_name,
+            target.handle AS target_handle,
+            target.location AS target_location,
+            target.timezone AS target_timezone,
+            ad.decision AS admin_decision,
+            ad.rationale AS admin_rationale,
+            ad.decided_at AS admin_decided_at,
+            ad.admin_id AS admin_id,
+            ROW_NUMBER() OVER (
+              PARTITION BY MIN(r.source_user_id, r.target_user_id),
+                           MAX(r.source_user_id, r.target_user_id)
+              ORDER BY r.score DESC, r.created_at ASC
+            ) AS pair_rank
+          FROM recommendations r
+          JOIN users source ON source.id = r.source_user_id
+          JOIN users target ON target.id = r.target_user_id
+          LEFT JOIN admin_decisions ad ON ad.recommendation_id = r.id
+          WHERE r.status = :status
+        )
+        WHERE pair_rank = 1
+        ORDER BY created_at DESC, score DESC
       `,
       )
       .all({ status });
@@ -1019,6 +1030,25 @@ export class SqliteTrialRepository extends UserRepository {
       .run({ recommendationId, status, updatedAt });
 
     return (result?.changes ?? 0) > 0;
+  }
+
+  // #76.1 — cascade approve/reject to the reverse-direction recommendation
+  // for the same unordered pair so the admin queue never re-surfaces it.
+  cascadeStatusToReversePair({ userId, candidateUserId }, status, updatedAt = nowIso()) {
+    const result = this.db
+      .prepare(
+        `
+        UPDATE recommendations
+        SET status = :status,
+            updated_at = :updatedAt
+        WHERE status = 'pending_review'
+          AND source_user_id = :candidateUserId
+          AND target_user_id = :userId
+      `,
+      )
+      .run({ status, updatedAt, userId, candidateUserId });
+
+    return result?.changes ?? 0;
   }
 
   listPairHistory({ sinceDays = 90 } = {}) {
