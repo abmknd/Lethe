@@ -6,6 +6,7 @@ export interface SignupInput {
   email: string;
   source: SignupSource;
   name?: string;
+  handle?: string;
 }
 
 export type SignupResult =

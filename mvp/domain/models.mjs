@@ -121,6 +121,24 @@ export function normalizeMatchIntent(input) {
 
 const MEETING_FREQUENCIES = new Set(['every_week', 'every_two_weeks', 'monthly', 'twice_monthly']);
 
+const MEETING_FORMATS = new Set(['video', 'voice', 'in-person', 'no-preference']);
+
+// Coerce both legacy single-string and the new array shape into a canonical
+// string[] (#76.2). Empty input falls back to ['video'] so existing rows
+// always overlap with the new-user default and never silently exclude
+// themselves from matching.
+export function normalizeMeetingFormat(input) {
+  const raw = Array.isArray(input)
+    ? input
+    : typeof input === 'string' && input
+      ? [input]
+      : [];
+  const cleaned = [...new Set(
+    raw.map((v) => String(v).trim().toLowerCase()).filter((v) => MEETING_FORMATS.has(v)),
+  )];
+  return cleaned.length ? cleaned : ['video'];
+}
+
 export function normalizeNotificationPrefs(input) {
   if (!input || typeof input !== 'object' || Array.isArray(input)) {
     return {};
@@ -160,7 +178,7 @@ export function normalizePreferences(input = {}) {
     interests: normalizeStringList(input.interests),
     objectives: normalizeStringList(input.objectives),
     introText: typeof input.introText === 'string' ? input.introText.trim() : '',
-    meetingFormat: typeof input.meetingFormat === 'string' ? input.meetingFormat : 'video',
+    meetingFormat: normalizeMeetingFormat(input.meetingFormat),
     localOnly: Boolean(input.localOnly),
     blockedUserIds: normalizeStringList(input.blockedUserIds),
     languages: normalizeStringList(input.languages),
@@ -186,6 +204,7 @@ export function normalizeUser(input = {}) {
     timezone: String(input.timezone ?? 'UTC').trim() || 'UTC',
     location: String(input.location ?? '').trim(),
     bio: String(input.bio ?? input.introText ?? '').trim(),
+    avatarUrl: typeof input.avatarUrl === 'string' ? input.avatarUrl.trim() || null : null,
     matchingEnabled: input.matchingEnabled === undefined ? true : Boolean(input.matchingEnabled),
     isActive: input.isActive === undefined ? true : Boolean(input.isActive),
     dob,

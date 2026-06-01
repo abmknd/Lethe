@@ -21,6 +21,7 @@ export interface User {
   email: string | null;
   location: string | null;
   bio: string;
+  avatarUrl: string | null;
   matchingEnabled: boolean;
   timezone: string;
   isActive: boolean;
@@ -40,7 +41,7 @@ export interface Preferences {
   interests: string[];
   objectives: string[];
   introText: string;
-  meetingFormat: string;
+  meetingFormat: string[];
   localOnly: boolean;
   blockedUserIds: string[];
 }
@@ -62,6 +63,25 @@ export interface AvailabilitySlot {
 function parseHour(time: string): number {
   const [hh] = String(time ?? '').split(':');
   return Number.parseInt(hh, 10);
+}
+
+// meeting_format migrated from TEXT to JSONB (#76.2). Tolerate both shapes
+// during the cutover window in case a legacy row was read before the column
+// type change ran.
+function normalizeMeetingFormatRow(value: unknown): string[] {
+  if (Array.isArray(value)) {
+    return (value as unknown[]).map((v) => String(v)).filter(Boolean);
+  }
+  if (typeof value === 'string' && value) {
+    try {
+      const parsed = JSON.parse(value);
+      if (Array.isArray(parsed)) return parsed.map((v) => String(v)).filter(Boolean);
+    } catch {
+      // not JSON — treat the bare string as a single-element legacy value
+    }
+    return [value];
+  }
+  return ['video'];
 }
 
 function mapAvailabilityRow(row: Record<string, unknown>): AvailabilitySlot {
@@ -200,6 +220,7 @@ function mapUser(row: Record<string, unknown>): User {
     email: row.email as string | null,
     location: row.location as string | null,
     bio: row.bio as string,
+    avatarUrl: (row.avatar_url as string | null) ?? null,
     matchingEnabled: row.matching_enabled as boolean,
     timezone: row.timezone as string,
     isActive: row.is_active as boolean,
@@ -221,7 +242,7 @@ function mapPreferences(row: Record<string, unknown>): Preferences {
     interests: (row.interests as string[]) ?? [],
     objectives: (row.objectives as string[]) ?? [],
     introText: row.intro_text as string,
-    meetingFormat: row.meeting_format as string,
+    meetingFormat: normalizeMeetingFormatRow(row.meeting_format),
     localOnly: row.local_only as boolean,
     blockedUserIds: (row.blocked_user_ids as string[]) ?? [],
   };
@@ -336,7 +357,7 @@ export class PostgresRepository {
 
   async listUsers(): Promise<User[]> {
     const rows = await sql`
-      SELECT id, name, handle, email, location, bio,
+      SELECT id, name, handle, email, location, bio, avatar_url,
              matching_enabled, timezone, is_active, created_at, updated_at
       FROM users ORDER BY name ASC
     `;
@@ -345,7 +366,7 @@ export class PostgresRepository {
 
   async getUserById(userId: string): Promise<User | null> {
     const [row] = await sql`
-      SELECT id, name, handle, email, location, bio,
+      SELECT id, name, handle, email, location, bio, avatar_url,
              matching_enabled, timezone, is_active, created_at, updated_at
       FROM users WHERE id = ${userId}
     `;
@@ -355,7 +376,7 @@ export class PostgresRepository {
   async getUserByHandle(handle: string): Promise<User | null> {
     const normalized = handle.startsWith("@") ? handle.slice(1) : handle;
     const [row] = await sql`
-      SELECT id, name, handle, email, location, bio,
+      SELECT id, name, handle, email, location, bio, avatar_url,
              matching_enabled, timezone, is_active, created_at, updated_at
       FROM users WHERE handle = ${normalized} OR handle = ${"@" + normalized}
       LIMIT 1
@@ -384,13 +405,25 @@ export class PostgresRepository {
     const id = authId;
     const prefId = `pref_${authId}`;
 
+    // #75.3 — if this email submitted a handle on the landing page, carry it
+    // through to the new user row so they don't have to re-enter it in KYC.
+    // Empty/missing handle → null (handle stays unset, user can still pick one).
+    const handleFromWaitlist = email
+      ? await sql`SELECT handle FROM waitlist WHERE lower(email) = lower(${email}) LIMIT 1`
+          .then((rows) => {
+            const h = (rows[0]?.handle as string | undefined)?.trim();
+            return h ? h : null;
+          })
+          .catch(() => null)
+      : null;
+
     await sql.begin(async (tx) => {
       await tx`
         INSERT INTO users (
-          id, auth_id, name, email, bio,
+          id, auth_id, name, handle, email, bio,
           matching_enabled, timezone, is_active, created_at, updated_at
         ) VALUES (
-          ${id}, ${authId}, ${name}, ${email}, '',
+          ${id}, ${authId}, ${name}, ${handleFromWaitlist}, ${email}, '',
           TRUE, 'UTC', TRUE, ${now}, ${now}
         )
         ON CONFLICT (id) DO NOTHING
@@ -411,7 +444,7 @@ export class PostgresRepository {
           ${JSON.stringify([])}::jsonb,
           ${JSON.stringify([])}::jsonb,
           ${JSON.stringify([])}::jsonb,
-          '', 'video', FALSE,
+          '', ${JSON.stringify(['video'])}::jsonb, FALSE,
           ${JSON.stringify([])}::jsonb,
           ${now}, ${now}
         )
@@ -425,7 +458,7 @@ export class PostgresRepository {
 
   async getUserProfile(userId: string): Promise<UserProfile | null> {
     const [userRow] = await sql`
-      SELECT id, name, handle, email, location, bio,
+      SELECT id, name, handle, email, location, bio, avatar_url,
              matching_enabled, timezone, is_active, created_at, updated_at
       FROM users WHERE id = ${userId}
     `;
@@ -457,10 +490,11 @@ export class PostgresRepository {
 
     await sql.begin(async (tx) => {
       await tx`
-        INSERT INTO users (id, name, handle, email, location, bio, matching_enabled, timezone, is_active, created_at, updated_at)
+        INSERT INTO users (id, name, handle, email, location, bio, avatar_url, matching_enabled, timezone, is_active, created_at, updated_at)
         VALUES (
           ${user.id as string}, ${user.name as string}, ${user.handle as string ?? null},
           ${user.email as string ?? null}, ${user.location as string ?? null}, ${user.bio as string ?? ''},
+          ${(user.avatarUrl as string | null) ?? null},
           ${user.matchingEnabled as boolean ?? true}, ${user.timezone as string ?? 'UTC'},
           ${user.isActive as boolean ?? true}, ${user.createdAt as string}, ${user.updatedAt as string}
         )
@@ -469,6 +503,7 @@ export class PostgresRepository {
           handle = COALESCE(NULLIF(EXCLUDED.handle, ''), users.handle),
           email = COALESCE(EXCLUDED.email, users.email),
           location = EXCLUDED.location, bio = EXCLUDED.bio,
+          avatar_url = COALESCE(EXCLUDED.avatar_url, users.avatar_url),
           matching_enabled = EXCLUDED.matching_enabled, timezone = EXCLUDED.timezone,
           is_active = EXCLUDED.is_active, updated_at = EXCLUDED.updated_at
       `;
@@ -490,7 +525,7 @@ export class PostgresRepository {
           ${JSON.stringify(prefs.interests ?? [])}::jsonb,
           ${JSON.stringify(prefs.objectives ?? [])}::jsonb,
           ${prefs.introText as string ?? ''},
-          ${prefs.meetingFormat as string ?? 'video'},
+          ${JSON.stringify(prefs.meetingFormat ?? ['video'])}::jsonb,
           ${prefs.localOnly as boolean ?? false},
           ${JSON.stringify(prefs.blockedUserIds ?? [])}::jsonb,
           ${prefs.createdAt as string}, ${prefs.updatedAt as string}
@@ -522,7 +557,7 @@ export class PostgresRepository {
 
   async listUsersForMatching(): Promise<UserProfile[]> {
     const rows = await sql`
-      SELECT u.id, u.name, u.handle, u.email, u.location, u.bio,
+      SELECT u.id, u.name, u.handle, u.email, u.location, u.bio, u.avatar_url,
              u.matching_enabled, u.timezone, u.is_active, u.created_at, u.updated_at,
              p.id AS pref_id, p.match_intent, p.offers, p.asks, p.preferred_locations,
              p.user_type, p.preferred_user_types, p.interests, p.objectives,
@@ -614,6 +649,31 @@ export class PostgresRepository {
   }
 
   // ── recommendations ────────────────────────────────────────────────────────
+
+  // #76.3 — new-match badge. `last_seen_matches_at` is bumped when the user
+  // visits the Suggestions tab; getNewMatchBadge() compares it against the
+  // most-recent admin-approved recommendation for that user so the badge can
+  // light up on first-visit-after-approval.
+  async getNewMatchBadge(userId: string): Promise<{ count: number; lastSeenAt: string | null }> {
+    const [userRow] = await sql`SELECT last_seen_matches_at FROM users WHERE id = ${userId}`;
+    const lastSeenAt = (userRow?.last_seen_matches_at as string | null) ?? null;
+    const [countRow] = lastSeenAt
+      ? await sql`
+          SELECT COUNT(*)::int AS cnt FROM recommendations
+          WHERE source_user_id = ${userId} AND status = 'approved' AND updated_at > ${lastSeenAt}
+        `
+      : await sql`
+          SELECT COUNT(*)::int AS cnt FROM recommendations
+          WHERE source_user_id = ${userId} AND status = 'approved'
+        `;
+    return { count: Number(countRow?.cnt ?? 0), lastSeenAt };
+  }
+
+  async markMatchesSeen(userId: string): Promise<string> {
+    const now = new Date().toISOString();
+    await sql`UPDATE users SET last_seen_matches_at = ${now}, updated_at = ${now} WHERE id = ${userId}`;
+    return now;
+  }
 
   async listRecommendationsForUser(
     userId: string,

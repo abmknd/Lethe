@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { X, Check, MapPin, Zap } from 'lucide-react';
 import ReletheLogo from '../imports/ReletheLogo';
-import { listUserRecommendations, respondToRecommendation } from "./api";
+import { listUserRecommendations, markMatchesSeen, respondToRecommendation } from "./api";
 import type { Recommendation } from "./types";
 import { useAuth } from './context/AuthContext';
 
@@ -35,8 +35,13 @@ export default function ConnectPage() {
     (async () => {
       const token = await getAccessToken();
       try {
-        const recs = await listUserRecommendations(userId, 'pending_review', token);
+        // #76.3 — Suggestions surfaces what an admin has approved, not the
+        // raw matcher output. The user accept/pass then transitions
+        // `approved` → `accepted` / `passed`.
+        const recs = await listUserRecommendations(userId, 'approved', token);
         setRecommendations(recs);
+        // #76.3 — visiting Suggestions clears the new-match badge.
+        markMatchesSeen(userId, token).catch(() => {});
       } catch {
         setRecommendations([]);
       } finally {

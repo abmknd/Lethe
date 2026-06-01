@@ -32,7 +32,7 @@ function emptyProfile(userId: string): UserProfile {
       interests: [],
       objectives: [],
       introText: '',
-      meetingFormat: 'video',
+      meetingFormat: ['video'],
       localOnly: false,
       blockedUserIds: [],
     },
@@ -489,26 +489,43 @@ export default function AdminOnboardingPage() {
                 }
               />
             </label>
-            <label className="text-sm text-white/70">
-              Meeting format
-              <select
-                className="mt-1 w-full bg-black/30 border border-white/15 rounded px-3 py-2"
-                value={profile.preferences.meetingFormat}
-                onChange={(event) =>
-                  updateProfile((current) => ({
-                    ...current,
-                    preferences: {
-                      ...current.preferences,
-                      meetingFormat: event.target.value,
-                    },
-                  }))
-                }
-              >
-                <option value="video">Video</option>
-                <option value="voice">Voice</option>
-                <option value="in_person">In person</option>
-              </select>
-            </label>
+            <fieldset className="text-sm text-white/70">
+              <legend className="mb-1">Meeting formats (one or more)</legend>
+              <div className="flex flex-wrap gap-3">
+                {[
+                  { value: 'video', label: 'Video' },
+                  { value: 'voice', label: 'Voice' },
+                  { value: 'in-person', label: 'In person' },
+                  { value: 'no-preference', label: 'No preference' },
+                ].map((opt) => {
+                  const selected = profile.preferences.meetingFormat.includes(opt.value);
+                  return (
+                    <label key={opt.value} className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={selected}
+                        onChange={() =>
+                          updateProfile((current) => {
+                            const prev = current.preferences.meetingFormat;
+                            const next = prev.includes(opt.value)
+                              ? prev.filter((v) => v !== opt.value)
+                              : [...prev, opt.value];
+                            return {
+                              ...current,
+                              preferences: {
+                                ...current.preferences,
+                                meetingFormat: next.length ? next : ['video'],
+                              },
+                            };
+                          })
+                        }
+                      />
+                      {opt.label}
+                    </label>
+                  );
+                })}
+              </div>
+            </fieldset>
             <label className="text-sm text-white/70">
               Blocked user ids (comma-separated)
               <input

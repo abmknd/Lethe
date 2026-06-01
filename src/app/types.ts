@@ -56,6 +56,7 @@ export interface AppUser {
   location: string;
   isActive: boolean;
   matchingEnabled: boolean;
+  avatarUrl?: string | null;
 }
 
 export interface AvailabilitySlot {
@@ -77,7 +78,7 @@ export interface Preferences {
   interests: string[];
   objectives?: string[];
   introText: string;
-  meetingFormat: string;
+  meetingFormat: string[];
   localOnly: boolean;
   blockedUserIds: string[];
 }
@@ -208,7 +209,7 @@ export interface ParticipantContext {
     timezone: string;
     matchingEnabled: boolean;
     localOnly: boolean;
-    meetingFormat: string;
+    meetingFormat: string[];
   };
   extractionSupport: {
     asks: string[];
@@ -269,7 +270,7 @@ export interface UserContextDetail {
     timezone: string;
     matchingEnabled: boolean;
     localOnly: boolean;
-    meetingFormat: string;
+    meetingFormat: string[];
   };
   evidence: EvidenceReference[];
 }
