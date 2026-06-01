@@ -21,7 +21,6 @@ Given('{string} has joined as {string}', function (name, _roleDescription) {
 Given('{string} has joined with matching disabled', function (name) {
   this.addUser(name, {
     user: { matchingEnabled: false },
-    preferences: { matchEnabled: false },
   });
 });
 

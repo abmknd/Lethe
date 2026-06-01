@@ -8,21 +8,16 @@ import { Step5Hobbies } from './kyc/Step5Hobbies';
 import { Step6Intro } from './kyc/Step6Intro';
 import { Step7ProfileImage } from './kyc/Step7ProfileImage';
 import { Step8Socials } from './kyc/Step8Socials';
-import { Step9FinishRegistration } from './kyc/Step9FinishRegistration';
-import { Step10Verify } from './kyc/Step10Verify';
+import { Step9Role } from './kyc/Step9Role';
 import { KYCDone } from './kyc/KYCDone';
+import { ROLE_OPTIONS } from '../constants/roles';
 import { KYCPaused } from './kyc/KYCPaused';
-import { saveUserProfile } from "../api";
+import { getUserProfile, saveUserProfile } from "../api";
 import { toast } from 'sonner';
 
 const OBJECTIVE_LABELS = [
   'Build in public', 'Find a cofounder', 'Grow my network', 'Meet interesting people',
   'Get mentored', 'Mentor others', 'Explore new fields', 'Share knowledge',
-];
-
-const WHO_LABELS = [
-  'Are in the same field as me', 'Are in an adjacent field', 'Are building something',
-  "Have perspectives I don't", 'Are earlier in their career', 'Are further along than me',
 ];
 
 const WHERE_LABELS = [
@@ -53,8 +48,9 @@ export interface KYCData {
     website: string;
     github: string;
   };
-  verificationCode: string;
   profileImage: string;
+  userType: number | null;
+  preferredUserTypes: Set<number>;
 }
 
 export function KYCModal({ isOpen, onClose, onComplete, userId, accessToken }: KYCModalProps) {
@@ -62,7 +58,7 @@ export function KYCModal({ isOpen, onClose, onComplete, userId, accessToken }: K
   const [direction, setDirection] = useState<'forward' | 'back'>('forward');
   const [isComplete, setIsComplete] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
-  const TOTAL_STEPS = 10;
+  const TOTAL_STEPS = 9;
 
   const [data, setData] = useState<KYCData>({
     city: null,
@@ -79,8 +75,9 @@ export function KYCModal({ isOpen, onClose, onComplete, userId, accessToken }: K
       website: '',
       github: '',
     },
-    verificationCode: '',
     profileImage: '',
+    userType: null,
+    preferredUserTypes: new Set(),
   });
 
   const updateData = (updates: Partial<KYCData>) => {
@@ -92,12 +89,16 @@ export function KYCModal({ isOpen, onClose, onComplete, userId, accessToken }: K
     if (currentStep === 3) return data.objectives.size > 0;
     if (currentStep === 4) return (data.meetWho.size + data.meetWhere.size) > 0;
     if (currentStep === 6) return data.intro.length >= 60;
-    if (currentStep === 10) return false; // Wait for verification
+    if (currentStep === 9) return data.userType !== null && data.preferredUserTypes.size > 0;
     return true;
   };
 
   const goNext = () => {
-    if (!canAdvance() || currentStep >= TOTAL_STEPS) return;
+    if (!canAdvance()) return;
+    if (currentStep >= TOTAL_STEPS) {
+      setIsComplete(true);
+      return;
+    }
     setDirection('forward');
     setCurrentStep((prev) => prev + 1);
   };
@@ -108,37 +109,50 @@ export function KYCModal({ isOpen, onClose, onComplete, userId, accessToken }: K
     setCurrentStep((prev) => prev - 1);
   };
 
-  const handleComplete = () => {
-    setIsComplete(true);
-  };
-
   const handleFinish = async () => {
     if (!userId) {
       toast.error('You must be signed in to complete onboarding.');
       return;
     }
     try {
+      // Pre-fetch the existing profile so we merge KYC data on top instead of
+      // wiping fields we don't touch — especially availability, which the
+      // backend re-writes from whatever array we send (so [] = delete all).
+      let existing: Awaited<ReturnType<typeof getUserProfile>> | null = null;
+      try {
+        existing = await getUserProfile(userId, accessToken);
+      } catch {
+        // First-time KYC may have no profile yet — fall through with null.
+      }
+
       const timezone = data.timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone;
       await saveUserProfile(
         userId,
         {
           user: {
+            ...(existing?.user ?? {}),
             id: userId,
             location: data.city ?? '',
             timezone,
             matchingEnabled: true,
+            // Public bio mirrors the KYC intro so ProfilePage doesn't render '—'.
+            bio: data.intro,
           },
           preferences: {
+            ...(existing?.preferences ?? {}),
             introText: data.intro,
             interests: [...data.hobbies],
             objectives: [...data.objectives].map((i) => OBJECTIVE_LABELS[i]).filter(Boolean),
             matchIntent: [...data.objectives].map((i) => OBJECTIVE_LABELS[i]).filter(Boolean),
-            preferredUserTypes: [...data.meetWho].map((i) => WHO_LABELS[i]).filter(Boolean),
+            userType: data.userType !== null ? ROLE_OPTIONS[data.userType] : '',
+            preferredUserTypes: [...data.preferredUserTypes]
+              .map((i) => ROLE_OPTIONS[i])
+              .filter(Boolean),
             preferredLocations: [...data.meetWhere]
               .map((i) => WHERE_LABELS[i])
               .filter((l) => l && l !== 'Anywhere in the world'),
           },
-          availability: [],
+          availability: existing?.availability ?? [],
         } as never,
         accessToken,
       );
@@ -170,6 +184,7 @@ export function KYCModal({ isOpen, onClose, onComplete, userId, accessToken }: K
 
   const getButtonLabel = () => {
     if (currentStep === 1) return "Let's go";
+    if (currentStep === TOTAL_STEPS) return 'Finish';
     return 'Continue';
   };
 
@@ -243,25 +258,17 @@ export function KYCModal({ isOpen, onClose, onComplete, userId, accessToken }: K
                 data={data}
                 updateData={updateData}
               />
-              <Step8Socials 
-                isActive={currentStep === 8} 
+              <Step8Socials
+                isActive={currentStep === 8}
                 direction={direction}
                 data={data}
                 updateData={updateData}
               />
-              <Step9FinishRegistration 
-                isActive={currentStep === 9} 
+              <Step9Role
+                isActive={currentStep === 9}
                 direction={direction}
                 data={data}
                 updateData={updateData}
-                onContinueToVerify={goNext}
-              />
-              <Step10Verify 
-                isActive={currentStep === 10} 
-                direction={direction}
-                data={data}
-                updateData={updateData}
-                onComplete={handleComplete}
               />
             </>
           ) : (
@@ -270,7 +277,7 @@ export function KYCModal({ isOpen, onClose, onComplete, userId, accessToken }: K
         </div>
 
         {/* CTA bar */}
-        {!isComplete && !isPaused && currentStep !== 9 && currentStep !== 10 && (
+        {!isComplete && !isPaused && (
           <div className="absolute bottom-0 left-0 right-0 px-8 pt-3 pb-5 bg-gradient-to-t from-[#0c0f0c] via-[rgba(9,12,9,0.95)] to-transparent z-10">
             <div className="flex items-center gap-3">
               <button

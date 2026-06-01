@@ -26,7 +26,6 @@ function makeProfile({ name, handle, location, userType, preferredUserTypes, ask
       introText: '',
       meetingFormat: 'video',
       localOnly: false,
-      matchEnabled: true,
       blockedUserIds: [],
     },
     availability: [{ dayOfWeek: 1, startHour: 9, endHour: 11, timezone: 'Europe/Paris' }],

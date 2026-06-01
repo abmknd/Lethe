@@ -61,9 +61,19 @@ export class AdminReviewService {
         : (fn) => fn();
 
     runInTransaction(() => {
-      const updated = this.repository.updateRecommendationStatusIfPending(recommendationId, status, nowIso());
+      const decidedAt = nowIso();
+      const updated = this.repository.updateRecommendationStatusIfPending(recommendationId, status, decidedAt);
       if (!updated) {
         throw createHttpError(409, CONFLICT_MESSAGE);
+      }
+      // #76.1 — cascade to the reverse direction so the same pair never
+      // re-appears in the admin queue.
+      if (typeof this.repository.cascadeStatusToReversePair === 'function') {
+        this.repository.cascadeStatusToReversePair(
+          { userId: recommendation.userId, candidateUserId: recommendation.candidateUserId },
+          status,
+          decidedAt,
+        );
       }
 
       this.repository.recordAdminDecision({

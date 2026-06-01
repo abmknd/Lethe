@@ -55,13 +55,6 @@ test('matchingEnabled=false → not eligible', () => {
   assert.ok(result.missingFields.includes(COMPLETENESS_FIELDS.MATCHING_ENABLED));
 });
 
-test('matchEnabled=false → not eligible', () => {
-  const profile = buildProfileFixture({ preferences: { matchEnabled: false } });
-  const result = checkProfileCompleteness(profile);
-  assert.equal(result.isEligible, false);
-  assert.ok(result.missingFields.includes(COMPLETENESS_FIELDS.MATCH_ENABLED));
-});
-
 test('missing name → not eligible', () => {
   const profile = buildProfileFixture({ user: { displayName: '', name: '' } });
   const result = checkProfileCompleteness(profile);
@@ -229,12 +222,17 @@ test('no-availability user receives zero recommendations (completeness gate)', (
   }
 });
 
-test('passive user (matchEnabled=false) receives zero recommendations (completeness gate)', () => {
+test('passive user (matchingEnabled=false) receives zero recommendations (completeness gate)', () => {
   const { app, cleanup } = createIsolatedApp({ seed: false });
   try {
     const passive = buildProfileFixture({
-      user: { id: 'passive_user', displayName: 'Passive User', handle: 'passive', email: 'p@test.test' },
-      preferences: { matchEnabled: false },
+      user: {
+        id: 'passive_user',
+        displayName: 'Passive User',
+        handle: 'passive',
+        email: 'p@test.test',
+        matchingEnabled: false,
+      },
     });
     app.services.onboarding.saveUserProfile(passive);
     app.services.onboarding.saveUserProfile(buildLogisticsOperatorMentor());

@@ -22,6 +22,7 @@ import AdminOnboardingPage from "./admin/AdminOnboardingPage";
 import AdminConnectPage from "./admin/AdminConnectPage";
 import AdminReviewPage from "./admin/AdminReviewPage";
 import AdminEventsPage from "./admin/AdminEventsPage";
+import ErrorBoundary from "./ErrorBoundary";
 
 const baseUrl = import.meta.env.BASE_URL;
 const routerOptions = baseUrl === "/" ? undefined : { basename: baseUrl.replace(/\/$/, "") };
@@ -31,6 +32,7 @@ export const router = createBrowserRouter([
   {
     path: "/",
     Component: Root,
+    ErrorBoundary,
     children: [
       { 
         index: true, 
@@ -65,6 +67,7 @@ export const router = createBrowserRouter([
           {
             path: "mvp",
             Component: AdminLayout,
+            ErrorBoundary,
             children: [
               {
                 index: true,

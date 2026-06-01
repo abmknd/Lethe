@@ -115,7 +115,6 @@ test('L1-S8: user with no availability receives zero matches — completeness ga
         asks: ['pre-seed founders making first legal mistakes'],
         interests: ['startups', 'legal', 'founder tools'],
         introText: 'Startup lawyer wanting to meet early founders before they make expensive legal mistakes.',
-        matchEnabled: true,
         blockedUserIds: [],
       },
       availability: [],

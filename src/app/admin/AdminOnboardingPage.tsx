@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { getUserProfile, listUsers, saveUserProfile } from "../api";
 import { DAY_OPTIONS, formatSlot } from "../time";
 import type { AvailabilitySlot, AppUser, UserProfile } from "../types";
+import { ROLE_OPTIONS } from "../constants/roles";
 
 const defaultSlot: AvailabilitySlot = {
   dayOfWeek: 1,
@@ -26,13 +27,13 @@ function emptyProfile(userId: string): UserProfile {
       offers: [],
       asks: [],
       preferredLocations: [],
+      userType: '',
       preferredUserTypes: [],
       interests: [],
       objectives: [],
       introText: '',
       meetingFormat: 'video',
       localOnly: false,
-      matchEnabled: true,
       blockedUserIds: [],
     },
     availability: [],
@@ -83,8 +84,11 @@ function validateProfile(profile: UserProfile) {
   if (!profile.preferences.asks.length) {
     return 'Add at least one ask (what you need).';
   }
+  if (!profile.preferences.userType) {
+    return 'Pick a user role (founder, operator, etc.) for this user.';
+  }
   if (!(profile.preferences.preferredUserTypes ?? []).length) {
-    return 'Add at least one preferred user type (meet_who).';
+    return 'Pick at least one preferred user role for this user.';
   }
   if (!profile.preferences.interests.length) {
     return 'Add at least one interest.';
@@ -149,7 +153,6 @@ export default function AdminOnboardingPage() {
   const offersCsv = useMemo(() => (profile?.preferences.offers ?? []).join(', '), [profile]);
   const asksCsv = useMemo(() => (profile?.preferences.asks ?? []).join(', '), [profile]);
   const preferredLocationsCsv = useMemo(() => (profile?.preferences.preferredLocations ?? []).join(', '), [profile]);
-  const preferredUserTypesCsv = useMemo(() => (profile?.preferences.preferredUserTypes ?? []).join(', '), [profile]);
   const interestsCsv = useMemo(() => (profile?.preferences.interests ?? []).join(', '), [profile]);
   const objectivesCsv = useMemo(() => (profile?.preferences.objectives ?? []).join(', '), [profile]);
   const blockedCsv = useMemo(() => (profile?.preferences.blockedUserIds ?? []).join(', '), [profile]);
@@ -219,7 +222,7 @@ export default function AdminOnboardingPage() {
         >
           {users.map((user) => (
             <option key={user.id} value={user.id}>
-              {user.displayName} (@{user.handle})
+              {user.displayName} (@{user.handle ?? '—'})
             </option>
           ))}
         </select>
@@ -360,21 +363,68 @@ export default function AdminOnboardingPage() {
               />
             </label>
             <label className="text-sm text-white/70">
-              Preferred user types / meet_who (comma-separated)
-              <input
+              User role
+              <select
                 className="mt-1 w-full bg-black/30 border border-white/15 rounded px-3 py-2"
-                value={preferredUserTypesCsv}
+                value={profile.preferences.userType ?? ''}
                 onChange={(event) =>
                   updateProfile((current) => ({
                     ...current,
                     preferences: {
                       ...current.preferences,
-                      preferredUserTypes: parseCsv(event.target.value),
+                      userType: event.target.value,
                     },
                   }))
                 }
-              />
+              >
+                <option value="">Select a role…</option>
+                {ROLE_OPTIONS.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
             </label>
+            <fieldset className="text-sm text-white/70">
+              <legend>Preferred user roles (multi-select)</legend>
+              <div className="mt-1 grid grid-cols-2 gap-1">
+                {ROLE_OPTIONS.map((option) => {
+                  const selected = (profile.preferences.preferredUserTypes ?? []).includes(option);
+                  return (
+                    <label
+                      key={option}
+                      className={`flex items-center gap-2 px-3 py-2 rounded border cursor-pointer ${
+                        selected
+                          ? 'border-[#7FFF00]/40 bg-[#7FFF00]/10 text-[#c9ff87]'
+                          : 'border-white/15 bg-black/30 text-white/70'
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        className="accent-[#7FFF00]"
+                        checked={selected}
+                        onChange={(event) =>
+                          updateProfile((current) => {
+                            const previous = current.preferences.preferredUserTypes ?? [];
+                            const next = event.target.checked
+                              ? [...previous, option]
+                              : previous.filter((value) => value !== option);
+                            return {
+                              ...current,
+                              preferences: {
+                                ...current.preferences,
+                                preferredUserTypes: next,
+                              },
+                            };
+                          })
+                        }
+                      />
+                      <span>{option}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            </fieldset>
             <label className="text-sm text-white/70">
               Interests (comma-separated)
               <input
@@ -504,22 +554,6 @@ export default function AdminOnboardingPage() {
                     user: {
                       ...current.user,
                       matchingEnabled: event.target.checked,
-                    },
-                  }))
-                }
-              />
-              Consent to matching
-            </label>
-            <label className="inline-flex items-center gap-2 text-white/75">
-              <input
-                type="checkbox"
-                checked={profile.preferences.matchEnabled}
-                onChange={(event) =>
-                  updateProfile((current) => ({
-                    ...current,
-                    preferences: {
-                      ...current.preferences,
-                      matchEnabled: event.target.checked,
                     },
                   }))
                 }

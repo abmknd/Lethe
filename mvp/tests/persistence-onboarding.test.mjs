@@ -116,7 +116,6 @@ test('settings updates persist across subsequent saves', () => {
       preferences: {
         ...current.preferences,
         localOnly: true,
-        matchEnabled: false,
         introText: 'Updated intro text for persistence test',
       },
       user: {
@@ -126,7 +125,6 @@ test('settings updates persist across subsequent saves', () => {
     });
 
     assert.equal(updated.preferences.localOnly, true);
-    assert.equal(updated.preferences.matchEnabled, false);
     assert.equal(updated.user.matchingEnabled, false);
     assert.equal(updated.preferences.introText, 'Updated intro text for persistence test');
   } finally {

@@ -17,8 +17,13 @@ import {
 } from './fixtures/persona-fixtures.mjs';
 
 function approveRecommendationForUser(app, userId) {
-  const pending = app.services.adminReview.listQueue({ status: 'pending_review' });
-  const rec = pending.find((r) => r.userId === userId);
+  // After #76.1 the admin queue is deduped to one row per unordered pair, so
+  // the surviving row may have `userId` as the candidate rather than the
+  // source. Fetch via listForUser (joins on source) so we approve the
+  // user-direction row directly — the cascade in AdminReviewService.decide
+  // takes care of the reverse direction.
+  const userRecs = app.services.recommendations.listForUser(userId, { status: 'pending_review' });
+  const rec = userRecs[0];
   assert.ok(rec, `expected a pending recommendation for user ${userId}`);
   app.services.adminReview.decide({
     recommendationId: rec.id,

@@ -10,7 +10,6 @@ export const COMPLETENESS_FIELDS = Object.freeze({
   AVAILABILITY: 'availability',
   ACTIVE: 'isActive',
   MATCHING_ENABLED: 'matchingEnabled',
-  MATCH_ENABLED: 'matchEnabled',
 });
 
 // Each required field carries equal weight in the score calculation.
@@ -22,7 +21,6 @@ const REQUIRED_FIELDS = [
   COMPLETENESS_FIELDS.AVAILABILITY,
   COMPLETENESS_FIELDS.ACTIVE,
   COMPLETENESS_FIELDS.MATCHING_ENABLED,
-  COMPLETENESS_FIELDS.MATCH_ENABLED,
 ];
 
 /**
@@ -59,9 +57,6 @@ export function checkProfileCompleteness(profile) {
   }
   if (user.matchingEnabled === false) {
     missingFields.push(COMPLETENESS_FIELDS.MATCHING_ENABLED);
-  }
-  if (preferences.matchEnabled === false) {
-    missingFields.push(COMPLETENESS_FIELDS.MATCH_ENABLED);
   }
 
   const completenessScore = Math.round(

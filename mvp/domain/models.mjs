@@ -162,7 +162,6 @@ export function normalizePreferences(input = {}) {
     introText: typeof input.introText === 'string' ? input.introText.trim() : '',
     meetingFormat: typeof input.meetingFormat === 'string' ? input.meetingFormat : 'video',
     localOnly: Boolean(input.localOnly),
-    matchEnabled: input.matchEnabled === undefined ? true : Boolean(input.matchEnabled),
     blockedUserIds: normalizeStringList(input.blockedUserIds),
     languages: normalizeStringList(input.languages),
     meetingFrequency,

@@ -49,6 +49,14 @@ export default function AdminReviewPage() {
       return;
     }
 
+    const confirmMessage =
+      decision === 'approve'
+        ? 'Are you sure you want to approve this match? Intro emails will be sent immediately and this decision cannot be undone.'
+        : 'Are you sure you want to reject this match? This decision cannot be undone.';
+    if (!window.confirm(confirmMessage)) {
+      return;
+    }
+
     setSavingById((current) => ({
       ...current,
       [recommendationId]: true,
@@ -129,7 +137,12 @@ export default function AdminReviewPage() {
       </section>
 
       <section className="bg-[#0d140d] border border-white/10 rounded-xl p-5">
-        <p className="text-sm text-white/60 mb-3">{rows.length} recommendations in {status}.</p>
+        <p className="text-sm text-white/60 mb-1">{rows.length} recommendations in {status}.</p>
+        {status === 'pending_review' && (
+          <p className="text-xs text-white/45 mb-3">
+            Approvals dispatch intro emails immediately. Decisions are final.
+          </p>
+        )}
 
         <div className="space-y-3">
           {rows.map((row) => {
@@ -144,9 +157,9 @@ export default function AdminReviewPage() {
               <div key={row.id} className="border border-white/10 rounded-lg p-4 bg-black/25">
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <p className="text-sm text-white/60">For {row.source.displayName} (@{row.source.handle})</p>
+                    <p className="text-sm text-white/60">For {row.source.displayName} (@{row.source.handle ?? '—'})</p>
                     <p className="font-medium text-white/90">
-                      Recommend {row.candidate.displayName} (@{row.candidate.handle})
+                      Recommend {row.candidate.displayName} (@{row.candidate.handle ?? '—'})
                     </p>
                     <p className="text-sm text-white/60">Score {row.score} | Rank #{row.rank}</p>
                     <div className="mt-1 flex items-center gap-2">
