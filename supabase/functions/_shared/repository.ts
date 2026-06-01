@@ -49,7 +49,32 @@ export interface AvailabilitySlot {
   dayOfWeek: number;
   startTime: string;
   endTime: string;
+  // Integer-hour mirrors of startTime/endTime, included in API responses so
+  // admin/UI code that expects integers (e.g. AdminOnboardingPage's
+  // formatSlot(dayOfWeek, startHour, endHour)) doesn't render NaN.
+  startHour: number;
+  endHour: number;
   timezone: string;
+}
+
+// "HH:MM" → integer hour (0-24). Returns NaN for unparseable input — callers
+// should already have validated the input upstream.
+function parseHour(time: string): number {
+  const [hh] = String(time ?? '').split(':');
+  return Number.parseInt(hh, 10);
+}
+
+function mapAvailabilityRow(row: Record<string, unknown>): AvailabilitySlot {
+  const startTime = row.start_time as string;
+  const endTime = row.end_time as string;
+  return {
+    dayOfWeek: row.day_of_week as number,
+    startTime,
+    endTime,
+    startHour: parseHour(startTime),
+    endHour: parseHour(endTime),
+    timezone: row.timezone as string,
+  };
 }
 
 export interface UserProfile {
@@ -419,12 +444,7 @@ export class PostgresRepository {
     return {
       user: mapUser(userRow),
       preferences: prefRow ? mapPreferences(prefRow) : null!,
-      availability: availRows.map((r) => ({
-        dayOfWeek: r.day_of_week as number,
-        startTime: r.start_time as string,
-        endTime: r.end_time as string,
-        timezone: r.timezone as string,
-      })),
+      availability: availRows.map(mapAvailabilityRow),
     };
   }
 
@@ -527,12 +547,7 @@ export class PostgresRepository {
     for (const row of allAvailability) {
       const uid = row.user_id as string;
       if (!availByUser.has(uid)) availByUser.set(uid, []);
-      availByUser.get(uid)!.push({
-        dayOfWeek: row.day_of_week as number,
-        startTime: row.start_time as string,
-        endTime: row.end_time as string,
-        timezone: row.timezone as string,
-      });
+      availByUser.get(uid)!.push(mapAvailabilityRow(row));
     }
 
     return rows.map((row) => ({
