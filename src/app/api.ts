@@ -118,6 +118,22 @@ export async function runWeeklyMatching(maxRecommendationsPerUser = 5) {
   return data;
 }
 
+export async function getMatchBadge(userId: string, token?: string) {
+  return await request<{ count: number; lastSeenAt: string | null }>(
+    `/api/v1/users/${encodeURIComponent(userId)}/match-badge`,
+    undefined,
+    token,
+  );
+}
+
+export async function markMatchesSeen(userId: string, token?: string) {
+  return await request<{ ok: true; lastSeenAt: string }>(
+    `/api/v1/users/${encodeURIComponent(userId)}/match-badge`,
+    { method: 'POST' },
+    token,
+  );
+}
+
 export async function listUserRecommendations(userId: string, status?: string, token?: string) {
   const qs = status ? `?status=${encodeURIComponent(status)}` : '';
   const result = await request<{ recommendations: Recommendation[] }>(

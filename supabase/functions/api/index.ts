@@ -138,6 +138,20 @@ Deno.serve(async (req: Request): Promise<Response> => {
       return json({ context: profile });
     }
 
+    const matchBadgeMatch = path.match(/^\/api\/v1\/users\/([^/]+)\/match-badge$/);
+    if (matchBadgeMatch) {
+      const userId = decodeURIComponent(matchBadgeMatch[1]);
+      requireSelf(auth, userId);
+      if (req.method === "GET") {
+        const badge = await repository.getNewMatchBadge(userId);
+        return json(badge);
+      }
+      if (req.method === "POST") {
+        const at = await repository.markMatchesSeen(userId);
+        return json({ ok: true, lastSeenAt: at });
+      }
+    }
+
     const userRecsMatch = path.match(/^\/api\/v1\/users\/([^/]+)\/recommendations$/);
     if (userRecsMatch && req.method === "GET") {
       const userId = decodeURIComponent(userRecsMatch[1]);
@@ -307,6 +321,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
             requesterProfile,
             candidateProfile,
             insightText: recommendation.insightText ?? null,
+            whyMatched: recommendation.whyMatched,
           });
           if (emailResult.ok) {
             await repository.upsertOutcome({

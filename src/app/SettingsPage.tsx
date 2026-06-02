@@ -13,6 +13,7 @@ import AppleIcon from '../imports/Container-120-24';
 import { toast } from 'sonner';
 import { useAuth } from './context/AuthContext';
 import { getUserProfile, saveUserProfile } from './api';
+import { supabase } from '../lib/supabase';
 
 // ── availability helpers ───────────────────────────────────────────────────────
 
@@ -59,12 +60,21 @@ function availabilityToSlots(
 }
 
 // ── meeting format helpers ─────────────────────────────────────────────────────
+// #76.2: multi-select — backend stores as JSONB array. Default ['video'] so
+// new users still match the existing video-default cohort.
 
 const MEETING_FORMAT_VALUES = ['video', 'voice', 'in-person', 'no-preference'];
 
-function meetingFormatToIndex(val: string): number {
-  const i = MEETING_FORMAT_VALUES.indexOf(val);
-  return i >= 0 ? i : 0;
+function normalizeMeetingFormat(input: unknown): string[] {
+  const raw = Array.isArray(input)
+    ? input
+    : typeof input === 'string' && input
+      ? [input]
+      : [];
+  const cleaned = [...new Set(
+    raw.map((v) => String(v).trim().toLowerCase()).filter((v) => MEETING_FORMAT_VALUES.includes(v)),
+  )];
+  return cleaned.length ? cleaned : ['video'];
 }
 
 // ── meeting frequency helpers ──────────────────────────────────────────────────
@@ -120,6 +130,8 @@ export default function SettingsPage() {
 
   // Account state
   const email = user?.email ?? '';
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [avatarUploading, setAvatarUploading] = useState(false);
   const [location, setLocation] = useState('');
   const [languages, setLanguages] = useState(['English', 'French']);
   const [languageInput, setLanguageInput] = useState('');
@@ -156,7 +168,7 @@ export default function SettingsPage() {
   const [askAbout, setAskAbout] = useState('');
   const [whoToMeet, setWhoToMeet] = useState(3);
   const [whereBased, setWhereBased] = useState('Anywhere in the world');
-  const [meetingFormat, setMeetingFormat] = useState(0);
+  const [meetingFormat, setMeetingFormat] = useState<string[]>(['video']);
   
   // Notifications state
   const [openAccordions, setOpenAccordions] = useState<string[]>([]);
@@ -222,13 +234,14 @@ export default function SettingsPage() {
         const av = profile.availability as Array<Record<string, unknown>> | undefined;
 
         if (u?.location) setLocation(u.location as string);
+        if (typeof u?.avatarUrl === 'string') setAvatarUrl(u.avatarUrl as string);
         if (u?.matchingEnabled === false) setPauseMeetings(true);
         if (typeof u?.dob === 'string') setDob(u.dob as string);
 
         if (p?.localOnly) setLocalMatchesOnly(p.localOnly as boolean);
         if (Array.isArray(p?.interests) && p.interests.length) setInterests(p.interests as string[]);
         if (p?.introText) setIntroText(p.introText as string);
-        if (p?.meetingFormat) setMeetingFormat(meetingFormatToIndex(p.meetingFormat as string));
+        if (p?.meetingFormat !== undefined) setMeetingFormat(normalizeMeetingFormat(p.meetingFormat));
         if (Array.isArray(p?.matchIntent)) {
           const active = new Set(p.matchIntent as string[]);
           setGoals((prev) => prev.map((g) => ({ ...g, active: active.has(g.label) })));
@@ -295,6 +308,7 @@ export default function SettingsPage() {
           user: {
             id: user.id,
             location,
+            avatarUrl,
             matchingEnabled: !pauseMeetings,
             timezone,
             dob: dob || null,
@@ -303,7 +317,7 @@ export default function SettingsPage() {
             interests,
             introText,
             localOnly: localMatchesOnly,
-            meetingFormat: MEETING_FORMAT_VALUES[meetingFormat],
+            meetingFormat,
             matchIntent: goals.filter((g) => g.active).map((g) => g.label),
             preferredLocations: whereBased === 'Anywhere in the world' ? [] : [whereBased],
             languages,
@@ -329,6 +343,41 @@ export default function SettingsPage() {
   const discardChanges = () => {
     setIsDirty(false);
     toast.info('Changes discarded');
+  };
+
+  // #78.2 — uploads the picked image to the `avatars` Supabase Storage bucket
+  // under {userId}/avatar.{ext}. Bucket is configured public-read + owner-write
+  // (RLS in the migration), so we just write the public URL into the user row.
+  const handleAvatarFile = async (file: File) => {
+    if (!user?.id) return;
+    if (!file.type.startsWith('image/')) {
+      toast.error('Pick an image file.');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image must be under 5MB.');
+      return;
+    }
+    setAvatarUploading(true);
+    try {
+      const ext = (file.name.split('.').pop() || 'png').toLowerCase().replace(/[^a-z0-9]/g, '') || 'png';
+      const path = `${user.id}/avatar.${ext}`;
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(path, file, { upsert: true, contentType: file.type, cacheControl: '3600' });
+      if (uploadError) throw uploadError;
+      const { data } = supabase.storage.from('avatars').getPublicUrl(path);
+      // Append a cache-buster so the new image renders immediately even though
+      // the URL itself is stable across overwrites.
+      const url = `${data.publicUrl}?v=${Date.now()}`;
+      setAvatarUrl(url);
+      markDirty();
+      toast.success('Photo updated. Save to keep it.');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Upload failed');
+    } finally {
+      setAvatarUploading(false);
+    }
   };
 
   const addLanguage = (e: React.KeyboardEvent) => {
@@ -537,6 +586,49 @@ export default function SettingsPage() {
 
                 {/* Fields Section */}
                 <div className="px-7 py-[22px] border-b border-white/[0.07]">
+                  <div className="mb-[18px]">
+                    <label className="block text-[12px] font-semibold tracking-[0.18em] uppercase text-white/[0.25] mb-[7px]">
+                      Profile photo
+                    </label>
+                    <div className="flex items-center gap-4">
+                      <div className="w-[68px] h-[68px] rounded-full bg-[#1a2a1a] border border-[#7FFF00]/[0.15] overflow-hidden flex-shrink-0 flex items-center justify-center">
+                        {avatarUrl ? (
+                          <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                        ) : (
+                          <span className="text-[18px] font-semibold text-[#7FFF00]/60 font-['Cormorant_Garamond']">
+                            {(email?.split('@')[0]?.slice(0, 2) ?? '?').toUpperCase()}
+                          </span>
+                        )}
+                      </div>
+                      <label className="cursor-pointer px-[14px] py-[7px] rounded-lg bg-white/[0.07] border border-white/[0.12] text-[12px] font-semibold tracking-[0.1em] uppercase text-white/52 transition-all hover:bg-white/[0.12] hover:text-white/88 inline-flex items-center gap-2">
+                        <Upload size={12} strokeWidth={1.8} />
+                        {avatarUploading ? 'Uploading…' : 'Upload'}
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) handleAvatarFile(file);
+                            e.target.value = '';
+                          }}
+                          disabled={avatarUploading}
+                        />
+                      </label>
+                      {avatarUrl && (
+                        <button
+                          onClick={() => { setAvatarUrl(null); markDirty(); }}
+                          className="text-[12px] font-medium text-white/[0.35] hover:text-white/70 transition-colors"
+                        >
+                          Remove
+                        </button>
+                      )}
+                    </div>
+                    <div className="text-[11px] font-light text-white/[0.25] mt-2 leading-[1.5]">
+                      JPG or PNG, under 5MB. Public on your Relethe profile.
+                    </div>
+                  </div>
+
                   <div className="mb-[18px]">
                     <label className="block text-[12px] font-semibold tracking-[0.18em] uppercase text-white/[0.25] mb-[7px]">
                       Email address
@@ -1076,24 +1168,44 @@ export default function SettingsPage() {
                     Preferred meeting format
                   </label>
                   <div className="grid grid-cols-2 gap-2">
-                    {meetingFormatOptions.map((format, i) => (
-                      <button
-                        key={i}
-                        onClick={() => { setMeetingFormat(i); markDirty(); }}
-                        className={`px-4 py-3 rounded-xl text-left transition-all ${
-                          meetingFormat === i
-                            ? 'bg-[#7FFF00]/[0.08] border-2 border-[#7FFF00]/25'
-                            : 'bg-white/[0.07] border-2 border-white/[0.07] hover:border-white/[0.18]'
-                        }`}
-                      >
-                        <div className="text-[12px] font-medium text-white/88 mb-[3px]">
-                          {format.title}
-                        </div>
-                        <div className="text-[12px] font-light text-white/[0.25] leading-[1.5]">
-                          {format.desc}
-                        </div>
-                      </button>
-                    ))}
+                    {meetingFormatOptions.map((format, i) => {
+                      const value = MEETING_FORMAT_VALUES[i];
+                      const isSelected = meetingFormat.includes(value);
+                      return (
+                        <button
+                          key={i}
+                          onClick={() => {
+                            setMeetingFormat((prev) => {
+                              const next = prev.includes(value)
+                                ? prev.filter((v) => v !== value)
+                                : [...prev, value];
+                              return next.length ? next : ['video'];
+                            });
+                            markDirty();
+                          }}
+                          className={`px-4 py-3 rounded-xl text-left transition-all ${
+                            isSelected
+                              ? 'bg-[#7FFF00]/[0.08] border-2 border-[#7FFF00]/25'
+                              : 'bg-white/[0.07] border-2 border-white/[0.07] hover:border-white/[0.18]'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between mb-[3px]">
+                            <div className="text-[12px] font-medium text-white/88">
+                              {format.title}
+                            </div>
+                            {isSelected && (
+                              <Check size={12} strokeWidth={2.5} className="text-[#7FFF00]/80" />
+                            )}
+                          </div>
+                          <div className="text-[12px] font-light text-white/[0.25] leading-[1.5]">
+                            {format.desc}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <div className="text-[11px] font-light text-white/[0.25] mt-2 leading-[1.5]">
+                    Pick any combination. Match candidates need at least one overlapping format.
                   </div>
                 </div>
               </div>

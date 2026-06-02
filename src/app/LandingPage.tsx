@@ -15,6 +15,8 @@ gsap.registerPlugin(ScrollTrigger);
 export default function LandingPage() {
   const [email1, setEmail1] = useState("");
   const [email2, setEmail2] = useState("");
+  const [handle2, setHandle2] = useState("");
+  const [handleError, setHandleError] = useState<string | null>(null);
   const [showHeroSuccess, setShowHeroSuccess] = useState(false);
   const [showSignupSuccess, setShowSignupSuccess] = useState(false);
   const [showHeroDuplicate, setShowHeroDuplicate] = useState(false);
@@ -57,9 +59,16 @@ export default function LandingPage() {
   const handleSignupSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!email2) return;
+    setHandleError(null);
     setIsSubmitting2(true);
-    const result = await signup({ email: email2, source: "signup" });
+    const trimmedHandle = handle2.trim().replace(/^@+/, '');
+    const result = await signup({
+      email: email2,
+      source: "signup",
+      ...(trimmedHandle ? { handle: trimmedHandle } : {}),
+    });
     if (result.status === "error") {
+      setHandleError("Couldn't save that — check the handle format.");
       setIsSubmitting2(false);
       return;
     }
@@ -1739,20 +1748,37 @@ export default function LandingPage() {
           Relethe is in private beta. The founding cohort shapes how the matching engine learns. Join before it closes.
         </p>
         {!showSignupSuccess && !showSignupDuplicate ? (
-          <form className="relethe-signup-form relethe-reveal" onSubmit={handleSignupSubmit}>
-            <input
-              type="email"
-              placeholder="your@email.com"
-              required
-              autoComplete="off"
-              value={email2}
-              onChange={(e) => setEmail2(e.target.value)}
-            />
-            <button type="submit" className="group" disabled={isSubmitting2}>
-              <span>{isSubmitting2 ? "Joining..." : "Get an early taste"}</span>
-              {!isSubmitting2 && <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" strokeWidth={1.5} />}
-            </button>
-          </form>
+          <>
+            <form className="relethe-signup-form relethe-reveal" onSubmit={handleSignupSubmit}>
+              <input
+                type="email"
+                placeholder="your@email.com"
+                required
+                autoComplete="off"
+                value={email2}
+                onChange={(e) => setEmail2(e.target.value)}
+              />
+              <input
+                type="text"
+                placeholder="@handle (optional)"
+                autoComplete="off"
+                maxLength={31}
+                value={handle2}
+                onChange={(e) => setHandle2(e.target.value)}
+                aria-label="Preferred handle, optional"
+                style={{ maxWidth: 180 }}
+              />
+              <button type="submit" className="group" disabled={isSubmitting2}>
+                <span>{isSubmitting2 ? "Joining..." : "Get an early taste"}</span>
+                {!isSubmitting2 && <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" strokeWidth={1.5} />}
+              </button>
+            </form>
+            {handleError && (
+              <p className="relethe-signup-error" style={{ color: 'rgba(220,80,80,0.75)', fontSize: 11, marginTop: 8 }}>
+                {handleError}
+              </p>
+            )}
+          </>
         ) : showSignupDuplicate ? (
           <div className="relethe-form-success">
             <p className="relethe-form-success-title">{"You're already on the list."}</p>

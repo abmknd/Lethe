@@ -2,6 +2,24 @@ import { randomUUID } from 'node:crypto';
 import { UserRepository } from '../interfaces.mjs';
 import { OUTCOME_STATUSES, hourToTime, nowIso, parseHour } from '../../domain/models.mjs';
 
+// meeting_format went TEXT → TEXT(JSON array) (#76.2). Old rows may still
+// hold a bare 'video' string; tolerate both shapes on read, always write JSON.
+function parseMeetingFormat(value) {
+  if (value == null || value === '') return ['video'];
+  try {
+    const parsed = JSON.parse(value);
+    if (Array.isArray(parsed) && parsed.length) return parsed.map(String);
+  } catch {
+    // legacy bare string
+  }
+  return [String(value)];
+}
+
+function stringifyMeetingFormat(value) {
+  const arr = Array.isArray(value) ? value : (typeof value === 'string' && value ? [value] : ['video']);
+  return JSON.stringify(arr.length ? arr : ['video']);
+}
+
 function parseJson(value, fallback) {
   if (!value) {
     return fallback;
@@ -281,7 +299,7 @@ export class SqliteTrialRepository extends UserRepository {
       interests: parseJson(row.interests, []),
       objectives: parseJson(row.objectives, []),
       introText: row.intro_text ?? '',
-      meetingFormat: row.meeting_format ?? 'video',
+      meetingFormat: parseMeetingFormat(row.meeting_format),
       localOnly: Boolean(row.local_only ?? 0),
       blockedUserIds: parseJson(row.blocked_user_ids, []),
       languages: parseJson(row.languages, []),
@@ -384,7 +402,7 @@ export class SqliteTrialRepository extends UserRepository {
         interests: JSON.stringify(preferences.interests ?? []),
         objectives: JSON.stringify(preferences.objectives ?? []),
         introText: preferences.introText ?? '',
-        meetingFormat: preferences.meetingFormat ?? 'video',
+        meetingFormat: stringifyMeetingFormat(preferences.meetingFormat),
         localOnly: preferences.localOnly ? 1 : 0,
         blockedUserIds: JSON.stringify(preferences.blockedUserIds ?? []),
         languages: JSON.stringify(preferences.languages ?? []),
@@ -476,7 +494,7 @@ export class SqliteTrialRepository extends UserRepository {
       interests: [],
       objectives: [],
       introText: user.bio ?? '',
-      meetingFormat: 'video',
+      meetingFormat: ['video'],
       localOnly: false,
       blockedUserIds: [],
       languages: [],

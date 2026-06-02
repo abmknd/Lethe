@@ -228,6 +228,21 @@ export function createDeterministicMatcher({ topN = 5, recentIntroDays = 45 } = 
             continue;
           }
 
+          // #76.2 — hard-skip pairs whose preferred meeting formats don't overlap.
+          // 'no-preference' on either side counts as overlap with everything.
+          // Tolerate legacy single-string shape from seed fixtures.
+          const toFormatList = (v) => Array.isArray(v) ? v : (typeof v === 'string' && v ? [v] : []);
+          const profileFormats = new Set(toFormatList(profile.preferences.meetingFormat).map(normalizeToken));
+          const candidateFormats = new Set(toFormatList(candidate.preferences.meetingFormat).map(normalizeToken));
+          if (profileFormats.size && candidateFormats.size) {
+            const eitherIsOpen = profileFormats.has('no-preference') || candidateFormats.has('no-preference');
+            const hasFormatOverlap = eitherIsOpen
+              || [...profileFormats].some((fmt) => candidateFormats.has(fmt));
+            if (!hasFormatOverlap) {
+              continue;
+            }
+          }
+
           const intentRatio = overlapRatio(profile.preferences.matchIntent, candidate.preferences.matchIntent);
           const interestRatio = overlapRatio(profile.preferences.interests, candidate.preferences.interests);
           const complementarityRatio = overlapRatio(profile.preferences.asks, candidate.preferences.offers);
