@@ -16,9 +16,25 @@ export const SIGNUP_SOURCES = Object.freeze(["hero", "signup", "diagnostic", "fo
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MAX_EMAIL_LENGTH = 254;
 
+// Handle is optional. Strip a leading '@' and lowercase to one canonical form
+// for waitlist dedup. Permissive otherwise — admin can edit during provisioning.
+const HANDLE_RE = /^[a-z0-9._-]+$/;
+const MAX_HANDLE_LENGTH = 30;
+
+export function normalizeHandle(raw) {
+  if (raw === undefined || raw === null) return null;
+  const trimmed = String(raw).trim().replace(/^@+/, '').toLowerCase();
+  if (!trimmed) return null;
+  if (trimmed.length > MAX_HANDLE_LENGTH) return { error: 'Handle is too long.' };
+  if (!HANDLE_RE.test(trimmed)) {
+    return { error: 'Handle can only contain letters, numbers, dots, dashes, and underscores.' };
+  }
+  return { value: trimmed };
+}
+
 /**
  * Validate and normalize a signup request body.
- * Returns either { ok: true, value: { email, source, name } } or
+ * Returns either { ok: true, value: { email, source, name, handle } } or
  * { ok: false, error: <string> }.
  */
 export function parseSignupInput(body) {
@@ -35,18 +51,27 @@ export function parseSignupInput(body) {
   if (!SIGNUP_SOURCES.includes(source)) {
     return { ok: false, error: "Invalid source" };
   }
-  return { ok: true, value: { email, source, name } };
+
+  let handle = null;
+  if (body.handle !== undefined && body.handle !== null && body.handle !== "") {
+    const parsed = normalizeHandle(body.handle);
+    if (parsed?.error) return { ok: false, error: parsed.error };
+    handle = parsed?.value ?? null;
+  }
+
+  return { ok: true, value: { email, source, name, handle } };
 }
 
 /**
  * Build the waitlist row sent to Supabase. The country field is always
  * present (possibly null) so callers don't have to remember to add it.
- * Optional name is omitted entirely when not provided, so the DB default
- * applies rather than NULL overriding it.
+ * Optional name/handle are omitted entirely when not provided, so the DB
+ * defaults apply rather than NULL overriding them.
  */
-export function buildWaitlistRow({ email, source, name, country }) {
+export function buildWaitlistRow({ email, source, name, country, handle }) {
   const row = { email, source, country: country ?? null };
   if (name) row.name = name;
+  if (handle) row.handle = handle;
   return row;
 }
 

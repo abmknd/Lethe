@@ -16,7 +16,7 @@ import { useState, useMemo, useEffect, useRef } from "react";
 import { useNavigate } from "react-router";
 import ReletheLogo from "../imports/ReletheLogo";
 import { useAuth } from "./context/AuthContext";
-import { getUserCompleteness } from "./api";
+import { getMatchBadge, getUserCompleteness } from "./api";
 
 const avatarUrl1 = "https://images.unsplash.com/photo-1762522921456-cdfe882d36c3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx5b3VuZyUyMHByb2Zlc3Npb25hbCUyMHdvbWFuJTIwcG9ydHJhaXR8ZW58MXx8fHwxNzcyMzI5MzMwfDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral";
 const avatarUrl2 = "https://images.unsplash.com/photo-1532272278764-53cd1fe53f72?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx5b3VuZyUyMHByb2Zlc3Npb25hbCUyMG1hbiUyMHBvcnRyYWl0fGVufDF8fHx8MTc3MjM0NDQxOXww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral";
@@ -47,6 +47,25 @@ export default function Feed() {
   const [hasEnteredFadedZone, setHasEnteredFadedZone] = useState(false);
   const [isKYCModalOpen, setIsKYCModalOpen] = useState(false);
   const [kycAccessToken, setKycAccessToken] = useState<string | undefined>(undefined);
+  const [newMatchCount, setNewMatchCount] = useState(0);
+
+  // #76.3 — pull the new-match badge whenever Matches becomes the active page.
+  // The Suggestions sub-page calls markMatchesSeen on mount, so reading once
+  // per Matches entry keeps the dot honest without polling.
+  useEffect(() => {
+    if (!user?.id || activePage !== "matches") return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const token = await getAccessToken();
+        const badge = await getMatchBadge(user.id, token);
+        if (!cancelled) setNewMatchCount(badge.count);
+      } catch {
+        if (!cancelled) setNewMatchCount(0);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [user?.id, activePage, matchesTab, getAccessToken]);
   const postsContainerRef = useRef<HTMLDivElement>(null);
   const fadedZoneStartRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
@@ -956,11 +975,12 @@ export default function Feed() {
           <div>
             {/* Matches Navigation */}
             <div className="mb-6">
-              <MatchesNav 
-                activeTab={matchesTab} 
+              <MatchesNav
+                activeTab={matchesTab}
                 onTabChange={setMatchesTab}
                 isMatchmakingEnabled={isMatchmakingEnabled}
                 onToggleMatchmaking={() => setIsMatchmakingEnabled(!isMatchmakingEnabled)}
+                newMatchCount={newMatchCount}
               />
             </div>
 

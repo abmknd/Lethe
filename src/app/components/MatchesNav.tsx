@@ -5,6 +5,9 @@ interface MatchesNavProps {
   onTabChange: (tab: "suggestions" | "recent" | "upcoming") => void;
   isMatchmakingEnabled: boolean;
   onToggleMatchmaking: () => void;
+  // #76.3 — when > 0, show a dot on SUGGESTIONS. ConnectPage clears it by
+  // calling markMatchesSeen on mount.
+  newMatchCount?: number;
 }
 
 export function MatchesNav({
@@ -12,6 +15,7 @@ export function MatchesNav({
   onTabChange,
   isMatchmakingEnabled,
   onToggleMatchmaking,
+  newMatchCount = 0,
 }: MatchesNavProps) {
   const tabs = [
     { id: "suggestions" as const, label: "SUGGESTIONS" },
@@ -29,15 +33,22 @@ export function MatchesNav({
       <div className="bg-relethe-surface rounded-full border border-relethe-line inline-flex px-2 py-1.5 gap-1 transition-colors duration-300">
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
+          const showDot = tab.id === "suggestions" && newMatchCount > 0;
           return (
             <button
               key={tab.id}
               onClick={() => onTabChange(tab.id)}
-              className={`px-5 py-1 rounded-full text-[length:var(--relethe-text-xs)] tracking-[length:var(--relethe-tracking-ui)] font-sans transition-all duration-300 ${
+              className={`relative px-5 py-1 rounded-full text-[length:var(--relethe-text-xs)] tracking-[length:var(--relethe-tracking-ui)] font-sans transition-all duration-300 ${
                 isActive ? "text-relethe-fg" : "text-relethe-line-dim"
               }`}
             >
               {tab.label}
+              {showDot && (
+                <span
+                  aria-label={`${newMatchCount} new match${newMatchCount === 1 ? '' : 'es'}`}
+                  className="absolute top-0 right-1 w-[6px] h-[6px] rounded-full bg-[#ADFF2F] shadow-[0_0_6px_rgba(173,255,47,0.7)]"
+                />
+              )}
             </button>
           );
         })}
