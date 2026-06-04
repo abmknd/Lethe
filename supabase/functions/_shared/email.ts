@@ -40,19 +40,64 @@ export function firstOverlapSlot(slotsA: ProfileSlot[], slotsB: ProfileSlot[]): 
   return null;
 }
 
-// Next concrete date at the given UTC day-of-week + hour, expressed as a UTC
-// ISO timestamp. Approximation: the slot's local hour is treated as UTC.
-// TODO: respect slot.timezone — currently a user with availability stored
-// in America/Los_Angeles gets a calendar event at that hour in UTC.
+// Returns the UTC Date corresponding to a local wall-clock time in the given
+// IANA timezone. Works by treating the wall components as UTC, formatting that
+// guess back through the zone, and shifting by the resulting offset — this
+// gives the right answer for normal times and is within an hour for the two
+// DST transition gaps each year (acceptable for an intro calendar invite).
+function wallTimeInZoneToUtc(y: number, m: number, d: number, h: number, tz: string): Date {
+  const utcGuess = new Date(Date.UTC(y, m - 1, d, h, 0, 0));
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: tz, hourCycle: 'h23',
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', second: '2-digit',
+  }).formatToParts(utcGuess);
+  const get = (t: string) => Number(parts.find((p) => p.type === t)!.value);
+  const seen = Date.UTC(get('year'), get('month') - 1, get('day'), get('hour'), get('minute'), get('second'));
+  return new Date(utcGuess.getTime() + (utcGuess.getTime() - seen));
+}
+
+// Local Y-M-D and day-of-week for a given UTC instant in the given zone.
+function ymdInZone(d: Date, tz: string): { year: number; month: number; day: number; dow: number } {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: tz, weekday: 'short',
+    year: 'numeric', month: '2-digit', day: '2-digit',
+  }).formatToParts(d);
+  const get = (t: string) => parts.find((p) => p.type === t)!.value;
+  const dowMap: Record<string, number> = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+  return {
+    year: Number(get('year')),
+    month: Number(get('month')),
+    day: Number(get('day')),
+    dow: dowMap[get('weekday')],
+  };
+}
+
+// Next concrete UTC instant that lands on slot.dayOfWeek at slot.startHour in
+// the slot's IANA timezone (defaults to UTC). Walks forward a day at a time
+// because day-of-week and DST mean naive arithmetic on UTC components can
+// drift by 1 day twice a year in either direction.
 export function nextOccurrenceUtc(slot: ProfileSlot, from: Date = new Date()): { startUtc: Date; endUtc: Date } {
+  const tz = slot.timezone && slot.timezone.trim() ? slot.timezone : 'UTC';
+  const durationMs = Math.max(1, slot.endHour - slot.startHour) * 60 * 60 * 1000;
+  // Search starts tomorrow to mirror the prior `% 7 || 7` semantics (never
+  // schedule for the same day) and caps at 14 days as a safety bound.
+  for (let i = 1; i <= 14; i++) {
+    const candidate = new Date(from.getTime() + i * 24 * 60 * 60 * 1000);
+    const { year, month, day, dow } = ymdInZone(candidate, tz);
+    if (dow !== slot.dayOfWeek) continue;
+    const startUtc = wallTimeInZoneToUtc(year, month, day, slot.startHour, tz);
+    return { startUtc, endUtc: new Date(startUtc.getTime() + durationMs) };
+  }
+  // Defensive fallback — should be unreachable given a 14-day window over a 7-day
+  // cycle. Returns the legacy UTC-treats-local-as-UTC behaviour rather than throwing.
   const todayDow = from.getUTCDay();
   const daysUntil = ((slot.dayOfWeek - todayDow) + 7) % 7 || 7;
   const target = new Date(Date.UTC(
     from.getUTCFullYear(), from.getUTCMonth(), from.getUTCDate() + daysUntil,
     slot.startHour, 0, 0,
   ));
-  const end = new Date(target.getTime() + (Math.max(1, slot.endHour - slot.startHour) * 60 * 60 * 1000));
-  return { startUtc: target, endUtc: end };
+  return { startUtc: target, endUtc: new Date(target.getTime() + durationMs) };
 }
 
 function toGoogleCalendarDate(d: Date): string {
