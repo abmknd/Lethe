@@ -10,17 +10,24 @@ function appOrigin(): string {
   return Deno.env.get("APP_ORIGIN") ?? "https://relethe.com";
 }
 
-interface ProfileSlot {
+export interface ProfileSlot {
   dayOfWeek: number;
   startHour: number;
   endHour: number;
   timezone?: string;
 }
 
+export interface MeetingDetails {
+  meetingUrl: string;
+  startUtc: Date;
+  endUtc: Date;
+  slot: ProfileSlot | null;
+}
+
 // First overlapping availability slot across the two users, in either user's
 // timezone-naïve weekly grid. Conservative: if no slot data exists we return
 // null and the email falls back to "reply to coordinate" copy.
-function firstOverlapSlot(slotsA: ProfileSlot[], slotsB: ProfileSlot[]): ProfileSlot | null {
+export function firstOverlapSlot(slotsA: ProfileSlot[], slotsB: ProfileSlot[]): ProfileSlot | null {
   const sorted = [...slotsA].sort((a, b) => a.dayOfWeek - b.dayOfWeek || a.startHour - b.startHour);
   for (const a of sorted) {
     for (const b of slotsB) {
@@ -34,15 +41,14 @@ function firstOverlapSlot(slotsA: ProfileSlot[], slotsB: ProfileSlot[]): Profile
 }
 
 // Next concrete date at the given UTC day-of-week + hour, expressed as a UTC
-// ISO timestamp. Approximation: we use the slot owner's timezone offset to
-// align the local hour to a UTC instant. Good enough for an .ics-style
-// Google Calendar URL — the user can adjust if needed.
-function nextOccurrenceUtc(slot: ProfileSlot): { startUtc: Date; endUtc: Date } {
-  const now = new Date();
-  const todayDow = now.getUTCDay();
+// ISO timestamp. Approximation: the slot's local hour is treated as UTC.
+// TODO: respect slot.timezone — currently a user with availability stored
+// in America/Los_Angeles gets a calendar event at that hour in UTC.
+export function nextOccurrenceUtc(slot: ProfileSlot, from: Date = new Date()): { startUtc: Date; endUtc: Date } {
+  const todayDow = from.getUTCDay();
   const daysUntil = ((slot.dayOfWeek - todayDow) + 7) % 7 || 7;
   const target = new Date(Date.UTC(
-    now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + daysUntil,
+    from.getUTCFullYear(), from.getUTCMonth(), from.getUTCDate() + daysUntil,
     slot.startHour, 0, 0,
   ));
   const end = new Date(target.getTime() + (Math.max(1, slot.endHour - slot.startHour) * 60 * 60 * 1000));
@@ -51,17 +57,21 @@ function nextOccurrenceUtc(slot: ProfileSlot): { startUtc: Date; endUtc: Date } 
 
 function toGoogleCalendarDate(d: Date): string {
   // YYYYMMDDTHHMMSSZ
-  const iso = d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}Z$/, 'Z');
-  return iso;
+  return d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}Z$/, 'Z');
 }
 
-function buildCalendarUrl(slot: ProfileSlot, requesterEmail: string, candidateEmail: string, names: string): string {
-  const { startUtc, endUtc } = nextOccurrenceUtc(slot);
+function buildCalendarUrl(
+  meeting: MeetingDetails,
+  requesterEmail: string,
+  candidateEmail: string,
+  names: string,
+): string {
   const params = new URLSearchParams({
     action: 'TEMPLATE',
     text: `Relethe intro — ${names}`,
-    dates: `${toGoogleCalendarDate(startUtc)}/${toGoogleCalendarDate(endUtc)}`,
-    details: 'Relethe scheduled this introduction. Reply to the intro email to coordinate the video call or in-person meet.',
+    dates: `${toGoogleCalendarDate(meeting.startUtc)}/${toGoogleCalendarDate(meeting.endUtc)}`,
+    details: `Join the video call: ${meeting.meetingUrl}\n\nRelethe scheduled this introduction. Reply to the intro email to reschedule if needed.`,
+    location: meeting.meetingUrl,
     add: `${requesterEmail},${candidateEmail}`,
   });
   return `https://calendar.google.com/calendar/render?${params.toString()}`;
@@ -96,7 +106,7 @@ function buildIntroHtml({
   otherIntroText,
   insightText,
   whyMatched,
-  scheduledSlot,
+  meeting,
   calendarUrl,
   profileUrl,
 }: {
@@ -106,14 +116,15 @@ function buildIntroHtml({
   otherIntroText?: string | null;
   insightText?: string | null;
   whyMatched?: string[];
-  scheduledSlot?: ProfileSlot | null;
+  meeting: MeetingDetails;
   calendarUrl?: string | null;
   profileUrl: string;
 }): string {
   const why = insightText || otherIntroText || otherBio || "";
   const reasons = (whyMatched ?? []).slice(0, 4);
-  const slotLine = scheduledSlot
-    ? `${DAY_LABELS[scheduledSlot.dayOfWeek] ?? 'Soon'}s at ${scheduledSlot.startHour}:00${scheduledSlot.timezone ? ` (${scheduledSlot.timezone})` : ''}`
+  const slot = meeting.slot;
+  const slotLine = slot
+    ? `${DAY_LABELS[slot.dayOfWeek] ?? 'Soon'}s at ${slot.startHour}:00${slot.timezone ? ` (${slot.timezone})` : ''}`
     : null;
 
   return `
@@ -129,11 +140,12 @@ ${reasons.length ? `
 </ul>` : ""}
 ${slotLine ? `<p style="margin-top:16px;">Suggested time based on your overlapping availability: <strong>${escapeHtml(slotLine)}</strong>.</p>` : ""}
 <p style="margin-top:20px;">
-  <a href="${profileUrl}" style="display:inline-block;padding:10px 18px;background:#7FFF00;color:#050705;text-decoration:none;border-radius:8px;font-weight:600;letter-spacing:0.04em;">View profile</a>
+  <a href="${meeting.meetingUrl}" style="display:inline-block;padding:10px 18px;background:#7FFF00;color:#050705;text-decoration:none;border-radius:8px;font-weight:600;letter-spacing:0.04em;">Join call</a>
   ${calendarUrl ? `&nbsp;<a href="${calendarUrl}" style="display:inline-block;padding:10px 18px;background:transparent;color:#7FFF00;border:1px solid #7FFF00;text-decoration:none;border-radius:8px;font-weight:600;letter-spacing:0.04em;">Add to calendar</a>` : ""}
+  &nbsp;<a href="${profileUrl}" style="color:#7FFF00;text-decoration:none;font-size:13px;">View profile →</a>
 </p>
 <p style="margin-top:20px;color:#666;font-size:13px;">
-  Reply to this email to coordinate directly, or log in to Relethe to message.
+  Reply to this email to reschedule or coordinate an in-person meet instead.
 </p>
 <p style="color:#666;font-size:13px;">— The Relethe team</p>
   `.trim();
@@ -184,19 +196,19 @@ export async function sendIntroEmails({
   candidateProfile,
   insightText,
   whyMatched,
+  meeting,
 }: {
   requesterProfile: {
     user: { id?: string; name: string; email: string | null; bio?: string | null };
     preferences?: { introText?: string | null } | null;
-    availability?: ProfileSlot[] | null;
   };
   candidateProfile: {
     user: { id?: string; name: string; email: string | null; bio?: string | null; handle?: string | null };
     preferences?: { introText?: string | null } | null;
-    availability?: ProfileSlot[] | null;
   };
   insightText?: string | null;
   whyMatched?: unknown;
+  meeting: MeetingDetails;
 }): Promise<{ ok: boolean; ids?: string[]; reason?: string }> {
   const apiKey = Deno.env.get("RESEND_API_KEY");
   if (!apiKey) {
@@ -213,9 +225,11 @@ export async function sendIntroEmails({
   }
 
   const reasons = asReasonList(whyMatched);
-  const slot = firstOverlapSlot(requesterProfile.availability ?? [], candidateProfile.availability ?? []);
-  const calendarUrl = slot
-    ? buildCalendarUrl(slot, requester.email, candidate.email, `${requester.name} & ${candidate.name}`)
+  // Only offer the calendar add-to-calendar link when we actually picked a
+  // real overlapping slot. Otherwise the email still includes the Jitsi
+  // "Join call" button — users can hit reply to coordinate a time.
+  const calendarUrl = meeting.slot
+    ? buildCalendarUrl(meeting, requester.email, candidate.email, `${requester.name} & ${candidate.name}`)
     : null;
   const origin = appOrigin();
   const candidateProfileUrl = `${origin}/u/${encodeURIComponent(candidate.handle ?? candidate.id ?? '')}`;
@@ -233,7 +247,7 @@ export async function sendIntroEmails({
         otherIntroText: candidateProfile.preferences?.introText,
         insightText,
         whyMatched: reasons,
-        scheduledSlot: slot,
+        meeting,
         calendarUrl,
         profileUrl: candidateProfileUrl,
       }),
@@ -249,7 +263,7 @@ export async function sendIntroEmails({
         otherIntroText: requesterProfile.preferences?.introText,
         insightText,
         whyMatched: reasons,
-        scheduledSlot: slot,
+        meeting,
         calendarUrl,
         profileUrl: requesterProfileUrl,
       }),
