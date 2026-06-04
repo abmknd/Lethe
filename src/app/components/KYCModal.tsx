@@ -137,6 +137,11 @@ export function KYCModal({ isOpen, onClose, onComplete, userId, accessToken }: K
             matchingEnabled: true,
             // Public bio mirrors the KYC intro so ProfilePage doesn't render '—'.
             bio: data.intro,
+            // #78.2 — Step7 uploaded to the avatars bucket and stored the
+            // public URL on data.profileImage. Persist it on users.avatar_url
+            // so Settings + match cards pick it up. Empty string → leave
+            // existing avatar untouched (COALESCE in the SQL upsert).
+            ...(data.profileImage ? { avatarUrl: data.profileImage } : {}),
           },
           preferences: {
             ...(existing?.preferences ?? {}),
@@ -252,11 +257,12 @@ export function KYCModal({ isOpen, onClose, onComplete, userId, accessToken }: K
                 data={data}
                 updateData={updateData}
               />
-              <Step7ProfileImage 
-                isActive={currentStep === 7} 
+              <Step7ProfileImage
+                isActive={currentStep === 7}
                 direction={direction}
                 data={data}
                 updateData={updateData}
+                userId={userId}
               />
               <Step8Socials
                 isActive={currentStep === 8}
