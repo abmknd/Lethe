@@ -7,7 +7,7 @@
 import { corsPreflightResponse, json } from "../_shared/cors.ts";
 import { repository, toPublicProfile } from "../_shared/repository.ts";
 import { AuthError, requireAuth, requireAdmin, requireSelf } from "../_shared/auth.ts";
-import { sendIntroEmails } from "../_shared/email.ts";
+import { sendIntroEmails, firstOverlapSlot, nextOccurrenceUtc } from "../_shared/email.ts";
 
 import {
   normalizeProfilePayload,
@@ -317,11 +317,37 @@ Deno.serve(async (req: Request): Promise<Response> => {
           repository.getUserProfile(recommendation.candidateUserId),
         ]);
         if (requesterProfile && candidateProfile) {
+          // Compute the meeting slot once at approval time so both outbound
+          // emails reference the same scheduled instant, and persist a
+          // meetings row keyed by recommendation_id (UNIQUE). Jitsi room is
+          // an interim placeholder per #77 — swap for a real provider later.
+          const slot = firstOverlapSlot(
+            requesterProfile.availability ?? [],
+            candidateProfile.availability ?? [],
+          );
+          const occurrence = slot ? nextOccurrenceUtc(slot) : null;
+          const meetingUrl = `https://meet.jit.si/relethe-${encodeURIComponent(recommendationId)}`;
+          await repository.upsertMeeting({
+            recommendationId,
+            provider: 'jitsi',
+            meetingUrl,
+            scheduledAt: occurrence ? occurrence.startUtc.toISOString() : null,
+            status: MEETING_STATUSES.SCHEDULED,
+            metadata: slot ? { slot } : {},
+          });
+
+          const meeting = {
+            meetingUrl,
+            startUtc: occurrence?.startUtc ?? new Date(),
+            endUtc: occurrence?.endUtc ?? new Date(Date.now() + 60 * 60 * 1000),
+            slot,
+          };
           const emailResult = await sendIntroEmails({
             requesterProfile,
             candidateProfile,
             insightText: recommendation.insightText ?? null,
             whyMatched: recommendation.whyMatched,
+            meeting,
           });
           if (emailResult.ok) {
             await repository.upsertOutcome({
