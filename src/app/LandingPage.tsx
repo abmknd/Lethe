@@ -9,6 +9,7 @@ import ReletheLogo from "../imports/ReletheLogo";
 import DiagnosticSection from "./components/DiagnosticSection";
 import FoundingCohort from "./components/FoundingCohort";
 import FoundingMember from "./components/FoundingMember";
+import UserNeedsSection from "../components/UserNeedsSection";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -23,7 +24,18 @@ export default function LandingPage() {
   const [showSignupDuplicate, setShowSignupDuplicate] = useState(false);
   const [isSubmitting1, setIsSubmitting1] = useState(false);
   const [isSubmitting2, setIsSubmitting2] = useState(false);
+  const [heroError, setHeroError] = useState<string | null>(null);
+  const [signupError, setSignupError] = useState<string | null>(null);
   const [diagnosticEmail, setDiagnosticEmail] = useState<string | null>(null);
+  const [showDemoGate, setShowDemoGate] = useState(false);
+  const [demoPassword, setDemoPassword] = useState("");
+  const [demoPasswordError, setDemoPasswordError] = useState(false);
+
+  // Demo password gate is off by default. Set VITE_DEMO_PASSWORD_GATE=true in
+  // the Vercel preview's env to require an access code on the "View full demo"
+  // button. Production stays open.
+  const demoGateEnabled = import.meta.env.VITE_DEMO_PASSWORD_GATE === "true";
+  const demoAccessCode = import.meta.env.VITE_DEMO_PASSWORD ?? "relethelive";
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const cursorDotRef = useRef<HTMLDivElement>(null);
@@ -45,21 +57,26 @@ export default function LandingPage() {
   const handleHeroSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!email1) return;
+    setHeroError(null);
     setIsSubmitting1(true);
     const result = await signup({ email: email1, source: "hero" });
-    if (result.status === "error") {
+    if (result.status === "duplicate") {
+      setDiagnosticEmail(email1);
+      setShowHeroDuplicate(true);
+    } else if (result.status === "error") {
+      setHeroError("Something went wrong. Please try again.");
       setIsSubmitting1(false);
-      return;
+    } else {
+      setDiagnosticEmail(email1);
+      setShowHeroSuccess(true);
     }
-    setDiagnosticEmail(email1);
-    if (result.status === "duplicate") setShowHeroDuplicate(true);
-    else setShowHeroSuccess(true);
   };
 
   const handleSignupSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!email2) return;
     setHandleError(null);
+    setSignupError(null);
     setIsSubmitting2(true);
     const trimmedHandle = handle2.trim().replace(/^@+/, '');
     const result = await signup({
@@ -67,14 +84,22 @@ export default function LandingPage() {
       source: "signup",
       ...(trimmedHandle ? { handle: trimmedHandle } : {}),
     });
-    if (result.status === "error") {
-      setHandleError("Couldn't save that — check the handle format.");
+    if (result.status === "duplicate") {
+      setDiagnosticEmail(email2);
+      setShowSignupDuplicate(true);
+    } else if (result.status === "error") {
+      // If a handle was supplied, surface as handle-format error (the most likely
+      // 4xx cause); otherwise fall back to the generic signup error.
+      if (trimmedHandle) {
+        setHandleError("Couldn't save that — check the handle format.");
+      } else {
+        setSignupError("Something went wrong. Please try again.");
+      }
       setIsSubmitting2(false);
-      return;
+    } else {
+      setDiagnosticEmail(email2);
+      setShowSignupSuccess(true);
     }
-    setDiagnosticEmail(email2);
-    if (result.status === "duplicate") setShowSignupDuplicate(true);
-    else setShowSignupSuccess(true);
   };
 
   const handlePlayDemo = () => {
@@ -376,15 +401,21 @@ export default function LandingPage() {
       next();
     }
 
-    ScrollTrigger.create({
-      trigger: "#relethe-story",
-      start: "top 70%",
-      once: true,
-      onEnter: playStory,
-    });
+    // IntersectionObserver is more reliable than ScrollTrigger on mobile:
+    // it is viewport-relative and does not depend on layout-position
+    // calculations that ScrollTrigger can get wrong after the 500vh
+    // UserNeedsSection changes total page height on iOS / Android.
+    const storyEl = document.getElementById('relethe-story');
+    const storyIO = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        storyIO.disconnect();
+        playStory();
+      }
+    }, { threshold: 0.15 });
+    if (storyEl) storyIO.observe(storyEl);
 
     return () => {
-      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+      storyIO.disconnect();
       if (storySection) {
         storySection.removeEventListener('mouseenter', onMouseEnter);
         storySection.removeEventListener('mouseleave', onMouseLeave);
@@ -530,7 +561,7 @@ export default function LandingPage() {
           background: var(--dark);
           color: var(--text);
           font-family: var(--mono);
-          overflow-x: hidden;
+          overflow-x: clip;
           cursor: none;
         }
 
@@ -1128,7 +1159,7 @@ export default function LandingPage() {
           #relethe-demo    { padding: 80px 24px; }
           #relethe-see     { padding: 80px 0; }
           #relethe-signup  { padding: 100px 24px; }
-          .relethe-footer  { padding: 40px 24px; flex-direction: column; align-items: flex-start; gap: 20px; }
+          .relethe-footer  { padding: 32px 24px; flex-direction: row; align-items: center; justify-content: space-between; gap: 0; }
           .relethe-footer-tag { display: none; }
           .relethe-see-header { padding: 0 24px; }
           .relethe-nav-links a { display: none; }
@@ -1149,6 +1180,12 @@ export default function LandingPage() {
           .relethe-product-card { width: 280px; }
           .relethe-cards-track  { padding: 32px 24px 48px; }
           .relethe-section-label { margin-bottom: 32px; }
+        }
+
+        /* ── Hide custom cursor on touch / mobile — no pointer to track ── */
+        @media (hover: none), (pointer: coarse) {
+          #relethe-cur-dot,
+          #relethe-cur-ring { display: none !important; }
         }
 
         /* ── Reduced motion ── */
@@ -1222,20 +1259,23 @@ export default function LandingPage() {
         </h1>
         <p className="relethe-hero-h2">Everything you dream of achieving lies within the unexplored gap in your network.</p>
         {!showHeroSuccess && !showHeroDuplicate ? (
-          <form className="relethe-hero-form" onSubmit={handleHeroSubmit}>
-            <input
-              type="email"
-              placeholder="your@email.com"
-              required
-              autoComplete="off"
-              value={email1}
-              onChange={(e) => setEmail1(e.target.value)}
-            />
-            <button type="submit" className="group" disabled={isSubmitting1}>
-              <span>{isSubmitting1 ? "Joining..." : "Get an early taste"}</span>
-              {!isSubmitting1 && <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" strokeWidth={1.5} />}
-            </button>
-          </form>
+          <>
+            <form className="relethe-hero-form" onSubmit={handleHeroSubmit}>
+              <input
+                type="email"
+                placeholder="your@email.com"
+                required
+                autoComplete="off"
+                value={email1}
+                onChange={(e) => { setEmail1(e.target.value); setHeroError(null); }}
+              />
+              <button type="submit" className="group" disabled={isSubmitting1}>
+                <span>{isSubmitting1 ? "Joining..." : "Get an early taste"}</span>
+                {!isSubmitting1 && <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" strokeWidth={1.5} />}
+              </button>
+            </form>
+            {heroError && <p style={{ fontFamily: 'var(--mono)', fontSize: '11px', color: 'rgba(255,80,80,0.8)', marginTop: '12px', letterSpacing: '.06em' }}>{heroError}</p>}
+          </>
         ) : showHeroDuplicate ? (
           <div className="relethe-form-success">
             <p className="relethe-form-success-title">{"You're already on the list."}</p>
@@ -1279,6 +1319,8 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+
+      <UserNeedsSection />
 
       {/* STORY (typewriter) */}
       <section id="relethe-story">
@@ -1367,10 +1409,110 @@ export default function LandingPage() {
         </div>
         <button
           className="relethe-view-demo-btn"
-          onClick={() => navigate("/feed")}
+          onClick={() => {
+            if (demoGateEnabled) {
+              setShowDemoGate(true);
+              setDemoPassword("");
+              setDemoPasswordError(false);
+            } else {
+              navigate("/feed");
+            }
+          }}
         >
           View full demo
         </button>
+
+        {demoGateEnabled && showDemoGate && (
+          <div
+            style={{
+              position: "fixed",
+              inset: 0,
+              zIndex: 9999,
+              background: "rgba(5,7,5,0.92)",
+              backdropFilter: "blur(16px)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+            onClick={(e) => { if (e.target === e.currentTarget) setShowDemoGate(false); }}
+          >
+            <div
+              style={{
+                width: "min(400px, 90vw)",
+                padding: "48px 40px",
+                background: "rgba(255,255,255,0.03)",
+                border: "1px solid rgba(255,255,255,0.08)",
+                borderRadius: "20px",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: "24px",
+              }}
+            >
+              <img src="/logomark.png" width={32} height={32} alt="Relethe" />
+              <div style={{ textAlign: "center" }}>
+                <p style={{ fontFamily: "var(--mono)", fontSize: "11px", letterSpacing: ".2em", textTransform: "uppercase", color: "var(--ch)", margin: "0 0 8px" }}>Private Access</p>
+                <p style={{ fontFamily: "var(--display)", fontSize: "22px", color: "var(--text)", margin: 0 }}>Enter access code</p>
+              </div>
+              <form
+                style={{ width: "100%", display: "flex", flexDirection: "column", gap: "12px" }}
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (demoPassword === demoAccessCode) {
+                    setShowDemoGate(false);
+                    navigate("/feed");
+                  } else {
+                    setDemoPasswordError(true);
+                  }
+                }}
+              >
+                <input
+                  type="password"
+                  placeholder="Access code"
+                  autoFocus
+                  value={demoPassword}
+                  onChange={(e) => { setDemoPassword(e.target.value); setDemoPasswordError(false); }}
+                  style={{
+                    width: "100%",
+                    background: "rgba(255,255,255,0.05)",
+                    border: `1px solid ${demoPasswordError ? "rgba(255,80,80,0.5)" : "rgba(255,255,255,0.1)"}`,
+                    borderRadius: "10px",
+                    padding: "14px 16px",
+                    fontFamily: "var(--mono)",
+                    fontSize: "13px",
+                    color: "var(--text)",
+                    outline: "none",
+                    boxSizing: "border-box",
+                  }}
+                />
+                {demoPasswordError && (
+                  <p style={{ fontFamily: "var(--mono)", fontSize: "11px", color: "rgba(255,80,80,0.8)", margin: 0, letterSpacing: ".06em" }}>
+                    Incorrect access code.
+                  </p>
+                )}
+                <button
+                  type="submit"
+                  style={{
+                    width: "100%",
+                    padding: "14px",
+                    background: "var(--ch)",
+                    border: "none",
+                    borderRadius: "10px",
+                    fontFamily: "var(--mono)",
+                    fontSize: "11px",
+                    letterSpacing: ".2em",
+                    textTransform: "uppercase",
+                    color: "#050705",
+                    cursor: "none",
+                    fontWeight: 600,
+                  }}
+                >
+                  Enter
+                </button>
+              </form>
+            </div>
+          </div>
+        )}
       </section>
 
       {/* SEE IT */}
@@ -1756,7 +1898,7 @@ export default function LandingPage() {
                 required
                 autoComplete="off"
                 value={email2}
-                onChange={(e) => setEmail2(e.target.value)}
+                onChange={(e) => { setEmail2(e.target.value); setSignupError(null); }}
               />
               <input
                 type="text"
@@ -1764,7 +1906,7 @@ export default function LandingPage() {
                 autoComplete="off"
                 maxLength={31}
                 value={handle2}
-                onChange={(e) => setHandle2(e.target.value)}
+                onChange={(e) => { setHandle2(e.target.value); setHandleError(null); }}
                 aria-label="Preferred handle, optional"
                 style={{ maxWidth: 180 }}
               />
@@ -1776,6 +1918,11 @@ export default function LandingPage() {
             {handleError && (
               <p className="relethe-signup-error" style={{ color: 'rgba(220,80,80,0.75)', fontSize: 11, marginTop: 8 }}>
                 {handleError}
+              </p>
+            )}
+            {signupError && (
+              <p style={{ fontFamily: 'var(--mono)', fontSize: '11px', color: 'rgba(255,80,80,0.8)', marginTop: '12px', letterSpacing: '.06em' }}>
+                {signupError}
               </p>
             )}
           </>
@@ -1824,7 +1971,7 @@ export default function LandingPage() {
           Networking without the performance.
         </span>
         <a href="https://www.linkedin.com/company/relethe" target="_blank" rel="noopener noreferrer" className="relethe-footer-link" style={{ padding: '12px 0', display: 'inline-block' }}>
-          LinkedIn ↗
+          LinkedIn
         </a>
       </footer>
     </>
