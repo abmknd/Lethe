@@ -111,11 +111,29 @@ console.log(`\nsignup verification — run ${RUN_ID}\n`);
 {
   const res = await fetch(FN_URL, {
     method: "OPTIONS",
-    headers: { "apikey": SUPABASE_ANON_KEY, "authorization": `Bearer ${SUPABASE_ANON_KEY}` },
+    headers: {
+      "Origin": "https://relethe.com",
+      "Access-Control-Request-Method": "POST",
+      "Access-Control-Request-Headers": "authorization, x-client-info, apikey, content-type",
+    },
   });
-  res.status === 204 && res.headers.get("access-control-allow-origin")
-    ? ok("OPTIONS preflight → 204 with CORS header")
-    : fail("CORS preflight", `got ${res.status}`);
+  const allowedHeaders = new Set(
+    (res.headers.get("access-control-allow-headers") ?? "")
+      .toLowerCase()
+      .split(",")
+      .map((header) => header.trim())
+      .filter(Boolean),
+  );
+  const requiredHeaders = ["authorization", "x-client-info", "apikey", "content-type"];
+  const missingHeaders = requiredHeaders.filter((header) => !allowedHeaders.has(header));
+  res.ok &&
+  res.headers.get("access-control-allow-origin") &&
+  missingHeaders.length === 0
+    ? ok(`OPTIONS preflight → ${res.status} with required CORS headers`)
+    : fail(
+        "CORS preflight",
+        `status=${res.status}, missing allow-headers=${missingHeaders.join(",") || "none"}`,
+      );
 }
 
 // Cleanup
