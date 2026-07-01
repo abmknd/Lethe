@@ -326,11 +326,14 @@ export default function DiagnosticModal({ isOpen, onClose, onEmailSubmitted, onC
     e.preventDefault();
     if (!email.trim()) return;
     setIsSubmitting(true);
-    const result = await signup({ email: email.trim(), name: name.trim() || undefined, source: "diagnostic" });
-    const isDuplicate = result.status === "duplicate";
+    const result = await signup({
+      email: email.trim(),
+      source: "diagnostic",
+      name: name.trim() || undefined,
+    });
     onEmailSubmitted(email.trim());
     setIsSubmitting(false);
-    if (isDuplicate) {
+    if (result.status === "duplicate") {
       setDiagDuplicate(true);
       setTimeout(() => setStep(9), 1800);
     } else {

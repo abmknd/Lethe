@@ -15,6 +15,8 @@ import { useTheme } from "./context/ThemeContext";
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useNavigate } from "react-router";
 import ReletheLogo from "../imports/ReletheLogo";
+import { useAuth } from "./context/AuthContext";
+import { getMatchBadge, getUserCompleteness } from "./api";
 
 const avatarUrl1 = "https://images.unsplash.com/photo-1762522921456-cdfe882d36c3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx5b3VuZyUyMHByb2Zlc3Npb25hbCUyMHdvbWFuJTIwcG9ydHJhaXR8ZW58MXx8fHwxNzcyMzI5MzMwfDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral";
 const avatarUrl2 = "https://images.unsplash.com/photo-1532272278764-53cd1fe53f72?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx5b3VuZyUyMHByb2Zlc3Npb25hbCUyMG1hbiUyMHBvcnRyYWl0fGVufDF8fHx8MTc3MjM0NDQxOXww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral";
@@ -31,20 +33,11 @@ const postImage3 = "https://images.unsplash.com/photo-1767911287119-cd9ae9c55afa
 const postImage4 = "https://images.unsplash.com/photo-1667987189392-06fcc377cade?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxkYXJrJTIwbW9vZHklMjBuYXR1cmV8ZW58MXx8fHwxNzcyMjE1NzEzfDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral";
 const postImage5 = "https://images.unsplash.com/photo-1694473799096-a915b576511f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtaW5pbWFsaXN0JTIwc3Vuc2V0JTIwbGFuZHNjYXBlfGVufDF8fHx8MTc3MjI5NzM0MXww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral";
 
-/**
- * Feed Component
- * 
- * KYC Modal Logic:
- * - Shows 3 seconds after first visit to Feed (from onboarding)
- * - Stored in localStorage when completed (persists across sessions)
- * - Stored in sessionStorage when shown (prevents re-showing after "Later" click)
- * 
- * To test KYC modal again:
- * - Open browser console and run: localStorage.removeItem('relethe_kyc_completed'); sessionStorage.removeItem('relethe_kyc_shown');
- * - Then refresh the page
- */
+// KYC modal opens when /completeness reports the signed-in user is not yet eligible.
+// Backend is the single source of truth — no localStorage gating.
 export default function Feed() {
   const { theme } = useTheme();
+  const { user, getAccessToken } = useAuth();
   const [activePage, setActivePage] = useState<"posts" | "matches">("posts");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [matchesTab, setMatchesTab] = useState<"suggestions" | "recent" | "upcoming">("suggestions");
@@ -53,28 +46,60 @@ export default function Feed() {
   const [fadedZoneVisitCount, setFadedZoneVisitCount] = useState(0);
   const [hasEnteredFadedZone, setHasEnteredFadedZone] = useState(false);
   const [isKYCModalOpen, setIsKYCModalOpen] = useState(false);
+  const [kycAccessToken, setKycAccessToken] = useState<string | undefined>(undefined);
+  const [newMatchCount, setNewMatchCount] = useState(0);
+
+  // #76.3 — pull the new-match badge whenever Matches becomes the active page.
+  // The Suggestions sub-page calls markMatchesSeen on mount, so reading once
+  // per Matches entry keeps the dot honest without polling.
+  useEffect(() => {
+    if (!user?.id || activePage !== "matches") return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const token = await getAccessToken();
+        const badge = await getMatchBadge(user.id, token);
+        if (!cancelled) setNewMatchCount(badge.count);
+      } catch {
+        if (!cancelled) setNewMatchCount(0);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [user?.id, activePage, matchesTab, getAccessToken]);
   const postsContainerRef = useRef<HTMLDivElement>(null);
   const fadedZoneStartRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
-  // Show KYC modal 3 seconds after first load from onboarding (only once per session)
   useEffect(() => {
-    // TEMPORARY: Always show KYC for testing purposes
-    // TODO: Re-enable storage checks for production
-    // const kycCompleted = localStorage.getItem('relethe_kyc_completed');
-    // const kycShownThisSession = sessionStorage.getItem('relethe_kyc_shown');
-    
-    console.log('🔍 KYC Check: Always showing for testing');
-    
-    // Always show KYC modal after 3 seconds
-    console.log('✅ KYC will show in 3 seconds...');
-    const timer = setTimeout(() => {
-      setIsKYCModalOpen(true);
-      // sessionStorage.setItem('relethe_kyc_shown', 'true');
-    }, 3000);
+    if (!user?.id) return;
+    let cancelled = false;
+    let timer: ReturnType<typeof setTimeout> | null = null;
 
-    return () => clearTimeout(timer);
-  }, []);
+    (async () => {
+      const token = await getAccessToken();
+      try {
+        const result = await getUserCompleteness(user.id, token);
+        if (cancelled) return;
+        if (result.isEligible) return;
+        setKycAccessToken(token);
+        timer = setTimeout(() => {
+          if (!cancelled) setIsKYCModalOpen(true);
+        }, 3000);
+      } catch {
+        // Profile doesn't exist yet (404) — first login, treat as needing KYC.
+        if (cancelled) return;
+        setKycAccessToken(token);
+        timer = setTimeout(() => {
+          if (!cancelled) setIsKYCModalOpen(true);
+        }, 3000);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      if (timer) clearTimeout(timer);
+    };
+  }, [user?.id, getAccessToken]);
 
   // Handle KYC modal close
   const handleKYCClose = () => {
@@ -901,7 +926,7 @@ export default function Feed() {
             <div className="w-5 h-5">
               <ReletheLogo />
             </div>
-            RELETHE
+            LETHE
           </button>
 
           {/* Page Navigation */}
@@ -950,11 +975,12 @@ export default function Feed() {
           <div>
             {/* Matches Navigation */}
             <div className="mb-6">
-              <MatchesNav 
-                activeTab={matchesTab} 
+              <MatchesNav
+                activeTab={matchesTab}
                 onTabChange={setMatchesTab}
                 isMatchmakingEnabled={isMatchmakingEnabled}
                 onToggleMatchmaking={() => setIsMatchmakingEnabled(!isMatchmakingEnabled)}
+                newMatchCount={newMatchCount}
               />
             </div>
 
@@ -991,10 +1017,8 @@ export default function Feed() {
       <KYCModal
         isOpen={isKYCModalOpen}
         onClose={handleKYCClose}
-        onComplete={() => {
-          // KYC completed successfully
-          console.log('KYC completed');
-        }}
+        userId={user?.id}
+        accessToken={kycAccessToken}
       />
     </div>
   );

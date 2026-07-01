@@ -5,10 +5,29 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "demo": "bash scripts/demo.sh",
+    "demo:reset": "bash scripts/demo.sh --reset",
+    "demo:smoke": "bash scripts/demo.sh --reset --smoke",
+    "mvp:init": "node scripts/init-data.mjs",
+    "mvp:init:reset": "node scripts/init-data.mjs --reset",
+    "mvp:run-weekly": "node scripts/run-weekly-matching.mjs",
+    "mvp:generate-insights": "node scripts/generate-insights.mjs",
+    "mvp:report:weekly": "node scripts/weekly-report.mjs",
+    "mvp:test:backend": "node --test mvp/tests/**/*.test.mjs",
+    "mvp:test:bdd": "cucumber-js --import 'mvp/tests/step-definitions/**/*.mjs' mvp/tests/features/l0-happy-paths.feature mvp/tests/features/l1-insufficient-input.feature mvp/tests/features/l2-matching-failure.feature mvp/tests/features/l3-match-bypass.feature --tags 'not @skip'",
+    "mvp:test:bdd:all": "cucumber-js --import 'mvp/tests/step-definitions/**/*.mjs' mvp/tests/features/l0-happy-paths.feature mvp/tests/features/l1-insufficient-input.feature mvp/tests/features/l2-matching-failure.feature mvp/tests/features/l3-match-bypass.feature",
+    "verify:magic-link": "node scripts/verify-magic-link.mjs",
+    "verify:stage7": "node scripts/verify-stage-7.mjs",
+    "verify:waitlist": "node scripts/verify-waitlist.mjs",
+    "verify:rls": "node scripts/verify-rls.mjs",
+    "verify:signup": "node scripts/verify-signup.mjs",
     "build": "vite build",
-    "preview": "vite preview"
+    "check:frontend": "vite build",
+    "check:backend": "npm run mvp:test:backend && cucumber-js --import 'mvp/tests/step-definitions/**/*.mjs' mvp/tests/features/l0-happy-paths.feature mvp/tests/features/l1-insufficient-input.feature mvp/tests/features/l2-matching-failure.feature mvp/tests/features/l3-match-bypass.feature --tags 'not @skip' --no-strict",
+    "check:release": "npm run check:frontend && npm run check:backend && npm run verify:stage7 && npm run verify:rls && npm run verify:signup && npm run verify:waitlist && npm run verify:magic-link"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.95.2",
     "@emotion/react": "11.14.0",
     "@emotion/styled": "11.14.1",
     "@mui/icons-material": "7.3.5",
@@ -40,7 +59,7 @@
     "@radix-ui/react-toggle": "1.1.2",
     "@radix-ui/react-toggle-group": "1.1.2",
     "@radix-ui/react-tooltip": "1.1.8",
-    "@supabase/supabase-js": "^2.105.4",
+    "@supabase/supabase-js": "^2.105.1",
     "@vercel/analytics": "^2.0.1",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
@@ -68,13 +87,15 @@
     "vaul": "1.1.2"
   },
   "devDependencies": {
+    "@cucumber/cucumber": "^12.8.2",
     "@tailwindcss/vite": "4.1.12",
     "@types/node": "^22.0.0",
     "@types/react": "^18.3.0",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "4.7.0",
+    "supabase": "^2.98.2",
     "tailwindcss": "4.1.12",
-    "vite": "6.3.5"
+    "vite": "^6.4.2"
   },
   "peerDependencies": {
     "react": "18.3.1",
@@ -90,7 +111,7 @@
   },
   "pnpm": {
     "overrides": {
-      "vite": "6.3.5"
+      "vite": "6.4.2"
     }
   }
 }

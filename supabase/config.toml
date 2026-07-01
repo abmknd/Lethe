@@ -1,0 +1,4 @@
+project_id = "lethe"
+
+[functions.signup]
+verify_jwt = false

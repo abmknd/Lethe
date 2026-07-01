@@ -1,4 +1,4 @@
-﻿import { supabase } from "./supabase";
+import { supabase } from "./supabase";
 
 export type SignupSource = "hero" | "signup" | "diagnostic" | "founding";
 
@@ -6,6 +6,7 @@ export interface SignupInput {
   email: string;
   source: SignupSource;
   name?: string;
+  handle?: string;
 }
 
 export type SignupResult =
