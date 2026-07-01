@@ -1,4 +1,4 @@
-﻿import { Zap, Eye, Clock, Play } from 'lucide-react';
+import { Zap, Eye, Clock, Play } from 'lucide-react';
 import { useState, useRef } from 'react';
 
 interface Step1Props {
@@ -18,10 +18,8 @@ export function Step1HowItWorks({ isActive, direction }: Step1Props) {
   };
 
   const handlePlayClick = () => {
-    console.log('Play button clicked');
     setIsPlaying(true);
     if (videoRef.current) {
-      console.log('Video element exists, attempting to play');
       videoRef.current.play().catch((error) => {
         console.error('Video play error:', error);
         setVideoError(true);
@@ -31,7 +29,7 @@ export function Step1HowItWorks({ isActive, direction }: Step1Props) {
   };
 
   const handleVideoLoad = () => {
-    console.log('Video loaded successfully');
+    // video ready
   };
 
   const handleVideoError = (e: React.SyntheticEvent<HTMLVideoElement, Event>) => {
@@ -41,10 +39,10 @@ export function Step1HowItWorks({ isActive, direction }: Step1Props) {
 
   return (
     <div className={`kyc-step ${getClassName()}`}>
-      <span className="font-['Libre_Franklin'] text-[10px] tracking-[0.3em] uppercase text-[#7FFF00]/50 mb-[14px] block">
+      <span className="font-['Inter'] text-[10px] tracking-[0.3em] uppercase text-[#7FFF00]/50 mb-[14px] block">
         Getting started
       </span>
-      <h1 className="font-['Libre_Franklin'] text-[clamp(28px,4vw,40px)] font-light italic leading-[1.15] tracking-[-0.02em] text-white/90 mb-[10px]">
+      <h1 className="font-['Cormorant_Garamond'] text-[clamp(28px,4vw,40px)] font-light italic leading-[1.15] tracking-[-0.02em] text-white/90 mb-[10px]">
         Meet people<br />
         <em className="not-italic text-[#7FFF00]">worth meeting.</em>
       </h1>
@@ -101,7 +99,7 @@ export function Step1HowItWorks({ isActive, direction }: Step1Props) {
 
       {/* Video Section */}
       <div className="mt-8">
-        <h2 className="font-['Libre_Franklin'] text-[10px] tracking-[0.3em] uppercase text-white/40 mb-3">
+        <h2 className="font-['Inter'] text-[10px] tracking-[0.3em] uppercase text-white/40 mb-3">
           See it in motion
         </h2>
         <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-[#0a0f0a] border border-white/[0.07]">

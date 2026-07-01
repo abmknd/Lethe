@@ -16,6 +16,8 @@ gsap.registerPlugin(ScrollTrigger);
 export default function LandingPage() {
   const [email1, setEmail1] = useState("");
   const [email2, setEmail2] = useState("");
+  const [handle2, setHandle2] = useState("");
+  const [handleError, setHandleError] = useState<string | null>(null);
   const [showHeroSuccess, setShowHeroSuccess] = useState(false);
   const [showSignupSuccess, setShowSignupSuccess] = useState(false);
   const [showHeroDuplicate, setShowHeroDuplicate] = useState(false);
@@ -28,6 +30,12 @@ export default function LandingPage() {
   const [showDemoGate, setShowDemoGate] = useState(false);
   const [demoPassword, setDemoPassword] = useState("");
   const [demoPasswordError, setDemoPasswordError] = useState(false);
+
+  // Demo password gate is off by default. Set VITE_DEMO_PASSWORD_GATE=true in
+  // the Vercel preview's env to require an access code on the "View full demo"
+  // button. Production stays open.
+  const demoGateEnabled = import.meta.env.VITE_DEMO_PASSWORD_GATE === "true";
+  const demoAccessCode = import.meta.env.VITE_DEMO_PASSWORD ?? "relethelive";
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const cursorDotRef = useRef<HTMLDivElement>(null);
@@ -49,11 +57,12 @@ export default function LandingPage() {
   const handleHeroSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!email1) return;
+    setHeroError(null);
     setIsSubmitting1(true);
     const result = await signup({ email: email1, source: "hero" });
     if (result.status === "duplicate") {
-      setShowHeroDuplicate(true);
       setDiagnosticEmail(email1);
+      setShowHeroDuplicate(true);
     } else if (result.status === "error") {
       setHeroError("Something went wrong. Please try again.");
       setIsSubmitting1(false);
@@ -66,13 +75,26 @@ export default function LandingPage() {
   const handleSignupSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!email2) return;
+    setHandleError(null);
+    setSignupError(null);
     setIsSubmitting2(true);
-    const result = await signup({ email: email2, source: "signup" });
+    const trimmedHandle = handle2.trim().replace(/^@+/, '');
+    const result = await signup({
+      email: email2,
+      source: "signup",
+      ...(trimmedHandle ? { handle: trimmedHandle } : {}),
+    });
     if (result.status === "duplicate") {
-      setShowSignupDuplicate(true);
       setDiagnosticEmail(email2);
+      setShowSignupDuplicate(true);
     } else if (result.status === "error") {
-      setSignupError("Something went wrong. Please try again.");
+      // If a handle was supplied, surface as handle-format error (the most likely
+      // 4xx cause); otherwise fall back to the generic signup error.
+      if (trimmedHandle) {
+        setHandleError("Couldn't save that — check the handle format.");
+      } else {
+        setSignupError("Something went wrong. Please try again.");
+      }
       setIsSubmitting2(false);
     } else {
       setDiagnosticEmail(email2);
@@ -380,9 +402,9 @@ export default function LandingPage() {
     }
 
     // IntersectionObserver is more reliable than ScrollTrigger on mobile:
-    // it is viewport-relative and does not depend on layout-position calculations
-    // that ScrollTrigger can get wrong after the 500 vh UserNeedsSection changes
-    // the total page height on iOS / Android.
+    // it is viewport-relative and does not depend on layout-position
+    // calculations that ScrollTrigger can get wrong after the 500vh
+    // UserNeedsSection changes total page height on iOS / Android.
     const storyEl = document.getElementById('relethe-story');
     const storyIO = new IntersectionObserver(([entry]) => {
       if (entry.isIntersecting) {
@@ -1387,25 +1409,56 @@ export default function LandingPage() {
         </div>
         <button
           className="relethe-view-demo-btn"
-          onClick={() => { setShowDemoGate(true); setDemoPassword(""); setDemoPasswordError(false); }}
+          onClick={() => {
+            if (demoGateEnabled) {
+              setShowDemoGate(true);
+              setDemoPassword("");
+              setDemoPasswordError(false);
+            } else {
+              navigate("/feed");
+            }
+          }}
         >
           View full demo
         </button>
 
-        {showDemoGate && (
-          <div style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(5,7,5,0.92)", backdropFilter: "blur(16px)", display: "flex", alignItems: "center", justifyContent: "center" }}
+        {demoGateEnabled && showDemoGate && (
+          <div
+            style={{
+              position: "fixed",
+              inset: 0,
+              zIndex: 9999,
+              background: "rgba(5,7,5,0.92)",
+              backdropFilter: "blur(16px)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
             onClick={(e) => { if (e.target === e.currentTarget) setShowDemoGate(false); }}
           >
-            <div style={{ width: "min(400px, 90vw)", padding: "48px 40px", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "20px", display: "flex", flexDirection: "column", alignItems: "center", gap: "24px" }}>
+            <div
+              style={{
+                width: "min(400px, 90vw)",
+                padding: "48px 40px",
+                background: "rgba(255,255,255,0.03)",
+                border: "1px solid rgba(255,255,255,0.08)",
+                borderRadius: "20px",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: "24px",
+              }}
+            >
               <img src="/logomark.png" width={32} height={32} alt="Relethe" />
               <div style={{ textAlign: "center" }}>
                 <p style={{ fontFamily: "var(--mono)", fontSize: "11px", letterSpacing: ".2em", textTransform: "uppercase", color: "var(--ch)", margin: "0 0 8px" }}>Private Access</p>
                 <p style={{ fontFamily: "var(--display)", fontSize: "22px", color: "var(--text)", margin: 0 }}>Enter access code</p>
               </div>
-              <form style={{ width: "100%", display: "flex", flexDirection: "column", gap: "12px" }}
+              <form
+                style={{ width: "100%", display: "flex", flexDirection: "column", gap: "12px" }}
                 onSubmit={(e) => {
                   e.preventDefault();
-                  if (demoPassword === "relethelive") {
+                  if (demoPassword === demoAccessCode) {
                     setShowDemoGate(false);
                     navigate("/feed");
                   } else {
@@ -1419,10 +1472,41 @@ export default function LandingPage() {
                   autoFocus
                   value={demoPassword}
                   onChange={(e) => { setDemoPassword(e.target.value); setDemoPasswordError(false); }}
-                  style={{ width: "100%", background: "rgba(255,255,255,0.05)", border: `1px solid ${demoPasswordError ? "rgba(255,80,80,0.5)" : "rgba(255,255,255,0.1)"}`, borderRadius: "10px", padding: "14px 16px", fontFamily: "var(--mono)", fontSize: "13px", color: "var(--text)", outline: "none", boxSizing: "border-box" }}
+                  style={{
+                    width: "100%",
+                    background: "rgba(255,255,255,0.05)",
+                    border: `1px solid ${demoPasswordError ? "rgba(255,80,80,0.5)" : "rgba(255,255,255,0.1)"}`,
+                    borderRadius: "10px",
+                    padding: "14px 16px",
+                    fontFamily: "var(--mono)",
+                    fontSize: "13px",
+                    color: "var(--text)",
+                    outline: "none",
+                    boxSizing: "border-box",
+                  }}
                 />
-                {demoPasswordError && <p style={{ fontFamily: "var(--mono)", fontSize: "11px", color: "rgba(255,80,80,0.8)", margin: 0, letterSpacing: ".06em" }}>Incorrect access code.</p>}
-                <button type="submit" style={{ width: "100%", padding: "14px", background: "var(--ch)", border: "none", borderRadius: "10px", fontFamily: "var(--mono)", fontSize: "11px", letterSpacing: ".2em", textTransform: "uppercase", color: "#050705", cursor: "none", fontWeight: 600 }}>
+                {demoPasswordError && (
+                  <p style={{ fontFamily: "var(--mono)", fontSize: "11px", color: "rgba(255,80,80,0.8)", margin: 0, letterSpacing: ".06em" }}>
+                    Incorrect access code.
+                  </p>
+                )}
+                <button
+                  type="submit"
+                  style={{
+                    width: "100%",
+                    padding: "14px",
+                    background: "var(--ch)",
+                    border: "none",
+                    borderRadius: "10px",
+                    fontFamily: "var(--mono)",
+                    fontSize: "11px",
+                    letterSpacing: ".2em",
+                    textTransform: "uppercase",
+                    color: "#050705",
+                    cursor: "none",
+                    fontWeight: 600,
+                  }}
+                >
                   Enter
                 </button>
               </form>
@@ -1816,12 +1900,31 @@ export default function LandingPage() {
                 value={email2}
                 onChange={(e) => { setEmail2(e.target.value); setSignupError(null); }}
               />
+              <input
+                type="text"
+                placeholder="@handle (optional)"
+                autoComplete="off"
+                maxLength={31}
+                value={handle2}
+                onChange={(e) => { setHandle2(e.target.value); setHandleError(null); }}
+                aria-label="Preferred handle, optional"
+                style={{ maxWidth: 180 }}
+              />
               <button type="submit" className="group" disabled={isSubmitting2}>
                 <span>{isSubmitting2 ? "Joining..." : "Get an early taste"}</span>
                 {!isSubmitting2 && <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" strokeWidth={1.5} />}
               </button>
             </form>
-            {signupError && <p style={{ fontFamily: 'var(--mono)', fontSize: '11px', color: 'rgba(255,80,80,0.8)', marginTop: '12px', letterSpacing: '.06em' }}>{signupError}</p>}
+            {handleError && (
+              <p className="relethe-signup-error" style={{ color: 'rgba(220,80,80,0.75)', fontSize: 11, marginTop: 8 }}>
+                {handleError}
+              </p>
+            )}
+            {signupError && (
+              <p style={{ fontFamily: 'var(--mono)', fontSize: '11px', color: 'rgba(255,80,80,0.8)', marginTop: '12px', letterSpacing: '.06em' }}>
+                {signupError}
+              </p>
+            )}
           </>
         ) : showSignupDuplicate ? (
           <div className="relethe-form-success">

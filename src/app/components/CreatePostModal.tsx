@@ -22,8 +22,6 @@ export function CreatePostModal({ isOpen, onClose, avatarUrl }: CreatePostModalP
   const border = theme === "dark" ? "border-[#2a2a2a]" : "border-[#E5E5E5]";
 
   const handlePost = () => {
-    // Handle post creation
-    console.log("Creating post:", postText);
     setPostText("");
     onClose();
   };

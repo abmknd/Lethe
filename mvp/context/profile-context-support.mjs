@@ -1,4 +1,4 @@
-﻿function normalizeToken(value) {
+function normalizeToken(value) {
   return String(value ?? '')
     .trim()
     .toLowerCase();

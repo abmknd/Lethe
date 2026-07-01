@@ -1,70 +1,104 @@
+// Public signup Edge Function — single backend path for all waitlist
+// submissions from the landing page funnel. Deploy with verify_jwt = false.
+//
+// Pure input/output contract lives in ./contract.mjs so it can be tested
+// from Node CI without Supabase credentials.
+
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { corsPreflightResponse, json } from "../_shared/cors.ts";
+import {
+  buildWaitlistRow,
+  classifyInsertResult,
+  hashEmail,
+  parseSignupInput,
+} from "./contract.mjs";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-};
+async function enrichCountry(req: Request): Promise<string | null> {
+  const ip =
+    req.headers.get("cf-connecting-ip") ??
+    req.headers.get("x-real-ip") ??
+    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+    null;
+  if (!ip) return null;
+  try {
+    const res = await fetch(`https://ipapi.co/${ip}/json/`, {
+      signal: AbortSignal.timeout(1500),
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return typeof data.country_name === "string" ? data.country_name : null;
+  } catch {
+    return null;
+  }
+}
 
-Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response("ok", { status: 200, headers: corsHeaders });
+Deno.serve(async (req: Request): Promise<Response> => {
+  if (req.method === "OPTIONS") return corsPreflightResponse();
+  if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
+
+  let body: unknown;
+  try {
+    body = await req.json();
+  } catch {
+    return json({ error: "Invalid JSON" }, 400);
   }
 
+  const parsed = parseSignupInput(body);
+  if (!parsed.ok) return json({ error: parsed.error }, 400);
+  const { email, source, name, handle } = parsed.value;
+
+  const supabaseUrl = Deno.env.get("SUPABASE_URL");
+  const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (!supabaseUrl || !serviceRoleKey) {
+    console.error("[signup] missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY");
+    return json({ error: "Server misconfigured" }, 500);
+  }
+
+  const admin = createClient(supabaseUrl, serviceRoleKey, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+
+  const country = await enrichCountry(req);
+  const row = buildWaitlistRow({ email, source, name, country, handle });
+
+  const { error } = await admin.from("waitlist").insert(row);
+  const outcome = classifyInsertResult(error);
+
+  if (outcome.status === "duplicate") {
+    console.log(`[signup] source=${source} status=duplicate email_h=${hashEmail(email)}`);
+    return json({ status: "duplicate", email });
+  }
+
+  if (outcome.status === "error") {
+    console.error(`[signup] insert failed source=${source} email_h=${hashEmail(email)}`, error);
+    return json({ error: "Internal error" }, 500);
+  }
+
+  console.log(`[signup] source=${source} status=created email_h=${hashEmail(email)} country=${country ?? "?"}`);
+
+  await sendConfirmationEmail(email);
+
+  return json({ status: "created", email });
+});
+
+async function sendConfirmationEmail(email: string): Promise<void> {
+  const resendApiKey = Deno.env.get("RESEND_API_KEY");
+  if (!resendApiKey) return;
+
   try {
-    const { email, source, name } = await req.json();
-
-    if (!email || !source) {
-      return new Response(JSON.stringify({ status: "error" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-    );
-
-    const country = req.headers.get("x-vercel-ip-country") ??
-      req.headers.get("cf-ipcountry") ?? null;
-
-    const { error } = await supabase.from("waitlist").insert({
-      email,
-      source,
-      name: name ?? null,
-      country,
-    });
-
-    if (error) {
-      if (error.code === "23505") {
-        return new Response(JSON.stringify({ status: "duplicate", email }), {
-          status: 200,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      console.error("insert error:", error);
-      return new Response(JSON.stringify({ status: "error" }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    // Send confirmation email via Resend (best-effort — don't fail signup if email fails)
-    try {
-      await fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${Deno.env.get("RESEND_API_KEY")}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          from: "Abi from Relethe <abi@mail.relethe.com>",
-          reply_to: "abiola@relethe.com",
-          to: [email],
-          subject: "You signed up. Good call.",
-          text: `You're on the Relethe waitlist.\nWe'll reach out when it's time. Don't hold your breath, but don't forget about us either.\n\nStay gracious,\n\nAbi\nCo-founder, Relethe`,
-          html: `<!DOCTYPE html>
+    await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${resendApiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from: "Abi from Relethe <abi@mail.relethe.com>",
+        reply_to: "abiola@relethe.com",
+        to: [email],
+        subject: "You signed up. Good call.",
+        text: `You're on the Relethe waitlist.\nWe'll reach out when it's time. Don't hold your breath, but don't forget about us either.\n\nStay gracious,\n\nAbi\nCo-founder, Relethe`,
+        html: `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -109,21 +143,9 @@ Deno.serve(async (req) => {
   </table>
 </body>
 </html>`,
-        }),
-      });
-    } catch (emailErr) {
-      console.error("email send failed:", emailErr);
-    }
-
-    return new Response(JSON.stringify({ status: "created", email }), {
-      status: 200,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      }),
     });
-  } catch (err) {
-    console.error("unexpected error:", err);
-    return new Response(JSON.stringify({ status: "error" }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+  } catch (emailErr) {
+    console.error("[signup] confirmation email send failed:", emailErr);
   }
-});
+}
