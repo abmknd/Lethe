@@ -1,17 +1,26 @@
-﻿import { useState, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { Upload } from 'lucide-react';
+import { toast } from 'sonner';
 import { KYCData } from '../KYCModal';
+import { supabase } from '../../../lib/supabase';
 
 interface Step7Props {
   isActive: boolean;
   direction: 'forward' | 'back';
   data: KYCData;
   updateData: (updates: Partial<KYCData>) => void;
+  userId?: string;
 }
 
-export function Step7ProfileImage({ isActive, direction, data, updateData }: Step7Props) {
-  const [preview, setPreview] = useState<string | null>(data.profileImage || null);
+export function Step7ProfileImage({ isActive, direction, data, updateData, userId }: Step7Props) {
+  // `data.profileImage` is the public URL that will be persisted to
+  // `users.avatar_url` in handleFinish. We keep `localPreview` for the
+  // instant-feedback render between file-pick and Storage upload completing.
+  const [localPreview, setLocalPreview] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const preview = localPreview ?? data.profileImage ?? null;
 
   const getClassName = () => {
     if (isActive) return 'kyc-step-active';
@@ -19,16 +28,51 @@ export function Step7ProfileImage({ isActive, direction, data, updateData }: Ste
     return 'kyc-step-exit-right';
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // #78.2 — upload picked image to the `avatars` Supabase Storage bucket
+  // (public-read + owner-write via RLS). We mirror SettingsPage.handleAvatarFile
+  // so the bucket layout is identical and a returning user editing in Settings
+  // overwrites the same object.
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const result = reader.result as string;
-        setPreview(result);
-        updateData({ profileImage: result });
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Pick an image file.');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image must be under 5MB.');
+      return;
+    }
+    if (!userId) {
+      toast.error('You must be signed in to upload a photo.');
+      return;
+    }
+
+    // Instant preview from local FileReader while the upload runs.
+    const reader = new FileReader();
+    reader.onloadend = () => setLocalPreview(reader.result as string);
+    reader.readAsDataURL(file);
+
+    setUploading(true);
+    try {
+      const ext = (file.name.split('.').pop() || 'png').toLowerCase().replace(/[^a-z0-9]/g, '') || 'png';
+      const path = `${userId}/avatar.${ext}`;
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(path, file, { upsert: true, contentType: file.type, cacheControl: '3600' });
+      if (uploadError) throw uploadError;
+      const { data: pub } = supabase.storage.from('avatars').getPublicUrl(path);
+      // Cache-buster so the new image renders immediately even though the URL
+      // is stable across overwrites.
+      const url = `${pub.publicUrl}?v=${Date.now()}`;
+      updateData({ profileImage: url });
+      setLocalPreview(null);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Upload failed');
+      setLocalPreview(null);
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -38,10 +82,10 @@ export function Step7ProfileImage({ isActive, direction, data, updateData }: Ste
 
   return (
     <div className={`kyc-step ${getClassName()}`}>
-      <span className="font-['Libre_Franklin'] text-[10px] tracking-[0.3em] uppercase text-[#7FFF00]/50 mb-[14px] block">
+      <span className="font-['Inter'] text-[10px] tracking-[0.3em] uppercase text-[#7FFF00]/50 mb-[14px] block">
         Your profile
       </span>
-      <h1 className="font-['Libre_Franklin'] text-[clamp(28px,4vw,40px)] font-light italic leading-[1.15] tracking-[-0.02em] text-white/90 mb-[10px]">
+      <h1 className="font-['Cormorant_Garamond'] text-[clamp(28px,4vw,40px)] font-light italic leading-[1.15] tracking-[-0.02em] text-white/90 mb-[10px]">
         Add a profile<br />
         <em className="not-italic text-[#7FFF00]">image.</em>
       </h1>
@@ -83,10 +127,11 @@ export function Step7ProfileImage({ isActive, direction, data, updateData }: Ste
         {/* Upload Button */}
         <button
           onClick={handleUploadClick}
-          className="w-full max-w-[380px] py-[16px] px-6 rounded-full border-none font-['Libre_Franklin'] text-[11px] tracking-[0.22em] uppercase bg-[#7FFF00] hover:bg-[#c8ff4f] text-[#050705] transition-all flex items-center justify-center gap-2"
+          disabled={uploading}
+          className="w-full max-w-[380px] py-[16px] px-6 rounded-full border-none font-['Inter'] text-[11px] tracking-[0.22em] uppercase bg-[#7FFF00] hover:bg-[#c8ff4f] disabled:opacity-60 disabled:cursor-not-allowed text-[#050705] transition-all flex items-center justify-center gap-2"
         >
           <Upload size={14} strokeWidth={2.5} />
-          {preview ? 'Change image' : 'Upload image'}
+          {uploading ? 'Uploading…' : preview ? 'Change image' : 'Upload image'}
         </button>
 
         {/* Hidden file input */}
@@ -100,7 +145,7 @@ export function Step7ProfileImage({ isActive, direction, data, updateData }: Ste
       </div>
 
       {/* Optional: Skip message */}
-      <p className="text-center font-['Libre_Franklin'] text-[10px] tracking-[0.14em] text-white/30 mt-6">
+      <p className="text-center font-['Inter'] text-[10px] tracking-[0.14em] text-white/30 mt-6">
         You can always add this later in your profile settings
       </p>
     </div>

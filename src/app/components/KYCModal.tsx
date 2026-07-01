@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { ChevronLeft } from 'lucide-react';
 import { Step1HowItWorks } from './kyc/Step1HowItWorks';
 import { Step2Location } from './kyc/Step2Location';
@@ -8,15 +8,29 @@ import { Step5Hobbies } from './kyc/Step5Hobbies';
 import { Step6Intro } from './kyc/Step6Intro';
 import { Step7ProfileImage } from './kyc/Step7ProfileImage';
 import { Step8Socials } from './kyc/Step8Socials';
-import { Step9FinishRegistration } from './kyc/Step9FinishRegistration';
-import { Step10Verify } from './kyc/Step10Verify';
+import { Step9Role } from './kyc/Step9Role';
 import { KYCDone } from './kyc/KYCDone';
+import { ROLE_OPTIONS } from '../constants/roles';
 import { KYCPaused } from './kyc/KYCPaused';
+import { getUserProfile, saveUserProfile } from "../api";
+import { toast } from 'sonner';
+
+const OBJECTIVE_LABELS = [
+  'Build in public', 'Find a cofounder', 'Grow my network', 'Meet interesting people',
+  'Get mentored', 'Mentor others', 'Explore new fields', 'Share knowledge',
+];
+
+const WHERE_LABELS = [
+  'Anywhere in the world', 'Africa', 'Asia', 'Europe',
+  'Latin America', 'Middle East', 'North America', 'Oceania',
+];
 
 interface KYCModalProps {
   isOpen: boolean;
   onClose: () => void;
   onComplete?: () => void;
+  userId?: string;
+  accessToken?: string;
 }
 
 export interface KYCData {
@@ -34,16 +48,17 @@ export interface KYCData {
     website: string;
     github: string;
   };
-  verificationCode: string;
   profileImage: string;
+  userType: number | null;
+  preferredUserTypes: Set<number>;
 }
 
-export function KYCModal({ isOpen, onClose, onComplete }: KYCModalProps) {
+export function KYCModal({ isOpen, onClose, onComplete, userId, accessToken }: KYCModalProps) {
   const [currentStep, setCurrentStep] = useState(1);
   const [direction, setDirection] = useState<'forward' | 'back'>('forward');
   const [isComplete, setIsComplete] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
-  const TOTAL_STEPS = 10;
+  const TOTAL_STEPS = 9;
 
   const [data, setData] = useState<KYCData>({
     city: null,
@@ -60,8 +75,9 @@ export function KYCModal({ isOpen, onClose, onComplete }: KYCModalProps) {
       website: '',
       github: '',
     },
-    verificationCode: '',
     profileImage: '',
+    userType: null,
+    preferredUserTypes: new Set(),
   });
 
   const updateData = (updates: Partial<KYCData>) => {
@@ -73,12 +89,16 @@ export function KYCModal({ isOpen, onClose, onComplete }: KYCModalProps) {
     if (currentStep === 3) return data.objectives.size > 0;
     if (currentStep === 4) return (data.meetWho.size + data.meetWhere.size) > 0;
     if (currentStep === 6) return data.intro.length >= 60;
-    if (currentStep === 10) return false; // Wait for verification
+    if (currentStep === 9) return data.userType !== null && data.preferredUserTypes.size > 0;
     return true;
   };
 
   const goNext = () => {
-    if (!canAdvance() || currentStep >= TOTAL_STEPS) return;
+    if (!canAdvance()) return;
+    if (currentStep >= TOTAL_STEPS) {
+      setIsComplete(true);
+      return;
+    }
     setDirection('forward');
     setCurrentStep((prev) => prev + 1);
   };
@@ -89,20 +109,64 @@ export function KYCModal({ isOpen, onClose, onComplete }: KYCModalProps) {
     setCurrentStep((prev) => prev - 1);
   };
 
-  const handleComplete = () => {
-    setIsComplete(true);
-  };
-
-  const handleFinish = () => {
-    // Mark KYC as completed in localStorage
-    localStorage.setItem('relethe_kyc_completed', 'true');
-    
-    // Call optional completion callback
-    if (onComplete) {
-      onComplete();
+  const handleFinish = async () => {
+    if (!userId) {
+      toast.error('You must be signed in to complete onboarding.');
+      return;
     }
-    
-    // Close the modal
+    try {
+      // Pre-fetch the existing profile so we merge KYC data on top instead of
+      // wiping fields we don't touch — especially availability, which the
+      // backend re-writes from whatever array we send (so [] = delete all).
+      let existing: Awaited<ReturnType<typeof getUserProfile>> | null = null;
+      try {
+        existing = await getUserProfile(userId, accessToken);
+      } catch {
+        // First-time KYC may have no profile yet — fall through with null.
+      }
+
+      const timezone = data.timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone;
+      await saveUserProfile(
+        userId,
+        {
+          user: {
+            ...(existing?.user ?? {}),
+            id: userId,
+            location: data.city ?? '',
+            timezone,
+            matchingEnabled: true,
+            // Public bio mirrors the KYC intro so ProfilePage doesn't render '—'.
+            bio: data.intro,
+            // #78.2 — Step7 uploaded to the avatars bucket and stored the
+            // public URL on data.profileImage. Persist it on users.avatar_url
+            // so Settings + match cards pick it up. Empty string → leave
+            // existing avatar untouched (COALESCE in the SQL upsert).
+            ...(data.profileImage ? { avatarUrl: data.profileImage } : {}),
+          },
+          preferences: {
+            ...(existing?.preferences ?? {}),
+            introText: data.intro,
+            interests: [...data.hobbies],
+            objectives: [...data.objectives].map((i) => OBJECTIVE_LABELS[i]).filter(Boolean),
+            matchIntent: [...data.objectives].map((i) => OBJECTIVE_LABELS[i]).filter(Boolean),
+            userType: data.userType !== null ? ROLE_OPTIONS[data.userType] : '',
+            preferredUserTypes: [...data.preferredUserTypes]
+              .map((i) => ROLE_OPTIONS[i])
+              .filter(Boolean),
+            preferredLocations: [...data.meetWhere]
+              .map((i) => WHERE_LABELS[i])
+              .filter((l) => l && l !== 'Anywhere in the world'),
+          },
+          availability: existing?.availability ?? [],
+        } as never,
+        accessToken,
+      );
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Could not save your profile. Please try again.');
+      return;
+    }
+
+    if (onComplete) onComplete();
     onClose();
   };
 
@@ -125,6 +189,7 @@ export function KYCModal({ isOpen, onClose, onComplete }: KYCModalProps) {
 
   const getButtonLabel = () => {
     if (currentStep === 1) return "Let's go";
+    if (currentStep === TOTAL_STEPS) return 'Finish';
     return 'Continue';
   };
 
@@ -150,7 +215,7 @@ export function KYCModal({ isOpen, onClose, onComplete }: KYCModalProps) {
           >
             <ChevronLeft size={16} strokeWidth={1.5} />
           </button>
-          <span className="font-['Libre_Franklin'] text-[10px] tracking-[0.2em] text-white/30">
+          <span className="font-['Inter'] text-[10px] tracking-[0.2em] text-white/30">
             {isComplete || isPaused ? '' : `${currentStep} of ${TOTAL_STEPS}`}
           </span>
         </div>
@@ -192,31 +257,24 @@ export function KYCModal({ isOpen, onClose, onComplete }: KYCModalProps) {
                 data={data}
                 updateData={updateData}
               />
-              <Step7ProfileImage 
-                isActive={currentStep === 7} 
+              <Step7ProfileImage
+                isActive={currentStep === 7}
+                direction={direction}
+                data={data}
+                updateData={updateData}
+                userId={userId}
+              />
+              <Step8Socials
+                isActive={currentStep === 8}
                 direction={direction}
                 data={data}
                 updateData={updateData}
               />
-              <Step8Socials 
-                isActive={currentStep === 8} 
+              <Step9Role
+                isActive={currentStep === 9}
                 direction={direction}
                 data={data}
                 updateData={updateData}
-              />
-              <Step9FinishRegistration 
-                isActive={currentStep === 9} 
-                direction={direction}
-                data={data}
-                updateData={updateData}
-                onContinueToVerify={goNext}
-              />
-              <Step10Verify 
-                isActive={currentStep === 10} 
-                direction={direction}
-                data={data}
-                updateData={updateData}
-                onComplete={handleComplete}
               />
             </>
           ) : (
@@ -225,19 +283,19 @@ export function KYCModal({ isOpen, onClose, onComplete }: KYCModalProps) {
         </div>
 
         {/* CTA bar */}
-        {!isComplete && !isPaused && currentStep !== 9 && currentStep !== 10 && (
+        {!isComplete && !isPaused && (
           <div className="absolute bottom-0 left-0 right-0 px-8 pt-3 pb-5 bg-gradient-to-t from-[#0c0f0c] via-[rgba(9,12,9,0.95)] to-transparent z-10">
             <div className="flex items-center gap-3">
               <button
                 onClick={goNext}
                 disabled={!canAdvance()}
-                className="flex-1 py-[15px] px-4 rounded-full border-none font-['Libre_Franklin'] text-[11px] tracking-[0.22em] uppercase text-[#050705] bg-[#7FFF00] hover:bg-[#c8ff4f] transition-all disabled:opacity-35 disabled:cursor-not-allowed disabled:hover:bg-[#7FFF00]"
+                className="flex-1 py-[15px] px-4 rounded-full border-none font-['Inter'] text-[11px] tracking-[0.22em] uppercase text-[#050705] bg-[#7FFF00] hover:bg-[#c8ff4f] transition-all disabled:opacity-35 disabled:cursor-not-allowed disabled:hover:bg-[#7FFF00]"
               >
                 {getButtonLabel()}
               </button>
               <button
                 onClick={handleLater}
-                className="flex-shrink-0 py-[15px] px-6 rounded-full border border-white/[0.12] font-['Libre_Franklin'] text-[11px] tracking-[0.22em] uppercase text-white bg-[#1a1a1a] hover:bg-[#252525] transition-all"
+                className="flex-shrink-0 py-[15px] px-6 rounded-full border border-white/[0.12] font-['Inter'] text-[11px] tracking-[0.22em] uppercase text-white bg-[#1a1a1a] hover:bg-[#252525] transition-all"
               >
                 Later
               </button>
