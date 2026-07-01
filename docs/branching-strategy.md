@@ -1,43 +1,51 @@
-# Lethe Branching Strategy (Stage 2 / MVP)
+# Relethe Branching Strategy (post-cutover)
+
+> Updated 2026-07-01 after Reconciliation 3a. `main` and `mvp` were reconciled
+> in PR #94: `main` now reflects the launched product and is the single
+> integration + production branch. `mvp` is retired (see below).
 
 ## Branch model
 
-### `main` (protected)
-- Purpose: production-ready or near-production-ready code only.
-- Rule: no direct development and no direct pushes.
-- Promotion: code is promoted here intentionally at milestone checkpoints after stabilization.
+### `main` (protected, default)
+- Purpose: production. Reflects the launched product.
+- Integration: all feature and fix work is merged here via PR.
+- Deploys: pushes to `main` publish to GitHub Pages (`deploy.yml`). Vercel
+  production also deploys from `main` once the production branch is switched
+  over (Reconciliation 3b).
+- Rule: no direct pushes; changes land through PRs.
 
-### `mvp` (integration branch)
-- Purpose: active Stage 2 / MVP integration branch.
-- Used for: MVP tickets, local-first implementation, backend hardening, and PR validation before demo refreshes.
-- Rule: no direct feature pushes unless Nabil explicitly asks for a direct push in that turn.
-- All MVP ticket work targets `mvp` via PR.
+### `mvp` (retired)
+- Historical Stage 2 / MVP integration branch. Promoted into `main` on
+  2026-07-01 via PR #94, so `main` == `mvp` in content.
+- Do not open new work against `mvp`. It is frozen and slated for deletion
+  once Vercel production is repointed to `main` and smoke-tested
+  (Reconciliation 3b/3d). Until then it is kept in sync with `main`.
 
 ### `demo` (stable demo branch)
-- Purpose: stable runnable demo branch.
-- Used for: founder demos, investor demos, and internal walkthroughs.
+- Purpose: stable runnable demo branch for founder / investor walkthroughs.
 - Rule: should stay runnable at all times.
-- Refresh intentionally from `mvp` when a demo cut is needed.
+- Refresh intentionally from `main` when a demo cut is needed. (It is currently
+  a stale offshoot of the old `mvp` lineage and unrelated to `main` history; a
+  fresh cut from `main` is needed next time it is refreshed.)
 
-### short-lived working branches (from `mvp`)
-- All MVP implementation work branches from `mvp` and targets `mvp` via PR.
+### short-lived working branches (from `main`)
+- All implementation work branches from `main` and targets `main` via PR.
 - Examples:
   - `feat/local-first-insights`
   - `feat/cep-lite-weekly-intent`
-  - `feat/profile-completeness-gates`
   - `fix/trial-meeting-state`
-  - `chore/docs-branching-strategy`
+  - `chore/<maintenance>`
 
-## MVP integration rules for `mvp`
-- Deterministic matching first.
-- Backend/core restructuring is allowed.
-- Aggressive descoping is allowed when it improves delivery confidence.
-- Speculative ML, synthetic training pipelines, and non-critical breadth stay out of `mvp` unless explicitly approved.
+## PR targets
+- Base branch for all ticket PRs: `main`.
+- `demo` should only receive intentional demo refreshes from `main`.
 
-## PR targets during MVP
-- Base branch for MVP ticket PRs: `mvp`.
-- `demo` should only receive intentional demo refreshes.
-- `main` should only receive intentionally promoted, stable code.
+## CI
+- `ci.yml` (`.github/workflows/mvp-ci.yml`) runs backend tests + build on push
+  and PR to `main` (and, transitionally, `mvp`). Drop `mvp` from its triggers
+  once the branch is deleted.
+- `supabase-keepalive.yml` runs on a daily schedule from the default branch
+  (`main`); it is not branch-specific.
 
 ## Recommended branch protections
 
@@ -45,12 +53,8 @@
 - Require pull request before merge.
 - Disallow direct pushes.
 - Require at least one review (if practical).
-- Require status checks before merge (once checks exist).
-
-### `mvp`
-- Require pull request before merge.
-- Disallow direct pushes when branch protection is available.
-- Require status checks before merge.
+- Consolidate the classic branch-protection rule and the "Protect main" ruleset
+  so there is a single source of truth for the merge policy.
 
 ### `demo`
 - Prefer pull-request-only merges.
@@ -66,8 +70,8 @@
 ## Standard ticket workflow
 
 ```bash
-git checkout mvp
-git pull origin mvp
+git checkout main
+git pull origin main
 git checkout -b feat/<ticket-name>
 ```
 
@@ -78,7 +82,7 @@ git push -u origin feat/<ticket-name>
 ```
 
 Open PR:
-- base: `mvp`
+- base: `main`
 - compare: `feat/<ticket-name>`
 
-Refresh `demo` from `mvp` only when a stable demo cut is explicitly approved.
+Refresh `demo` from `main` only when a stable demo cut is explicitly approved.
