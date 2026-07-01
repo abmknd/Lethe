@@ -1,4 +1,4 @@
-﻿export const EVENT_TYPES = Object.freeze({
+export const EVENT_TYPES = Object.freeze({
   RECOMMENDATION_GENERATED: 'recommendation_generated',
   ADMIN_APPROVED: 'admin_approved',
   ADMIN_REJECTED: 'admin_rejected',
