@@ -139,7 +139,7 @@ Click back in the Terminal / PowerShell window and press **Ctrl+C**.
 - **"command not found: npm" or "git"** — close and reopen Terminal / PowerShell. If still broken, redo step 1.
 - **The app says "We don't recognize this email"** — that email isn't on the cohort whitelist yet. See *Admit a new cohort member* below.
 - **You see "Lethe" instead of "Relethe" somewhere** — that's a bug to log, not a setup problem.
-- **Anything else broken** — screenshot Terminal + the browser and send to Nabil.
+- **Anything else broken** — screenshot Terminal + the browser and send it to the team.
 
 ---
 
@@ -161,7 +161,7 @@ Relethe is invite-only. `/sign-in` will reject any email that isn't already in S
 
 - Before sending any cohort invitation.
 - Before QA: pre-create every test inbox you plan to use (User A, User B, etc.).
-- One at a time per invitee. There's no bulk import in this runbook — if you ever need bulk, ping Nabil.
+- One at a time per invitee. There's no bulk import in this runbook — if you ever need bulk, ask the team.
 
 ### What "Auto Confirm" does
 
