@@ -18,10 +18,56 @@ import {
   OUTCOME_STATUSES,
   READINESS_STATUSES,
   MEETING_STATUSES,
+  MATCH_STATUSES,
+  MATCH_SIDE_RESPONSES,
   nowIso,
 } from "../../../mvp/domain/models.mjs";
 import { EVENT_TYPES } from "../../../mvp/domain/events.mjs";
 import { checkProfileCompleteness } from "../../../mvp/domain/completeness.mjs";
+import { TRUST_SIGNAL_TYPES } from "../../../mvp/domain/trust.mjs";
+
+// Stable pair ordering so (A, B) and (B, A) resolve to the same match row.
+// Mirrors orderPair in mvp/services/match-lifecycle-service.mjs (not imported
+// here to keep edge bundles free of node:crypto).
+function orderPair(userIdOne: string, userIdTwo: string): { userAId: string; userBId: string } {
+  return userIdOne < userIdTwo
+    ? { userAId: userIdOne, userBId: userIdTwo }
+    : { userAId: userIdTwo, userBId: userIdOne };
+}
+
+async function ensureBlindOffer(
+  recommendation: { id: string; userId: string; candidateUserId: string },
+  actorUserId: string | null,
+) {
+  const existing = await repository.getMatchByRecommendationId(recommendation.id);
+  if (existing) return existing;
+
+  const reverse = await repository.getLatestReverseRecommendation({
+    userId: recommendation.userId,
+    candidateUserId: recommendation.candidateUserId,
+  });
+  const pair = orderPair(recommendation.userId, recommendation.candidateUserId);
+  const match = await repository.createMatch({
+    id: `match_${crypto.randomUUID()}`,
+    recommendationId: recommendation.id,
+    reverseRecommendationId: reverse?.id ?? null,
+    userAId: pair.userAId,
+    userBId: pair.userBId,
+    state: MATCH_STATUSES.OFFERED_BLIND,
+    createdAt: nowIso(),
+    updatedAt: nowIso(),
+  });
+  await repository.appendEvents([{
+    id: `evt_${crypto.randomUUID()}`,
+    eventType: EVENT_TYPES.BLIND_OFFER_CREATED,
+    actorUserId,
+    targetUserId: recommendation.userId,
+    recommendationId: recommendation.id,
+    payload: { matchId: match.id, userAId: pair.userAId, userBId: pair.userBId },
+    createdAt: nowIso(),
+  }]);
+  return match;
+}
 
 const MEETING_OUTCOME_MAP: Record<string, string> = {
   scheduled: OUTCOME_STATUSES.MEETING_SCHEDULED,
@@ -158,7 +204,20 @@ Deno.serve(async (req: Request): Promise<Response> => {
       requireSelf(auth, userId);
       const status = url.searchParams.get("status") ?? undefined;
       const recommendations = await repository.listRecommendationsForUser(userId, { status });
-      return json({ recommendations });
+      // Enrich with the viewer's blind-gate state so the client can show
+      // "waiting on the other side" instead of re-offering the accept button.
+      // Only the viewer's own response is exposed — never the other side's.
+      const enriched = await Promise.all(recommendations.map(async (rec) => {
+        const match = await repository.getMatchByRecommendationId(rec.id);
+        if (!match) return { ...rec, matchState: null, viewerResponse: null };
+        const viewerResponse = userId === match.userAId
+          ? match.aResponse
+          : userId === match.userBId
+            ? match.bResponse
+            : null;
+        return { ...rec, matchState: match.state, viewerResponse };
+      }));
+      return json({ recommendations: enriched });
     }
 
     const userCompletenessMatch = path.match(/^\/api\/v1\/users\/([^/]+)\/completeness$/);
@@ -312,62 +371,10 @@ Deno.serve(async (req: Request): Promise<Response> => {
       }]);
 
       if (newStatus === RECOMMENDATION_STATUSES.APPROVED) {
-        const [requesterProfile, candidateProfile] = await Promise.all([
-          repository.getUserProfile(recommendation.userId),
-          repository.getUserProfile(recommendation.candidateUserId),
-        ]);
-        if (requesterProfile && candidateProfile) {
-          // Compute the meeting slot once at approval time so both outbound
-          // emails reference the same scheduled instant, and persist a
-          // meetings row keyed by recommendation_id (UNIQUE). Jitsi room is
-          // an interim placeholder per #77 — swap for a real provider later.
-          const slot = firstOverlapSlot(
-            requesterProfile.availability ?? [],
-            candidateProfile.availability ?? [],
-          );
-          const occurrence = slot ? nextOccurrenceUtc(slot) : null;
-          const meetingUrl = `https://meet.jit.si/relethe-${encodeURIComponent(recommendationId)}`;
-          await repository.upsertMeeting({
-            recommendationId,
-            provider: 'jitsi',
-            meetingUrl,
-            scheduledAt: occurrence ? occurrence.startUtc.toISOString() : null,
-            status: MEETING_STATUSES.SCHEDULED,
-            metadata: slot ? { slot } : {},
-          });
-
-          const meeting = {
-            meetingUrl,
-            startUtc: occurrence?.startUtc ?? new Date(),
-            endUtc: occurrence?.endUtc ?? new Date(Date.now() + 60 * 60 * 1000),
-            slot,
-          };
-          const emailResult = await sendIntroEmails({
-            requesterProfile,
-            candidateProfile,
-            insightText: recommendation.insightText ?? null,
-            whyMatched: recommendation.whyMatched,
-            meeting,
-          });
-          if (emailResult.ok) {
-            await repository.upsertOutcome({
-              id: `outcome_${randomUUID()}`,
-              recommendationId,
-              outcomeStatus: OUTCOME_STATUSES.INTRO_SENT,
-              notes: null,
-              updatedAt: nowIso(),
-            });
-            await repository.appendEvents([{
-              id: `evt_${randomUUID()}`,
-              eventType: EVENT_TYPES.INTRO_SENT,
-              actorUserId: adminId,
-              targetUserId: recommendation.userId,
-              recommendationId,
-              payload: { emailIds: emailResult.ids },
-              createdAt: nowIso(),
-            }]);
-          }
-        }
+        // Approval opens a blind offer (alignment plan, Phase 0). The intro
+        // email and meeting moved to mutual accept — nothing identifying
+        // leaves the server while the pair is blind.
+        await ensureBlindOffer(recommendation, adminId);
       }
 
       return json({ ok: true, recommendationId, status: newStatus, decision: normalizedDecision, rationale });
@@ -469,32 +476,207 @@ Deno.serve(async (req: Request): Promise<Response> => {
         return json({ error: "User is not allowed to respond to this recommendation." }, 403);
       }
 
-      const nextStatus = decision === "accept"
-        ? RECOMMENDATION_STATUSES.ACCEPTED
-        : RECOMMENDATION_STATUSES.PASSED;
+      // Double-blind gate (alignment plan, Phase 0/1). A single accept never
+      // converts the pair; a decline terminates it silently. Recommendations
+      // approved before the cutover get their match row lazily.
+      const match = await ensureBlindOffer(recommendation, auth.userId);
 
-      await repository.updateRecommendationStatus(recommendationId, nextStatus, nowIso());
+      const side = auth.userId === match.userAId ? "a" : auth.userId === match.userBId ? "b" : null;
+      if (!side) return json({ error: "User is not part of this match." }, 403);
+
+      const response = decision === "accept"
+        ? MATCH_SIDE_RESPONSES.ACCEPTED
+        : MATCH_SIDE_RESPONSES.DECLINED;
+
+      const existingResponse = side === "a" ? match.aResponse : match.bResponse;
+      if (existingResponse) {
+        if (existingResponse === response) {
+          return json({
+            ok: true,
+            recommendationId,
+            status: recommendation.status,
+            decision,
+            matchState: match.state,
+            mutual: match.state !== MATCH_STATUSES.OFFERED_BLIND && response === MATCH_SIDE_RESPONSES.ACCEPTED,
+            waitingOnOtherSide: match.state === MATCH_STATUSES.OFFERED_BLIND && response === MATCH_SIDE_RESPONSES.ACCEPTED,
+          });
+        }
+        return json({ error: "You have already responded to this match." }, 409);
+      }
+      if (match.state !== MATCH_STATUSES.OFFERED_BLIND) {
+        return json({ error: "Match is not open for responses." }, 409);
+      }
+
+      const respondedAt = nowIso();
+      const otherResponse = side === "a" ? match.bResponse : match.aResponse;
+      const mutual = response === MATCH_SIDE_RESPONSES.ACCEPTED
+        && otherResponse === MATCH_SIDE_RESPONSES.ACCEPTED;
+      const nextMatchState = response === MATCH_SIDE_RESPONSES.DECLINED
+        ? MATCH_STATUSES.DECLINED_SILENT
+        : mutual
+          ? MATCH_STATUSES.MUTUAL_ACCEPTED
+          : match.state;
+
+      const updatedMatch = await repository.updateMatch(match.id, {
+        state: nextMatchState,
+        ...(side === "a"
+          ? { aResponse: response, aRespondedAt: respondedAt }
+          : { bResponse: response, bRespondedAt: respondedAt }),
+        updatedAt: respondedAt,
+      });
+
+      // Recommendation rows derive their status from the pair state: mutual
+      // accept converts both directions, a decline passes both, and a lone
+      // accept leaves them approved while the other side decides.
+      let nextStatus = recommendation.status;
+      if (mutual) {
+        nextStatus = RECOMMENDATION_STATUSES.ACCEPTED;
+      } else if (response === MATCH_SIDE_RESPONSES.DECLINED) {
+        nextStatus = RECOMMENDATION_STATUSES.PASSED;
+      }
+      if (nextStatus !== recommendation.status) {
+        await repository.updateRecommendationStatus(recommendationId, nextStatus, respondedAt);
+        if (updatedMatch?.reverseRecommendationId) {
+          await repository.updateRecommendationStatus(updatedMatch.reverseRecommendationId, nextStatus, respondedAt);
+        }
+      }
 
       await repository.upsertOutcome({
         id: `outcome_${randomUUID()}`,
         recommendationId,
         outcomeStatus: OUTCOME_STATUSES.NO_FOLLOW_THROUGH,
         notes: null,
-        updatedAt: nowIso(),
+        updatedAt: respondedAt,
         requesterResponse: decision,
       });
 
-      await repository.appendEvents([{
-        id: `evt_${randomUUID()}`,
-        eventType: decision === "accept" ? EVENT_TYPES.USER_ACCEPT : EVENT_TYPES.USER_PASS,
-        actorUserId: auth.userId,
-        targetUserId: auth.userId,
-        recommendationId,
-        payload: { decision, candidateUserId: recommendation.candidateUserId },
-        createdAt: nowIso(),
-      }]);
+      const responseEvents = [
+        {
+          id: `evt_${randomUUID()}`,
+          eventType: response === MATCH_SIDE_RESPONSES.ACCEPTED ? EVENT_TYPES.BLIND_ACCEPT : EVENT_TYPES.BLIND_DECLINE,
+          actorUserId: auth.userId,
+          targetUserId: auth.userId,
+          recommendationId,
+          payload: { matchId: match.id, decision },
+          createdAt: respondedAt,
+        },
+        {
+          id: `evt_${randomUUID()}`,
+          eventType: decision === "accept" ? EVENT_TYPES.USER_ACCEPT : EVENT_TYPES.USER_PASS,
+          actorUserId: auth.userId,
+          targetUserId: auth.userId,
+          recommendationId,
+          payload: { decision, candidateUserId: recommendation.candidateUserId },
+          createdAt: respondedAt,
+        },
+      ];
+      if (mutual) {
+        responseEvents.push({
+          id: `evt_${randomUUID()}`,
+          eventType: EVENT_TYPES.MUTUAL_ACCEPT,
+          actorUserId: auth.userId,
+          targetUserId: auth.userId,
+          recommendationId,
+          payload: { matchId: match.id, decision },
+          createdAt: respondedAt,
+        });
+      }
+      await repository.appendEvents(responseEvents);
 
-      return json({ ok: true, recommendationId, status: nextStatus, decision });
+      // The decline reason feeds the trust ledger, never the other user.
+      const declineReason = typeof body.declineReason === "string" ? body.declineReason.trim() : "";
+      if (response === MATCH_SIDE_RESPONSES.DECLINED && declineReason) {
+        await repository.appendTrustSignal({
+          id: `trust_${randomUUID()}`,
+          userId: auth.userId,
+          signalType: TRUST_SIGNAL_TYPES.BLIND_DECLINE_REASON,
+          weight: 0,
+          matchId: match.id,
+          sourceEventId: null,
+          payload: { reason: declineReason.slice(0, 500) },
+          createdAt: respondedAt,
+        });
+      }
+
+      // Mutual accept unlocks the reveal. The intro email carries the reveal
+      // until the Phase 1 in-app reveal screen ships; the meeting is created
+      // here for the same reason. This block used to run at admin approval,
+      // which leaked identities before either user had accepted anything.
+      if (mutual) {
+        const [requesterProfile, candidateProfile] = await Promise.all([
+          repository.getUserProfile(recommendation.userId),
+          repository.getUserProfile(recommendation.candidateUserId),
+        ]);
+        if (requesterProfile && candidateProfile) {
+          const slot = firstOverlapSlot(
+            requesterProfile.availability ?? [],
+            candidateProfile.availability ?? [],
+          );
+          const occurrence = slot ? nextOccurrenceUtc(slot) : null;
+          const meetingUrl = `https://meet.jit.si/relethe-${encodeURIComponent(recommendationId)}`;
+          await repository.upsertMeeting({
+            recommendationId,
+            provider: 'jitsi',
+            meetingUrl,
+            scheduledAt: occurrence ? occurrence.startUtc.toISOString() : null,
+            status: MEETING_STATUSES.SCHEDULED,
+            metadata: slot ? { slot } : {},
+          });
+
+          const meeting = {
+            meetingUrl,
+            startUtc: occurrence?.startUtc ?? new Date(),
+            endUtc: occurrence?.endUtc ?? new Date(Date.now() + 60 * 60 * 1000),
+            slot,
+          };
+          const emailResult = await sendIntroEmails({
+            requesterProfile,
+            candidateProfile,
+            insightText: recommendation.insightText ?? null,
+            whyMatched: recommendation.whyMatched,
+            meeting,
+          });
+          if (emailResult.ok) {
+            await repository.upsertOutcome({
+              id: `outcome_${randomUUID()}`,
+              recommendationId,
+              outcomeStatus: OUTCOME_STATUSES.INTRO_SENT,
+              notes: null,
+              updatedAt: nowIso(),
+            });
+            await repository.appendEvents([{
+              id: `evt_${randomUUID()}`,
+              eventType: EVENT_TYPES.INTRO_SENT,
+              actorUserId: auth.userId,
+              targetUserId: recommendation.userId,
+              recommendationId,
+              payload: { emailIds: emailResult.ids },
+              createdAt: nowIso(),
+            }]);
+          }
+        }
+
+        await repository.updateMatch(match.id, { state: MATCH_STATUSES.REVEALED, updatedAt: nowIso() });
+        await repository.appendEvents([{
+          id: `evt_${randomUUID()}`,
+          eventType: EVENT_TYPES.IDENTITY_REVEALED,
+          actorUserId: auth.userId,
+          targetUserId: recommendation.userId,
+          recommendationId,
+          payload: { matchId: match.id },
+          createdAt: nowIso(),
+        }]);
+      }
+
+      return json({
+        ok: true,
+        recommendationId,
+        status: nextStatus,
+        decision,
+        matchState: mutual ? MATCH_STATUSES.REVEALED : nextMatchState,
+        mutual,
+        waitingOnOtherSide: decision === "accept" && !mutual,
+      });
     }
 
     const followThroughMatch = path.match(/^\/api\/v1\/recommendations\/([^/]+)\/follow-through$/);

@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS users (
   matching_enabled INTEGER NOT NULL DEFAULT 1,
   timezone TEXT NOT NULL DEFAULT 'UTC',
   is_active INTEGER NOT NULL DEFAULT 1,
+  verification_tier TEXT NOT NULL DEFAULT 'unverified',
   dob TEXT,
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL
@@ -177,4 +178,42 @@ CREATE TABLE IF NOT EXISTS weekly_cep (
 
 CREATE INDEX IF NOT EXISTS idx_weekly_cep_user ON weekly_cep(user_id);
 CREATE INDEX IF NOT EXISTS idx_weekly_cep_expires ON weekly_cep(expires_at);
+
+CREATE TABLE IF NOT EXISTS matches (
+  id TEXT PRIMARY KEY,
+  recommendation_id TEXT NOT NULL UNIQUE,
+  reverse_recommendation_id TEXT,
+  user_a_id TEXT NOT NULL,
+  user_b_id TEXT NOT NULL,
+  state TEXT NOT NULL DEFAULT 'offered_blind',
+  a_response TEXT,
+  a_responded_at TEXT,
+  b_response TEXT,
+  b_responded_at TEXT,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  FOREIGN KEY(recommendation_id) REFERENCES recommendations(id) ON DELETE CASCADE,
+  FOREIGN KEY(user_a_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY(user_b_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_matches_recommendation ON matches(recommendation_id);
+CREATE INDEX IF NOT EXISTS idx_matches_reverse_recommendation ON matches(reverse_recommendation_id);
+CREATE INDEX IF NOT EXISTS idx_matches_pair ON matches(user_a_id, user_b_id);
+CREATE INDEX IF NOT EXISTS idx_matches_state ON matches(state);
+
+CREATE TABLE IF NOT EXISTS trust_signals (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL,
+  signal_type TEXT NOT NULL,
+  weight REAL NOT NULL DEFAULT 0,
+  match_id TEXT,
+  source_event_id TEXT,
+  payload TEXT NOT NULL DEFAULT '{}',
+  created_at TEXT NOT NULL,
+  FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_trust_signals_user ON trust_signals(user_id);
+CREATE INDEX IF NOT EXISTS idx_trust_signals_type ON trust_signals(signal_type);
 `;

@@ -11,6 +11,36 @@ export const RECOMMENDATION_STATUSES = Object.freeze({
   PASSED: 'passed',
 });
 
+// Pair-level match lifecycle (alignment plan, Phase 0). A match row links the
+// two directional recommendation rows of a pair and owns the double-blind
+// acceptance state. Identity must never be exposed to either side before
+// the match reaches REVEALED.
+export const MATCH_STATUSES = Object.freeze({
+  GENERATED: 'generated',
+  UNDER_REVIEW: 'under_review',
+  OFFERED_BLIND: 'offered_blind',
+  MUTUAL_ACCEPTED: 'mutual_accepted',
+  REVEALED: 'revealed',
+  SCHEDULED: 'scheduled',
+  MET: 'met',
+  REVIEWED: 'reviewed',
+  CLOSED: 'closed',
+  DECLINED_SILENT: 'declined_silent',
+  EXPIRED: 'expired',
+  SUSPENDED: 'suspended',
+});
+
+export const MATCH_SIDE_RESPONSES = Object.freeze({
+  ACCEPTED: 'accepted',
+  DECLINED: 'declined',
+});
+
+export const VERIFICATION_TIERS = Object.freeze({
+  UNVERIFIED: 'unverified',
+  OAUTH_VERIFIED: 'oauth_verified',
+  WORK_EMAIL_VERIFIED: 'work_email_verified',
+});
+
 export const OUTCOME_STATUSES = Object.freeze({
   INTRO_SENT: 'intro_sent',
   MEETING_SCHEDULED: 'meeting_scheduled',

@@ -149,3 +149,35 @@ export class CepRepository {
     throw new Error('Not implemented');
   }
 }
+
+export class MatchRepository {
+  createMatch() {
+    throw new Error('Not implemented');
+  }
+
+  getMatchById() {
+    throw new Error('Not implemented');
+  }
+
+  getMatchByRecommendationId() {
+    throw new Error('Not implemented');
+  }
+
+  updateMatch() {
+    throw new Error('Not implemented');
+  }
+
+  getLatestReverseRecommendation() {
+    throw new Error('Not implemented');
+  }
+}
+
+export class TrustSignalRepository {
+  appendTrustSignal() {
+    throw new Error('Not implemented');
+  }
+
+  listTrustSignalsForUser() {
+    throw new Error('Not implemented');
+  }
+}
