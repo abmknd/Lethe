@@ -1184,11 +1184,145 @@ export class PostgresRepository {
     `;
   }
 
+  // ── matches (pair-level lifecycle, alignment plan Phase 0) ──────────────────
+
+  async createMatch(match: {
+    id: string; recommendationId: string; reverseRecommendationId: string | null;
+    userAId: string; userBId: string; state: string;
+    createdAt: string; updatedAt: string;
+  }): Promise<Match> {
+    const [row] = await sql`
+      INSERT INTO matches (
+        id, recommendation_id, reverse_recommendation_id,
+        user_a_id, user_b_id, state, created_at, updated_at
+      )
+      VALUES (
+        ${match.id}, ${match.recommendationId}, ${match.reverseRecommendationId},
+        ${match.userAId}, ${match.userBId}, ${match.state},
+        ${match.createdAt}, ${match.updatedAt}
+      )
+      RETURNING *
+    `;
+    return mapMatch(row);
+  }
+
+  async getMatchById(matchId: string): Promise<Match | null> {
+    const [row] = await sql`SELECT * FROM matches WHERE id = ${matchId}`;
+    return row ? mapMatch(row) : null;
+  }
+
+  async getMatchByRecommendationId(recommendationId: string): Promise<Match | null> {
+    const [row] = await sql`
+      SELECT * FROM matches
+      WHERE recommendation_id = ${recommendationId}
+         OR reverse_recommendation_id = ${recommendationId}
+    `;
+    return row ? mapMatch(row) : null;
+  }
+
+  async updateMatch(matchId: string, fields: {
+    state?: string; aResponse?: string; aRespondedAt?: string;
+    bResponse?: string; bRespondedAt?: string; updatedAt: string;
+  }): Promise<Match | null> {
+    const [row] = await sql`
+      UPDATE matches
+      SET state = COALESCE(${fields.state ?? null}, state),
+          a_response = COALESCE(${fields.aResponse ?? null}, a_response),
+          a_responded_at = COALESCE(${fields.aRespondedAt ?? null}, a_responded_at),
+          b_response = COALESCE(${fields.bResponse ?? null}, b_response),
+          b_responded_at = COALESCE(${fields.bRespondedAt ?? null}, b_responded_at),
+          updated_at = ${fields.updatedAt}
+      WHERE id = ${matchId}
+      RETURNING *
+    `;
+    return row ? mapMatch(row) : null;
+  }
+
+  async getLatestReverseRecommendation(
+    { userId, candidateUserId }: { userId: string; candidateUserId: string },
+  ): Promise<Recommendation | null> {
+    const [row] = await sql`
+      SELECT * FROM recommendations
+      WHERE source_user_id = ${candidateUserId}
+        AND target_user_id = ${userId}
+      ORDER BY created_at DESC
+      LIMIT 1
+    `;
+    return row ? mapRecommendation(row) : null;
+  }
+
+  // ── trust signals (append-only ledger) ──────────────────────────────────────
+
+  async appendTrustSignal(signal: {
+    id: string; userId: string; signalType: string; weight: number;
+    matchId: string | null; sourceEventId: string | null;
+    payload: unknown; createdAt: string;
+  }): Promise<void> {
+    await sql`
+      INSERT INTO trust_signals (
+        id, user_id, signal_type, weight, match_id, source_event_id, payload, created_at
+      )
+      VALUES (
+        ${signal.id}, ${signal.userId}, ${signal.signalType}, ${signal.weight},
+        ${signal.matchId}, ${signal.sourceEventId},
+        ${JSON.stringify(signal.payload ?? {})}::jsonb, ${signal.createdAt}
+      )
+    `;
+  }
+
+  async listTrustSignalsForUser(userId: string): Promise<Array<Record<string, unknown>>> {
+    const rows = await sql`
+      SELECT * FROM trust_signals WHERE user_id = ${userId} ORDER BY created_at ASC
+    `;
+    return rows.map((row) => ({
+      id: row.id,
+      userId: row.user_id,
+      signalType: row.signal_type,
+      weight: row.weight,
+      matchId: row.match_id,
+      sourceEventId: row.source_event_id,
+      payload: row.payload ?? {},
+      createdAt: row.created_at,
+    }));
+  }
+
   // ── transaction helper ─────────────────────────────────────────────────────
 
   async withTransaction<T>(fn: (tx: typeof sql) => Promise<T>): Promise<T> {
     return sql.begin(fn);
   }
+}
+
+export interface Match {
+  id: string;
+  recommendationId: string;
+  reverseRecommendationId: string | null;
+  userAId: string;
+  userBId: string;
+  state: string;
+  aResponse: string | null;
+  aRespondedAt: string | null;
+  bResponse: string | null;
+  bRespondedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+function mapMatch(row: Record<string, unknown>): Match {
+  return {
+    id: row.id as string,
+    recommendationId: row.recommendation_id as string,
+    reverseRecommendationId: (row.reverse_recommendation_id as string) ?? null,
+    userAId: row.user_a_id as string,
+    userBId: row.user_b_id as string,
+    state: row.state as string,
+    aResponse: (row.a_response as string) ?? null,
+    aRespondedAt: row.a_responded_at ? String(row.a_responded_at) : null,
+    bResponse: (row.b_response as string) ?? null,
+    bRespondedAt: row.b_responded_at ? String(row.b_responded_at) : null,
+    createdAt: String(row.created_at),
+    updatedAt: String(row.updated_at),
+  };
 }
 
 export const repository = new PostgresRepository();

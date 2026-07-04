@@ -195,12 +195,19 @@ export async function respondToRecommendation(params: {
   recommendationId: string;
   userId: string;
   decision: 'accept' | 'pass';
+  declineReason?: string;
 }, token?: string) {
-  return request<{ ok: boolean }>(`/api/v1/recommendations/${encodeURIComponent(params.recommendationId)}/respond`, {
+  return request<{
+    ok: boolean;
+    matchState?: string;
+    mutual?: boolean;
+    waitingOnOtherSide?: boolean;
+  }>(`/api/v1/recommendations/${encodeURIComponent(params.recommendationId)}/respond`, {
     method: 'POST',
     body: JSON.stringify({
       userId: params.userId,
       decision: params.decision,
+      ...(params.declineReason ? { declineReason: params.declineReason } : {}),
     }),
   }, token);
 }

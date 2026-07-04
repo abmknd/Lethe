@@ -36,10 +36,11 @@ export default function ConnectPage() {
       const token = await getAccessToken();
       try {
         // #76.3 — Suggestions surfaces what an admin has approved, not the
-        // raw matcher output. The user accept/pass then transitions
-        // `approved` → `accepted` / `passed`.
+        // raw matcher output. Under the blind gate a lone accept keeps the
+        // row `approved` while the other side decides, so filter out rows
+        // the viewer has already responded to.
         const recs = await listUserRecommendations(userId, 'approved', token);
-        setRecommendations(recs);
+        setRecommendations(recs.filter((r) => !r.viewerResponse));
         // #76.3 — visiting Suggestions clears the new-match badge.
         markMatchesSeen(userId, token).catch(() => {});
       } catch {
@@ -72,10 +73,22 @@ export default function ConnectPage() {
   const handleMatch = async () => {
     if (isAnimating || !rec) return;
     setIsAnimating(true);
-    setShowMatchFlash(true);
     const token = await getAccessToken();
-    try { await respondToRecommendation({ recommendationId: rec.id, userId, decision: 'accept' }, token); } catch {}
-    setTimeout(() => { setShowMatchFlash(false); setCurrentIdx(i => i + 1); setIsAnimating(false); }, 2000);
+    let mutual = false;
+    try {
+      const result = await respondToRecommendation({ recommendationId: rec.id, userId, decision: 'accept' }, token);
+      mutual = Boolean(result.mutual);
+    } catch {}
+    // The match flash only fires on a mutual accept — a lone accept is a
+    // vote, not a match (double-blind gate).
+    if (mutual) {
+      setShowMatchFlash(true);
+      setTimeout(() => { setShowMatchFlash(false); setCurrentIdx(i => i + 1); setIsAnimating(false); }, 2000);
+    } else {
+      displayToast('Accepted. Waiting on the other side.');
+      setProfileFade(true);
+      setTimeout(() => { setCurrentIdx(i => i + 1); setProfileFade(false); setIsAnimating(false); }, 300);
+    }
   };
 
   const toggleMatching = () => {

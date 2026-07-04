@@ -126,6 +126,10 @@ export interface Recommendation {
     notes: string | null;
   };
   meeting: Meeting | null;
+  // Blind-gate state (alignment plan, Phase 0). viewerResponse is only ever
+  // the viewer's own response — the other side's is never sent to the client.
+  matchState?: string | null;
+  viewerResponse?: string | null;
   createdAt: string;
   updatedAt: string;
 }
