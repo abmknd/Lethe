@@ -12,6 +12,19 @@ export const EVENT_TYPES = Object.freeze({
   MEETING_READINESS_RECORDED: 'meeting_readiness_recorded',
   CONVERSATION_CREATED: 'conversation_created',
   MESSAGE_SENT: 'message_sent',
+  // Match lifecycle (alignment plan, Phase 0)
+  BLIND_OFFER_CREATED: 'blind_offer_created',
+  BLIND_ACCEPT: 'blind_accept',
+  BLIND_DECLINE: 'blind_decline',
+  MUTUAL_ACCEPT: 'mutual_accept',
+  IDENTITY_REVEALED: 'identity_revealed',
+  MATCH_STATE_CHANGED: 'match_state_changed',
+  TRUST_SIGNAL_RECORDED: 'trust_signal_recorded',
+  // Reserved for later phases (scheduling integrity, mutual review)
+  NO_SHOW_RECORDED: 'no_show_recorded',
+  REVIEW_SUBMITTED: 'review_submitted',
+  REVIEWS_UNLOCKED: 'reviews_unlocked',
+  DISPUTE_OPENED: 'dispute_opened',
 });
 
 export const EVENT_TYPE_VALUES = Object.freeze(Object.values(EVENT_TYPES));

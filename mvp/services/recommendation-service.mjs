@@ -3,8 +3,9 @@ import { EVENT_TYPES } from '../domain/events.mjs';
 import { OUTCOME_STATUSES, RECOMMENDATION_STATUSES, nowIso } from '../domain/models.mjs';
 
 export class RecommendationService {
-  constructor({ repository }) {
+  constructor({ repository, matchLifecycle = null }) {
     this.repository = repository;
+    this.matchLifecycle = matchLifecycle;
   }
 
   listForUser(userId, { status } = {}) {
@@ -19,11 +20,15 @@ export class RecommendationService {
     this.repository.updateRecommendationInsightText(recommendationId, insightText);
   }
 
-  respondToRecommendation({ recommendationId, userId, decision }) {
+  // Double-blind response (alignment plan, Phase 0/1). A single accept no
+  // longer converts the pair: the recommendation row stays approved until
+  // both sides accept blind. Any decline terminates the pair silently.
+  respondToRecommendation({ recommendationId, userId, decision, declineReason = null }) {
     const normalizedDecision = String(decision ?? '').toLowerCase();
-    if (!['accept', 'pass'].includes(normalizedDecision)) {
+    if (!['accept', 'pass', 'decline'].includes(normalizedDecision)) {
       throw new Error('Decision must be accept or pass.');
     }
+    const blindDecision = normalizedDecision === 'accept' ? 'accept' : 'decline';
 
     const recommendation = this.repository.getRecommendationById(recommendationId);
     if (!recommendation) {
@@ -35,38 +40,85 @@ export class RecommendationService {
       throw new Error('User is not allowed to respond to this recommendation.');
     }
 
-    const nextStatus = normalizedDecision === 'accept' ? RECOMMENDATION_STATUSES.ACCEPTED : RECOMMENDATION_STATUSES.PASSED;
+    if (!this.matchLifecycle) {
+      throw new Error('Match lifecycle service is not configured.');
+    }
 
-    this.repository.updateRecommendationStatus(recommendationId, nextStatus, nowIso());
+    // Recommendations approved before the lifecycle existed get their match
+    // row lazily, so in-flight pairs keep working across the cutover.
+    let match = this.matchLifecycle.getMatchByRecommendationId(recommendationId);
+    if (!match) {
+      const reverse = typeof this.repository.getLatestReverseRecommendation === 'function'
+        ? this.repository.getLatestReverseRecommendation({
+            userId: recommendation.userId,
+            candidateUserId: recommendation.candidateUserId,
+          })
+        : null;
+      match = this.matchLifecycle.createBlindOffer({
+        recommendation,
+        reverseRecommendationId: reverse?.id ?? null,
+        actorUserId: userId,
+      });
+    }
 
-    this.repository.upsertOutcome({
-      id: `outcome_${randomUUID()}`,
+    const { match: updatedMatch, mutual, alreadyResponded } = this.matchLifecycle.recordBlindResponse({
       recommendationId,
-      requesterResponse: normalizedDecision,
-      outcomeStatus: OUTCOME_STATUSES.NO_FOLLOW_THROUGH,
-      notes: null,
-      updatedAt: nowIso(),
+      userId,
+      decision: blindDecision,
+      declineReason,
     });
 
-    this.repository.appendEvents([
-      {
-        id: `evt_${randomUUID()}`,
-        eventType: normalizedDecision === 'accept' ? EVENT_TYPES.USER_ACCEPT : EVENT_TYPES.USER_PASS,
-        actorUserId: userId,
-        targetUserId: userId,
+    // The recommendation rows derive their status from the pair state:
+    // mutual accept converts both directions, a decline passes both, and a
+    // lone accept leaves them approved while the other side decides.
+    let nextStatus = recommendation.status;
+    if (!alreadyResponded) {
+      if (mutual) {
+        nextStatus = RECOMMENDATION_STATUSES.ACCEPTED;
+      } else if (blindDecision === 'decline') {
+        nextStatus = RECOMMENDATION_STATUSES.PASSED;
+      }
+
+      if (nextStatus !== recommendation.status) {
+        this.repository.updateRecommendationStatus(recommendationId, nextStatus, nowIso());
+        if (updatedMatch.reverseRecommendationId) {
+          this.repository.updateRecommendationStatus(updatedMatch.reverseRecommendationId, nextStatus, nowIso());
+        }
+      }
+
+      this.repository.upsertOutcome({
+        id: `outcome_${randomUUID()}`,
         recommendationId,
-        payload: {
-          decision: normalizedDecision,
-          candidateUserId: recommendation.candidateUserId,
+        requesterResponse: blindDecision === 'accept' ? 'accept' : 'pass',
+        outcomeStatus: OUTCOME_STATUSES.NO_FOLLOW_THROUGH,
+        notes: null,
+        updatedAt: nowIso(),
+      });
+
+      this.repository.appendEvents([
+        {
+          id: `evt_${randomUUID()}`,
+          eventType: blindDecision === 'accept' ? EVENT_TYPES.USER_ACCEPT : EVENT_TYPES.USER_PASS,
+          actorUserId: userId,
+          targetUserId: userId,
+          recommendationId,
+          payload: {
+            decision: blindDecision === 'accept' ? 'accept' : 'pass',
+            candidateUserId: recommendation.candidateUserId,
+          },
+          createdAt: nowIso(),
         },
-        createdAt: nowIso(),
-      },
-    ]);
+      ]);
+    }
 
     return {
       recommendationId,
       status: nextStatus,
-      decision: normalizedDecision,
+      decision: blindDecision === 'accept' ? 'accept' : 'pass',
+      matchId: updatedMatch.id,
+      matchState: updatedMatch.state,
+      mutual,
+      waitingOnOtherSide: blindDecision === 'accept' && !mutual,
     };
   }
 

@@ -1588,4 +1588,145 @@ export class SqliteTrialRepository extends UserRepository {
       .run({ userId });
     return (result?.changes ?? 0) > 0;
   }
+
+  // ── matches (pair-level lifecycle, alignment plan Phase 0) ──────────────────
+
+  createMatch({ id, recommendationId, reverseRecommendationId = null, userAId, userBId, state, createdAt = nowIso(), updatedAt = nowIso() }) {
+    this.db
+      .prepare(
+        `
+        INSERT INTO matches (
+          id, recommendation_id, reverse_recommendation_id,
+          user_a_id, user_b_id, state, created_at, updated_at
+        )
+        VALUES (
+          :id, :recommendationId, :reverseRecommendationId,
+          :userAId, :userBId, :state, :createdAt, :updatedAt
+        )
+      `,
+      )
+      .run({ id, recommendationId, reverseRecommendationId, userAId, userBId, state, createdAt, updatedAt });
+
+    return this.getMatchById(id);
+  }
+
+  getMatchById(matchId) {
+    const row = this.db.prepare('SELECT * FROM matches WHERE id = :matchId').get({ matchId });
+    return row ? mapMatchRow(row) : null;
+  }
+
+  getMatchByRecommendationId(recommendationId) {
+    const row = this.db
+      .prepare(
+        `
+        SELECT * FROM matches
+        WHERE recommendation_id = :recommendationId
+           OR reverse_recommendation_id = :recommendationId
+      `,
+      )
+      .get({ recommendationId });
+    return row ? mapMatchRow(row) : null;
+  }
+
+  updateMatch(matchId, { state, aResponse, aRespondedAt, bResponse, bRespondedAt, updatedAt = nowIso() } = {}) {
+    this.db
+      .prepare(
+        `
+        UPDATE matches
+        SET state = COALESCE(:state, state),
+            a_response = COALESCE(:aResponse, a_response),
+            a_responded_at = COALESCE(:aRespondedAt, a_responded_at),
+            b_response = COALESCE(:bResponse, b_response),
+            b_responded_at = COALESCE(:bRespondedAt, b_responded_at),
+            updated_at = :updatedAt
+        WHERE id = :matchId
+      `,
+      )
+      .run({
+        matchId,
+        state: state ?? null,
+        aResponse: aResponse ?? null,
+        aRespondedAt: aRespondedAt ?? null,
+        bResponse: bResponse ?? null,
+        bRespondedAt: bRespondedAt ?? null,
+        updatedAt,
+      });
+
+    return this.getMatchById(matchId);
+  }
+
+  getLatestReverseRecommendation({ userId, candidateUserId }) {
+    const row = this.db
+      .prepare(
+        `
+        SELECT * FROM recommendations
+        WHERE source_user_id = :candidateUserId
+          AND target_user_id = :userId
+        ORDER BY created_at DESC
+        LIMIT 1
+      `,
+      )
+      .get({ userId, candidateUserId });
+    return row ? this.getRecommendationById(row.id) : null;
+  }
+
+  // ── trust signals (append-only ledger) ──────────────────────────────────────
+
+  appendTrustSignal({ id, userId, signalType, weight = 0, matchId = null, sourceEventId = null, payload = {}, createdAt = nowIso() }) {
+    this.db
+      .prepare(
+        `
+        INSERT INTO trust_signals (
+          id, user_id, signal_type, weight, match_id, source_event_id, payload, created_at
+        )
+        VALUES (:id, :userId, :signalType, :weight, :matchId, :sourceEventId, :payload, :createdAt)
+      `,
+      )
+      .run({
+        id,
+        userId,
+        signalType,
+        weight,
+        matchId,
+        sourceEventId,
+        payload: JSON.stringify(payload ?? {}),
+        createdAt,
+      });
+
+    return this.listTrustSignalsForUser(userId).find((signal) => signal.id === id) ?? null;
+  }
+
+  listTrustSignalsForUser(userId) {
+    const rows = this.db
+      .prepare('SELECT * FROM trust_signals WHERE user_id = :userId ORDER BY created_at ASC')
+      .all({ userId });
+
+    return rows.map((row) => ({
+      id: row.id,
+      userId: row.user_id,
+      signalType: row.signal_type,
+      weight: row.weight,
+      matchId: row.match_id,
+      sourceEventId: row.source_event_id,
+      payload: parseJson(row.payload, {}),
+      createdAt: row.created_at,
+    }));
+  }
+}
+
+function mapMatchRow(row) {
+  return {
+    id: row.id,
+    recommendationId: row.recommendation_id,
+    reverseRecommendationId: row.reverse_recommendation_id,
+    userAId: row.user_a_id,
+    userBId: row.user_b_id,
+    state: row.state,
+    aResponse: row.a_response,
+    aRespondedAt: row.a_responded_at,
+    bResponse: row.b_response,
+    bRespondedAt: row.b_responded_at,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
 }

@@ -23,9 +23,14 @@ test('outcome updates are traceable and emit expected events by recommendation',
   try {
     const recommendation = prepareApprovedRecommendation(app);
 
-    const accepted = app.services.recommendations.respondToRecommendation({
+    app.services.recommendations.respondToRecommendation({
       recommendationId: recommendation.id,
       userId: recommendation.userId,
+      decision: 'accept',
+    });
+    const accepted = app.services.recommendations.respondToRecommendation({
+      recommendationId: recommendation.id,
+      userId: recommendation.candidateUserId,
       decision: 'accept',
     });
     assert.equal(accepted.status, 'accepted');
@@ -130,6 +135,11 @@ test('weekly report snapshot reflects outcomes and event counts after admin acti
     app.services.recommendations.respondToRecommendation({
       recommendationId: recommendation.id,
       userId: recommendation.userId,
+      decision: 'accept',
+    });
+    app.services.recommendations.respondToRecommendation({
+      recommendationId: recommendation.id,
+      userId: recommendation.candidateUserId,
       decision: 'accept',
     });
     app.services.recommendations.updateFollowThrough({

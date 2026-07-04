@@ -57,9 +57,20 @@ test('L0-S1: complete Builder-to-Operator happy path — full intro loop end-to-
     const approved = app.services.recommendations.listForUser('marcus_webb', { status: 'approved' });
     assert.ok(approved.length > 0, 'expected recommendation to move to approved state after admin decision');
 
+    // Double-blind gate: both sides must accept before the pair converts.
     app.services.recommendations.respondToRecommendation({
       recommendationId: rec.id,
       userId: 'marcus_webb',
+      decision: 'accept',
+    });
+    assert.equal(
+      app.repository.getRecommendationById(rec.id).status,
+      'approved',
+      'a lone accept must not convert the pair',
+    );
+    app.services.recommendations.respondToRecommendation({
+      recommendationId: rec.id,
+      userId: 'logistics_mentor',
       decision: 'accept',
     });
 
@@ -253,6 +264,11 @@ test('L0-S3: weekly report reflects accepted match outcomes and event counts', (
     app.services.recommendations.respondToRecommendation({
       recommendationId: rec.id,
       userId: 'marcus_webb',
+      decision: 'accept',
+    });
+    app.services.recommendations.respondToRecommendation({
+      recommendationId: rec.id,
+      userId: 'logistics_mentor',
       decision: 'accept',
     });
     app.services.recommendations.updateFollowThrough({

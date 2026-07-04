@@ -26,8 +26,9 @@ function createHttpError(statusCode, message) {
 }
 
 export class AdminReviewService {
-  constructor({ repository }) {
+  constructor({ repository, matchLifecycle = null }) {
     this.repository = repository;
+    this.matchLifecycle = matchLifecycle;
   }
 
   listQueue({ status = RECOMMENDATION_STATUSES.PENDING_REVIEW } = {}) {
@@ -100,6 +101,22 @@ export class AdminReviewService {
           createdAt: nowIso(),
         },
       ]);
+
+      // Approval opens a blind offer: the pair-level match row that owns the
+      // double-blind gate. No identity, email, or meeting exists at this stage.
+      if (status === RECOMMENDATION_STATUSES.APPROVED && this.matchLifecycle) {
+        const reverse = typeof this.repository.getLatestReverseRecommendation === 'function'
+          ? this.repository.getLatestReverseRecommendation({
+              userId: recommendation.userId,
+              candidateUserId: recommendation.candidateUserId,
+            })
+          : null;
+        this.matchLifecycle.createBlindOffer({
+          recommendation,
+          reverseRecommendationId: reverse?.id ?? null,
+          actorUserId: adminId,
+        });
+      }
     });
 
     return {
