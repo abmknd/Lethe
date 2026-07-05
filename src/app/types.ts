@@ -101,6 +101,13 @@ export interface PublicProfile {
   objectives: string[];
 }
 
+export interface BlindRationale {
+  roleCategory: string;
+  overlapThemes: { kind: string; label: string }[];
+  availabilityCompatibility: string;
+  confidenceBand: 'low' | 'medium' | 'high';
+}
+
 export interface Recommendation {
   id: string;
   runId: string;
@@ -111,6 +118,8 @@ export interface Recommendation {
   status: string;
   whyMatched: string[];
   insightText: string | null;
+  // Null while the match is blind (alignment plan, Phase 1). Identity is only
+  // populated once the match is revealed.
   candidate: {
     id: string;
     displayName: string;
@@ -118,7 +127,9 @@ export interface Recommendation {
     location: string;
     timezone: string;
     introText: string;
-  };
+  } | null;
+  identityVisible?: boolean;
+  blindRationale?: BlindRationale | null;
   outcome: {
     requesterResponse: string | null;
     followThroughStatus: string;
