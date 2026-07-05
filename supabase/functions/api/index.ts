@@ -25,6 +25,22 @@ import {
 import { EVENT_TYPES } from "../../../mvp/domain/events.mjs";
 import { checkProfileCompleteness } from "../../../mvp/domain/completeness.mjs";
 import { TRUST_SIGNAL_TYPES } from "../../../mvp/domain/trust.mjs";
+import { buildBlindRationale, isIdentityVisible } from "../../../mvp/context/blind-rationale.mjs";
+
+// why_matched is stored as a JSON string in Postgres; the blind rationale
+// generator expects an array.
+function parseWhyMatched(value: unknown): string[] {
+  if (Array.isArray(value)) return value as string[];
+  if (typeof value === "string" && value.trim()) {
+    try {
+      const parsed = JSON.parse(value);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }
+  return [];
+}
 
 // Stable pair ordering so (A, B) and (B, A) resolve to the same match row.
 // Mirrors orderPair in mvp/services/match-lifecycle-service.mjs (not imported
@@ -204,18 +220,78 @@ Deno.serve(async (req: Request): Promise<Response> => {
       requireSelf(auth, userId);
       const status = url.searchParams.get("status") ?? undefined;
       const recommendations = await repository.listRecommendationsForUser(userId, { status });
-      // Enrich with the viewer's blind-gate state so the client can show
-      // "waiting on the other side" instead of re-offering the accept button.
-      // Only the viewer's own response is exposed — never the other side's.
+      // Blind gate (alignment plan, Phase 1). This endpoint is the single
+      // enforcement point: while a match is blind, the payload carries only
+      // the abstracted rationale — no name, handle, location, intro text,
+      // insight text, raw whyMatched, or numeric score. Identity is attached
+      // only once the pair has mutually accepted and the match is revealed.
+      const viewerProfile = await repository.getUserProfile(userId);
       const enriched = await Promise.all(recommendations.map(async (rec) => {
         const match = await repository.getMatchByRecommendationId(rec.id);
-        if (!match) return { ...rec, matchState: null, viewerResponse: null };
-        const viewerResponse = userId === match.userAId
-          ? match.aResponse
-          : userId === match.userBId
-            ? match.bResponse
-            : null;
-        return { ...rec, matchState: match.state, viewerResponse };
+        const matchState = match?.state ?? null;
+        const viewerResponse = match
+          ? (userId === match.userAId ? match.aResponse
+            : userId === match.userBId ? match.bResponse : null)
+          : null;
+
+        const candidateProfile = await repository.getUserProfile(rec.candidateUserId);
+        const whyMatched = parseWhyMatched(rec.whyMatched);
+        const blindRationale = candidateProfile
+          ? buildBlindRationale({
+              recommendation: { score: rec.score, whyMatched },
+              viewerProfile,
+              candidateProfile,
+            })
+          : null;
+
+        const base = {
+          id: rec.id,
+          runId: rec.runId,
+          userId: rec.userId,
+          candidateUserId: rec.candidateUserId,
+          status: rec.status,
+          matchState,
+          viewerResponse,
+          blindRationale,
+        };
+
+        // Identity is visible once the match is revealed OR the recommendation
+        // is already a resolved acceptance. The status fallback covers legacy
+        // one-sided accepts (pre-Phase-0 rows with no match) and keeps the
+        // matches page working for the already-live cohort.
+        const identityVisible = isIdentityVisible(matchState) || rec.status === RECOMMENDATION_STATUSES.ACCEPTED;
+
+        // Not revealed and not resolved → blind. Fail closed.
+        if (!identityVisible) {
+          return {
+            ...base,
+            identityVisible: false,
+            candidate: null,
+            insightText: null,
+            whyMatched: [],
+            score: null,
+          };
+        }
+
+        // Identity may be shown.
+        const candidate = candidateProfile
+          ? {
+              id: candidateProfile.user.id,
+              displayName: candidateProfile.user.displayName ?? candidateProfile.user.name,
+              handle: candidateProfile.user.handle,
+              location: candidateProfile.user.location,
+              timezone: candidateProfile.user.timezone,
+              introText: candidateProfile.preferences?.introText ?? candidateProfile.user.bio ?? "",
+            }
+          : null;
+        return {
+          ...base,
+          identityVisible: true,
+          candidate,
+          insightText: rec.insightText ?? null,
+          whyMatched,
+          score: rec.score,
+        };
       }));
       return json({ recommendations: enriched });
     }

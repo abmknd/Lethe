@@ -100,18 +100,19 @@ export default function MatchesPage() {
               return (
                 <div key={match.id} className="bg-[#0b0e0b] border border-white/[0.07] rounded-2xl p-5 flex items-start gap-4">
                   <div className="w-[44px] h-[44px] rounded-full flex-shrink-0 bg-[#1a2a1a] border border-[#ADFF2F]/[0.15] flex items-center justify-center text-[15px] font-semibold text-[#ADFF2F]/60 font-['Cormorant_Garamond']">
-                    {initials(match.candidate.displayName)}
+                    {initials(match.candidate?.displayName ?? 'Your match')}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-3 mb-[3px]">
-                      <div className="font-['Cormorant_Garamond'] text-[17px] text-white/[0.88]">{match.candidate.displayName}</div>
-                      <div className="text-[10px] font-semibold tracking-[0.08em] text-[rgba(173,255,47,0.65)] whitespace-nowrap">{match.score}% match</div>
+                      <div className="font-['Cormorant_Garamond'] text-[17px] text-white/[0.88]">{match.candidate?.displayName ?? 'Your match'}</div>
                     </div>
-                    <div className="flex items-center gap-1 text-[11px] text-white/[0.25] mb-[10px]">
-                      <MapPin size={9} className="opacity-55 flex-shrink-0" strokeWidth={1.5} />
-                      {match.candidate.location}
-                    </div>
-                    {match.candidate.introText && (
+                    {match.candidate?.location && (
+                      <div className="flex items-center gap-1 text-[11px] text-white/[0.25] mb-[10px]">
+                        <MapPin size={9} className="opacity-55 flex-shrink-0" strokeWidth={1.5} />
+                        {match.candidate.location}
+                      </div>
+                    )}
+                    {match.candidate?.introText && (
                       <p className="text-[12px] font-light leading-[1.7] text-white/[0.4] mb-[10px] line-clamp-2">{match.candidate.introText}</p>
                     )}
                     <div className="flex items-center gap-[5px] text-[10px] tracking-[0.06em] text-white/[0.28]">

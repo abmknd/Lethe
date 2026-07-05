@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
-import { X, Check, MapPin, Zap } from 'lucide-react';
+import { X, Check, EyeOff } from 'lucide-react';
 import ReletheLogo from '../imports/ReletheLogo';
 import { listUserRecommendations, markMatchesSeen, respondToRecommendation } from "./api";
 import type { Recommendation } from "./types";
@@ -184,40 +184,63 @@ export default function ConnectPage() {
           ) : !isComplete && rec ? (
             <>
               <div className={`flex-1 min-h-0 overflow-y-auto transition-opacity duration-[220ms] ${profileFade ? 'opacity-0' : 'opacity-100'}`}>
-                {/* Hero */}
+                {/* Blind hero — role category only, no identity until both accept */}
                 <div className="flex items-center gap-4 p-5 flex-shrink-0 border-b border-white/[0.07]">
-                  <div className="w-[52px] h-[52px] rounded-full flex-shrink-0 bg-[#1a2a1a] border border-[#ADFF2F]/[0.15] flex items-center justify-center text-[18px] font-semibold text-[#ADFF2F]/60 font-['Cormorant_Garamond']">
-                    {initials(rec.candidate.displayName)}
+                  <div className="w-[52px] h-[52px] rounded-full flex-shrink-0 bg-[#1a2a1a] border border-[#ADFF2F]/[0.15] flex items-center justify-center text-[#ADFF2F]/50">
+                    <EyeOff size={20} strokeWidth={1.5} />
                   </div>
                   <div className="flex flex-col justify-center gap-[3px]">
-                    <div className="font-['Cormorant_Garamond'] text-[20px] leading-[1.2] text-white/[0.88]">{rec.candidate.displayName}</div>
-                    <div className="text-[11px] text-white/[0.25] tracking-[0.05em]">{rec.candidate.handle}</div>
-                    <div className="flex items-center gap-1 text-[11px] font-light text-white/[0.25]">
-                      <MapPin size={9} className="opacity-55 flex-shrink-0" strokeWidth={1.5} />
-                      <span>{rec.candidate.location}</span>
+                    <div className="font-['Cormorant_Garamond'] text-[20px] leading-[1.2] text-white/[0.88]">
+                      {rec.blindRationale?.roleCategory ?? 'A match'}
                     </div>
+                    <div className="text-[11px] text-white/[0.25] tracking-[0.05em]">Identity revealed after you both accept</div>
                   </div>
                 </div>
 
-                {/* Compatibility strip */}
-                <div className="px-5 py-3 border-b border-white/[0.07] flex-shrink-0 flex items-center gap-[14px]">
-                  <div className="flex-1 h-[2px] rounded-[2px] bg-white/[0.07] overflow-hidden">
-                    <div
-                      className="h-full bg-[#ADFF2F] rounded-[2px] transition-all duration-[800ms] ease-[cubic-bezier(0.16,1,0.3,1)]"
-                      style={{ width: `${rec.score}%` }}
-                    />
+                {/* Confidence band — never a percentage */}
+                <div className="px-5 py-3 border-b border-white/[0.07] flex-shrink-0 flex items-center gap-[10px]">
+                  <div className="text-[9px] font-semibold tracking-[0.22em] uppercase text-white/[0.25]">Confidence</div>
+                  <div className="flex items-center gap-[5px]">
+                    {(['low', 'medium', 'high'] as const).map((tier) => {
+                      const band = rec.blindRationale?.confidenceBand ?? 'low';
+                      const rank = { low: 1, medium: 2, high: 3 };
+                      const on = rank[tier] <= rank[band];
+                      return (
+                        <div
+                          key={tier}
+                          className={`h-[6px] w-[26px] rounded-[2px] ${on ? 'bg-[#ADFF2F]/70' : 'bg-white/[0.08]'}`}
+                        />
+                      );
+                    })}
                   </div>
-                  <div className="text-[11px] font-semibold tracking-[0.08em] text-[rgba(173,255,47,0.72)] whitespace-nowrap flex-shrink-0">{rec.score}%</div>
-                  <div className="text-[11px] font-light text-white/[0.25] whitespace-nowrap flex-shrink-0">match</div>
+                  <div className="text-[11px] font-light text-white/[0.4] capitalize">{rec.blindRationale?.confidenceBand ?? 'low'}</div>
                 </div>
 
-                {/* Intro text */}
-                {rec.candidate.introText && (
-                  <div className="px-5 py-4 border-b border-white/[0.07]">
-                    <div className="text-[9px] font-semibold tracking-[0.22em] uppercase text-white/[0.25] mb-[10px]">About</div>
-                    <div className="text-[13px] font-light leading-[1.78] text-white/[0.52]">{rec.candidate.introText}</div>
+                {/* Why this match — abstracted, non-identifying */}
+                <div className="px-5 py-4 border-b border-white/[0.07]">
+                  <div className="text-[9px] font-semibold tracking-[0.22em] uppercase text-white/[0.25] mb-[12px]">Why this match</div>
+                  <div className="flex flex-col gap-[11px]">
+                    {(rec.blindRationale?.overlapThemes ?? []).map((theme, idx) => (
+                      <div key={idx} className="flex items-start gap-[9px]">
+                        <div className="w-1 h-1 rounded-full bg-[rgba(173,255,47,0.4)] flex-shrink-0 mt-[7px]" />
+                        <div className="text-[13px] font-light leading-[1.6] text-white/[0.55]">{theme.label}</div>
+                      </div>
+                    ))}
+                    {(rec.blindRationale?.overlapThemes?.length ?? 0) === 0 && (
+                      <div className="text-[13px] font-light leading-[1.6] text-white/[0.35]">
+                        A promising overlap our matcher surfaced this week.
+                      </div>
+                    )}
                   </div>
-                )}
+                </div>
+
+                {/* Availability */}
+                <div className="px-5 py-4">
+                  <div className="text-[9px] font-semibold tracking-[0.22em] uppercase text-white/[0.25] mb-[8px]">Availability</div>
+                  <div className="text-[12px] font-light leading-[1.6] text-white/[0.45]">
+                    {rec.blindRationale?.availabilityCompatibility ?? 'Scheduling to be arranged once you both accept'}
+                  </div>
+                </div>
               </div>
 
               {/* Action buttons */}
@@ -261,35 +284,38 @@ export default function ConnectPage() {
           )}
         </div>
 
-        {/* Right card — Relethe summary */}
+        {/* Right card — how the blind match works */}
         {!isLoading && !isComplete && rec && (
           <div className="w-[420px] min-w-[400px] flex-shrink-0 flex flex-col bg-transparent overflow-y-auto">
             <div className="bg-[#0b0e0b] border border-white/[0.07] rounded-2xl overflow-hidden flex flex-col">
               <div className={`bg-[rgba(173,255,47,0.03)] transition-opacity duration-[220ms] ${profileFade ? 'opacity-0' : 'opacity-100'}`}>
                 <div className="flex items-center gap-[10px] px-4 pt-[13px] pb-[10px]">
                   <div className="w-[26px] h-[26px] rounded-[7px] bg-[rgba(173,255,47,0.08)] border border-[rgba(173,255,47,0.12)] flex items-center justify-center flex-shrink-0 text-[rgba(173,255,47,0.6)]">
-                    <Zap size={12} strokeWidth={1.5} />
+                    <EyeOff size={12} strokeWidth={1.5} />
                   </div>
                   <div>
-                    <div className="text-[10px] font-semibold tracking-[0.16em] uppercase text-[rgba(173,255,47,0.65)]">Relethe summary</div>
+                    <div className="text-[10px] font-semibold tracking-[0.16em] uppercase text-[rgba(173,255,47,0.65)]">Blind match</div>
                     <div className="text-[10px] font-light text-white/[0.25] mt-[1px]">
-                      What you and {rec.candidate.displayName.split(' ')[0]} have in common
+                      You decide before you see who
                     </div>
                   </div>
                 </div>
-                <div className="px-4 pb-[14px]">
-                  {rec.insightText ? (
-                    <p className="text-[13px] font-light leading-[1.75] text-white/[0.55]">{rec.insightText}</p>
-                  ) : (
-                    <div className="flex flex-col gap-[9px]">
-                      {rec.whyMatched.map((reason, idx) => (
-                        <div key={idx} className="flex items-start gap-[9px]">
-                          <div className="w-1 h-1 rounded-full bg-[rgba(173,255,47,0.35)] flex-shrink-0 mt-[7px]" />
-                          <div className="text-[12px] font-light leading-[1.72] text-white/[0.5]">{reason}</div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                <div className="px-4 pb-[16px] flex flex-col gap-[12px]">
+                  <p className="text-[13px] font-light leading-[1.75] text-white/[0.55]">
+                    You're seeing what matters for the decision, not who it is. Names and photos stay hidden until you both accept, so no one can browse or target a specific person.
+                  </p>
+                  <div className="flex flex-col gap-[9px] pt-[2px]">
+                    {[
+                      'Accept, and the other side decides too.',
+                      'If you both accept, identities open together.',
+                      'If either passes, nothing is revealed.',
+                    ].map((line, idx) => (
+                      <div key={idx} className="flex items-start gap-[9px]">
+                        <div className="text-[11px] font-semibold text-[rgba(173,255,47,0.5)] font-['DM_Mono'] flex-shrink-0 mt-[1px]">{idx + 1}</div>
+                        <div className="text-[12px] font-light leading-[1.6] text-white/[0.5]">{line}</div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
