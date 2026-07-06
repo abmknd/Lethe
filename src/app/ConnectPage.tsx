@@ -80,10 +80,11 @@ export default function ConnectPage() {
       mutual = Boolean(result.mutual);
     } catch {}
     // The match flash only fires on a mutual accept — a lone accept is a
-    // vote, not a match (double-blind gate).
+    // vote, not a match (double-blind gate). On mutual, the flash hands off
+    // into the dedicated reveal screen for that match.
     if (mutual) {
       setShowMatchFlash(true);
-      setTimeout(() => { setShowMatchFlash(false); setCurrentIdx(i => i + 1); setIsAnimating(false); }, 2000);
+      setTimeout(() => { setShowMatchFlash(false); setIsAnimating(false); navigate(`/matches/${rec.id}`); }, 1600);
     } else {
       displayToast('Accepted. Waiting on the other side.');
       setProfileFade(true);
