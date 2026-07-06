@@ -7,6 +7,7 @@ import ProfilePage from "./ProfilePage";
 import OtherUserProfilePage from "./OtherUserProfilePage";
 import MessagesPage from "./MessagesPage";
 import MatchesPage from "./MatchesPage";
+import MatchRevealPage from "./MatchRevealPage";
 import SettingsPage from "./SettingsPage";
 import ConnectPage from "./ConnectPage";
 import CommunitiesPage from "./CommunitiesPage";
@@ -55,6 +56,7 @@ export const router = createBrowserRouter([
           { path: "user/:username", Component: OtherUserProfilePage },
           { path: "messages", Component: MessagesPage },
           { path: "matches", Component: MatchesPage },
+          { path: "matches/:id", Component: MatchRevealPage },
           { path: "connect", Component: ConnectPage },
           { path: "settings", Component: SettingsPage },
           { path: "communities", Component: CommunitiesPage },

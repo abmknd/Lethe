@@ -98,7 +98,11 @@ export default function MatchesPage() {
               const followStatus = match.outcome?.followThroughStatus;
               const statusLabel = (followStatus && FOLLOW_THROUGH_LABELS[followStatus]) ?? 'Accepted';
               return (
-                <div key={match.id} className="bg-[#0b0e0b] border border-white/[0.07] rounded-2xl p-5 flex items-start gap-4">
+                <div
+                  key={match.id}
+                  onClick={() => navigate(`/matches/${match.id}`)}
+                  className="bg-[#0b0e0b] border border-white/[0.07] rounded-2xl p-5 flex items-start gap-4 cursor-pointer hover:border-white/[0.16] hover:bg-[#0d110d] transition-colors"
+                >
                   <div className="w-[44px] h-[44px] rounded-full flex-shrink-0 bg-[#1a2a1a] border border-[#ADFF2F]/[0.15] flex items-center justify-center text-[15px] font-semibold text-[#ADFF2F]/60 font-['Cormorant_Garamond']">
                     {initials(match.candidate?.displayName ?? 'Your match')}
                   </div>
