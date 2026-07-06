@@ -21,6 +21,7 @@
     "verify:waitlist": "node scripts/verify-waitlist.mjs",
     "verify:rls": "node scripts/verify-rls.mjs",
     "verify:signup": "node scripts/verify-signup.mjs",
+    "seed:match": "node scripts/seed-test-match.mjs",
     "build": "vite build",
     "check:frontend": "vite build",
     "check:backend": "npm run mvp:test:backend && cucumber-js --import 'mvp/tests/step-definitions/**/*.mjs' mvp/tests/features/l0-happy-paths.feature mvp/tests/features/l1-insufficient-input.feature mvp/tests/features/l2-matching-failure.feature mvp/tests/features/l3-match-bypass.feature --tags 'not @skip' --no-strict",
