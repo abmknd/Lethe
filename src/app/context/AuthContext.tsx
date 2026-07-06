@@ -19,8 +19,18 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 // "Signups not allowed for otp" Supabase string.
 function translateAuthError(message: string): string {
   const lower = message.toLowerCase();
+  // Custom-SMTP send failure. Surfaces as raw "Error sending magic link email"
+  // otherwise, which reads like a crash to the user.
+  if (lower.includes("error sending") || lower.includes("smtp")) {
+    return "We couldn't send your sign-in link just now. Give it a minute and try again.";
+  }
+  if (lower.includes("rate limit") || lower.includes("too many")) {
+    return "Too many attempts. Wait a minute before requesting another link.";
+  }
+  // Defensive: only fires if project-level sign-up is toggled off. The app now
+  // opens sign-up, so this should not normally appear.
   if (lower.includes("signups not allowed")) {
-    return "We don't recognize this email. If you were invited, double-check it matches your invitation. Otherwise, request access from the home page.";
+    return "Sign-up isn't open at the moment. Please try again later.";
   }
   return message;
 }
@@ -46,7 +56,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        shouldCreateUser: false,
+        // Open sign-up: the cohort is now built from scratch, so a first-time
+        // email self-provisions on its first magic-link request and lands on
+        // onboarding. Requires "Allow new users to sign up" enabled on the
+        // Supabase project; with it off, new emails get "Signups not allowed".
+        shouldCreateUser: true,
         // Send the magic link back to a dedicated callback route that
         // establishes the session and forwards to onboarding. Uses the
         // current origin so it works for localhost and each deployed URL.
