@@ -72,22 +72,19 @@ CREATE POLICY "availability: delete own"
   USING (user_id = relethe_user_id());
 
 -- ── recommendations ───────────────────────────────────────────────────────────
+-- Deny-all for clients (Phase 1 hardening, migration 20260705000001). The
+-- pairing graph (source/target ids, why_matched, score) is served only through
+-- the `api` edge function, which bypasses RLS via a direct DB connection. RLS
+-- enabled with no client policy means authenticated/anon reads return nothing.
 
-DROP POLICY IF EXISTS "recommendations: read own" ON recommendations;
-CREATE POLICY "recommendations: read own"
-  ON recommendations FOR SELECT
-  USING (source_user_id = relethe_user_id());
+ALTER TABLE recommendations ENABLE ROW LEVEL SECURITY;
 
 -- ── outcomes ──────────────────────────────────────────────────────────────────
+-- Deny-all for clients (Phase 1 hardening, migrations 20260705000000/000002).
+-- Previously readable via a sub-select on recommendations; outcome_status and
+-- notes are now served only through the edge function.
 
-DROP POLICY IF EXISTS "outcomes: read via own recommendation" ON outcomes;
-CREATE POLICY "outcomes: read via own recommendation"
-  ON outcomes FOR SELECT
-  USING (
-    recommendation_id IN (
-      SELECT id FROM recommendations WHERE source_user_id = relethe_user_id()
-    )
-  );
+ALTER TABLE outcomes ENABLE ROW LEVEL SECURITY;
 
 -- ── events ────────────────────────────────────────────────────────────────────
 
@@ -97,19 +94,11 @@ CREATE POLICY "events: read own"
   USING (user_id = relethe_user_id());
 
 -- ── meetings ──────────────────────────────────────────────────────────────────
--- Users may read meetings linked to their own recommendations.
--- Create and status updates go through Edge Functions (service key).
+-- Deny-all for clients (Phase 1 hardening, migration 20260705000002). Was
+-- readable via a sub-select on recommendations; meetings are now served only
+-- through the edge function (create + status updates already went through it).
 
 ALTER TABLE meetings ENABLE ROW LEVEL SECURITY;
-
-DROP POLICY IF EXISTS "meetings: read via own recommendation" ON meetings;
-CREATE POLICY "meetings: read via own recommendation"
-  ON meetings FOR SELECT
-  USING (
-    recommendation_id IN (
-      SELECT id FROM recommendations WHERE source_user_id = relethe_user_id()
-    )
-  );
 
 -- ── connection_readiness ─────────────────────────────────────────────────────
 -- Users may read their own readiness signal. Mutations go through Edge Functions

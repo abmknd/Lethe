@@ -360,6 +360,46 @@ async function runTests({ alice, bob, charlie }) {
     runsErr?.message,
   );
 
+  // ── blind-gate tables (recommendations / outcomes / matches / trust_signals)─
+  // Identity and the pairing graph must be un-queryable directly; clients only
+  // ever receive these through the edge function. A leak here bypasses the
+  // blind gate entirely. REC_ID is a real seeded row, so a non-empty result is
+  // a true exposure, not just an empty table.
+
+  console.log("\nblind-gate tables");
+
+  const { data: recRows, error: recErr } =
+    await alice.from("recommendations").select("id, source_user_id, target_user_id, why_matched");
+  assert(
+    (recRows?.length ?? 0) === 0 || recErr != null,
+    "Authenticated user cannot read recommendations directly",
+    `got ${recRows?.length} rows e.g. ${JSON.stringify(recRows?.[0])}`,
+  );
+
+  const { data: outcomeRows, error: outcomeErr } =
+    await alice.from("outcomes").select("recommendation_id, outcome_status, notes");
+  assert(
+    (outcomeRows?.length ?? 0) === 0 || outcomeErr != null,
+    "Authenticated user cannot read outcomes directly",
+    `got ${outcomeRows?.length} rows`,
+  );
+
+  const { data: matchRows, error: matchErr } =
+    await alice.from("matches").select("id, user_a_id, user_b_id, state");
+  assert(
+    (matchRows?.length ?? 0) === 0 || matchErr != null,
+    "Authenticated user cannot read matches directly",
+    `got ${matchRows?.length} rows`,
+  );
+
+  const { data: trustRows, error: trustErr } =
+    await alice.from("trust_signals").select("id, user_id");
+  assert(
+    (trustRows?.length ?? 0) === 0 || trustErr != null,
+    "Authenticated user cannot read trust_signals directly",
+    `got ${trustRows?.length} rows`,
+  );
+
   // ── events ─────────────────────────────────────────────────────────────────
 
   console.log("\nevents");
@@ -442,21 +482,19 @@ async function runTests({ alice, bob, charlie }) {
   assert(insertBobCepErr != null, "Alice cannot insert CEP for Bob");
 
   // ── meetings ───────────────────────────────────────────────────────────────
+  // Deny-all for clients (Phase 1 hardening). Meetings are served only through
+  // the edge function; the reveal screen gets meeting data in the API payload,
+  // not by reading this table directly. REC_ID has a real seeded meeting, so a
+  // non-empty result would be a true exposure.
 
   console.log("\nmeetings");
 
-  const { data: aliceMeetings } = await alice.from("meetings").select("recommendation_id");
+  const { data: aliceMeetings, error: aliceMeetingsErr } =
+    await alice.from("meetings").select("recommendation_id");
   assert(
-    aliceMeetings?.length === 1 && aliceMeetings[0].recommendation_id === REC_ID,
-    "Alice can read meeting linked to her recommendation",
+    (aliceMeetings?.length ?? 0) === 0 || aliceMeetingsErr != null,
+    "Authenticated user cannot read meetings directly",
     `got: ${JSON.stringify(aliceMeetings)}`,
-  );
-
-  const { data: bobMeetings } = await bob.from("meetings").select("recommendation_id");
-  assert(
-    bobMeetings?.length === 0,
-    "Bob cannot read Alice's meeting",
-    `got: ${JSON.stringify(bobMeetings)}`,
   );
 
   // ── conversations (Phase 8 messaging) ──────────────────────────────────────
