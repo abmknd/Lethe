@@ -261,7 +261,8 @@ Deno.serve(async (req: Request): Promise<Response> => {
         // matches page working for the already-live cohort.
         const identityVisible = isIdentityVisible(matchState) || rec.status === RECOMMENDATION_STATUSES.ACCEPTED;
 
-        // Not revealed and not resolved → blind. Fail closed.
+        // Not revealed and not resolved → blind. Fail closed. No scheduling
+        // info either: a blind match has no meeting to surface.
         if (!identityVisible) {
           return {
             ...base,
@@ -270,10 +271,13 @@ Deno.serve(async (req: Request): Promise<Response> => {
             insightText: null,
             whyMatched: [],
             score: null,
+            meeting: null,
           };
         }
 
-        // Identity may be shown.
+        // Identity may be shown. Include the meeting so the reveal screen can
+        // render the scheduling handoff (clients can no longer read the
+        // meetings table directly — it is deny-all under RLS).
         const candidate = candidateProfile
           ? {
               id: candidateProfile.user.id,
@@ -284,6 +288,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
               introText: candidateProfile.preferences?.introText ?? candidateProfile.user.bio ?? "",
             }
           : null;
+        const meeting = await repository.getMeetingForRecommendation(rec.id);
         return {
           ...base,
           identityVisible: true,
@@ -291,6 +296,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
           insightText: rec.insightText ?? null,
           whyMatched,
           score: rec.score,
+          meeting,
         };
       }));
       return json({ recommendations: enriched });
