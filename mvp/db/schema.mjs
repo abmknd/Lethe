@@ -216,4 +216,27 @@ CREATE TABLE IF NOT EXISTS trust_signals (
 
 CREATE INDEX IF NOT EXISTS idx_trust_signals_user ON trust_signals(user_id);
 CREATE INDEX IF NOT EXISTS idx_trust_signals_type ON trust_signals(signal_type);
+
+CREATE TABLE IF NOT EXISTS hitl_config (
+  id TEXT PRIMARY KEY DEFAULT 'singleton',
+  auto_approve_rate INTEGER NOT NULL DEFAULT 0,
+  min_sample_floor INTEGER NOT NULL DEFAULT 20,
+  white_glove_first_match INTEGER NOT NULL DEFAULT 1,
+  updated_at TEXT NOT NULL,
+  updated_by TEXT
+);
+
+CREATE TABLE IF NOT EXISTS matching_snapshots (
+  id TEXT PRIMARY KEY,
+  run_id TEXT NOT NULL,
+  user_id TEXT NOT NULL,
+  snapshot TEXT NOT NULL DEFAULT '{}',
+  created_at TEXT NOT NULL,
+  UNIQUE(run_id, user_id),
+  FOREIGN KEY(run_id) REFERENCES recommendation_runs(id) ON DELETE CASCADE,
+  FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_matching_snapshots_run ON matching_snapshots(run_id);
+CREATE INDEX IF NOT EXISTS idx_matching_snapshots_user ON matching_snapshots(user_id);
 `;

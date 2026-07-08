@@ -25,6 +25,7 @@ import {
 import { EVENT_TYPES } from "../../../mvp/domain/events.mjs";
 import { checkProfileCompleteness } from "../../../mvp/domain/completeness.mjs";
 import { TRUST_SIGNAL_TYPES } from "../../../mvp/domain/trust.mjs";
+import { normalizeHitlConfig, computeWeightedAcceptance, DEFAULT_HITL_CONFIG } from "../../../mvp/domain/hitl-policy.mjs";
 import { buildBlindRationale, isIdentityVisible } from "../../../mvp/context/blind-rationale.mjs";
 
 // why_matched is stored as a JSON string in Postgres; the blind rationale
@@ -94,7 +95,9 @@ const MEETING_OUTCOME_MAP: Record<string, string> = {
   failed: OUTCOME_STATUSES.NO_FOLLOW_THROUGH,
 };
 
-const { randomUUID } = crypto;
+// Bound wrapper: `const { randomUUID } = crypto` loses its `this` and throws
+// "Illegal invocation" when called in Deno. Keep the call sites unchanged.
+const randomUUID = () => crypto.randomUUID();
 
 function readinessRecommendation(readiness: { status: string; recommendation?: string }): string {
   if (readiness.recommendation) return readiness.recommendation;
@@ -469,6 +472,42 @@ Deno.serve(async (req: Request): Promise<Response> => {
       const context = await repository.getRecommendationContext(recommendationId);
       if (!context) return json({ error: "Recommendation not found." }, 404);
       return json({ context });
+    }
+
+    // ── HITL dial (admin) ───────────────────────────────────────────────────────
+    // GET returns the current dial + the verified-tenure-weighted acceptance
+    // metric an admin watches before raising it. PUT sets it (ships parked at 0).
+    if (path === "/api/v1/admin/hitl-config") {
+      const auth = await requireAdmin(req);
+      const stored = await repository.getHitlConfig();
+      const config = normalizeHitlConfig(stored ?? DEFAULT_HITL_CONFIG);
+
+      if (req.method === "GET") {
+        const resolved = await repository.listResolvedMatchStats();
+        const { weightedAcceptance, sampleCount } = computeWeightedAcceptance(resolved);
+        return json({ config, stats: { resolvedCount: resolved.length, sampleCount, weightedAcceptance } });
+      }
+
+      if (req.method === "PUT") {
+        const body = await readJsonBody(req);
+        const next = normalizeHitlConfig({
+          autoApproveRate: body.autoApproveRate ?? config.autoApproveRate,
+          minSampleFloor: body.minSampleFloor ?? config.minSampleFloor,
+          whiteGloveFirstMatch: body.whiteGloveFirstMatch ?? config.whiteGloveFirstMatch,
+        });
+        const adminId = auth?.userId ?? "admin_system";
+        await repository.setHitlConfig({ ...next, updatedBy: adminId, updatedAt: nowIso() });
+        await repository.appendEvents([{
+          id: `evt_${randomUUID()}`,
+          eventType: EVENT_TYPES.HITL_CONFIG_CHANGED,
+          actorUserId: adminId,
+          targetUserId: null,
+          recommendationId: null,
+          payload: { from: config, to: next },
+          createdAt: nowIso(),
+        }]);
+        return json({ ok: true, config: next });
+      }
     }
 
     // ── recommendations ───────────────────────────────────────────────────────

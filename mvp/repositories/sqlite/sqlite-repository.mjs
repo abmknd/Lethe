@@ -1712,6 +1712,120 @@ export class SqliteTrialRepository extends UserRepository {
       createdAt: row.created_at,
     }));
   }
+
+  // ── HITL config (singleton) ──────────────────────────────────────────────────
+
+  getHitlConfig() {
+    const row = this.db.prepare("SELECT * FROM hitl_config WHERE id = 'singleton'").get();
+    if (!row) return null;
+    return {
+      autoApproveRate: row.auto_approve_rate,
+      minSampleFloor: row.min_sample_floor,
+      whiteGloveFirstMatch: Boolean(row.white_glove_first_match),
+      updatedAt: row.updated_at,
+      updatedBy: row.updated_by,
+    };
+  }
+
+  setHitlConfig({ autoApproveRate, minSampleFloor, whiteGloveFirstMatch, updatedBy = null, updatedAt = nowIso() }) {
+    this.db
+      .prepare(
+        `
+        INSERT INTO hitl_config (id, auto_approve_rate, min_sample_floor, white_glove_first_match, updated_at, updated_by)
+        VALUES ('singleton', :rate, :floor, :wg, :updatedAt, :updatedBy)
+        ON CONFLICT(id) DO UPDATE SET
+          auto_approve_rate = :rate,
+          min_sample_floor = :floor,
+          white_glove_first_match = :wg,
+          updated_at = :updatedAt,
+          updated_by = :updatedBy
+      `,
+      )
+      .run({
+        rate: autoApproveRate,
+        floor: minSampleFloor,
+        wg: whiteGloveFirstMatch ? 1 : 0,
+        updatedAt,
+        updatedBy,
+      });
+    return this.getHitlConfig();
+  }
+
+  // Resolved matches (accepted or passed) with the source user's tier + tenure,
+  // for the floor count and the weighted-acceptance metric.
+  listResolvedMatchStats() {
+    const rows = this.db
+      .prepare(
+        `
+        SELECT r.status, u.verification_tier AS tier, u.created_at AS user_created_at
+        FROM recommendations r
+        JOIN users u ON u.id = r.source_user_id
+        WHERE r.status IN ('accepted', 'passed')
+      `,
+      )
+      .all();
+    const now = Date.now();
+    return rows.map((row) => ({
+      accepted: row.status === 'accepted',
+      verificationTier: row.tier ?? 'unverified',
+      tenureDays: row.user_created_at
+        ? Math.max(0, (now - new Date(row.user_created_at).getTime()) / (24 * 3600 * 1000))
+        : 0,
+    }));
+  }
+
+  // Whether a user has any prior match beyond the blind-offer stage (used for
+  // the white-glove first-match rule). A user with no revealed/scheduled/met
+  // match history is on their "first match".
+  hasPriorMatchForUser(userId) {
+    const row = this.db
+      .prepare(
+        `
+        SELECT 1 FROM matches
+        WHERE (user_a_id = :userId OR user_b_id = :userId)
+          AND state IN ('mutual_accepted', 'revealed', 'scheduled', 'met', 'reviewed', 'closed')
+        LIMIT 1
+      `,
+      )
+      .get({ userId });
+    return Boolean(row);
+  }
+
+  // ── matching snapshots (cycle-start freeze) ──────────────────────────────────
+
+  insertMatchingSnapshots(runId, snapshots) {
+    if (!snapshots.length) return;
+    const insert = this.db.prepare(
+      `
+      INSERT INTO matching_snapshots (id, run_id, user_id, snapshot, created_at)
+      VALUES (:id, :runId, :userId, :snapshot, :createdAt)
+      ON CONFLICT(run_id, user_id) DO UPDATE SET snapshot = :snapshot
+    `,
+    );
+    for (const snap of snapshots) {
+      insert.run({
+        id: `snap_${randomUUID()}`,
+        runId,
+        userId: snap.userId,
+        snapshot: JSON.stringify(snap),
+        createdAt: nowIso(),
+      });
+    }
+  }
+
+  getMatchingSnapshot(runId, userId) {
+    const row = this.db
+      .prepare('SELECT snapshot FROM matching_snapshots WHERE run_id = :runId AND user_id = :userId')
+      .get({ runId, userId });
+    return row ? parseJson(row.snapshot, null) : null;
+  }
+
+  listMatchingSnapshotsForRun(runId) {
+    const rows = this.db
+      .prepare('SELECT snapshot FROM matching_snapshots WHERE run_id = :runId ORDER BY user_id')
+      .all({ runId });
+    return rows.map((row) => parseJson(row.snapshot, null)).filter(Boolean);
+  }
 }
 
 function mapMatchRow(row) {

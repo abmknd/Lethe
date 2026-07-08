@@ -310,3 +310,37 @@ export function buildRecommendationGenerationSnapshot({ recommendation, sourcePr
 export function buildUserContext(profile) {
   return buildProfileSummary(profile);
 }
+
+// Cycle-start matching snapshot (alignment plan, Phase 1 / decision 2).
+//
+// Captures the exact matching-relevant inputs a user had when a cycle started,
+// so mid-cycle profile edits cannot retroactively change that cycle and take
+// effect only in the next one. This closes the reverse-engineering loop (at
+// most one probe per cycle) and gives disputes a durable record of what was
+// actually matched on. Only matching inputs are captured — no free-text bio or
+// intro, which the matcher does not consume.
+export function buildMatchingInputSnapshot(profile) {
+  const prefs = profile.preferences ?? {};
+  return {
+    userId: profile.user.id,
+    matchIntent: uniqueNormalized(prefs.matchIntent),
+    offers: uniqueNormalized(prefs.offers),
+    asks: uniqueNormalized(prefs.asks),
+    interests: uniqueNormalized(prefs.interests),
+    objectives: uniqueNormalized(prefs.objectives),
+    preferredUserTypes: uniqueNormalized(prefs.preferredUserTypes),
+    userType: normalizeToken(prefs.userType),
+    meetingFormat: Array.isArray(prefs.meetingFormat) ? [...prefs.meetingFormat] : [],
+    localOnly: Boolean(prefs.localOnly),
+    blockedUserIds: uniqueNormalized(prefs.blockedUserIds),
+    preferredLocations: uniqueNormalized(prefs.preferredLocations),
+    location: normalizeToken(profile.user.location ?? ''),
+    timezone: String(profile.user.timezone ?? 'UTC'),
+    availability: (profile.availability ?? []).map((slot) => ({
+      dayOfWeek: Number(slot.dayOfWeek),
+      startHour: Number(slot.startHour),
+      endHour: Number(slot.endHour),
+      timezone: String(slot.timezone ?? 'UTC'),
+    })),
+  };
+}

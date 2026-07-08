@@ -181,3 +181,35 @@ export class TrustSignalRepository {
     throw new Error('Not implemented');
   }
 }
+
+export class HitlConfigRepository {
+  getHitlConfig() {
+    throw new Error('Not implemented');
+  }
+
+  setHitlConfig() {
+    throw new Error('Not implemented');
+  }
+
+  listResolvedMatchStats() {
+    throw new Error('Not implemented');
+  }
+
+  hasPriorMatchForUser() {
+    throw new Error('Not implemented');
+  }
+}
+
+export class MatchingSnapshotRepository {
+  insertMatchingSnapshots() {
+    throw new Error('Not implemented');
+  }
+
+  getMatchingSnapshot() {
+    throw new Error('Not implemented');
+  }
+
+  listMatchingSnapshotsForRun() {
+    throw new Error('Not implemented');
+  }
+}
