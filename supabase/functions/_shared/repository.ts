@@ -1286,6 +1286,82 @@ export class PostgresRepository {
     }));
   }
 
+  // ── HITL config + matching snapshots (Phase 1) ───────────────────────────────
+
+  async getHitlConfig(): Promise<
+    { autoApproveRate: number; minSampleFloor: number; whiteGloveFirstMatch: boolean; updatedAt?: string; updatedBy?: string } | null
+  > {
+    const [row] = await sql`SELECT * FROM hitl_config WHERE id = 'singleton'`;
+    if (!row) return null;
+    return {
+      autoApproveRate: row.auto_approve_rate as number,
+      minSampleFloor: row.min_sample_floor as number,
+      whiteGloveFirstMatch: Boolean(row.white_glove_first_match),
+      updatedAt: row.updated_at ? String(row.updated_at) : undefined,
+      updatedBy: (row.updated_by as string) ?? undefined,
+    };
+  }
+
+  async setHitlConfig(cfg: {
+    autoApproveRate: number; minSampleFloor: number; whiteGloveFirstMatch: boolean;
+    updatedBy?: string | null; updatedAt?: string;
+  }): Promise<void> {
+    await sql`
+      INSERT INTO hitl_config (id, auto_approve_rate, min_sample_floor, white_glove_first_match, updated_at, updated_by)
+      VALUES ('singleton', ${cfg.autoApproveRate}, ${cfg.minSampleFloor}, ${cfg.whiteGloveFirstMatch}, ${cfg.updatedAt ?? nowIso()}, ${cfg.updatedBy ?? null})
+      ON CONFLICT (id) DO UPDATE SET
+        auto_approve_rate = EXCLUDED.auto_approve_rate,
+        min_sample_floor = EXCLUDED.min_sample_floor,
+        white_glove_first_match = EXCLUDED.white_glove_first_match,
+        updated_at = EXCLUDED.updated_at,
+        updated_by = EXCLUDED.updated_by
+    `;
+  }
+
+  async listResolvedMatchStats(): Promise<Array<{ accepted: boolean; verificationTier: string; tenureDays: number }>> {
+    const rows = await sql`
+      SELECT r.status, u.verification_tier AS tier, u.created_at AS user_created_at
+      FROM recommendations r
+      JOIN users u ON u.id = r.source_user_id
+      WHERE r.status IN ('accepted', 'passed')
+    `;
+    const now = Date.now();
+    return rows.map((row) => ({
+      accepted: row.status === 'accepted',
+      verificationTier: (row.tier as string) ?? 'unverified',
+      tenureDays: row.user_created_at
+        ? Math.max(0, (now - new Date(row.user_created_at as string).getTime()) / (24 * 3600 * 1000))
+        : 0,
+    }));
+  }
+
+  async hasPriorMatchForUser(userId: string): Promise<boolean> {
+    const [row] = await sql`
+      SELECT 1 FROM matches
+      WHERE (user_a_id = ${userId} OR user_b_id = ${userId})
+        AND state IN ('mutual_accepted', 'revealed', 'scheduled', 'met', 'reviewed', 'closed')
+      LIMIT 1
+    `;
+    return Boolean(row);
+  }
+
+  async insertMatchingSnapshots(
+    runId: string, snapshots: Array<Record<string, unknown> & { userId: string }>,
+  ): Promise<void> {
+    for (const snap of snapshots) {
+      await sql`
+        INSERT INTO matching_snapshots (id, run_id, user_id, snapshot, created_at)
+        VALUES (${`snap_${crypto.randomUUID()}`}, ${runId}, ${snap.userId}, ${JSON.stringify(snap)}::jsonb, ${nowIso()})
+        ON CONFLICT (run_id, user_id) DO UPDATE SET snapshot = EXCLUDED.snapshot
+      `;
+    }
+  }
+
+  async getMatchingSnapshot(runId: string, userId: string): Promise<Record<string, unknown> | null> {
+    const [row] = await sql`SELECT snapshot FROM matching_snapshots WHERE run_id = ${runId} AND user_id = ${userId}`;
+    return row ? (row.snapshot as Record<string, unknown>) : null;
+  }
+
   // ── transaction helper ─────────────────────────────────────────────────────
 
   async withTransaction<T>(fn: (tx: typeof sql) => Promise<T>): Promise<T> {

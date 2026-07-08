@@ -8,8 +8,21 @@ import { repository } from "../_shared/repository.ts";
 
 import { createDeterministicMatcher } from "../../../mvp/matching/deterministic-matcher.mjs";
 import { EVENT_TYPES } from "../../../mvp/domain/events.mjs";
-import { RECOMMENDATION_STATUSES, nowIso } from "../../../mvp/domain/models.mjs";
-import { buildRecommendationGenerationSnapshot } from "../../../mvp/context/profile-context-support.mjs";
+import { RECOMMENDATION_STATUSES, MATCH_STATUSES, nowIso } from "../../../mvp/domain/models.mjs";
+import {
+  buildRecommendationGenerationSnapshot,
+  buildMatchingInputSnapshot,
+} from "../../../mvp/context/profile-context-support.mjs";
+import {
+  decideReviewRouting,
+  normalizeHitlConfig,
+  DEFAULT_HITL_CONFIG,
+  REVIEW_ROUTES,
+} from "../../../mvp/domain/hitl-policy.mjs";
+
+function pairKeyOf(a: string, b: string): string {
+  return a < b ? `${a}|${b}` : `${b}|${a}`;
+}
 
 const matcher = createDeterministicMatcher();
 
@@ -88,6 +101,12 @@ Deno.serve(async (req: Request): Promise<Response> => {
       repository.listPairHistory({ sinceDays: 180 }),
     ]);
 
+    // Freeze this cycle's matching inputs (decision 2): a durable, per-run record.
+    await repository.insertMatchingSnapshots(
+      runId,
+      profiles.map((p) => buildMatchingInputSnapshot(p)),
+    );
+
     const candidateMap = matcher.matchUsers(profiles, pairHistory);
     const profilesById = new Map(profiles.map((p) => [p.user.id, p]));
 
@@ -111,7 +130,85 @@ Deno.serve(async (req: Request): Promise<Response> => {
       }
     }
 
+    // Graduated HITL routing (decision 3), per unordered pair. Parked at 0 →
+    // every pair routes to manual, recommendations stay pending_review, and this
+    // whole block is a no-op, matching the pre-dial behavior.
+    const hitlConfig = normalizeHitlConfig((await repository.getHitlConfig()) ?? DEFAULT_HITL_CONFIG);
+    const recDecision = new Map<string, { route: string; reason: string }>();
+    const autoPairs: Array<{ pairKey: string; reason: string; recs: typeof recommendations }> = [];
+
+    if (hitlConfig.autoApproveRate > 0) {
+      const resolvedCount = (await repository.listResolvedMatchStats()).length;
+      const pairs = new Map<string, { userAId: string; userBId: string; recs: typeof recommendations }>();
+      for (const rec of recommendations) {
+        const key = pairKeyOf(rec.userId, rec.candidateUserId);
+        if (!pairs.has(key)) {
+          const [a, b] = rec.userId < rec.candidateUserId
+            ? [rec.userId, rec.candidateUserId]
+            : [rec.candidateUserId, rec.userId];
+          pairs.set(key, { userAId: a, userBId: b, recs: [] });
+        }
+        pairs.get(key)!.recs.push(rec);
+      }
+      for (const [key, info] of pairs.entries()) {
+        const isFirst =
+          !(await repository.hasPriorMatchForUser(info.userAId)) ||
+          !(await repository.hasPriorMatchForUser(info.userBId));
+        const decision = decideReviewRouting({
+          config: hitlConfig,
+          resolvedCount,
+          isFirstMatchForEitherUser: isFirst,
+          pairKey: key,
+        });
+        for (const rec of info.recs) recDecision.set(rec.id, decision);
+        if (decision.route === REVIEW_ROUTES.AUTO) {
+          for (const rec of info.recs) rec.status = RECOMMENDATION_STATUSES.APPROVED;
+          autoPairs.push({ pairKey: key, reason: decision.reason, recs: info.recs });
+        }
+      }
+    }
+
     await repository.replacePendingRecommendationsForRun(runId, recommendations);
+
+    // Auto-approved pairs open a blind offer, mirroring admin approval.
+    for (const { pairKey: key, reason, recs } of autoPairs) {
+      const primary = recs[0];
+      const reverse = recs[1] ?? null;
+      const [ua, ub] = primary.userId < primary.candidateUserId
+        ? [primary.userId, primary.candidateUserId]
+        : [primary.candidateUserId, primary.userId];
+      const matchId = `match_${crypto.randomUUID()}`;
+      await repository.createMatch({
+        id: matchId,
+        recommendationId: primary.id,
+        reverseRecommendationId: reverse?.id ?? null,
+        userAId: ua,
+        userBId: ub,
+        state: MATCH_STATUSES.OFFERED_BLIND,
+        createdAt: nowIso(),
+        updatedAt: nowIso(),
+      });
+      await repository.appendEvents([
+        {
+          id: `evt_${crypto.randomUUID()}`,
+          eventType: EVENT_TYPES.BLIND_OFFER_CREATED,
+          actorUserId: null,
+          targetUserId: primary.userId,
+          recommendationId: primary.id,
+          payload: { matchId, userAId: ua, userBId: ub },
+          createdAt: nowIso(),
+        },
+        {
+          id: `evt_${crypto.randomUUID()}`,
+          eventType: EVENT_TYPES.HITL_AUTO_APPROVED,
+          actorUserId: null,
+          targetUserId: primary.userId,
+          recommendationId: primary.id,
+          payload: { pairKey: key, reason },
+          createdAt: nowIso(),
+        },
+      ]);
+    }
 
     const events = recommendations.map((rec) => {
       const sourceProfile = profilesById.get(rec.userId);
@@ -139,6 +236,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
           rank: rec.rank,
           whyMatched: rec.whyMatched,
           explanationSupportSnapshot,
+          hitlRouting: recDecision.get(rec.id) ?? null,
         },
         createdAt: nowIso(),
       };
