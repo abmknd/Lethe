@@ -217,6 +217,10 @@ export function normalizePreferences(input = {}) {
     askAbout: typeof input.askAbout === 'string' ? input.askAbout.trim() : '',
     whoToMeet,
     notificationPrefs: normalizeNotificationPrefs(input.notificationPrefs),
+    // Org anchors for layered same-org exclusion (Phase 2, item 1).
+    companyName: typeof input.companyName === 'string' ? input.companyName.trim() : '',
+    workEmail: typeof input.workEmail === 'string' ? input.workEmail.trim().toLowerCase() : '',
+    linkedinUrl: typeof input.linkedinUrl === 'string' ? input.linkedinUrl.trim() : '',
   };
 }
 

@@ -330,6 +330,8 @@ export function buildMatchingInputSnapshot(profile) {
     objectives: uniqueNormalized(prefs.objectives),
     preferredUserTypes: uniqueNormalized(prefs.preferredUserTypes),
     userType: normalizeToken(prefs.userType),
+    companyName: normalizeToken(prefs.companyName ?? ''),
+    workEmailDomain: String(prefs.workEmail ?? '').trim().toLowerCase().split('@')[1] ?? '',
     meetingFormat: Array.isArray(prefs.meetingFormat) ? [...prefs.meetingFormat] : [],
     localOnly: Boolean(prefs.localOnly),
     blockedUserIds: uniqueNormalized(prefs.blockedUserIds),

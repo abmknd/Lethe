@@ -276,7 +276,7 @@ export class SqliteTrialRepository extends UserRepository {
         `
         SELECT id, user_id, match_intent, offers, asks, preferred_locations, user_type, preferred_user_types, interests, objectives,
                intro_text, meeting_format, local_only, blocked_user_ids, languages, meeting_frequency, learn_about, ask_about,
-               who_to_meet, notification_prefs, created_at, updated_at
+               who_to_meet, notification_prefs, company_name, work_email, linkedin_url, created_at, updated_at
         FROM preferences
         WHERE user_id = :userId
       `,
@@ -308,6 +308,9 @@ export class SqliteTrialRepository extends UserRepository {
       askAbout: row.ask_about ?? '',
       whoToMeet: Number.isInteger(row.who_to_meet) ? row.who_to_meet : 0,
       notificationPrefs: parseJson(row.notification_prefs, {}),
+      companyName: row.company_name ?? '',
+      workEmail: row.work_email ?? '',
+      linkedinUrl: row.linkedin_url ?? '',
       createdAt: row.created_at,
       updatedAt: row.updated_at,
     };
@@ -341,6 +344,9 @@ export class SqliteTrialRepository extends UserRepository {
           ask_about,
           who_to_meet,
           notification_prefs,
+          company_name,
+          work_email,
+          linkedin_url,
           created_at,
           updated_at
         )
@@ -365,6 +371,9 @@ export class SqliteTrialRepository extends UserRepository {
           :askAbout,
           :whoToMeet,
           :notificationPrefs,
+          :companyName,
+          :workEmail,
+          :linkedinUrl,
           :createdAt,
           :updatedAt
         )
@@ -387,6 +396,9 @@ export class SqliteTrialRepository extends UserRepository {
           ask_about = excluded.ask_about,
           who_to_meet = excluded.who_to_meet,
           notification_prefs = excluded.notification_prefs,
+          company_name = excluded.company_name,
+          work_email = excluded.work_email,
+          linkedin_url = excluded.linkedin_url,
           updated_at = excluded.updated_at
       `,
       )
@@ -411,6 +423,9 @@ export class SqliteTrialRepository extends UserRepository {
         askAbout: preferences.askAbout ?? '',
         whoToMeet: Number.isInteger(preferences.whoToMeet) ? preferences.whoToMeet : 0,
         notificationPrefs: JSON.stringify(preferences.notificationPrefs ?? {}),
+        companyName: preferences.companyName ?? '',
+        workEmail: preferences.workEmail ?? '',
+        linkedinUrl: preferences.linkedinUrl ?? '',
         createdAt: now,
         updatedAt: now,
       });
@@ -490,6 +505,7 @@ export class SqliteTrialRepository extends UserRepository {
       offers: [],
       asks: [],
       preferredLocations: [],
+      userType: '',
       preferredUserTypes: [],
       interests: [],
       objectives: [],
@@ -503,6 +519,9 @@ export class SqliteTrialRepository extends UserRepository {
       askAbout: '',
       whoToMeet: 0,
       notificationPrefs: {},
+      companyName: '',
+      workEmail: '',
+      linkedinUrl: '',
     };
 
     const availability = this.listAvailabilityByUserId(userId);
@@ -526,6 +545,7 @@ export class SqliteTrialRepository extends UserRepository {
         offers: preferences.offers,
         asks: preferences.asks,
         preferredLocations: preferences.preferredLocations,
+        userType: preferences.userType ?? '',
         preferredUserTypes: preferences.preferredUserTypes,
         interests: preferences.interests,
         objectives: preferences.objectives,
@@ -539,6 +559,9 @@ export class SqliteTrialRepository extends UserRepository {
         askAbout: preferences.askAbout ?? '',
         whoToMeet: preferences.whoToMeet ?? 0,
         notificationPrefs: preferences.notificationPrefs ?? {},
+        companyName: preferences.companyName ?? '',
+        workEmail: preferences.workEmail ?? '',
+        linkedinUrl: preferences.linkedinUrl ?? '',
       },
       availability,
       updatedAt: user.updatedAt,
@@ -579,6 +602,9 @@ export class SqliteTrialRepository extends UserRepository {
         askAbout: preferences.askAbout,
         whoToMeet: preferences.whoToMeet,
         notificationPrefs: preferences.notificationPrefs,
+        companyName: preferences.companyName,
+        workEmail: preferences.workEmail,
+        linkedinUrl: preferences.linkedinUrl,
       });
 
       this.replaceAvailabilitySlots(user.id, availability);

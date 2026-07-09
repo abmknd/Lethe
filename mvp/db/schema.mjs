@@ -38,6 +38,9 @@ CREATE TABLE IF NOT EXISTS preferences (
   ask_about TEXT NOT NULL DEFAULT '',
   who_to_meet INTEGER NOT NULL DEFAULT 0,
   notification_prefs TEXT NOT NULL DEFAULT '{}',
+  company_name TEXT NOT NULL DEFAULT '',
+  work_email TEXT NOT NULL DEFAULT '',
+  linkedin_url TEXT NOT NULL DEFAULT '',
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL,
   FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE

@@ -1,5 +1,17 @@
+import { isSameOrg, orgIdentity } from './org-exclusion.mjs';
+
 function normalizeToken(value) {
   return String(value).trim().toLowerCase();
+}
+
+// Draw the org anchors from the profile's user + preferences. Company name and
+// work email are declared during onboarding and stored on preferences.
+function orgIdentityForProfile(profile) {
+  return orgIdentity({
+    email: profile.user?.email,
+    companyName: profile.preferences?.companyName,
+    workEmail: profile.preferences?.workEmail,
+  });
 }
 
 function toTokenSet(text) {
@@ -196,18 +208,10 @@ export function createDeterministicMatcher({ topN = 5, recentIntroDays = 45 } = 
             continue;
           }
 
-          const profileDomain = profile.user.email?.split('@')[1]?.toLowerCase();
-          const candidateDomain = candidate.user.email?.split('@')[1]?.toLowerCase();
-          const PLATFORM_AND_PERSONAL_DOMAINS = new Set([
-            'lethe.io', 'example.com',
-            'gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com',
-            'icloud.com', 'protonmail.com', 'me.com', 'live.com', 'msn.com',
-          ]);
-          if (
-            profileDomain && candidateDomain &&
-            profileDomain === candidateDomain &&
-            !PLATFORM_AND_PERSONAL_DOMAINS.has(profileDomain)
-          ) {
+          // Layered same-org exclusion (Phase 2, item 1): email domain +
+          // self-declared company name + verified work-email domain. Any layer
+          // firing excludes the pair. See mvp/matching/org-exclusion.mjs.
+          if (isSameOrg(orgIdentityForProfile(profile), orgIdentityForProfile(candidate))) {
             continue;
           }
 
