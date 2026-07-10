@@ -1,4 +1,5 @@
 import { isSameOrg, orgIdentity } from './org-exclusion.mjs';
+import { passesStageRequirement, passesNotLookingFor } from './candidate-filters.mjs';
 
 function normalizeToken(value) {
   return String(value).trim().toLowerCase();
@@ -245,6 +246,16 @@ export function createDeterministicMatcher({ topN = 5, recentIntroDays = 45 } = 
             if (!hasFormatOverlap) {
               continue;
             }
+          }
+
+          // Directional candidate pre-filters (Phase 2, item 2): the requesting
+          // profile's company-stage requirement and not_looking_for list gate
+          // which candidates reach scoring. See mvp/matching/candidate-filters.mjs.
+          if (!passesStageRequirement(profile.preferences, candidate.preferences)) {
+            continue;
+          }
+          if (!passesNotLookingFor(profile.preferences, candidate.preferences)) {
+            continue;
           }
 
           const intentRatio = overlapRatio(profile.preferences.matchIntent, candidate.preferences.matchIntent);

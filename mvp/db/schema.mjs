@@ -41,6 +41,9 @@ CREATE TABLE IF NOT EXISTS preferences (
   company_name TEXT NOT NULL DEFAULT '',
   work_email TEXT NOT NULL DEFAULT '',
   linkedin_url TEXT NOT NULL DEFAULT '',
+  company_stage TEXT NOT NULL DEFAULT '',
+  meet_stages TEXT NOT NULL DEFAULT '[]',
+  not_looking_for TEXT NOT NULL DEFAULT '[]',
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL,
   FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE

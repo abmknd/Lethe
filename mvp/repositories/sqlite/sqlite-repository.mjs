@@ -276,7 +276,8 @@ export class SqliteTrialRepository extends UserRepository {
         `
         SELECT id, user_id, match_intent, offers, asks, preferred_locations, user_type, preferred_user_types, interests, objectives,
                intro_text, meeting_format, local_only, blocked_user_ids, languages, meeting_frequency, learn_about, ask_about,
-               who_to_meet, notification_prefs, company_name, work_email, linkedin_url, created_at, updated_at
+               who_to_meet, notification_prefs, company_name, work_email, linkedin_url,
+               company_stage, meet_stages, not_looking_for, created_at, updated_at
         FROM preferences
         WHERE user_id = :userId
       `,
@@ -311,6 +312,9 @@ export class SqliteTrialRepository extends UserRepository {
       companyName: row.company_name ?? '',
       workEmail: row.work_email ?? '',
       linkedinUrl: row.linkedin_url ?? '',
+      companyStage: row.company_stage ?? '',
+      meetStages: parseJson(row.meet_stages, []),
+      notLookingFor: parseJson(row.not_looking_for, []),
       createdAt: row.created_at,
       updatedAt: row.updated_at,
     };
@@ -347,6 +351,9 @@ export class SqliteTrialRepository extends UserRepository {
           company_name,
           work_email,
           linkedin_url,
+          company_stage,
+          meet_stages,
+          not_looking_for,
           created_at,
           updated_at
         )
@@ -374,6 +381,9 @@ export class SqliteTrialRepository extends UserRepository {
           :companyName,
           :workEmail,
           :linkedinUrl,
+          :companyStage,
+          :meetStages,
+          :notLookingFor,
           :createdAt,
           :updatedAt
         )
@@ -399,6 +409,9 @@ export class SqliteTrialRepository extends UserRepository {
           company_name = excluded.company_name,
           work_email = excluded.work_email,
           linkedin_url = excluded.linkedin_url,
+          company_stage = excluded.company_stage,
+          meet_stages = excluded.meet_stages,
+          not_looking_for = excluded.not_looking_for,
           updated_at = excluded.updated_at
       `,
       )
@@ -426,6 +439,9 @@ export class SqliteTrialRepository extends UserRepository {
         companyName: preferences.companyName ?? '',
         workEmail: preferences.workEmail ?? '',
         linkedinUrl: preferences.linkedinUrl ?? '',
+        companyStage: preferences.companyStage ?? '',
+        meetStages: JSON.stringify(preferences.meetStages ?? []),
+        notLookingFor: JSON.stringify(preferences.notLookingFor ?? []),
         createdAt: now,
         updatedAt: now,
       });
@@ -522,6 +538,9 @@ export class SqliteTrialRepository extends UserRepository {
       companyName: '',
       workEmail: '',
       linkedinUrl: '',
+      companyStage: '',
+      meetStages: [],
+      notLookingFor: [],
     };
 
     const availability = this.listAvailabilityByUserId(userId);
@@ -562,6 +581,9 @@ export class SqliteTrialRepository extends UserRepository {
         companyName: preferences.companyName ?? '',
         workEmail: preferences.workEmail ?? '',
         linkedinUrl: preferences.linkedinUrl ?? '',
+        companyStage: preferences.companyStage ?? '',
+        meetStages: preferences.meetStages ?? [],
+        notLookingFor: preferences.notLookingFor ?? [],
       },
       availability,
       updatedAt: user.updatedAt,
@@ -605,6 +627,9 @@ export class SqliteTrialRepository extends UserRepository {
         companyName: preferences.companyName,
         workEmail: preferences.workEmail,
         linkedinUrl: preferences.linkedinUrl,
+        companyStage: preferences.companyStage,
+        meetStages: preferences.meetStages,
+        notLookingFor: preferences.notLookingFor,
       });
 
       this.replaceAvailabilitySlots(user.id, availability);
