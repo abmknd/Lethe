@@ -44,6 +44,18 @@ export interface Preferences {
   meetingFormat: string[];
   localOnly: boolean;
   blockedUserIds: string[];
+  // Phase 2 matching fields. Read/written here so the shared matcher (imported
+  // by run-weekly-matching) sees them in production, not just the mvp engine.
+  companyName: string;
+  workEmail: string;
+  linkedinUrl: string;
+  companyStage: string;
+  meetStages: string[];
+  notLookingFor: string[];
+  experienceLevel: string;
+  mentorMatch: boolean;
+  matchMode: string;
+  availableFrom: string;
 }
 
 export interface AvailabilitySlot {
@@ -245,6 +257,16 @@ function mapPreferences(row: Record<string, unknown>): Preferences {
     meetingFormat: normalizeMeetingFormatRow(row.meeting_format),
     localOnly: row.local_only as boolean,
     blockedUserIds: (row.blocked_user_ids as string[]) ?? [],
+    companyName: (row.company_name as string) ?? '',
+    workEmail: (row.work_email as string) ?? '',
+    linkedinUrl: (row.linkedin_url as string) ?? '',
+    companyStage: (row.company_stage as string) ?? '',
+    meetStages: (row.meet_stages as string[]) ?? [],
+    notLookingFor: (row.not_looking_for as string[]) ?? [],
+    experienceLevel: (row.experience_level as string) ?? '',
+    mentorMatch: (row.mentor_match as boolean) ?? false,
+    matchMode: (row.match_mode as string) ?? 'match_my_ask',
+    availableFrom: (row.available_from as string) ?? '',
   };
 }
 
@@ -513,7 +535,10 @@ export class PostgresRepository {
         INSERT INTO preferences (
           id, user_id, match_intent, offers, asks, preferred_locations,
           user_type, preferred_user_types, interests, objectives,
-          intro_text, meeting_format, local_only, blocked_user_ids, created_at, updated_at
+          intro_text, meeting_format, local_only, blocked_user_ids,
+          company_name, work_email, linkedin_url, company_stage, meet_stages,
+          not_looking_for, experience_level, mentor_match, match_mode, available_from,
+          created_at, updated_at
         ) VALUES (
           ${prefs.id as string}, ${user.id as string},
           ${JSON.stringify(prefs.matchIntent ?? [])}::jsonb,
@@ -528,6 +553,16 @@ export class PostgresRepository {
           ${JSON.stringify(prefs.meetingFormat ?? ['video'])}::jsonb,
           ${prefs.localOnly as boolean ?? false},
           ${JSON.stringify(prefs.blockedUserIds ?? [])}::jsonb,
+          ${prefs.companyName as string ?? ''},
+          ${prefs.workEmail as string ?? ''},
+          ${prefs.linkedinUrl as string ?? ''},
+          ${prefs.companyStage as string ?? ''},
+          ${JSON.stringify(prefs.meetStages ?? [])}::jsonb,
+          ${JSON.stringify(prefs.notLookingFor ?? [])}::jsonb,
+          ${prefs.experienceLevel as string ?? ''},
+          ${prefs.mentorMatch as boolean ?? false},
+          ${prefs.matchMode as string ?? 'match_my_ask'},
+          ${prefs.availableFrom as string ?? ''},
           ${prefs.createdAt as string}, ${prefs.updatedAt as string}
         )
         ON CONFLICT (user_id) DO UPDATE SET
@@ -537,6 +572,11 @@ export class PostgresRepository {
           interests = EXCLUDED.interests, objectives = EXCLUDED.objectives,
           intro_text = EXCLUDED.intro_text, meeting_format = EXCLUDED.meeting_format,
           local_only = EXCLUDED.local_only, blocked_user_ids = EXCLUDED.blocked_user_ids,
+          company_name = EXCLUDED.company_name, work_email = EXCLUDED.work_email,
+          linkedin_url = EXCLUDED.linkedin_url, company_stage = EXCLUDED.company_stage,
+          meet_stages = EXCLUDED.meet_stages, not_looking_for = EXCLUDED.not_looking_for,
+          experience_level = EXCLUDED.experience_level, mentor_match = EXCLUDED.mentor_match,
+          match_mode = EXCLUDED.match_mode, available_from = EXCLUDED.available_from,
           updated_at = EXCLUDED.updated_at
       `;
 
@@ -562,6 +602,9 @@ export class PostgresRepository {
              p.id AS pref_id, p.match_intent, p.offers, p.asks, p.preferred_locations,
              p.user_type, p.preferred_user_types, p.interests, p.objectives,
              p.intro_text, p.meeting_format, p.local_only, p.blocked_user_ids,
+             p.company_name, p.work_email, p.linkedin_url, p.company_stage,
+             p.meet_stages, p.not_looking_for, p.experience_level, p.mentor_match,
+             p.match_mode, p.available_from,
              p.created_at AS pref_created_at, p.updated_at AS pref_updated_at
       FROM users u
       JOIN preferences p ON p.user_id = u.id
