@@ -7,6 +7,7 @@ import {
   normalizeMatchMode,
   MATCH_MODES,
 } from './scoring.mjs';
+import { availabilityOverlap, hasConcreteOverlapWithinDays } from './availability.mjs';
 
 function normalizeToken(value) {
   return String(value).trim().toLowerCase();
@@ -72,100 +73,6 @@ function getCountry(location) {
   return chunks.length ? chunks[chunks.length - 1].toLowerCase() : '';
 }
 
-function segmentOverlapHours(startA, endA, startB, endB) {
-  return Math.max(0, Math.min(endA, endB) - Math.max(startA, startB));
-}
-
-function getTimezoneOffsetHours(timezone) {
-  try {
-    const now = new Date();
-    const formatter = new Intl.DateTimeFormat('en-US', {
-      timeZone: timezone,
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: false,
-    });
-    const parts = formatter.formatToParts(now);
-    const map = Object.fromEntries(parts.map((part) => [part.type, part.value]));
-    const asUtc = Date.UTC(
-      Number(map.year),
-      Number(map.month) - 1,
-      Number(map.day),
-      Number(map.hour),
-      Number(map.minute),
-      Number(map.second),
-    );
-    return (asUtc - now.getTime()) / 3_600_000;
-  } catch {
-    return 0;
-  }
-}
-
-function normalizeWeeklyRange(start, end) {
-  const weekHours = 24 * 7;
-  let normalizedStart = start;
-  let normalizedEnd = end;
-
-  while (normalizedStart < 0) {
-    normalizedStart += weekHours;
-    normalizedEnd += weekHours;
-  }
-  while (normalizedStart >= weekHours) {
-    normalizedStart -= weekHours;
-    normalizedEnd -= weekHours;
-  }
-
-  if (normalizedEnd <= weekHours) {
-    return [[normalizedStart, normalizedEnd]];
-  }
-
-  return [
-    [normalizedStart, weekHours],
-    [0, normalizedEnd - weekHours],
-  ];
-}
-
-function toUtcSegments(slot, fallbackTimezone) {
-  const timezone = slot.timezone || fallbackTimezone || 'UTC';
-  const offsetHours = getTimezoneOffsetHours(timezone);
-  const start = slot.dayOfWeek * 24 + slot.startHour - offsetHours;
-  const end = slot.dayOfWeek * 24 + slot.endHour - offsetHours;
-  return normalizeWeeklyRange(start, end);
-}
-
-function availabilityOverlap(slotsA, slotsB, timezoneA = 'UTC', timezoneB = 'UTC') {
-  let overlapHours = 0;
-  let overlapSegments = 0;
-
-  for (const slotA of slotsA) {
-    for (const slotB of slotsB) {
-      const segmentsA = toUtcSegments(slotA, timezoneA);
-      const segmentsB = toUtcSegments(slotB, timezoneB);
-
-      for (const [startA, endA] of segmentsA) {
-        for (const [startB, endB] of segmentsB) {
-          const overlap = segmentOverlapHours(startA, endA, startB, endB);
-          if (overlap <= 0) {
-            continue;
-          }
-          overlapSegments += 1;
-          overlapHours += overlap;
-        }
-      }
-    }
-  }
-
-  return {
-    overlapHours,
-    overlapSegments,
-    hasOverlap: overlapSegments > 0,
-  };
-}
-
 function pairKey(userId, candidateUserId) {
   return `${userId}::${candidateUserId}`;
 }
@@ -196,6 +103,7 @@ export function createDeterministicMatcher({ topN = 5, recentIntroDays = 45 } = 
       const recommendationsByUser = new Map();
       let skippedByMinSignals = 0;
       let skippedByRecentSuccess = 0;
+      let skippedByScheduleWindow = 0;
 
       for (const profile of users) {
         const scored = [];
@@ -237,6 +145,28 @@ export function createDeterministicMatcher({ topN = 5, recentIntroDays = 45 } = 
             candidate.user.timezone,
           );
           if (!overlap.hasOverlap) {
+            continue;
+          }
+
+          // 21-day concrete window (Phase 2, item 3): a recurring weekly overlap
+          // is not enough — a concrete overlapping slot must fall within 21 days
+          // of the cycle start, honoring each side's available_from. Defers a
+          // counterpart who is unavailable for the near term (L2-S3).
+          const concreteOverlap = hasConcreteOverlapWithinDays(
+            {
+              slots: profile.availability,
+              timezone: profile.user.timezone,
+              availableFrom: profile.preferences.availableFrom,
+            },
+            {
+              slots: candidate.availability,
+              timezone: candidate.user.timezone,
+              availableFrom: candidate.preferences.availableFrom,
+            },
+            { now },
+          );
+          if (!concreteOverlap) {
+            skippedByScheduleWindow += 1;
             continue;
           }
 
@@ -424,7 +354,7 @@ export function createDeterministicMatcher({ topN = 5, recentIntroDays = 45 } = 
       }
 
       console.log(
-        `[matcher] Skipped pairs: ${skippedByMinSignals} by min-signal filter, ${skippedByRecentSuccess} by recent-success cooldown.`,
+        `[matcher] Skipped pairs: ${skippedByMinSignals} by min-signal filter, ${skippedByRecentSuccess} by recent-success cooldown, ${skippedByScheduleWindow} by 21-day schedule window.`,
       );
 
       return recommendationsByUser;

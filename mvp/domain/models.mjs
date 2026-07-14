@@ -236,7 +236,19 @@ export function normalizePreferences(input = {}) {
     experienceLevel: normalizeExperienceLevel(input.experienceLevel),
     mentorMatch: Boolean(input.mentorMatch),
     matchMode: normalizeMatchMode(input.matchMode),
+    // Near-term availability floor for the 21-day window (Phase 2, item 3).
+    availableFrom: normalizeAvailableFrom(input.availableFrom),
   };
+}
+
+// Accept a YYYY-MM-DD or full ISO datetime; store the ISO instant. Empty or
+// unparseable input means "available now".
+export function normalizeAvailableFrom(value) {
+  if (typeof value !== 'string' || !value.trim()) {
+    return '';
+  }
+  const date = new Date(value.trim());
+  return Number.isNaN(date.getTime()) ? '' : date.toISOString();
 }
 
 export function normalizeUser(input = {}) {

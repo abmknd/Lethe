@@ -338,6 +338,7 @@ export function buildMatchingInputSnapshot(profile) {
     experienceLevel: normalizeToken(prefs.experienceLevel ?? ''),
     mentorMatch: Boolean(prefs.mentorMatch),
     matchMode: normalizeToken(prefs.matchMode ?? 'match_my_ask'),
+    availableFrom: String(prefs.availableFrom ?? ''),
     meetingFormat: Array.isArray(prefs.meetingFormat) ? [...prefs.meetingFormat] : [],
     localOnly: Boolean(prefs.localOnly),
     blockedUserIds: uniqueNormalized(prefs.blockedUserIds),
