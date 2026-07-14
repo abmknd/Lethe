@@ -278,7 +278,7 @@ export class SqliteTrialRepository extends UserRepository {
                intro_text, meeting_format, local_only, blocked_user_ids, languages, meeting_frequency, learn_about, ask_about,
                who_to_meet, notification_prefs, company_name, work_email, linkedin_url,
                company_stage, meet_stages, not_looking_for,
-               experience_level, mentor_match, match_mode, created_at, updated_at
+               experience_level, mentor_match, match_mode, available_from, created_at, updated_at
         FROM preferences
         WHERE user_id = :userId
       `,
@@ -319,6 +319,7 @@ export class SqliteTrialRepository extends UserRepository {
       experienceLevel: row.experience_level ?? '',
       mentorMatch: Boolean(row.mentor_match ?? 0),
       matchMode: row.match_mode ?? 'match_my_ask',
+      availableFrom: row.available_from ?? '',
       createdAt: row.created_at,
       updatedAt: row.updated_at,
     };
@@ -361,6 +362,7 @@ export class SqliteTrialRepository extends UserRepository {
           experience_level,
           mentor_match,
           match_mode,
+          available_from,
           created_at,
           updated_at
         )
@@ -394,6 +396,7 @@ export class SqliteTrialRepository extends UserRepository {
           :experienceLevel,
           :mentorMatch,
           :matchMode,
+          :availableFrom,
           :createdAt,
           :updatedAt
         )
@@ -425,6 +428,7 @@ export class SqliteTrialRepository extends UserRepository {
           experience_level = excluded.experience_level,
           mentor_match = excluded.mentor_match,
           match_mode = excluded.match_mode,
+          available_from = excluded.available_from,
           updated_at = excluded.updated_at
       `,
       )
@@ -458,6 +462,7 @@ export class SqliteTrialRepository extends UserRepository {
         experienceLevel: preferences.experienceLevel ?? '',
         mentorMatch: preferences.mentorMatch ? 1 : 0,
         matchMode: preferences.matchMode ?? 'match_my_ask',
+        availableFrom: preferences.availableFrom ?? '',
         createdAt: now,
         updatedAt: now,
       });
@@ -560,6 +565,7 @@ export class SqliteTrialRepository extends UserRepository {
       experienceLevel: '',
       mentorMatch: false,
       matchMode: 'match_my_ask',
+      availableFrom: '',
     };
 
     const availability = this.listAvailabilityByUserId(userId);
@@ -606,6 +612,7 @@ export class SqliteTrialRepository extends UserRepository {
         experienceLevel: preferences.experienceLevel ?? '',
         mentorMatch: preferences.mentorMatch ?? false,
         matchMode: preferences.matchMode ?? 'match_my_ask',
+        availableFrom: preferences.availableFrom ?? '',
       },
       availability,
       updatedAt: user.updatedAt,
@@ -655,6 +662,7 @@ export class SqliteTrialRepository extends UserRepository {
         experienceLevel: preferences.experienceLevel,
         mentorMatch: preferences.mentorMatch,
         matchMode: preferences.matchMode,
+        availableFrom: preferences.availableFrom,
       });
 
       this.replaceAvailabilitySlots(user.id, availability);
