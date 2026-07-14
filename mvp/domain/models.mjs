@@ -1,4 +1,5 @@
 import { normalizeStage, normalizeStageList } from '../matching/candidate-filters.mjs';
+import { normalizeExperienceLevel, normalizeMatchMode } from '../matching/scoring.mjs';
 
 const DAYS = new Set([0, 1, 2, 3, 4, 5, 6]);
 
@@ -231,6 +232,10 @@ export function normalizePreferences(input = {}) {
         ? input.notLookingFor.map((v) => String(v).trim().toLowerCase())
         : [],
     ),
+    // Scoring fields (Phase 2, item 2).
+    experienceLevel: normalizeExperienceLevel(input.experienceLevel),
+    mentorMatch: Boolean(input.mentorMatch),
+    matchMode: normalizeMatchMode(input.matchMode),
   };
 }
 

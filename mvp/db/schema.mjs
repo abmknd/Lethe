@@ -44,6 +44,9 @@ CREATE TABLE IF NOT EXISTS preferences (
   company_stage TEXT NOT NULL DEFAULT '',
   meet_stages TEXT NOT NULL DEFAULT '[]',
   not_looking_for TEXT NOT NULL DEFAULT '[]',
+  experience_level TEXT NOT NULL DEFAULT '',
+  mentor_match INTEGER NOT NULL DEFAULT 0,
+  match_mode TEXT NOT NULL DEFAULT 'match_my_ask',
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL,
   FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE

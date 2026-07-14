@@ -1,5 +1,12 @@
 import { isSameOrg, orgIdentity } from './org-exclusion.mjs';
 import { passesStageRequirement, passesNotLookingFor } from './candidate-filters.mjs';
+import {
+  resolveWeights,
+  experienceProximityModifier,
+  isMentorMode,
+  normalizeMatchMode,
+  MATCH_MODES,
+} from './scoring.mjs';
 
 function normalizeToken(value) {
   return String(value).trim().toLowerCase();
@@ -312,14 +319,26 @@ export function createDeterministicMatcher({ topN = 5, recentIntroDays = 45 } = 
           const availabilityScore = Math.min(1, overlap.overlapHours / 1.5);
           const historicalPenalty = Math.min(20, historyRows.length * 4);
 
-          const baseScore =
-            complementarityRatio * 0.2 +
-            reciprocalComplementarity * 0.1 +
-            roleFitRatio * 0.15 +
-            intentRatio * 0.2 +
-            interestRatio * 0.15 +
-            objectivesScore * 0.1 +
-            availabilityScore * 0.1;
+          // Weight vector is selected by the requesting profile's match mode
+          // (Phase 2, item 2). match_my_ask keeps the historical weights exactly.
+          const weights = resolveWeights(profile.preferences.matchMode);
+          const rawBase =
+            complementarityRatio * weights.complementarity +
+            reciprocalComplementarity * weights.reciprocal +
+            roleFitRatio * weights.roleFit +
+            intentRatio * weights.intent +
+            interestRatio * weights.interest +
+            objectivesScore * weights.objectives +
+            availabilityScore * weights.availability;
+
+          // Experience-proximity modifier (Phase 2, item 2): closer experience
+          // levels score higher, unless either side opted into mentor matching.
+          // Neutral (1.0) when either side omits an experience level.
+          const experienceModifier = experienceProximityModifier(
+            profile.preferences,
+            candidate.preferences,
+          );
+          const baseScore = rawBase * experienceModifier;
 
           const profileCep = cepMap.get(profile.user.id) ?? null;
           const candidateCep = cepMap.get(candidate.user.id) ?? null;
@@ -340,6 +359,16 @@ export function createDeterministicMatcher({ topN = 5, recentIntroDays = 45 } = 
 
           const score = Math.max(0, Math.round(baseScore * 100 - historicalPenalty + cepBoost));
 
+          const scoringNote = [];
+          if (normalizeMatchMode(profile.preferences.matchMode) === MATCH_MODES.SURPRISE_ME) {
+            scoringNote.push('Surprise-me mode (complementarity de-emphasized)');
+          }
+          if (isMentorMode(profile.preferences) || isMentorMode(candidate.preferences)) {
+            scoringNote.push('Mentor-style match (experience gap welcomed)');
+          } else if (experienceModifier < 1) {
+            scoringNote.push(`Experience-gap adjustment ×${experienceModifier.toFixed(2)}`);
+          }
+
           scored.push({
             candidateUserId: candidate.user.id,
             candidateLocationCountry: getCountry(candidate.user.location),
@@ -352,6 +381,7 @@ export function createDeterministicMatcher({ topN = 5, recentIntroDays = 45 } = 
               `Interest overlap ${(interestRatio * 100).toFixed(0)}%`,
               `Availability overlap ${overlap.overlapHours.toFixed(1)}h (timezone-normalized)`,
               `Objectives overlap ${(objectivesScore * 100).toFixed(0)}%`,
+              ...scoringNote,
               ...cepNote,
             ],
           });
