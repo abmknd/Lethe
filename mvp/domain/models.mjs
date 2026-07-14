@@ -1,3 +1,6 @@
+import { normalizeStage, normalizeStageList } from '../matching/candidate-filters.mjs';
+import { normalizeExperienceLevel, normalizeMatchMode } from '../matching/scoring.mjs';
+
 const DAYS = new Set([0, 1, 2, 3, 4, 5, 6]);
 
 export const CEP_EXPIRY_DAYS = 8;
@@ -217,6 +220,22 @@ export function normalizePreferences(input = {}) {
     askAbout: typeof input.askAbout === 'string' ? input.askAbout.trim() : '',
     whoToMeet,
     notificationPrefs: normalizeNotificationPrefs(input.notificationPrefs),
+    // Org anchors for layered same-org exclusion (Phase 2, item 1).
+    companyName: typeof input.companyName === 'string' ? input.companyName.trim() : '',
+    workEmail: typeof input.workEmail === 'string' ? input.workEmail.trim().toLowerCase() : '',
+    linkedinUrl: typeof input.linkedinUrl === 'string' ? input.linkedinUrl.trim() : '',
+    // Candidate pre-filter fields (Phase 2, item 2).
+    companyStage: normalizeStage(input.companyStage),
+    meetStages: normalizeStageList(input.meetStages),
+    notLookingFor: normalizeStringList(
+      Array.isArray(input.notLookingFor)
+        ? input.notLookingFor.map((v) => String(v).trim().toLowerCase())
+        : [],
+    ),
+    // Scoring fields (Phase 2, item 2).
+    experienceLevel: normalizeExperienceLevel(input.experienceLevel),
+    mentorMatch: Boolean(input.mentorMatch),
+    matchMode: normalizeMatchMode(input.matchMode),
   };
 }
 

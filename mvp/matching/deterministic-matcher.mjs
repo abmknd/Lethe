@@ -1,5 +1,25 @@
+import { isSameOrg, orgIdentity } from './org-exclusion.mjs';
+import { passesStageRequirement, passesNotLookingFor } from './candidate-filters.mjs';
+import {
+  resolveWeights,
+  experienceProximityModifier,
+  isMentorMode,
+  normalizeMatchMode,
+  MATCH_MODES,
+} from './scoring.mjs';
+
 function normalizeToken(value) {
   return String(value).trim().toLowerCase();
+}
+
+// Draw the org anchors from the profile's user + preferences. Company name and
+// work email are declared during onboarding and stored on preferences.
+function orgIdentityForProfile(profile) {
+  return orgIdentity({
+    email: profile.user?.email,
+    companyName: profile.preferences?.companyName,
+    workEmail: profile.preferences?.workEmail,
+  });
 }
 
 function toTokenSet(text) {
@@ -196,18 +216,10 @@ export function createDeterministicMatcher({ topN = 5, recentIntroDays = 45 } = 
             continue;
           }
 
-          const profileDomain = profile.user.email?.split('@')[1]?.toLowerCase();
-          const candidateDomain = candidate.user.email?.split('@')[1]?.toLowerCase();
-          const PLATFORM_AND_PERSONAL_DOMAINS = new Set([
-            'lethe.io', 'example.com',
-            'gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com',
-            'icloud.com', 'protonmail.com', 'me.com', 'live.com', 'msn.com',
-          ]);
-          if (
-            profileDomain && candidateDomain &&
-            profileDomain === candidateDomain &&
-            !PLATFORM_AND_PERSONAL_DOMAINS.has(profileDomain)
-          ) {
+          // Layered same-org exclusion (Phase 2, item 1): email domain +
+          // self-declared company name + verified work-email domain. Any layer
+          // firing excludes the pair. See mvp/matching/org-exclusion.mjs.
+          if (isSameOrg(orgIdentityForProfile(profile), orgIdentityForProfile(candidate))) {
             continue;
           }
 
@@ -241,6 +253,16 @@ export function createDeterministicMatcher({ topN = 5, recentIntroDays = 45 } = 
             if (!hasFormatOverlap) {
               continue;
             }
+          }
+
+          // Directional candidate pre-filters (Phase 2, item 2): the requesting
+          // profile's company-stage requirement and not_looking_for list gate
+          // which candidates reach scoring. See mvp/matching/candidate-filters.mjs.
+          if (!passesStageRequirement(profile.preferences, candidate.preferences)) {
+            continue;
+          }
+          if (!passesNotLookingFor(profile.preferences, candidate.preferences)) {
+            continue;
           }
 
           const intentRatio = overlapRatio(profile.preferences.matchIntent, candidate.preferences.matchIntent);
@@ -297,14 +319,26 @@ export function createDeterministicMatcher({ topN = 5, recentIntroDays = 45 } = 
           const availabilityScore = Math.min(1, overlap.overlapHours / 1.5);
           const historicalPenalty = Math.min(20, historyRows.length * 4);
 
-          const baseScore =
-            complementarityRatio * 0.2 +
-            reciprocalComplementarity * 0.1 +
-            roleFitRatio * 0.15 +
-            intentRatio * 0.2 +
-            interestRatio * 0.15 +
-            objectivesScore * 0.1 +
-            availabilityScore * 0.1;
+          // Weight vector is selected by the requesting profile's match mode
+          // (Phase 2, item 2). match_my_ask keeps the historical weights exactly.
+          const weights = resolveWeights(profile.preferences.matchMode);
+          const rawBase =
+            complementarityRatio * weights.complementarity +
+            reciprocalComplementarity * weights.reciprocal +
+            roleFitRatio * weights.roleFit +
+            intentRatio * weights.intent +
+            interestRatio * weights.interest +
+            objectivesScore * weights.objectives +
+            availabilityScore * weights.availability;
+
+          // Experience-proximity modifier (Phase 2, item 2): closer experience
+          // levels score higher, unless either side opted into mentor matching.
+          // Neutral (1.0) when either side omits an experience level.
+          const experienceModifier = experienceProximityModifier(
+            profile.preferences,
+            candidate.preferences,
+          );
+          const baseScore = rawBase * experienceModifier;
 
           const profileCep = cepMap.get(profile.user.id) ?? null;
           const candidateCep = cepMap.get(candidate.user.id) ?? null;
@@ -325,6 +359,16 @@ export function createDeterministicMatcher({ topN = 5, recentIntroDays = 45 } = 
 
           const score = Math.max(0, Math.round(baseScore * 100 - historicalPenalty + cepBoost));
 
+          const scoringNote = [];
+          if (normalizeMatchMode(profile.preferences.matchMode) === MATCH_MODES.SURPRISE_ME) {
+            scoringNote.push('Surprise-me mode (complementarity de-emphasized)');
+          }
+          if (isMentorMode(profile.preferences) || isMentorMode(candidate.preferences)) {
+            scoringNote.push('Mentor-style match (experience gap welcomed)');
+          } else if (experienceModifier < 1) {
+            scoringNote.push(`Experience-gap adjustment ×${experienceModifier.toFixed(2)}`);
+          }
+
           scored.push({
             candidateUserId: candidate.user.id,
             candidateLocationCountry: getCountry(candidate.user.location),
@@ -337,6 +381,7 @@ export function createDeterministicMatcher({ topN = 5, recentIntroDays = 45 } = 
               `Interest overlap ${(interestRatio * 100).toFixed(0)}%`,
               `Availability overlap ${overlap.overlapHours.toFixed(1)}h (timezone-normalized)`,
               `Objectives overlap ${(objectivesScore * 100).toFixed(0)}%`,
+              ...scoringNote,
               ...cepNote,
             ],
           });
