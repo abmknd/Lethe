@@ -1263,6 +1263,38 @@ export class PostgresRepository {
     return row ? mapMatch(row) : null;
   }
 
+  // In-flight matches for a user, optionally filtered to a set of states.
+  // Used by stale-premise re-evaluation (Phase 2, item 6).
+  async listMatchesForUser(userId: string, opts: { states?: string[] } = {}): Promise<Match[]> {
+    const rows = opts.states && opts.states.length > 0
+      ? await sql`
+          SELECT * FROM matches
+          WHERE (user_a_id = ${userId} OR user_b_id = ${userId})
+            AND state = ANY(${opts.states})
+          ORDER BY created_at DESC
+        `
+      : await sql`
+          SELECT * FROM matches
+          WHERE user_a_id = ${userId} OR user_b_id = ${userId}
+          ORDER BY created_at DESC
+        `;
+    return rows.map(mapMatch);
+  }
+
+  async updateRecommendationRationale(
+    id: string,
+    fields: { whyMatched?: unknown; score?: number },
+  ): Promise<void> {
+    // why_matched is stored the same way the generation INSERT writes it.
+    if (fields.whyMatched !== undefined && fields.score !== undefined) {
+      await sql`UPDATE recommendations SET why_matched = ${fields.whyMatched as never}, score = ${fields.score}, updated_at = ${nowIso()} WHERE id = ${id}`;
+    } else if (fields.whyMatched !== undefined) {
+      await sql`UPDATE recommendations SET why_matched = ${fields.whyMatched as never}, updated_at = ${nowIso()} WHERE id = ${id}`;
+    } else if (fields.score !== undefined) {
+      await sql`UPDATE recommendations SET score = ${fields.score}, updated_at = ${nowIso()} WHERE id = ${id}`;
+    }
+  }
+
   async updateMatch(matchId: string, fields: {
     state?: string; aResponse?: string; aRespondedAt?: string;
     bResponse?: string; bRespondedAt?: string; updatedAt: string;

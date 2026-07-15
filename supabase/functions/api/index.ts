@@ -24,6 +24,15 @@ import {
 } from "../../../mvp/domain/models.mjs";
 import { EVENT_TYPES } from "../../../mvp/domain/events.mjs";
 import { detectInputQuality } from "../../../mvp/context/input-quality.mjs";
+import { createDeterministicMatcher } from "../../../mvp/matching/deterministic-matcher.mjs";
+import {
+  IN_FLIGHT_STATES,
+  coreFieldsChanged,
+  decideRecReeval,
+} from "../../../mvp/services/stale-premise-service.mjs";
+
+// Shared, stateless matcher instance for stale-premise re-scoring (Phase 2, item 6).
+const stalePremiseMatcher = createDeterministicMatcher();
 import { checkProfileCompleteness } from "../../../mvp/domain/completeness.mjs";
 import { TRUST_SIGNAL_TYPES } from "../../../mvp/domain/trust.mjs";
 import { normalizeHitlConfig, computeWeightedAcceptance, DEFAULT_HITL_CONFIG } from "../../../mvp/domain/hitl-policy.mjs";
@@ -190,7 +199,68 @@ Deno.serve(async (req: Request): Promise<Response> => {
           preferences: body.preferences ?? {},
           availability: body.availability ?? [],
         });
+
+        // Snapshot pre-edit preferences for stale-premise re-evaluation below.
+        const previousProfile = await repository.getUserProfile(userId).catch(() => null);
+        const previousPreferences = previousProfile?.preferences ?? null;
+
         const profile = await repository.upsertUserProfile(normalized);
+
+        // Stale-premise re-evaluation (Phase 2, item 6): a core-field edit can
+        // invalidate the premise of an in-flight match. Re-score with the shared
+        // matcher, refresh the stored rationale, and route confidence drops back
+        // to HITL. Best-effort — never blocks the save.
+        try {
+          if (coreFieldsChanged(previousPreferences, normalized.preferences)) {
+            const currentProfile = await repository.getUserProfile(userId);
+            const inFlight = await repository.listMatchesForUser(userId, { states: IN_FLIGHT_STATES });
+            for (const match of inFlight) {
+              const otherId = match.userAId === userId ? match.userBId : match.userAId;
+              const otherProfile = await repository.getUserProfile(otherId);
+              if (!currentProfile || !otherProfile) continue;
+              const results = stalePremiseMatcher.matchUsers([currentProfile, otherProfile], new Map(), new Map());
+              for (const recId of [match.recommendationId, match.reverseRecommendationId]) {
+                if (!recId) continue;
+                const rec = await repository.getRecommendationById(recId);
+                if (!rec) continue;
+                const fresh = (results.get(rec.userId) ?? []).find(
+                  (r: { candidateUserId: string }) => r.candidateUserId === rec.candidateUserId,
+                ) ?? null;
+                const decision = decideRecReeval(rec, fresh);
+                await repository.updateRecommendationRationale(recId, {
+                  whyMatched: decision.whyMatched,
+                  score: decision.newScore,
+                });
+                if (decision.dropped) {
+                  await repository.updateRecommendationStatus(recId, RECOMMENDATION_STATUSES.PENDING_REVIEW, nowIso());
+                  await repository.appendTrustSignal({
+                    id: `trust_${randomUUID()}`,
+                    userId,
+                    signalType: TRUST_SIGNAL_TYPES.HITL_FLAG,
+                    weight: 0,
+                    matchId: match.id,
+                    sourceEventId: null,
+                    payload: { reason: "stale_premise", oldBand: decision.oldBand, newBand: decision.newBand },
+                    createdAt: nowIso(),
+                  });
+                }
+                await repository.appendEvents([
+                  {
+                    id: `evt_${randomUUID()}`,
+                    eventType: EVENT_TYPES.STALE_PREMISE_REEVALUATED,
+                    actorUserId: userId,
+                    targetUserId: null,
+                    recommendationId: recId,
+                    payload: { matchId: match.id, oldBand: decision.oldBand, newBand: decision.newBand, dropped: decision.dropped },
+                    createdAt: nowIso(),
+                  },
+                ]);
+              }
+            }
+          }
+        } catch {
+          // Re-evaluation is advisory; the profile save already succeeded.
+        }
 
         // Input-quality pass at intake (Phase 2, item 5). Detections are written
         // silently to the trust ledger — never shown to the counterpart, never a

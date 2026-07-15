@@ -15,24 +15,59 @@ import { confidenceBandFromScore } from '../context/blind-rationale.mjs';
 // with an auditable trust signal. We deliberately do NOT auto-mutate match
 // state: surfacing to admin (100% review) is the product (decision 3).
 
-// Fields whose change can invalidate a match premise.
-const CORE_FIELDS = ['asks', 'offers', 'interests', 'userType', 'preferredUserTypes'];
+// Fields whose change can invalidate a match premise. Exported so the edge api
+// handler reuses the exact same decision logic (no drift between backends).
+export const CORE_FIELDS = ['asks', 'offers', 'interests', 'userType', 'preferredUserTypes'];
 
 // In-flight = past under_review, not yet met/terminal.
-const IN_FLIGHT_STATES = [
+export const IN_FLIGHT_STATES = [
   MATCH_STATUSES.OFFERED_BLIND,
   MATCH_STATUSES.MUTUAL_ACCEPTED,
   MATCH_STATUSES.REVEALED,
   MATCH_STATUSES.SCHEDULED,
 ];
 
-const BAND_RANK = Object.freeze({ low: 0, medium: 1, high: 2 });
+export const BAND_RANK = Object.freeze({ low: 0, medium: 1, high: 2 });
 
 function comparable(value) {
   if (Array.isArray(value)) {
     return [...value].map((v) => String(v).trim().toLowerCase()).sort();
   }
   return String(value ?? '').trim().toLowerCase();
+}
+
+// Did any core matching field change between two preference snapshots?
+export function coreFieldsChanged(previousPreferences, currentPreferences) {
+  if (!previousPreferences) {
+    return false;
+  }
+  return CORE_FIELDS.some(
+    (field) =>
+      JSON.stringify(comparable(previousPreferences[field])) !==
+      JSON.stringify(comparable(currentPreferences[field])),
+  );
+}
+
+// Pure decision for a single recommendation given its fresh re-score. `fresh`
+// is the matcher's recommendation object for this pair, or null if the pair no
+// longer produces a match. Returns the rationale to store and whether the
+// confidence band dropped (→ route back to HITL).
+export function decideRecReeval(rec, fresh) {
+  const oldBand = confidenceBandFromScore(rec.score);
+  const newScore = fresh ? fresh.score : 0;
+  const newBand = fresh ? confidenceBandFromScore(newScore) : 'low';
+  const dropped = !fresh || BAND_RANK[newBand] < BAND_RANK[oldBand];
+  // rec.whyMatched is an array on the mvp path and a raw string on the edge
+  // path; coerce so we never spread a string into characters.
+  const priorWhy = Array.isArray(rec.whyMatched)
+    ? rec.whyMatched
+    : rec.whyMatched
+      ? [String(rec.whyMatched)]
+      : [];
+  const whyMatched = fresh
+    ? fresh.whyMatched
+    : [...priorWhy, 'Premise changed: pair no longer meets current matching criteria'];
+  return { whyMatched, newScore, oldBand, newBand, dropped };
 }
 
 export class StalePremiseService {
@@ -43,14 +78,7 @@ export class StalePremiseService {
   }
 
   coreFieldsChanged(previousPreferences, currentPreferences) {
-    if (!previousPreferences) {
-      return false;
-    }
-    return CORE_FIELDS.some(
-      (field) =>
-        JSON.stringify(comparable(previousPreferences[field])) !==
-        JSON.stringify(comparable(currentPreferences[field])),
-    );
+    return coreFieldsChanged(previousPreferences, currentPreferences);
   }
 
   reEvaluateForUser(userId, { previousPreferences = null } = {}) {
@@ -89,15 +117,9 @@ export class StalePremiseService {
         }
 
         const fresh = (results.get(rec.userId) ?? []).find((r) => r.candidateUserId === rec.candidateUserId) ?? null;
-        const oldBand = confidenceBandFromScore(rec.score);
-        const newScore = fresh ? fresh.score : 0;
-        const newBand = fresh ? confidenceBandFromScore(newScore) : 'low';
-        const dropped = !fresh || BAND_RANK[newBand] < BAND_RANK[oldBand];
+        const { whyMatched, newScore, oldBand, newBand, dropped } = decideRecReeval(rec, fresh);
 
         // Always refresh the stored rationale so nobody acts on a stale premise.
-        const whyMatched = fresh
-          ? fresh.whyMatched
-          : [...rec.whyMatched, 'Premise changed: pair no longer meets current matching criteria'];
         this.repository.updateRecommendationRationale(recId, { whyMatched, score: newScore });
 
         if (dropped) {
