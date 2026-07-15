@@ -43,15 +43,9 @@ jobs:
       # _shared/* and the imported mvp/* modules are resolved too.
       # --node-modules-dir=auto lets Deno auto-install npm: specifiers
       # (e.g. npm:postgres in the edge repository) so type resolution succeeds.
-      #
-      # Advisory (continue-on-error) for now: enabling this check surfaced ~16
-      # PRE-EXISTING type-soundness errors in the edge functions (never
-      # type-checked before) — permissive union/`.includes` narrowing, postgres.js
-      # transaction typing, an unguarded parsed.value in signup, etc. The job
-      # runs and surfaces them without blocking merges. Flip to blocking (drop
-      # continue-on-error) once that pre-existing debt is cleaned up.
+      # Blocking: the edge functions now type-check cleanly. This is the only
+      # automated check that exercises the edge repository / API TypeScript.
       - name: deno check edge functions
-        continue-on-error: true
         run: |
           deno check --node-modules-dir=auto \
             supabase/functions/api/index.ts \
