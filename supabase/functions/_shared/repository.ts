@@ -5,6 +5,9 @@
 // BOOLEAN columns are returned as JS booleans — no Boolean() coercion needed.
 
 import postgres from "npm:postgres";
+// nowIso was referenced in several methods but never imported — a latent
+// ReferenceError surfaced by the new deno-check CI. Import the shared helper.
+import { nowIso } from "../../../mvp/domain/models.mjs";
 
 const sql = postgres(
   Deno.env.get("DATABASE_URL") ?? Deno.env.get("SUPABASE_DB_URL")!,
