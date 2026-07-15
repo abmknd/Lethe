@@ -45,7 +45,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
   const parsed = parseSignupInput(body);
   if (!parsed.ok) return json({ error: parsed.error }, 400);
-  const { email, source, name, handle } = parsed.value;
+  const { email, source, name, handle } = parsed.value!;
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
   const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");

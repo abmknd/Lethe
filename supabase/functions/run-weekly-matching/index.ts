@@ -155,7 +155,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
           !(await repository.hasPriorMatchForUser(info.userAId)) ||
           !(await repository.hasPriorMatchForUser(info.userBId));
         const decision = decideReviewRouting({
-          config: hitlConfig,
+          config: hitlConfig as unknown as typeof DEFAULT_HITL_CONFIG,
           resolvedCount,
           isFirstMatchForEitherUser: isFirst,
           pairKey: key,

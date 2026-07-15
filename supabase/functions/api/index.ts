@@ -195,7 +195,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
       if (req.method === "PUT") {
         const body = await readJsonBody(req);
         const normalized = normalizeProfilePayload({
-          user: { id: userId, ...body.user },
+          user: { id: userId, ...((body.user as Record<string, unknown>) ?? {}) },
           preferences: body.preferences ?? {},
           availability: body.availability ?? [],
         });
@@ -463,6 +463,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
       });
       const readiness = await repository.upsertConnectionReadiness(userId, {
         ...normalized,
+        expiresAt: normalized.expiresAt as string,
         recommendation: readinessRecommendation(normalized),
       });
       await repository.appendEvents([{
@@ -770,7 +771,15 @@ Deno.serve(async (req: Request): Promise<Response> => {
         requesterResponse: decision,
       });
 
-      const responseEvents = [
+      const responseEvents: Array<{
+        id: string;
+        eventType: string;
+        actorUserId: string | null;
+        targetUserId: string | null;
+        recommendationId: string | null;
+        payload: unknown;
+        createdAt: string;
+      }> = [
         {
           id: `evt_${randomUUID()}`,
           eventType: response === MATCH_SIDE_RESPONSES.ACCEPTED ? EVENT_TYPES.BLIND_ACCEPT : EVENT_TYPES.BLIND_DECLINE,
@@ -905,7 +914,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
       const body = await readJsonBody(req);
 
       const status = String(body.status ?? "").toLowerCase();
-      if (!Object.values(OUTCOME_STATUSES).includes(status)) {
+      if (!(Object.values(OUTCOME_STATUSES) as string[]).includes(status)) {
         return json({ error: "Invalid follow-through status." }, 400);
       }
 
@@ -1076,7 +1085,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
       const body = await readJsonBody(req);
       const status = String(body.status ?? "").trim().toLowerCase();
-      if (!Object.values(MEETING_STATUSES).includes(status)) {
+      if (!(Object.values(MEETING_STATUSES) as string[]).includes(status)) {
         return json({ error: "Invalid meeting status." }, 400);
       }
 

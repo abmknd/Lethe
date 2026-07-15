@@ -638,21 +638,26 @@ export class PostgresRepository {
     }));
   }
 
+  // Returns a Map keyed by "<sourceId>::<targetId>" of history rows, matching
+  // the shape the deterministic matcher consumes (pairHistory.get(pairKey)).
+  // Previously returned an aggregated count array, which the matcher cannot use.
   async listPairHistory({ sinceDays = 90 }: { sinceDays?: number } = {}): Promise<
-    Array<{ userId: string; candidateUserId: string; count: number }>
+    Map<string, Array<{ status: string; createdAt: string }>>
   > {
     const since = new Date(Date.now() - sinceDays * 86_400_000).toISOString();
     const rows = await sql`
-      SELECT source_user_id, target_user_id, COUNT(*) AS cnt
+      SELECT source_user_id, target_user_id, status, created_at
       FROM recommendations
       WHERE created_at >= ${since}
-      GROUP BY source_user_id, target_user_id
     `;
-    return rows.map((r) => ({
-      userId: r.source_user_id as string,
-      candidateUserId: r.target_user_id as string,
-      count: Number(r.cnt),
-    }));
+    const historyByPair = new Map<string, Array<{ status: string; createdAt: string }>>();
+    for (const r of rows) {
+      const key = `${r.source_user_id}::${r.target_user_id}`;
+      const existing = historyByPair.get(key) ?? [];
+      existing.push({ status: r.status as string, createdAt: r.created_at as string });
+      historyByPair.set(key, existing);
+    }
+    return historyByPair;
   }
 
   // ── recommendation runs ────────────────────────────────────────────────────
@@ -864,7 +869,7 @@ export class PostgresRepository {
   } = {}): Promise<unknown[]> {
     // Build dynamic WHERE conditions
     const conditions: string[] = [];
-    const values: unknown[] = [];
+    const values: (string | number)[] = [];
     let i = 1;
 
     if (userId) { conditions.push(`user_id = $${i++}`); values.push(userId); }
@@ -884,15 +889,17 @@ export class PostgresRepository {
   async listRecommendationsWithDecisionAndOutcome({
     fromIso, toIso,
   }: { fromIso: string; toIso: string }): Promise<unknown[]> {
-    return await sql`
-      SELECT r.id, r.status, r.created_at,
-             ad.decision, ad.decided_at,
-             o.outcome_status
-      FROM recommendations r
-      LEFT JOIN admin_decisions ad ON ad.recommendation_id = r.id
-      LEFT JOIN outcomes o ON o.recommendation_id = r.id
-      WHERE r.created_at >= ${fromIso} AND r.created_at <= ${toIso}
-    `;
+    return [
+      ...(await sql`
+        SELECT r.id, r.status, r.created_at,
+               ad.decision, ad.decided_at,
+               o.outcome_status
+        FROM recommendations r
+        LEFT JOIN admin_decisions ad ON ad.recommendation_id = r.id
+        LEFT JOIN outcomes o ON o.recommendation_id = r.id
+        WHERE r.created_at >= ${fromIso} AND r.created_at <= ${toIso}
+      `),
+    ];
   }
 
   async countEventsByType({ fromIso, toIso }: { fromIso: string; toIso: string }): Promise<
@@ -1443,7 +1450,9 @@ export class PostgresRepository {
   // ── transaction helper ─────────────────────────────────────────────────────
 
   async withTransaction<T>(fn: (tx: typeof sql) => Promise<T>): Promise<T> {
-    return sql.begin(fn);
+    // postgres.js types tx as TransactionSql and wraps the result in
+    // UnwrapPromiseArray; both are runtime-compatible here.
+    return sql.begin((tx) => fn(tx as unknown as typeof sql)) as Promise<T>;
   }
 }
 
