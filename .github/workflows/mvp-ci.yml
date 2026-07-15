@@ -41,9 +41,11 @@ jobs:
       # the node test suite) and catches import or column-list mistakes in the
       # edge layer before they reach a deploy. Follows imports transitively, so
       # _shared/* and the imported mvp/* modules are resolved too.
+      # --node-modules-dir=auto lets Deno auto-install npm: specifiers
+      # (e.g. npm:postgres in the edge repository) so type resolution succeeds.
       - name: deno check edge functions
         run: |
-          deno check \
+          deno check --node-modules-dir=auto \
             supabase/functions/api/index.ts \
             supabase/functions/run-weekly-matching/index.ts \
             supabase/functions/signup/index.ts
