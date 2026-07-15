@@ -23,6 +23,7 @@ import {
   nowIso,
 } from "../../../mvp/domain/models.mjs";
 import { EVENT_TYPES } from "../../../mvp/domain/events.mjs";
+import { detectInputQuality } from "../../../mvp/context/input-quality.mjs";
 import { checkProfileCompleteness } from "../../../mvp/domain/completeness.mjs";
 import { TRUST_SIGNAL_TYPES } from "../../../mvp/domain/trust.mjs";
 import { normalizeHitlConfig, computeWeightedAcceptance, DEFAULT_HITL_CONFIG } from "../../../mvp/domain/hitl-policy.mjs";
@@ -190,7 +191,35 @@ Deno.serve(async (req: Request): Promise<Response> => {
           availability: body.availability ?? [],
         });
         const profile = await repository.upsertUserProfile(normalized);
-        return json({ profile });
+
+        // Input-quality pass at intake (Phase 2, item 5). Detections are written
+        // silently to the trust ledger — never shown to the counterpart, never a
+        // hard block. Best-effort: a detection failure must not fail the save.
+        let inputQuality: ReturnType<typeof detectInputQuality> = { flags: [], routeToCommunityFirst: false };
+        try {
+          inputQuality = detectInputQuality({
+            asks: normalized.preferences?.asks,
+            offers: normalized.preferences?.offers,
+            introText: normalized.preferences?.introText,
+            name: normalized.user?.name,
+          });
+          for (const flag of inputQuality.flags) {
+            await repository.appendTrustSignal({
+              id: `trust_${randomUUID()}`,
+              userId,
+              signalType: TRUST_SIGNAL_TYPES.INTAKE_REGISTER,
+              weight: flag.weight,
+              matchId: null,
+              sourceEventId: null,
+              payload: { category: flag.category, evidence: flag.evidence },
+              createdAt: nowIso(),
+            });
+          }
+        } catch {
+          // Intake detection is advisory; the profile save already succeeded.
+        }
+
+        return json({ profile, inputQuality });
       }
     }
 
