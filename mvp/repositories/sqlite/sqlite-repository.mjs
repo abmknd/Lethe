@@ -1699,6 +1699,46 @@ export class SqliteTrialRepository extends UserRepository {
     return row ? mapMatchRow(row) : null;
   }
 
+  // In-flight matches for a user, optionally filtered to a set of states.
+  // Used by stale-premise re-evaluation (Phase 2, item 6).
+  listMatchesForUser(userId, { states = null } = {}) {
+    const rows = this.db
+      .prepare(
+        `
+        SELECT * FROM matches
+        WHERE user_a_id = :userId OR user_b_id = :userId
+        ORDER BY created_at DESC
+      `,
+      )
+      .all({ userId })
+      .map(mapMatchRow);
+    if (!Array.isArray(states) || states.length === 0) {
+      return rows;
+    }
+    const allowed = new Set(states);
+    return rows.filter((match) => allowed.has(match.state));
+  }
+
+  updateRecommendationRationale(recommendationId, { whyMatched, score }, updatedAt = nowIso()) {
+    this.db
+      .prepare(
+        `
+        UPDATE recommendations
+        SET why_matched = COALESCE(:whyMatched, why_matched),
+            score = COALESCE(:score, score),
+            updated_at = :updatedAt
+        WHERE id = :recommendationId
+      `,
+      )
+      .run({
+        recommendationId,
+        whyMatched: whyMatched === undefined ? null : JSON.stringify(whyMatched),
+        score: score === undefined ? null : score,
+        updatedAt,
+      });
+    return this.getRecommendationById(recommendationId);
+  }
+
   getMatchByRecommendationId(recommendationId) {
     const row = this.db
       .prepare(

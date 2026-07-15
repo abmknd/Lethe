@@ -14,6 +14,7 @@ import { CompletenessService } from './completeness-service.mjs';
 import { MeetingReadinessService } from './meeting-readiness-service.mjs';
 import { MatchLifecycleService } from './match-lifecycle-service.mjs';
 import { HitlService } from './hitl-service.mjs';
+import { StalePremiseService } from './stale-premise-service.mjs';
 
 export function createTrialAppContext({ dbPath } = {}) {
   const resolvedDbPath = dbPath || process.env.LETHE_TRIAL_DB_PATH || resolveDefaultDbPath();
@@ -30,10 +31,11 @@ export function createTrialAppContext({ dbPath } = {}) {
   const completenessService = new CompletenessService({ repository });
   const matchLifecycleService = new MatchLifecycleService({ repository });
   const hitlService = new HitlService({ repository });
+  const stalePremiseService = new StalePremiseService({ repository, matcher, cepService });
 
   const services = {
     setup: new SetupService({ db, repository }),
-    onboarding: new OnboardingService({ repository }),
+    onboarding: new OnboardingService({ repository, stalePremise: stalePremiseService }),
     weeklyMatching: new WeeklyMatchingService({
       repository,
       matcher,
@@ -46,6 +48,7 @@ export function createTrialAppContext({ dbPath } = {}) {
     recommendations: new RecommendationService({ repository, matchLifecycle: matchLifecycleService }),
     matchLifecycle: matchLifecycleService,
     hitl: hitlService,
+    stalePremise: stalePremiseService,
     weeklyReport: new WeeklyReportService({ repository }),
     profileContext: new ProfileContextService({ repository }),
     meetings: new MeetingService({ repository }),

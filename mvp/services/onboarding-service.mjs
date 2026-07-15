@@ -5,8 +5,9 @@ import { EVENT_TYPES } from '../domain/events.mjs';
 import { detectInputQuality } from '../context/input-quality.mjs';
 
 export class OnboardingService {
-  constructor({ repository }) {
+  constructor({ repository, stalePremise = null }) {
     this.repository = repository;
+    this.stalePremise = stalePremise;
   }
 
   listUsers() {
@@ -34,7 +35,21 @@ export class OnboardingService {
       throw new Error('Handle is required.');
     }
 
+    // Capture the pre-edit preferences so stale-premise re-evaluation can tell
+    // whether a core matching field actually changed (Phase 2, item 6).
+    const previousPreferences = this.repository.getUserProfile(normalized.user.id)?.preferences ?? null;
+
     const profile = this.repository.upsertUserProfile(normalized);
+
+    // Re-evaluate any in-flight matches whose premise this edit may have made
+    // stale. Best-effort: never fail the save on re-evaluation trouble.
+    if (this.stalePremise) {
+      try {
+        this.stalePremise.reEvaluateForUser(normalized.user.id, { previousPreferences });
+      } catch {
+        // Re-evaluation is advisory; the profile save already succeeded.
+      }
+    }
 
     // Input-quality pass at intake (Phase 2, item 5). Detections are written
     // silently to the trust ledger — never shown to the counterpart, never a

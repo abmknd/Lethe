@@ -23,6 +23,8 @@ export const EVENT_TYPES = Object.freeze({
   // HITL dial (alignment plan, Phase 1)
   HITL_AUTO_APPROVED: 'hitl_auto_approved',
   HITL_CONFIG_CHANGED: 'hitl_config_changed',
+  // Stale-premise re-evaluation (alignment plan, Phase 2, item 6)
+  STALE_PREMISE_REEVALUATED: 'stale_premise_reevaluated',
   // Reserved for later phases (scheduling integrity, mutual review)
   NO_SHOW_RECORDED: 'no_show_recorded',
   REVIEW_SUBMITTED: 'review_submitted',
