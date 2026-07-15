@@ -5,6 +5,9 @@
 // BOOLEAN columns are returned as JS booleans — no Boolean() coercion needed.
 
 import postgres from "npm:postgres";
+// nowIso was referenced in several methods but never imported — a latent
+// ReferenceError surfaced by the new deno-check CI. Import the shared helper.
+import { nowIso } from "../../../mvp/domain/models.mjs";
 
 const sql = postgres(
   Deno.env.get("DATABASE_URL") ?? Deno.env.get("SUPABASE_DB_URL")!,
@@ -635,21 +638,26 @@ export class PostgresRepository {
     }));
   }
 
+  // Returns a Map keyed by "<sourceId>::<targetId>" of history rows, matching
+  // the shape the deterministic matcher consumes (pairHistory.get(pairKey)).
+  // Previously returned an aggregated count array, which the matcher cannot use.
   async listPairHistory({ sinceDays = 90 }: { sinceDays?: number } = {}): Promise<
-    Array<{ userId: string; candidateUserId: string; count: number }>
+    Map<string, Array<{ status: string; createdAt: string }>>
   > {
     const since = new Date(Date.now() - sinceDays * 86_400_000).toISOString();
     const rows = await sql`
-      SELECT source_user_id, target_user_id, COUNT(*) AS cnt
+      SELECT source_user_id, target_user_id, status, created_at
       FROM recommendations
       WHERE created_at >= ${since}
-      GROUP BY source_user_id, target_user_id
     `;
-    return rows.map((r) => ({
-      userId: r.source_user_id as string,
-      candidateUserId: r.target_user_id as string,
-      count: Number(r.cnt),
-    }));
+    const historyByPair = new Map<string, Array<{ status: string; createdAt: string }>>();
+    for (const r of rows) {
+      const key = `${r.source_user_id}::${r.target_user_id}`;
+      const existing = historyByPair.get(key) ?? [];
+      existing.push({ status: r.status as string, createdAt: r.created_at as string });
+      historyByPair.set(key, existing);
+    }
+    return historyByPair;
   }
 
   // ── recommendation runs ────────────────────────────────────────────────────
@@ -861,7 +869,7 @@ export class PostgresRepository {
   } = {}): Promise<unknown[]> {
     // Build dynamic WHERE conditions
     const conditions: string[] = [];
-    const values: unknown[] = [];
+    const values: (string | number)[] = [];
     let i = 1;
 
     if (userId) { conditions.push(`user_id = $${i++}`); values.push(userId); }
@@ -881,15 +889,17 @@ export class PostgresRepository {
   async listRecommendationsWithDecisionAndOutcome({
     fromIso, toIso,
   }: { fromIso: string; toIso: string }): Promise<unknown[]> {
-    return await sql`
-      SELECT r.id, r.status, r.created_at,
-             ad.decision, ad.decided_at,
-             o.outcome_status
-      FROM recommendations r
-      LEFT JOIN admin_decisions ad ON ad.recommendation_id = r.id
-      LEFT JOIN outcomes o ON o.recommendation_id = r.id
-      WHERE r.created_at >= ${fromIso} AND r.created_at <= ${toIso}
-    `;
+    return [
+      ...(await sql`
+        SELECT r.id, r.status, r.created_at,
+               ad.decision, ad.decided_at,
+               o.outcome_status
+        FROM recommendations r
+        LEFT JOIN admin_decisions ad ON ad.recommendation_id = r.id
+        LEFT JOIN outcomes o ON o.recommendation_id = r.id
+        WHERE r.created_at >= ${fromIso} AND r.created_at <= ${toIso}
+      `),
+    ];
   }
 
   async countEventsByType({ fromIso, toIso }: { fromIso: string; toIso: string }): Promise<
@@ -1263,6 +1273,38 @@ export class PostgresRepository {
     return row ? mapMatch(row) : null;
   }
 
+  // In-flight matches for a user, optionally filtered to a set of states.
+  // Used by stale-premise re-evaluation (Phase 2, item 6).
+  async listMatchesForUser(userId: string, opts: { states?: string[] } = {}): Promise<Match[]> {
+    const rows = opts.states && opts.states.length > 0
+      ? await sql`
+          SELECT * FROM matches
+          WHERE (user_a_id = ${userId} OR user_b_id = ${userId})
+            AND state = ANY(${opts.states})
+          ORDER BY created_at DESC
+        `
+      : await sql`
+          SELECT * FROM matches
+          WHERE user_a_id = ${userId} OR user_b_id = ${userId}
+          ORDER BY created_at DESC
+        `;
+    return rows.map(mapMatch);
+  }
+
+  async updateRecommendationRationale(
+    id: string,
+    fields: { whyMatched?: unknown; score?: number },
+  ): Promise<void> {
+    // why_matched is stored the same way the generation INSERT writes it.
+    if (fields.whyMatched !== undefined && fields.score !== undefined) {
+      await sql`UPDATE recommendations SET why_matched = ${fields.whyMatched as never}, score = ${fields.score}, updated_at = ${nowIso()} WHERE id = ${id}`;
+    } else if (fields.whyMatched !== undefined) {
+      await sql`UPDATE recommendations SET why_matched = ${fields.whyMatched as never}, updated_at = ${nowIso()} WHERE id = ${id}`;
+    } else if (fields.score !== undefined) {
+      await sql`UPDATE recommendations SET score = ${fields.score}, updated_at = ${nowIso()} WHERE id = ${id}`;
+    }
+  }
+
   async updateMatch(matchId: string, fields: {
     state?: string; aResponse?: string; aRespondedAt?: string;
     bResponse?: string; bRespondedAt?: string; updatedAt: string;
@@ -1408,7 +1450,9 @@ export class PostgresRepository {
   // ── transaction helper ─────────────────────────────────────────────────────
 
   async withTransaction<T>(fn: (tx: typeof sql) => Promise<T>): Promise<T> {
-    return sql.begin(fn);
+    // postgres.js types tx as TransactionSql and wraps the result in
+    // UnwrapPromiseArray; both are runtime-compatible here.
+    return sql.begin((tx) => fn(tx as unknown as typeof sql)) as Promise<T>;
   }
 }
 

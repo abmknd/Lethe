@@ -23,6 +23,16 @@ import {
   nowIso,
 } from "../../../mvp/domain/models.mjs";
 import { EVENT_TYPES } from "../../../mvp/domain/events.mjs";
+import { detectInputQuality } from "../../../mvp/context/input-quality.mjs";
+import { createDeterministicMatcher } from "../../../mvp/matching/deterministic-matcher.mjs";
+import {
+  IN_FLIGHT_STATES,
+  coreFieldsChanged,
+  decideRecReeval,
+} from "../../../mvp/services/stale-premise-service.mjs";
+
+// Shared, stateless matcher instance for stale-premise re-scoring (Phase 2, item 6).
+const stalePremiseMatcher = createDeterministicMatcher();
 import { checkProfileCompleteness } from "../../../mvp/domain/completeness.mjs";
 import { TRUST_SIGNAL_TYPES } from "../../../mvp/domain/trust.mjs";
 import { normalizeHitlConfig, computeWeightedAcceptance, DEFAULT_HITL_CONFIG } from "../../../mvp/domain/hitl-policy.mjs";
@@ -185,12 +195,101 @@ Deno.serve(async (req: Request): Promise<Response> => {
       if (req.method === "PUT") {
         const body = await readJsonBody(req);
         const normalized = normalizeProfilePayload({
-          user: { id: userId, ...body.user },
+          user: { id: userId, ...((body.user as Record<string, unknown>) ?? {}) },
           preferences: body.preferences ?? {},
           availability: body.availability ?? [],
         });
+
+        // Snapshot pre-edit preferences for stale-premise re-evaluation below.
+        const previousProfile = await repository.getUserProfile(userId).catch(() => null);
+        const previousPreferences = previousProfile?.preferences ?? null;
+
         const profile = await repository.upsertUserProfile(normalized);
-        return json({ profile });
+
+        // Stale-premise re-evaluation (Phase 2, item 6): a core-field edit can
+        // invalidate the premise of an in-flight match. Re-score with the shared
+        // matcher, refresh the stored rationale, and route confidence drops back
+        // to HITL. Best-effort — never blocks the save.
+        try {
+          if (coreFieldsChanged(previousPreferences, normalized.preferences)) {
+            const currentProfile = await repository.getUserProfile(userId);
+            const inFlight = await repository.listMatchesForUser(userId, { states: IN_FLIGHT_STATES });
+            for (const match of inFlight) {
+              const otherId = match.userAId === userId ? match.userBId : match.userAId;
+              const otherProfile = await repository.getUserProfile(otherId);
+              if (!currentProfile || !otherProfile) continue;
+              const results = stalePremiseMatcher.matchUsers([currentProfile, otherProfile], new Map(), new Map());
+              for (const recId of [match.recommendationId, match.reverseRecommendationId]) {
+                if (!recId) continue;
+                const rec = await repository.getRecommendationById(recId);
+                if (!rec) continue;
+                const fresh = (results.get(rec.userId) ?? []).find(
+                  (r: { candidateUserId: string }) => r.candidateUserId === rec.candidateUserId,
+                ) ?? null;
+                const decision = decideRecReeval(rec, fresh);
+                await repository.updateRecommendationRationale(recId, {
+                  whyMatched: decision.whyMatched,
+                  score: decision.newScore,
+                });
+                if (decision.dropped) {
+                  await repository.updateRecommendationStatus(recId, RECOMMENDATION_STATUSES.PENDING_REVIEW, nowIso());
+                  await repository.appendTrustSignal({
+                    id: `trust_${randomUUID()}`,
+                    userId,
+                    signalType: TRUST_SIGNAL_TYPES.HITL_FLAG,
+                    weight: 0,
+                    matchId: match.id,
+                    sourceEventId: null,
+                    payload: { reason: "stale_premise", oldBand: decision.oldBand, newBand: decision.newBand },
+                    createdAt: nowIso(),
+                  });
+                }
+                await repository.appendEvents([
+                  {
+                    id: `evt_${randomUUID()}`,
+                    eventType: EVENT_TYPES.STALE_PREMISE_REEVALUATED,
+                    actorUserId: userId,
+                    targetUserId: null,
+                    recommendationId: recId,
+                    payload: { matchId: match.id, oldBand: decision.oldBand, newBand: decision.newBand, dropped: decision.dropped },
+                    createdAt: nowIso(),
+                  },
+                ]);
+              }
+            }
+          }
+        } catch {
+          // Re-evaluation is advisory; the profile save already succeeded.
+        }
+
+        // Input-quality pass at intake (Phase 2, item 5). Detections are written
+        // silently to the trust ledger — never shown to the counterpart, never a
+        // hard block. Best-effort: a detection failure must not fail the save.
+        let inputQuality: ReturnType<typeof detectInputQuality> = { flags: [], routeToCommunityFirst: false };
+        try {
+          inputQuality = detectInputQuality({
+            asks: normalized.preferences?.asks,
+            offers: normalized.preferences?.offers,
+            introText: normalized.preferences?.introText,
+            name: normalized.user?.name,
+          });
+          for (const flag of inputQuality.flags) {
+            await repository.appendTrustSignal({
+              id: `trust_${randomUUID()}`,
+              userId,
+              signalType: TRUST_SIGNAL_TYPES.INTAKE_REGISTER,
+              weight: flag.weight,
+              matchId: null,
+              sourceEventId: null,
+              payload: { category: flag.category, evidence: flag.evidence },
+              createdAt: nowIso(),
+            });
+          }
+        } catch {
+          // Intake detection is advisory; the profile save already succeeded.
+        }
+
+        return json({ profile, inputQuality });
       }
     }
 
@@ -364,6 +463,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
       });
       const readiness = await repository.upsertConnectionReadiness(userId, {
         ...normalized,
+        expiresAt: normalized.expiresAt as string,
         recommendation: readinessRecommendation(normalized),
       });
       await repository.appendEvents([{
@@ -671,7 +771,15 @@ Deno.serve(async (req: Request): Promise<Response> => {
         requesterResponse: decision,
       });
 
-      const responseEvents = [
+      const responseEvents: Array<{
+        id: string;
+        eventType: string;
+        actorUserId: string | null;
+        targetUserId: string | null;
+        recommendationId: string | null;
+        payload: unknown;
+        createdAt: string;
+      }> = [
         {
           id: `evt_${randomUUID()}`,
           eventType: response === MATCH_SIDE_RESPONSES.ACCEPTED ? EVENT_TYPES.BLIND_ACCEPT : EVENT_TYPES.BLIND_DECLINE,
@@ -806,7 +914,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
       const body = await readJsonBody(req);
 
       const status = String(body.status ?? "").toLowerCase();
-      if (!Object.values(OUTCOME_STATUSES).includes(status)) {
+      if (!(Object.values(OUTCOME_STATUSES) as string[]).includes(status)) {
         return json({ error: "Invalid follow-through status." }, 400);
       }
 
@@ -977,7 +1085,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
       const body = await readJsonBody(req);
       const status = String(body.status ?? "").trim().toLowerCase();
-      if (!Object.values(MEETING_STATUSES).includes(status)) {
+      if (!(Object.values(MEETING_STATUSES) as string[]).includes(status)) {
         return json({ error: "Invalid meeting status." }, 400);
       }
 

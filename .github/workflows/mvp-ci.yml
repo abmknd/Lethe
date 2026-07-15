@@ -25,3 +25,29 @@ jobs:
 
       - name: Build
         run: npm run build
+
+  functions-typecheck:
+    name: functions-typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      # Typecheck the Supabase Edge Functions. This is the only automated check
+      # that exercises the edge repository / API TypeScript (which cannot run in
+      # the node test suite) and catches import or column-list mistakes in the
+      # edge layer before they reach a deploy. Follows imports transitively, so
+      # _shared/* and the imported mvp/* modules are resolved too.
+      # --node-modules-dir=auto lets Deno auto-install npm: specifiers
+      # (e.g. npm:postgres in the edge repository) so type resolution succeeds.
+      # Blocking: the edge functions now type-check cleanly. This is the only
+      # automated check that exercises the edge repository / API TypeScript.
+      - name: deno check edge functions
+        run: |
+          deno check --node-modules-dir=auto \
+            supabase/functions/api/index.ts \
+            supabase/functions/run-weekly-matching/index.ts \
+            supabase/functions/signup/index.ts

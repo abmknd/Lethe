@@ -1,0 +1,44 @@
+# Deploys the Supabase migrations + Edge Functions to the linked project.
+#
+# Defaults to MANUAL dispatch — auto-deploying to production on every merge is a
+# deliberate choice, not a default. To enable auto-deploy on merge, uncomment the
+# `push` trigger below.
+#
+# Required GitHub config (Settings → Secrets and variables → Actions):
+#   secret  SUPABASE_ACCESS_TOKEN  — Supabase CLI personal access token
+#   secret  SUPABASE_DB_PASSWORD   — database password (only needed for `db push`)
+#   var     PROJECT_REF            — the project ref (e.g. fkxixtmtgxgyesbjmque)
+
+name: Deploy Supabase
+
+on:
+  workflow_dispatch:
+  # Uncomment to auto-deploy whenever supabase/ changes land on main:
+  # push:
+  #   branches: [main]
+  #   paths: ['supabase/**']
+
+jobs:
+  deploy:
+    name: deploy
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      PROJECT_REF: ${{ vars.PROJECT_REF }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Link project
+        run: supabase link --project-ref "$PROJECT_REF"
+
+      - name: Push migrations
+        run: supabase db push --password "$SUPABASE_DB_PASSWORD"
+        env:
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+
+      - name: Deploy edge functions
+        run: supabase functions deploy api run-weekly-matching signup --project-ref "$PROJECT_REF"
