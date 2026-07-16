@@ -5,9 +5,12 @@
 # `push` trigger below.
 #
 # Required GitHub config (Settings → Secrets and variables → Actions):
-#   secret  SUPABASE_ACCESS_TOKEN  — Supabase CLI personal access token
-#   secret  SUPABASE_DB_PASSWORD   — database password (only needed for `db push`)
-#   var     PROJECT_REF            — the project ref (e.g. fkxixtmtgxgyesbjmque)
+#   secret  SUPABASE_ACCESS_TOKEN  — Supabase CLI personal access token (required)
+#   var     PROJECT_REF            — the project ref (e.g. fkxixtmtgxgyesbjmque) (required)
+#   secret  SUPABASE_DB_PASSWORD   — database password. OPTIONAL: only used for
+#                                    `db push`. If unset, the migrations step is
+#                                    skipped and the functions still deploy — apply
+#                                    column migrations via the Supabase SQL Editor.
 
 name: Deploy Supabase
 
@@ -25,6 +28,9 @@ jobs:
     env:
       SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
       PROJECT_REF: ${{ vars.PROJECT_REF }}
+      # Evaluated once here so the migrations step can be gated on it (secrets
+      # can't be referenced directly in step `if:` conditions).
+      HAS_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD != '' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -35,10 +41,18 @@ jobs:
       - name: Link project
         run: supabase link --project-ref "$PROJECT_REF"
 
+      # Only runs when SUPABASE_DB_PASSWORD is set. A missing password no longer
+      # blocks the function deploy below — apply column migrations via the SQL
+      # Editor instead. A wrong password still fails loudly (intended).
       - name: Push migrations
+        if: env.HAS_DB_PASSWORD == 'true'
         run: supabase db push --password "$SUPABASE_DB_PASSWORD"
         env:
           SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+
+      - name: Note skipped migrations
+        if: env.HAS_DB_PASSWORD != 'true'
+        run: echo "::notice::SUPABASE_DB_PASSWORD not set — skipping 'db push'. Apply column migrations via the Supabase SQL Editor, then deploy."
 
       - name: Deploy edge functions
         run: supabase functions deploy api run-weekly-matching signup --project-ref "$PROJECT_REF"
