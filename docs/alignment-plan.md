@@ -82,6 +82,17 @@ Everything in steps 05 to 10 hangs off two things the schema does not have: a pa
 4. **Conversation starters** in the call lobby from the insight pipeline.
 5. **Higher-stakes category gate**: investor-intro matches require `oauth_verified` minimum on both sides.
 
+### Phase 3.5: Rebrand and design system (color + typography)
+
+Visual-only rebrand: a new color palette and type scale, no name or logo change. Nothing structural, so no OAuth, domain, or email-sender impact and no backend phase depends on it. The rebrand *is* the token layer; the design system is built on top of it. Scope stays lean (tokens plus a core component set, not an exhaustive kit), consistent with decision 7's build-minimal-until-proven ethos.
+
+1. **Token foundation first, adopted before or during Phase 3.** The new palette and type scale land as centralized tokens (CSS vars / Tailwind config) so Phase 3's new surfaces (scheduling, call lobby, reminder emails) are born on the new visuals and never re-colored. Prerequisite: surfaces consume tokens, not hardcoded values.
+2. **Landing page first.** Reskin the `relethe` landing page (currently Cormorant Garamond / DM Mono on `#050705`) to the new palette and type. Ships independently of the MVP app.
+3. **MVP app second.** Migrate the app surfaces onto the shared token set and core components, unifying app and landing under one visual system.
+4. **Core component set.** Buttons, inputs, cards, modals, blind/match cards, the pieces Phases 4 and 5 (review UI, feed/community) reuse, so those phases build on the system instead of ad-hoc styling.
+
+Dependency: brand direction (the actual palette and type choices) is a required input, the same way Phase 3's call work depends on the provider decision.
+
 ### Phase 4: Mutual review and the closed trust loop (step 10)
 
 1. **`reviews` table**: per match, per side; useful/not-useful plus notes; neither row readable by the counterpart until both exist, then both unlock together (server-enforced).
