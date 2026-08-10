@@ -19,6 +19,11 @@ const MAX_PARTICIPANTS = 2; // a 1:1 intro
 // Daily room names must match /^[A-Za-z0-9_-]+$/. Replace any other character
 // with a hyphen, collapse runs, bound the length, and trim trailing hyphens so
 // the name is always Daily-legal regardless of the recommendation id shape.
+/**
+ * @param {string} seed
+ * @param {{ prefix?: string }} [opts]
+ * @returns {string}
+ */
 export function toDailyRoomName(seed, { prefix = ROOM_NAME_PREFIX } = {}) {
   const safe = String(seed ?? '')
     .trim()
@@ -31,6 +36,12 @@ export function toDailyRoomName(seed, { prefix = ROOM_NAME_PREFIX } = {}) {
 // room lives a fixed window past it; otherwise it gets a two-week fallback so
 // it is joinable while the pair coordinates. A past slot still yields a room
 // that is valid for at least MIN_TTL_SECONDS from now.
+/**
+ * @param {object} [opts]
+ * @param {string | Date | null} [opts.scheduledAt]
+ * @param {Date} [opts.now]
+ * @returns {number}
+ */
 export function computeRoomExp({ scheduledAt = null, now = new Date() } = {}) {
   const nowSec = Math.floor(now.getTime() / 1000);
   if (scheduledAt != null) {
@@ -49,6 +60,12 @@ export function computeRoomExp({ scheduledAt = null, now = new Date() } = {}) {
 // slice; the identity gate (later Phase 3 slice) flips this to `private` with
 // per-user meeting tokens. `exp` + `eject_at_room_exp` clean rooms up so they
 // do not accumulate on the account.
+/**
+ * @param {object} [opts]
+ * @param {string} [opts.recommendationId]
+ * @param {string | Date | null} [opts.scheduledAt]
+ * @param {Date} [opts.now]
+ */
 export function buildDailyRoomConfig({ recommendationId, scheduledAt = null, now = new Date() } = {}) {
   return {
     name: toDailyRoomName(recommendationId),
