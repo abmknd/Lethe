@@ -8,6 +8,7 @@ import { corsPreflightResponse, json } from "../_shared/cors.ts";
 import { repository, toPublicProfile } from "../_shared/repository.ts";
 import { AuthError, requireAuth, requireAdmin, requireSelf } from "../_shared/auth.ts";
 import { sendIntroEmails, firstOverlapSlot, nextOccurrenceUtc } from "../_shared/email.ts";
+import { createDailyRoom } from "../_shared/daily.ts";
 
 import {
   normalizeProfilePayload,
@@ -842,12 +843,29 @@ Deno.serve(async (req: Request): Promise<Response> => {
             candidateProfile.availability ?? [],
           );
           const occurrence = slot ? nextOccurrenceUtc(slot) : null;
-          const meetingUrl = `https://meet.jit.si/relethe-${encodeURIComponent(recommendationId)}`;
+          const scheduledAtIso = occurrence ? occurrence.startUtc.toISOString() : null;
+
+          // Create an embedded Daily room for the pair (Phase 3, item 3). The
+          // legacy public Jitsi link is kept only as a fallback so a Daily
+          // outage never blocks the reveal; it is removed once the room-create
+          // path is proven in production.
+          const dailyResult = await createDailyRoom({ recommendationId, scheduledAt: scheduledAtIso });
+          let meetingProvider: string;
+          let meetingUrl: string;
+          if (dailyResult.ok) {
+            meetingProvider = dailyResult.room.provider;
+            meetingUrl = dailyResult.room.url;
+          } else {
+            meetingProvider = 'jitsi';
+            meetingUrl = `https://meet.jit.si/relethe-${encodeURIComponent(recommendationId)}`;
+            console.warn(`[meeting] Daily room unavailable (${dailyResult.reason}); falling back to Jitsi link`);
+          }
+
           await repository.upsertMeeting({
             recommendationId,
-            provider: 'jitsi',
+            provider: meetingProvider,
             meetingUrl,
-            scheduledAt: occurrence ? occurrence.startUtc.toISOString() : null,
+            scheduledAt: scheduledAtIso,
             status: MEETING_STATUSES.SCHEDULED,
             metadata: slot ? { slot } : {},
           });
