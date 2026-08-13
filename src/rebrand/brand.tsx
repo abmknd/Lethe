@@ -1,24 +1,49 @@
 /**
  * Brand marks. Kept apart from primitives.tsx because these are artwork with
- * fixed geometry, not composable UI: they take a size and inherit colour, and
- * that is the whole API.
+ * fixed geometry, not composable UI: they take a size and a surface, and that
+ * is the whole API.
+ *
+ * The SVGs are the authored source files in src/assets/logos. Earlier this was
+ * a hand-traced path approximating the Figma export; that guess is gone.
+ * Both a white and a blue variant exist, so the surface picks the file instead
+ * of us recolouring artwork we did not author.
  */
 
-/** RELETHE pinwheel logomark (interlocking lobes), used in nav + footer. */
-export function Logomark({ size = 20, className = '' }: { size?: number; className?: string }) {
+import logomarkWhite from '../assets/logos/logomark_white.svg';
+import logomarkBlue from '../assets/logos/logomark_blue.svg';
+import logowordWhite from '../assets/logos/logoword_white.svg';
+import logowordBlue from '../assets/logos/logoword_blue.svg';
+import type { Surface } from './primitives';
+
+export function Logomark({ size = 20, surface = 'blue' }: { size?: number; surface?: Surface }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden className={className}>
-      <path
-        fill="currentColor"
-        d="M12 1.7c2.1 0 3.8 1.7 3.8 3.8 0 .5-.1 1-.3 1.5.5-.2 1-.3 1.5-.3 2.1 0 3.8 1.7 3.8 3.8s-1.7 3.8-3.8 3.8c-.5 0-1-.1-1.5-.3.2.5.3 1 .3 1.5 0 2.1-1.7 3.8-3.8 3.8s-3.8-1.7-3.8-3.8c0-.5.1-1 .3-1.5-.5.2-1 .3-1.5.3-2.1 0-3.8-1.7-3.8-3.8S4.9 6.7 7 6.7c.5 0 1 .1 1.5.3-.2-.5-.3-1-.3-1.5C8.2 3.4 9.9 1.7 12 1.7Zm0 6.6a3.7 3.7 0 1 0 0 7.4 3.7 3.7 0 0 0 0-7.4Z"
-      />
-    </svg>
+    <img
+      src={surface === 'blue' ? logomarkWhite : logomarkBlue}
+      alt=""
+      aria-hidden
+      width={size}
+      height={size}
+      className="block shrink-0 select-none"
+    />
+  );
+}
+
+/** Full wordmark. Use where the brand needs to be read, not just recognised. */
+export function Logoword({ height = 20, surface = 'blue' }: { height?: number; surface?: Surface }) {
+  return (
+    <img
+      src={surface === 'blue' ? logowordWhite : logowordBlue}
+      alt="Relethe"
+      height={height}
+      style={{ height }}
+      className="block w-auto shrink-0 select-none"
+    />
   );
 }
 
 /**
  * SVG spirograph "flower" standing in for the generated survey pinwheel.
- * Layered rotated ellipses trace an 8-fold guilloché bloom.
+ * Layered rotated ellipses trace an 8-fold guilloche bloom.
  *
  * The per-ring alpha here is a MATERIAL effect (overlapping ink building
  * density), not a colour substitute, which is why it survives the no-opacity

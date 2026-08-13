@@ -361,7 +361,21 @@ complete / active   Yellow 600
 remaining           Blue 500
 ```
 
-### 5.9 Avatar
+### 5.9 Card media
+
+```
+zoom      image scales to 1.05 inside a clipped frame on card hover, 500ms
+          ease-out. The card does not move, only its media.
+focal     images containing a PERSON anchor object-position: top centre.
+          Centre-anchoring crops from both edges as the frame narrows and
+          takes the head off first; top-centre sacrifices the feet instead.
+radius    8px inner, inside the card's own 16px
+```
+
+Owned by the `CardImage` primitive so no caller has to remember either rule.
+`hasPerson` is declared per illustration in the section's data, not guessed.
+
+### 5.10 Avatar
 
 Circle. `48px` inline, `120px` profile header. Placeholder fill Black 200 on
 white surfaces, Blue 100 on Blue 50 surfaces, so it never matches its own
@@ -377,7 +391,7 @@ visible in the Figma frames.
 | State | Rule |
 |---|---|
 | default | as specified above |
-| hover | fill moves one ramp step (600 to 700 on blue, White to Black 50 on light). Never opacity. |
+| hover (website) | **TEXT ONLY.** The label steps along its ramp; fill and border hold. A button must not restate itself as a different object on hover. Never opacity. |
 | pressed | two ramp steps, no transform |
 | focus-visible | 2px Blue 600 outline, 2px offset. On blue surfaces, White. Never removed. |
 | disabled | fill White, text Black 400, no border, `cursor: not-allowed` |

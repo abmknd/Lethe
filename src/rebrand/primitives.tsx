@@ -97,14 +97,17 @@ export function Button({
   size?: keyof typeof BTN_SIZE;
   fullWidth?: boolean;
 }) {
+  // Website rule: hover is a TEXT change only. Fills and borders hold, so a
+  // button never restates itself as a different object on hover; the label
+  // just steps along its ramp. (redesign.md 6)
   const skin =
     variant === 'primary'
       ? surface === 'blue'
-        ? 'bg-[var(--color-white)] text-[var(--color-blue-600)] hover:bg-[var(--color-black-50)] active:bg-[var(--color-black-100)]'
-        : 'bg-[var(--color-blue-600)] text-[var(--color-white)] hover:bg-[var(--color-blue-700)] active:bg-[var(--color-blue-700)]'
+        ? 'bg-[var(--color-white)] text-[var(--color-blue-600)] hover:text-[var(--color-blue-700)]'
+        : 'bg-[var(--color-blue-600)] text-[var(--color-white)] hover:text-[var(--color-blue-100)]'
       : surface === 'blue'
-        ? 'border border-[var(--color-white)] text-[var(--color-white)] hover:bg-[var(--color-blue-500)] active:bg-[var(--color-blue-700)]'
-        : 'border border-[var(--color-blue-600)] text-[var(--color-blue-600)] hover:bg-[var(--color-blue-50)] active:bg-[var(--color-blue-100)]';
+        ? 'border border-[var(--color-white)] text-[var(--color-white)] hover:text-[var(--color-blue-200)]'
+        : 'border border-[var(--color-blue-600)] text-[var(--color-blue-600)] hover:text-[var(--color-blue-700)]';
 
   return (
     <button
@@ -200,6 +203,42 @@ export function Avatar({
       style={{ width: size, height: size }}
     >
       {src ? <img src={src} alt={alt} className="h-full w-full object-cover" /> : null}
+    </span>
+  );
+}
+
+/**
+ * Card media. Two rules live here so no caller has to remember them:
+ *
+ *   ZOOM ON HOVER. The image scales inside a clipped frame; the card itself
+ *   does not move. Put `group` on the card for this to fire.
+ *
+ *   FOCAL POINT. Any image with a person in it is anchored TOP-centre, not
+ *   centre. When the frame shrinks, centre-anchoring crops from both edges and
+ *   takes the head off first. Top-centre sacrifices the feet instead, which
+ *   nobody misses.
+ */
+export function CardImage({
+  src,
+  alt = '',
+  hasPerson,
+  className = '',
+}: {
+  src: string;
+  alt?: string;
+  hasPerson?: boolean;
+  className?: string;
+}) {
+  return (
+    <span className={cx('block overflow-hidden rounded-[8px]', className)}>
+      <img
+        src={src}
+        alt={alt}
+        className={cx(
+          'h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105',
+          hasPerson ? 'object-top' : 'object-center',
+        )}
+      />
     </span>
   );
 }

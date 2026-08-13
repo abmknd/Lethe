@@ -63,9 +63,13 @@ Its binding instruction:
 > new surfaces (scheduling, call lobby, reminder emails) are **born on the new
 > visuals and never re-colored**."*
 
-So the list below is a **handoff, not a build list**. The rebrand does not build
-these screens. It guarantees the system exists first so that whoever builds them
-does not produce another 313 hardcoded hexes.
+**These get BUILT during Phase 4, not deferred.** Decision, 2026-08-13: if a
+page we are rebranding links to one of these, it is designed and built in the
+same pass. We are not coming back to them. Meticulous over fast.
+
+The system existing first is what makes that safe: the tokens and primitives
+are the guardrail, so a screen built mid-phase cannot reintroduce hardcoded
+colour or invent a component that already exists.
 
 **Status check (verified against git, not the Changelog):** the Changelog says
 Phase 3 is not started, but PR #117 shipped Daily.co room creation on mutual

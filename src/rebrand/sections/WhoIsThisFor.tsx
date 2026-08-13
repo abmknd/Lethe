@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { TitlePill, DescriptivePill, SegmentedBar } from '../primitives';
+import { TitlePill, DescriptivePill, SegmentedBar, CardImage } from '../primitives';
 import whoCreators from '../assets/who-creators.webp';
 
 /**
@@ -34,10 +34,8 @@ export default function WhoIsThisFor() {
 
   return (
     <section id="cohort" className="w-full bg-[var(--color-yellow-50)] px-[clamp(20px,6vw,120px)] py-[clamp(48px,8vw,120px)]">
-      <div className="mx-auto flex w-[1200px] max-w-full flex-col items-stretch gap-[16px] overflow-hidden rounded-[16px] bg-[var(--color-blue-100)] px-[16px] pb-[24px] pt-[16px] md:h-[840px] md:flex-row md:items-start">
-        <div className="h-[300px] w-full shrink-0 overflow-hidden rounded-[8px] md:h-full md:w-[628px] md:max-w-[52%]">
-          <img src={whoCreators} alt="" className="h-full w-full object-cover" />
-        </div>
+      <div className="group mx-auto flex w-[1200px] max-w-full flex-col items-stretch gap-[16px] overflow-hidden rounded-[16px] bg-[var(--color-blue-100)] px-[16px] pb-[24px] pt-[16px] md:h-[840px] md:flex-row md:items-start">
+        <CardImage src={whoCreators} className="h-[300px] w-full shrink-0 md:h-full md:w-[628px] md:max-w-[52%]" />
 
         <div className="flex flex-1 flex-col items-center justify-between gap-6 md:gap-0">
           <div className="flex w-full items-center justify-between pb-[8px]">

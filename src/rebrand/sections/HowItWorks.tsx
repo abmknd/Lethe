@@ -1,4 +1,4 @@
-import { Card, TitlePill, DescriptivePill } from '../primitives';
+import { Card, CardImage, TitlePill, DescriptivePill } from '../primitives';
 import step1 from '../assets/step-1-tell-us.webp';
 import step2 from '../assets/step-2-introduced.webp';
 import step3 from '../assets/step-3-matches.webp';
@@ -10,22 +10,24 @@ type StepCard = {
   title: string;
   body: string;
   img: string;
+  /** Anchors the crop to the top so heads survive a narrow frame. */
+  hasPerson?: boolean;
 };
 
 const CARDS: StepCard[] = [
-  { theme: 'light', step: 'STEP 1', title: 'Tell us about you', img: step1, body: 'Relethe matches you with up to five people a week based on who you actually are, not who you perform to be.' },
-  { theme: 'dark', step: 'STEP 2', title: 'Get introduced', img: step2, body: 'A daily edition of selected posts. Short-form, intentional, finite. It ends. That is the point.' },
-  { theme: 'dark', step: 'STEP 3', title: 'Meet your matches', img: step3, body: 'You choose who you meet. The more honest you are, the better the match. Up to five introductions a week.' },
-  { theme: 'light', step: 'STEP 4', title: 'Update your priors', img: step4, body: 'Set your availability, your frequency, your boundaries. Every introduction is a deliberate choice.' },
+  { theme: 'light', step: 'STEP 1', title: 'Tell us about you', img: step1, body: 'Relethe matches you with up to five people a week based on who you actually are, not who you perform to be.' , hasPerson: true },
+  { theme: 'dark', step: 'STEP 2', title: 'Get introduced', img: step2, body: 'A daily edition of selected posts. Short-form, intentional, finite. It ends. That is the point.' , hasPerson: true },
+  { theme: 'dark', step: 'STEP 3', title: 'Meet your matches', img: step3, body: 'You choose who you meet. The more honest you are, the better the match. Up to five introductions a week.' , hasPerson: true },
+  { theme: 'light', step: 'STEP 4', title: 'Update your priors', img: step4, body: 'Set your availability, your frequency, your boundaries. Every introduction is a deliberate choice.' , hasPerson: true },
 ];
 
 /** One step. The card's own surface decides every colour inside it. */
-function StepTile({ theme, step, title, body, img }: StepCard) {
+function StepTile({ theme, step, title, body, img, hasPerson }: StepCard) {
   const surface = theme === 'dark' ? 'blue' : 'light';
   return (
     <Card
       variant={theme === 'dark' ? 'blue' : 'lightAlt'}
-      className="flex w-full max-w-[560px] flex-col gap-[16px] px-[16px] pb-[24px] pt-[16px] sm:w-[calc(50%-18px)]"
+      className="group flex w-full max-w-[560px] flex-col gap-[16px] px-[16px] pb-[24px] pt-[16px] sm:w-[calc(50%-18px)]"
     >
       <div className="flex flex-col gap-[24px] pb-[8px]">
         <div className="flex items-center justify-between">
@@ -39,9 +41,7 @@ function StepTile({ theme, step, title, body, img }: StepCard) {
         </div>
       </div>
 
-      <div className="h-[clamp(240px,40vw,454px)] w-full overflow-hidden rounded-[8px]">
-        <img src={img} alt="" className="h-full w-full object-cover" />
-      </div>
+      <CardImage src={img} hasPerson={hasPerson} className="h-[clamp(240px,40vw,454px)] w-full" />
     </Card>
   );
 }
