@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { Logomark } from '../ui';
+import { Logomark, Button } from '../ui';
 import { signup } from '../../lib/signup';
 import heroArt from '../assets/hero-sanctuary.webp';
 
@@ -29,13 +29,13 @@ function JoinForm() {
       {done ? (
         <div
           role="status"
-          className="flex items-center justify-center rounded-[48px] border border-white bg-[var(--color-blue-600)] px-[24px] py-[14px] text-center text-[13px] leading-[18px] text-white"
+          className="flex items-center justify-center rounded-[48px] border border-[var(--color-white)] bg-[var(--color-surface-base)] px-[24px] py-[14px] text-center text-[13px] leading-[18px] text-[var(--color-white)]"
         >
           {status === 'joined' ? "You're on the list. We'll be in touch." : "You're already on the list."}
         </div>
       ) : (
         <form onSubmit={onSubmit} noValidate>
-          <div className="flex items-center justify-between rounded-[48px] border border-white bg-[var(--color-blue-600)] py-[8px] pl-[24px] pr-[8px] transition-shadow focus-within:shadow-[0_0_0_3px_rgba(255,255,255,0.25)]">
+          <div className="flex items-center justify-between rounded-[48px] border border-[var(--color-white)] bg-[var(--color-surface-base)] p-[4px] pl-[24px] focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-[var(--color-white)]">
             <input
               type="email"
               required
@@ -44,15 +44,16 @@ function JoinForm() {
               placeholder="Email address"
               aria-label="Email address"
               disabled={status === 'sending'}
-              className="min-w-0 flex-1 bg-transparent text-[13px] leading-[18px] text-white outline-none placeholder:text-[var(--color-placeholder)] disabled:opacity-60"
+              className="min-w-0 flex-1 bg-transparent text-[13px] leading-[18px] text-[var(--color-white)] outline-none placeholder:text-[var(--color-placeholder)]"
             />
-            <button
+            <Button
               type="submit"
+              surface="blue"
               disabled={status === 'sending' || !email.trim()}
-              className="shrink-0 rounded-[40px] bg-white px-[16px] py-[8px] text-[13px] font-medium leading-[1.2] tracking-[1.5px] text-[var(--color-blue-600)] transition-opacity hover:opacity-90 disabled:opacity-45"
+              className="tracking-[1.5px]"
             >
               {status === 'sending' ? 'JOINING…' : 'JOIN NOW'}
-            </button>
+            </Button>
           </div>
           {status === 'error' && (
             <p role="alert" className="mt-[8px] text-center text-[13px] leading-[18px] text-[var(--color-yellow-600)]">
@@ -89,27 +90,21 @@ export default function Hero() {
             </a>
 
             <div className="hidden flex-1 items-center justify-center gap-[12px] sm:flex">
-              <a href="#story" className="p-[8px] text-[13px] font-medium leading-[1.2] tracking-[1px] text-white transition-opacity hover:opacity-70">
+              <a href="#story" className="p-[8px] text-[13px] font-medium leading-[1.2] tracking-[1px] text-[var(--color-white)] transition-colors hover:text-[var(--color-blue-200)]">
                 COHORT
               </a>
-              <a href="#manifesto" className="p-[8px] text-[13px] font-medium leading-[1.2] tracking-[1px] text-white transition-opacity hover:opacity-70">
+              <a href="#manifesto" className="p-[8px] text-[13px] font-medium leading-[1.2] tracking-[1px] text-[var(--color-white)] transition-colors hover:text-[var(--color-blue-200)]">
                 MANIFESTO
               </a>
             </div>
 
             <div className="flex shrink-0 items-center gap-[12px]">
-              <button className="rounded-[40px] bg-white px-[16px] py-[8px] text-[13px] font-medium leading-[1.2] tracking-[1px] text-[var(--color-blue-600)] transition-opacity hover:opacity-90">
-                JOIN NOW
-              </button>
+              <Button variant="secondary" surface="blue">SIGN IN</Button>
+              <Button surface="blue">JOIN NOW</Button>
             </div>
           </div>
         </div>
 
-        <div className="absolute right-[clamp(16px,4vw,40px)] top-1/2 hidden -translate-y-1/2 md:block">
-          <button className="relative rounded-[40px] border border-white px-[16px] py-[8px] text-[13px] font-medium leading-[1.2] tracking-[1px] text-white transition-colors hover:bg-white/10">
-            SIGN IN
-          </button>
-        </div>
       </nav>
 
       {/* Heading */}

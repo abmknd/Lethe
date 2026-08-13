@@ -1,3 +1,4 @@
+import { TitlePill, DescriptivePill } from '../ui';
 import step1 from '../assets/step-1-tell-us.webp';
 import step2 from '../assets/step-2-introduced.webp';
 import step3 from '../assets/step-3-matches.webp';
@@ -33,22 +34,8 @@ function Card({ theme, step, title, body, img }: StepCard) {
 
       <div className="flex flex-col gap-[24px] pb-[8px]">
         <div className="flex items-center justify-between">
-          <span
-            className={
-              'inline-flex items-center rounded-[8px] px-[6px] py-[4px] text-[13px] leading-[18px] ' +
-              (dark ? 'bg-[var(--color-blue-700)] text-white' : 'bg-[var(--color-tag-neutral)] text-[var(--color-black-700)]')
-            }
-          >
-            HOW IT WORKS
-          </span>
-          <span
-            className={
-              'inline-flex items-center rounded-[8px] px-[6px] py-[4px] text-[13px] leading-[18px] ' +
-              (dark ? 'bg-[var(--color-tag-neutral)] text-[var(--color-blue-600)]' : 'bg-[var(--color-blue-600)] text-white')
-            }
-          >
-            {step}
-          </span>
+          <TitlePill surface={dark ? 'blue' : 'light'}>HOW IT WORKS</TitlePill>
+          <DescriptivePill surface={dark ? 'blue' : 'light'}>{step}</DescriptivePill>
         </div>
 
         <div className="flex flex-col gap-[12px]">

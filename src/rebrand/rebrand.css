@@ -2,7 +2,7 @@
    Token names mirror the Figma color + text styles (e.g. Blue 600 -> --color-blue-600).
    Two-font system: Parkinsans (display) + Archivo (everything else). No Inter.
    @import rules must come first (fonts, then Tailwind) per CSS/PostCSS ordering. */
-@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500&family=Parkinsans:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@300;400;500&family=Parkinsans:wght@400;600&display=swap');
 @import 'tailwindcss';
 
 .rebrand-root {
@@ -65,11 +65,16 @@
   --color-warning-100: #ffeee6;
   --color-warning-50:  #fff6f2;
 
-  /* ---- Off-ramp one-offs (used in the design, not Figma color styles) ---- */
-  --color-tag-neutral: #eeeef7; /* neutral tag fill */
-  --color-placeholder: #8f8fff; /* input placeholder (lavender) */
-  --color-card-border: #3a3aff; /* blue-card 1px border (near Blue 500) */
-  --color-scroll-off:  #ebebfa; /* inactive scroll-bar segment */
+  /* ---- Semantic aliases -------------------------------------------------- */
+  /* Semantic aliases. Each resolves to a ramp token; none carries its own
+     hex. Blue surfaces are a three-level elevation model, and a border is
+     always one step lighter than the surface it sits on. */
+  --color-surface-recessed: var(--color-blue-700);
+  --color-surface-base:     var(--color-blue-600);
+  --color-surface-raised:   var(--color-blue-500);
+  --color-placeholder:      var(--color-blue-300);
+  --color-card-border:      var(--color-blue-500);
+  --color-scroll-off:       var(--color-black-100);
 
   /* ---- Type ---- */
   --font-display: 'Parkinsans', sans-serif;

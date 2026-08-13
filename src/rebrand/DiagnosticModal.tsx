@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
-import { Tag } from './ui';
+import { TitlePill, Button } from './ui';
 import { signup } from '../lib/signup';
 
 /**
@@ -152,12 +152,12 @@ export default function DiagnosticModal({ isOpen, onClose, onComplete }: Props) 
     >
       <div ref={panelRef} className="mx-auto flex min-h-full w-full max-w-[720px] flex-col px-[clamp(20px,5vw,32px)] py-[clamp(24px,5vh,56px)]">
         <div className="flex items-center justify-between">
-          <Tag variant="depth">NETWORK DIAGNOSTIC</Tag>
+          <TitlePill surface="blue">NETWORK DIAGNOSTIC</TitlePill>
           <button
             ref={closeRef}
             onClick={onClose}
             aria-label="Close diagnostic"
-            className="flex size-[40px] items-center justify-center rounded-full border border-white/40 text-[20px] leading-none text-white transition-colors hover:bg-white/10"
+            className="flex size-[40px] items-center justify-center rounded-full border border-[var(--color-white)] text-[20px] leading-none text-[var(--color-white)] transition-colors hover:bg-[var(--color-surface-raised)]"
           >
             ×
           </button>
@@ -172,7 +172,7 @@ export default function DiagnosticModal({ isOpen, onClose, onComplete }: Props) 
                 'h-[4px] flex-1 transition-colors duration-300 ' +
                 (i === 0 ? 'rounded-l-[8px] ' : '') +
                 (i === QUESTIONS.length - 1 ? 'rounded-r-[8px] ' : '') +
-                (i < step ? 'bg-white' : 'bg-white/25')
+                (i < step ? 'bg-[var(--color-yellow-600)]' : 'bg-[var(--color-surface-raised)]')
               }
             />
           ))}
@@ -180,7 +180,7 @@ export default function DiagnosticModal({ isOpen, onClose, onComplete }: Props) 
 
         {q ? (
           <div className="flex flex-1 flex-col justify-center py-[clamp(32px,8vh,72px)]">
-            <p className="text-[13px] leading-[18px] tracking-[1px] text-white/60">
+            <p className="text-[13px] leading-[18px] tracking-[1px] text-[var(--color-blue-200)]">
               {q.label} · {step + 1}/{QUESTIONS.length}
             </p>
             <h2 className="rebrand-display mt-[12px] text-[clamp(26px,4.5vw,40px)] font-normal leading-[1.1] text-white">
@@ -192,7 +192,7 @@ export default function DiagnosticModal({ isOpen, onClose, onComplete }: Props) 
                 <button
                   key={opt}
                   onClick={() => answer(q.options.indexOf(opt))}
-                  className="rounded-[16px] border border-white/40 px-[20px] py-[16px] text-left text-[16px] leading-[1.35] text-white transition-colors hover:border-white hover:bg-white hover:text-[var(--color-blue-600)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                  className="rounded-[16px] border border-[var(--color-white)] px-[20px] py-[16px] text-left text-[16px] leading-[1.35] text-[var(--color-white)] transition-colors hover:bg-[var(--color-white)] hover:text-[var(--color-blue-600)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-white)]"
                 >
                   {opt}
                 </button>
@@ -201,18 +201,18 @@ export default function DiagnosticModal({ isOpen, onClose, onComplete }: Props) 
           </div>
         ) : (
           <div className="flex flex-1 flex-col justify-center py-[clamp(32px,8vh,72px)]">
-            <p className="text-[13px] leading-[18px] tracking-[1px] text-white/60">RESULT READY · {pct}% MAPPED</p>
+            <p className="text-[13px] leading-[18px] tracking-[1px] text-[var(--color-blue-200)]">RESULT READY · {pct}% MAPPED</p>
             <h2 className="rebrand-display mt-[12px] text-[clamp(26px,4.5vw,40px)] font-normal leading-[1.1] text-white">
               Your network has a <span className="text-[var(--color-yellow-600)]">proximity problem</span>, not a
               capability one.
             </h2>
-            <p className="mt-[16px] max-w-[52ch] text-[16px] leading-[1.5] text-white/85">
+            <p className="mt-[16px] max-w-[52ch] text-[16px] leading-[1.5] text-[var(--color-white)]">
               The people who could open the right doors are not in your current orbit. Leave your email and we will use
               this to find your people when matchmaking opens.
             </p>
 
             <form onSubmit={submit} noValidate className="mt-[32px] w-full max-w-[520px]">
-              <div className="flex items-center justify-between rounded-[48px] border border-white bg-[var(--color-blue-600)] py-[8px] pl-[24px] pr-[8px] focus-within:shadow-[0_0_0_3px_rgba(255,255,255,0.25)]">
+              <div className="flex items-center justify-between rounded-[48px] border border-white bg-[var(--color-blue-600)] p-[4px] pl-[24px] focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-[var(--color-white)]">
                 <input
                   type="email"
                   required
@@ -223,13 +223,9 @@ export default function DiagnosticModal({ isOpen, onClose, onComplete }: Props) 
                   disabled={sending}
                   className="min-w-0 flex-1 bg-transparent text-[13px] leading-[18px] text-white outline-none placeholder:text-[var(--color-placeholder)]"
                 />
-                <button
-                  type="submit"
-                  disabled={sending || !email.trim()}
-                  className="shrink-0 rounded-[40px] bg-white px-[16px] py-[8px] text-[13px] font-medium leading-[1.2] tracking-[1.5px] text-[var(--color-blue-600)] transition-opacity hover:opacity-90 disabled:opacity-45"
-                >
+                <Button type="submit" surface="blue" disabled={sending || !email.trim()} className="tracking-[1.5px]">
                   {sending ? 'SAVING…' : 'GET RESULT'}
-                </button>
+                </Button>
               </div>
               {err && (
                 <p role="alert" className="mt-[8px] text-[13px] leading-[18px] text-[var(--color-yellow-600)]">

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Tag } from '../ui';
+import { TitlePill, DescriptivePill } from '../ui';
 import whoCreators from '../assets/who-creators.webp';
 
 /**
@@ -71,8 +71,8 @@ export default function WhoIsThisFor() {
 
         <div className="flex flex-1 flex-col items-center justify-between gap-6 md:gap-0">
           <div className="flex w-full items-center justify-between pb-[8px]">
-            <Tag variant="neutral">WHO NEEDS THIS?</Tag>
-            <Tag variant="filled">{card.label}</Tag>
+            <TitlePill>WHO NEEDS THIS?</TitlePill>
+            <DescriptivePill>{card.label}</DescriptivePill>
           </div>
 
           {/* aria-live so the rotation is announced rather than silently swapping */}

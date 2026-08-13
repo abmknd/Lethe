@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Tag, SpirographFlower } from '../ui';
+import { TitlePill, SpirographFlower, Button } from '../ui';
 import DiagnosticModal from '../DiagnosticModal';
 
 export default function Survey() {
@@ -9,10 +9,10 @@ export default function Survey() {
   return (
     <section id="manifesto" className="w-full bg-[var(--color-blue-600)] px-[clamp(20px,8vw,277px)] py-[clamp(48px,8vw,64px)]">
       <div className="mx-auto flex w-full max-w-[886px] flex-col items-center gap-[24px]">
-        <SpirographFlower size={215} />
+        <span className="text-[var(--color-white)]"><SpirographFlower size={215} /></span>
 
         <div className="flex w-full flex-col items-center gap-[32px]">
-          <Tag variant="depth">NETWORK DIAGNOSTIC</Tag>
+          <TitlePill surface="blue">NETWORK DIAGNOSTIC</TitlePill>
 
           <div className="flex w-full flex-col items-center gap-[24px]">
             <h2 className="rebrand-display w-full max-w-[640px] text-center text-[clamp(30px,6vw,64px)] font-normal leading-[1.1] tracking-[1px] text-white">
@@ -25,12 +25,9 @@ export default function Survey() {
             </p>
           </div>
 
-          <button
-            onClick={() => setOpen(true)}
-            className="rounded-[40px] bg-white px-[20px] py-[12px] text-[14px] font-medium leading-[16px] tracking-[1px] text-[var(--color-blue-600)] transition-opacity hover:opacity-90"
-          >
+          <Button surface="blue" size="lg" onClick={() => setOpen(true)}>
             {done ? 'RETAKE DIAGNOSTIC' : 'RUN DIAGNOSTIC'}
-          </button>
+          </Button>
         </div>
       </div>
 
