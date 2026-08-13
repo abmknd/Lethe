@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { ChevronLeft } from 'lucide-react';
+import { SegmentedBar, Button } from '../../rebrand/primitives';
 import { Step1HowItWorks } from './kyc/Step1HowItWorks';
 import { Step2Location } from './kyc/Step2Location';
 import { Step3Objectives } from './kyc/Step3Objectives';
@@ -214,7 +215,6 @@ export function KYCModal({ isOpen, onClose, onComplete, userId, accessToken }: K
 
   if (!isOpen) return null;
 
-  const progress = ((currentStep - 1) / (TOTAL_STEPS - 1)) * 100;
 
   const getButtonLabel = () => {
     if (currentStep === 1) return "Let's go";
@@ -223,34 +223,38 @@ export function KYCModal({ isOpen, onClose, onComplete, userId, accessToken }: K
   };
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center p-5 bg-black/80 backdrop-blur-sm">
-      <div className="relative w-full max-w-[600px] h-[min(680px,90vh)] bg-gradient-to-br from-[#0e130e] to-[#090c09] border border-white/[0.07] rounded-3xl shadow-2xl overflow-hidden">
-        
-        {/* Progress bar */}
-        <div className="absolute top-0 left-0 right-0 h-[2px] bg-white/5 z-10">
-          <div 
-            className="h-full bg-[#7FFF00] transition-all duration-600 ease-out shadow-[0_0_12px_rgba(127,255,0,0.6)]"
-            style={{ width: isComplete ? '100%' : `${progress}%` }}
-          />
+    <div className="rebrand-root fixed inset-0 z-[200] flex items-center justify-center bg-[var(--color-black-700)]/80 p-5 backdrop-blur-sm">
+      {/*
+        Onboarding card, per the in-app spec. Blue elevation model: the card is
+        the base surface and its border is one ramp step lighter, which is what
+        separates it from the scrim without a shadow.
+      */}
+      <div className="relative flex h-[min(680px,90vh)] w-full max-w-[600px] flex-col overflow-hidden rounded-[16px] border-[1.25px] border-[var(--color-blue-500)] bg-[var(--color-blue-600)]">
+
+        {/* Progress: ten segments, one per step, not a continuous fill. The
+            user can see how much is left, which a percentage bar hides. */}
+        <div className="px-[16px] pt-[16px]">
+          <SegmentedBar count={TOTAL_STEPS} active={(isComplete ? TOTAL_STEPS : currentStep) - 1} />
         </div>
 
         {/* Header */}
-        <div className="flex items-center justify-between px-8 pt-6 pb-3 relative z-10">
+        <div className="relative z-10 flex items-center justify-between px-[16px] pb-[12px] pt-[16px]">
           <button
             onClick={goBack}
-            className={`w-8 h-8 rounded-full border border-white/[0.07] bg-transparent text-white/30 flex items-center justify-center transition-all ${
-              currentStep > 1 && !isComplete && !isPaused ? 'opacity-100 pointer-events-auto hover:bg-white/5 hover:border-white/10 hover:text-white/50' : 'opacity-0 pointer-events-none'
+            aria-label="Back"
+            className={`flex size-[32px] items-center justify-center rounded-full border-[1.25px] border-[var(--color-white)] text-[var(--color-white)] transition-colors hover:text-[var(--color-blue-200)] ${
+              currentStep > 1 && !isComplete && !isPaused ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
             }`}
           >
-            <ChevronLeft size={16} strokeWidth={1.5} />
+            <ChevronLeft size={16} strokeWidth={1.25} />
           </button>
-          <span className="font-['Inter'] text-[10px] tracking-[0.2em] text-white/30">
+          <span className="text-[13px] font-medium leading-[1.2] tracking-[1.5px] text-[var(--color-white)]">
             {isComplete || isPaused ? '' : `${currentStep} of ${TOTAL_STEPS}`}
           </span>
         </div>
 
         {/* Steps viewport */}
-        <div className="relative flex-1 h-[calc(100%-140px)] overflow-hidden">
+        <div className="relative min-h-0 flex-1 overflow-y-auto">
           {isPaused ? (
             <KYCPaused onCompleteNow={handleCompleteNow} onMaybeLater={handleMaybeLater} />
           ) : !isComplete ? (
@@ -317,23 +321,18 @@ export function KYCModal({ isOpen, onClose, onComplete, userId, accessToken }: K
           )}
         </div>
 
-        {/* CTA bar */}
+        {/* CTA bar. Solid surface rather than a gradient scrim: the card is
+            already a defined colour, so fading to a second one just to lift the
+            buttons would introduce a value that is not in the ramp. */}
         {!isComplete && !isPaused && (
-          <div className="absolute bottom-0 left-0 right-0 px-8 pt-3 pb-5 bg-gradient-to-t from-[#0c0f0c] via-[rgba(9,12,9,0.95)] to-transparent z-10">
-            <div className="flex items-center gap-3">
-              <button
-                onClick={goNext}
-                disabled={!canAdvance()}
-                className="flex-1 py-[15px] px-4 rounded-full border-none font-['Inter'] text-[11px] tracking-[0.22em] uppercase text-[#050705] bg-[#7FFF00] hover:bg-[#c8ff4f] transition-all disabled:opacity-35 disabled:cursor-not-allowed disabled:hover:bg-[#7FFF00]"
-              >
-                {getButtonLabel()}
-              </button>
-              <button
-                onClick={handleLater}
-                className="flex-shrink-0 py-[15px] px-6 rounded-full border border-white/[0.12] font-['Inter'] text-[11px] tracking-[0.22em] uppercase text-white bg-[#1a1a1a] hover:bg-[#252525] transition-all"
-              >
-                Later
-              </button>
+          <div className="relative z-10 border-t border-[var(--color-blue-500)] bg-[var(--color-blue-600)] px-[16px] py-[16px]">
+            <div className="flex items-center gap-[12px]">
+              <Button surface="blue" size="lg" className="flex-1" onClick={goNext} disabled={!canAdvance()}>
+                {getButtonLabel().toUpperCase()}
+              </Button>
+              <Button surface="blue" variant="secondary" size="lg" onClick={handleLater}>
+                LATER
+              </Button>
             </div>
           </div>
         )}
