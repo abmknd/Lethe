@@ -6,6 +6,8 @@ import DiagnosticModal from '../DiagnosticModal';
 export default function Survey() {
   const [open, setOpen] = useState(false);
   const [done, setDone] = useState(false);
+  // Held so a later section can prefill it, matching the current landing page.
+  const [, setEmail] = useState('');
 
   return (
     <section id="manifesto" className="w-full bg-[var(--color-blue-600)] px-[clamp(20px,8vw,277px)] py-[clamp(48px,8vw,64px)]">
@@ -35,6 +37,7 @@ export default function Survey() {
       <DiagnosticModal
         isOpen={open}
         onClose={() => setOpen(false)}
+        onEmailSubmitted={setEmail}
         onComplete={() => {
           setDone(true);
           setOpen(false);

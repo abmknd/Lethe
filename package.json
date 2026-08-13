@@ -25,7 +25,8 @@
     "build": "vite build",
     "check:frontend": "vite build",
     "check:backend": "npm run mvp:test:backend && cucumber-js --import 'mvp/tests/step-definitions/**/*.mjs' mvp/tests/features/l0-happy-paths.feature mvp/tests/features/l1-insufficient-input.feature mvp/tests/features/l2-matching-failure.feature mvp/tests/features/l3-match-bypass.feature --tags 'not @skip' --no-strict",
-    "check:release": "npm run check:frontend && npm run check:backend && npm run verify:stage7 && npm run verify:rls && npm run verify:signup && npm run verify:waitlist && npm run verify:magic-link"
+    "check:release": "npm run check:frontend && npm run verify:diagnostic && npm run check:backend && npm run verify:stage7 && npm run verify:rls && npm run verify:signup && npm run verify:waitlist && npm run verify:magic-link",
+    "verify:diagnostic": "tsx scripts/verify-diagnostic.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.95.2",
