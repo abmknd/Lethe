@@ -51,19 +51,58 @@ disagrees with them is drift and snaps to the nearest ramp step.
 In-app is **not** just restyling the screens that exist today. It has to
 absorb the work that was paused for the rebrand.
 
-### 4a. Reconciliation interfaces
+### 4a. Roadmap surfaces that do not exist yet
 
-Source: **"Relethe MVP Roadmap & Reconciliation Priorities"** (Notion).
+**This phase is Phase 3.5 of `docs/alignment-plan.md`**, not a detour from the
+roadmap. That plan prescribes the order we are running: token foundation, then
+landing, then the app, plus a core component set that Phases 4 and 5 reuse.
 
-The reconciliation items introduce product surfaces that have **no design
-yet**. Every one needs an interface designed in the new system before it can
-be built. Phase 4 is not complete until that doc has been walked item by item
-and each surface it implies is either designed or explicitly deferred in
-writing.
+Its binding instruction:
 
-> **Blocker:** Notion is not currently authorised for this workspace. It must
-> be connected (claude.ai connector settings), or the reconciliation items
-> pasted in, before Phase 4 can start. Do not begin 4a from memory.
+> *"Token foundation first, adopted **before or during Phase 3**... so Phase 3's
+> new surfaces (scheduling, call lobby, reminder emails) are **born on the new
+> visuals and never re-colored**."*
+
+So the list below is a **handoff, not a build list**. The rebrand does not build
+these screens. It guarantees the system exists first so that whoever builds them
+does not produce another 313 hardcoded hexes.
+
+**Status check (verified against git, not the Changelog):** the Changelog says
+Phase 3 is not started, but PR #117 shipped Daily.co room creation on mutual
+accept. It is backend only (`mvp/integrations/daily.mjs`, edge adapter, api) and
+the identity gate is explicitly a later slice, so **no Phase 3 UI exists yet.**
+The window to get this right is still open.
+
+#### Phase 3, scheduling and call integrity
+
+- Call **join screen**: photo + name, mutual "this is who I expected"
+  confirmation before the room unlocks
+- **Call lobby** with conversation starters from the insight pipeline
+- **Confirm-attendance** surface for the 24h / 2h / 15min cascade
+- **Warm suspension** after three silent no-shows, with one-click reinstatement
+- **Stood-up user loop-in** with a flag option
+- **Scheduling-failed state**, explicitly deferred out of PR #113
+- **Higher-stakes gate**: investor intros require `oauth_verified` both sides
+
+#### Phase 4, mutual review
+
+- **Two-sided blind review**, unlock-together
+- **Aggregate trend** view for the reviewed person: trend only, never raw text
+- **Dispute submission** path
+
+#### Phase 0 leftover
+
+- **OAuth sign-in** (LinkedIn OIDC primary, Google / Microsoft fallback) and the
+  three `verification_tier` states. Column exists, providers not connected.
+
+#### Cross-cutting admin, none of which exist
+
+Routes today are Home, Review, Connect, Onboarding, Events. Missing:
+
+- Trust-ledger provenance view
+- Suspension management
+- Dispute queue
+- HITL dial has an API (`GET/PUT /api/v1/admin/hitl-config`) but no UI
 
 ### 4b. Screens with a reference
 

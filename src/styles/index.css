@@ -1,4 +1,7 @@
 @import './fonts.css';
+/* Design tokens. Additive: nothing references these yet, so no pixels move.
+   Migration onto them is tracked in REBRAND-PLAN.md. */
+@import './tokens.css';
 @import './tailwind.css';
 @import './theme.css';
 @import './colors_and_type.css';

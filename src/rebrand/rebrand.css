@@ -1,82 +1,13 @@
-/* Rebrand staging tokens — scoped to .rebrand-root so nothing leaks into the live app.
-   Token names mirror the Figma color + text styles (e.g. Blue 600 -> --color-blue-600).
-   Two-font system: Parkinsans (display) + Archivo (everything else). No Inter.
-   @import rules must come first (fonts, then Tailwind) per CSS/PostCSS ordering. */
+/* Rebrand surface styles.
+   Tokens live in src/styles/tokens.css on :root and are shared with the app,
+   so there is exactly one definition of every colour. This file only sets what
+   is specific to the rebrand SURFACE: the two-font system and the canvas.
+   @import rules must come first per CSS/PostCSS ordering. */
 @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@300;400;500&family=Parkinsans:wght@400;600&display=swap');
 @import 'tailwindcss';
+@import '../styles/tokens.css';
 
 .rebrand-root {
-  /* ---- Color styles (named exactly as in Figma) ---- */
-  --color-white: #ffffff;
-
-  --color-blue-700: #0000b8;
-  --color-blue-600: #0000f2;
-  --color-blue-500: #3333f5;
-  --color-blue-400: #6666f7;
-  --color-blue-300: #9999fa;
-  --color-blue-200: #ccccfc;
-  --color-blue-100: #e6e6fe;
-  --color-blue-50:  #f2f2fe;
-
-  --color-yellow-700: #efcf00;
-  --color-yellow-600: #ffdd00;
-  --color-yellow-500: #ffe433;
-  --color-yellow-400: #ffeb66;
-  --color-yellow-300: #fff199;
-  --color-yellow-200: #fff8cc;
-  --color-yellow-100: #fffce6;
-  --color-yellow-50:  #fffdf2;
-
-  --color-black-700: #000000;
-  --color-black-600: #333333;
-  --color-black-500: #666666;
-  --color-black-400: #999999;
-  --color-black-300: #cccccc;
-  --color-black-200: #e6e6e6;
-  --color-black-100: #f2f2f2;
-  --color-black-50:  #fafafa;
-
-  --color-success-700: #00c310;
-  --color-success-600: #00f314;
-  --color-success-500: #33f643;
-  --color-success-400: #66f872;
-  --color-success-300: #99faa1;
-  --color-success-200: #ccfdd0;
-  --color-success-100: #e6fee8;
-  --color-success-50:  #f2fef3;
-
-  /* Error / Warning: confirmed against the shared palette sheet. All 48 ramp
-     values across the six hues are verified, so nothing here is derived. */
-  --color-error-700: #cc0003;
-  --color-error-600: #ff0004;
-  --color-error-500: #ff3336;
-  --color-error-400: #ff6668;
-  --color-error-300: #ff999b;
-  --color-error-200: #ffcccd;
-  --color-error-100: #ffe6e6;
-  --color-error-50:  #fff2f2;
-
-  --color-warning-700: #cc4400;
-  --color-warning-600: #ff5500;
-  --color-warning-500: #ff7733;
-  --color-warning-400: #ff9966;
-  --color-warning-300: #ffbb99;
-  --color-warning-200: #ffddcc;
-  --color-warning-100: #ffeee6;
-  --color-warning-50:  #fff6f2;
-
-  /* ---- Semantic aliases -------------------------------------------------- */
-  /* Semantic aliases. Each resolves to a ramp token; none carries its own
-     hex. Blue surfaces are a three-level elevation model, and a border is
-     always one step lighter than the surface it sits on. */
-  --color-surface-recessed: var(--color-blue-700);
-  --color-surface-base:     var(--color-blue-600);
-  --color-surface-raised:   var(--color-blue-500);
-  --color-placeholder:      var(--color-blue-300);
-  --color-card-border:      var(--color-blue-500);
-  --color-scroll-off:       var(--color-black-100);
-
-  /* ---- Type ---- */
   --font-display: 'Parkinsans', sans-serif;
   --font-body: 'Archivo', system-ui, sans-serif;
 
