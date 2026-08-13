@@ -192,7 +192,7 @@ A border is always one step lighter than the surface it sits on.
 
 | Section | Background | Notes |
 |---|---|---|
-| Hero | Blue 600 | `sanctuary_of_lethe` art, object-bottom; H1 white + "never alone…" Yellow 600; nav pill with SIGN IN (secondary) + JOIN NOW (primary); bottom email capture (radius 48, 1px White border, padding 4 / left 24). |
+| Hero | Blue 600 | `sanctuary_of_lethe` art, full-bleed, anchored `object-bottom` so the fountain holds the lower frame and the headline sits in clear field above; H1 white + "never alone…" Yellow 600; nav pill with SIGN IN (secondary) + JOIN NOW (primary); bottom email capture (radius 48, 1px White border, padding 4 / left 24). |
 | Story | Blue 600 | `WHY DO I NEED THIS?` depth tag; H2 with yellow second line. |
 | Who is this for | **Yellow 50** | Blue 100 card, image left + quote right (Heading 3, `#0000F2` lead-in + black); title-pill `WHO NEEDS THIS?` (White) / descriptive-pill `CREATORS` (Blue 600); scroller indicates the rotating audience. |
 | How it works | **Yellow 50** | 4 cards. Steps 1 & 4 Blue 100 (Black 700 text, White title-pill + Blue 600 descriptive-pill). Steps 2 & 3 Blue 600 with 1.25px Blue 500 border (White text, Blue 700 title-pill + Blue 50 descriptive-pill). |

@@ -104,7 +104,7 @@ missing at build time. Each needs a design, not an improvisation:
 
 | Decision | Status |
 |---|---|
-| Hero: geodesic WebGL (`hero/`) vs `sanctuary_of_lethe` image | **open**, blocks Phase 6 promotion |
+| Hero | **closed.** `sanctuary_of_lethe` ships. The WebGL piece and the `hero/` workspace are deleted. |
 | `signal-pill` variants beyond neutral | open |
 | Illustration library: commit all 69 web-sized, or per-use | leaning per-use |
 | Self-host Parkinsans/Archivo vs Google CDN | open, affects LCP and CSP |
