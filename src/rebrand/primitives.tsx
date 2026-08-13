@@ -165,12 +165,13 @@ export function Card({
   className = '',
   children,
 }: {
-  variant?: 'light' | 'white' | 'blue';
+  variant?: 'light' | 'lightAlt' | 'white' | 'blue';
   className?: string;
   children: ReactNode;
 }) {
   const skin = {
     light: 'bg-[var(--color-blue-50)] text-[var(--color-black-700)]',
+    lightAlt: 'bg-[var(--color-blue-100)] text-[var(--color-black-700)]',
     white: 'bg-[var(--color-white)] text-[var(--color-black-700)] border border-[var(--color-black-100)]',
     // border is one ramp step lighter than the surface it sits on
     blue: 'bg-[var(--color-blue-600)] text-[var(--color-white)] border-[1.25px] border-[var(--color-blue-500)]',
@@ -333,7 +334,10 @@ export function SegmentedBar({
           onClick={() => onSelect(i)}
           aria-label={labelFor ? labelFor(i) : `Go to item ${i + 1}`}
           aria-current={i === active}
-          className="group flex-1 py-[8px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-blue-600)]"
+          // The visible bar stays 4px; the padding carries the tap target up to
+          // the 44px minimum. Shrinking the hit area to match the graphic is a
+          // common and unnecessary mobile failure.
+          className="group flex-1 py-[20px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-blue-600)]"
         >
           <span className={cx(seg(i), i !== active && 'group-hover:bg-[var(--color-blue-300)]')} />
         </button>
