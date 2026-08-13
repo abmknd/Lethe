@@ -24,12 +24,19 @@ import AdminConnectPage from "./admin/AdminConnectPage";
 import AdminReviewPage from "./admin/AdminReviewPage";
 import AdminEventsPage from "./admin/AdminEventsPage";
 import ErrorBoundary from "./ErrorBoundary";
+import RebrandPage from "../rebrand/RebrandPage";
 
 const baseUrl = import.meta.env.BASE_URL;
 const routerOptions = baseUrl === "/" ? undefined : { basename: baseUrl.replace(/\/$/, "") };
 
 // Router configuration for Relethe app
 export const router = createBrowserRouter([
+  // Staged rebrand preview — full-bleed, outside the app shell (sunset later).
+  {
+    path: "/rebrand",
+    Component: RebrandPage,
+    ErrorBoundary,
+  },
   {
     path: "/",
     Component: Root,

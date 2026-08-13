@@ -9,3 +9,12 @@ mvp/data/*.sqlite-shm
 mvp/data/*.sqlite-wal
 CLAUDE.md
 supabase/.temp
+
+# Illustration masters: ~245MB of 1254px source art. Nothing in src/ imports
+# these; scripts/optimize-illustrations.mjs reads them and writes the WebP
+# derivatives that the app actually ships. Build INPUTS this large do not
+# belong in history, which is immutable. Keep them backed up outside the repo.
+src/assets/illustrations/
+
+# Scratch
+*.bak

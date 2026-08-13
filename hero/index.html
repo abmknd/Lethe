@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>HERO — Three</title>
+
+  <link rel="preload" as="image" href="/poster.webp" fetchpriority="high" />
+
+  <style>
+    :root { --field: #0000f2; --ink: #ffffff; --reveal: 0; }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      background: var(--field);
+      color: var(--ink);
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+
+    /* Pin: 100vh frame + the scrub range. */
+    .hero-pin { height: calc(100vh + 250vh); position: relative; }
+
+    .hero-frame {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: hidden;
+      background: var(--field);
+    }
+
+    .hero-frame canvas,
+    .hero-poster {
+      position: absolute;
+      inset: 0;
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .hero-frame canvas { image-rendering: pixelated; }
+
+    /* The poster is the LCP element: it paints immediately and holds the frame
+       until the canvas has actually rendered something, then fades out. If
+       WebGL never comes up it simply stays. */
+    .hero-poster {
+      z-index: 1;
+      transition: opacity 260ms linear;
+    }
+    .canvas-live .hero-poster { opacity: 0; }
+
+    .hero-frame canvas { z-index: 2; }
+
+    /* ---- Copy ---------------------------------------------------------- */
+    .hero-copy {
+      position: absolute;
+      z-index: 3;
+      left: 0;
+      right: 0;
+      top: 14vh;
+      padding: 0 6vw;
+      text-align: center;
+      pointer-events: none;
+    }
+
+    .hero-copy h1 {
+      font-size: clamp(2rem, 6vw, 4.5rem);
+      font-weight: 500;
+      letter-spacing: -0.02em;
+      line-height: 1.05;
+      max-width: 16ch;
+      margin: 0 auto;
+    }
+
+    .hero-copy p {
+      margin: 1.2rem auto 0;
+      max-width: 46ch;
+      font-size: clamp(0.95rem, 1.5vw, 1.15rem);
+      line-height: 1.5;
+      opacity: 0.9;
+    }
+
+    /* The copy resolves out of the SAME ordered lattice as the artwork. Two
+       mask layers, intersected: a hard-edged wipe driven by --reveal, and the
+       8x8 Bayer tile. Multiplying them punches the wipe's edge into the dither
+       grid, so the words assemble dot by dot instead of fading. */
+    .dither-in {
+      -webkit-mask-image: linear-gradient(#000, #000), url("/bayer.png");
+      mask-image: linear-gradient(#000, #000), url("/bayer.png");
+      -webkit-mask-size: 100% 100%, 8px 8px;
+      mask-size: 100% 100%, 8px 8px;
+      -webkit-mask-repeat: no-repeat, repeat;
+      mask-repeat: no-repeat, repeat;
+      -webkit-mask-composite: source-in;
+      mask-composite: intersect;
+      opacity: var(--reveal);
+      transition: opacity 90ms linear;
+    }
+
+    /* No mask support, or reduced motion: just show the text. */
+    @supports not (mask-composite: intersect) {
+      .dither-in { -webkit-mask-image: none; mask-image: none; opacity: 1; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .dither-in {
+        -webkit-mask-image: none;
+        mask-image: none;
+        opacity: 1;
+        transition: none;
+      }
+    }
+
+    /* ---- Below the pin ------------------------------------------------- */
+    .after { padding: 12vh 8vw; min-height: 70vh; border-top: 1px solid rgba(255,255,255,0.25); }
+    .after h2 { font-size: 1.75rem; font-weight: 500; margin-bottom: 0.6rem; }
+    .after p { max-width: 60ch; line-height: 1.55; opacity: 0.85; }
+
+    .hero-noscript {
+      position: absolute;
+      inset: auto 0 2rem;
+      text-align: center;
+      font-size: 0.85rem;
+      opacity: 0.7;
+      z-index: 4;
+    }
+  </style>
+</head>
+<body>
+  <div class="hero-pin" id="hero-pin">
+    <div class="hero-frame" id="hero-frame">
+      <!-- LCP element. Rendered from p=0 by scripts/poster.mjs. -->
+      <img
+        class="hero-poster"
+        id="hero-poster"
+        src="/poster.webp"
+        alt="Three figures on a contoured hill, holding a faceted boulder overhead."
+        fetchpriority="high"
+        decoding="async"
+      />
+      <canvas id="hero-canvas" aria-hidden="true"></canvas>
+
+      <div class="hero-copy">
+        <h1 class="dither-in" id="hero-headline">Imagine Sisyphus never alone</h1>
+        <p class="dither-in" id="hero-sub">
+          The weight does not get lighter. There just come to be more hands under it.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <section class="after">
+    <h2>Below the pin</h2>
+    <p>The pin releases here and the document scrolls normally. The render loop is paused while you read this.</p>
+  </section>
+  <section class="after">
+    <h2>Further content</h2>
+    <p>Second block, so there is somewhere to scroll to.</p>
+  </section>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
