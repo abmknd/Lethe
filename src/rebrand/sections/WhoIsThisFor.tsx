@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { TitlePill, DescriptivePill } from '../ui';
+import { TitlePill, DescriptivePill, SegmentedBar } from '../primitives';
 import whoCreators from '../assets/who-creators.webp';
 
 /**
@@ -14,36 +14,6 @@ const CARDS = [
 ];
 
 const DWELL_MS = 6000;
-
-/** The three-bar indicator from the Figma frame, generalised to N cards. */
-function Scroller({ count, active, onSelect }: { count: number; active: number; onSelect: (i: number) => void }) {
-  return (
-    <div className="flex w-full items-center justify-center">
-      <div className="flex max-w-[160px] flex-1 items-center gap-[4px]">
-        {Array.from({ length: count }).map((_, i) => (
-          <button
-            key={i}
-            onClick={() => onSelect(i)}
-            aria-label={`Show ${CARDS[i].label.toLowerCase()}`}
-            aria-current={i === active}
-            className="group flex-1 py-[8px]"
-          >
-            <span
-              className={
-                'block h-[4px] w-full transition-colors duration-300 ' +
-                (i === 0 ? 'rounded-l-[8px] ' : '') +
-                (i === count - 1 ? 'rounded-r-[8px] ' : '') +
-                (i === active
-                  ? 'bg-[var(--color-blue-600)]'
-                  : 'bg-[var(--color-scroll-off)] group-hover:bg-[var(--color-blue-300)]')
-              }
-            />
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 export default function WhoIsThisFor() {
   const [active, setActive] = useState(0);
@@ -86,7 +56,15 @@ export default function WhoIsThisFor() {
             </p>
           </div>
 
-          <Scroller count={CARDS.length} active={active} onSelect={select} />
+          <div className="w-full max-w-[160px]">
+            <SegmentedBar
+              count={CARDS.length}
+              active={active}
+              onSelect={select}
+              labelFor={(i) => `Show ${CARDS[i].label.toLowerCase()}`}
+              surface="light"
+            />
+          </div>
         </div>
       </div>
     </section>

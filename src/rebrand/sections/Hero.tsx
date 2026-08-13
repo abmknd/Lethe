@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react';
-import { Logomark, Button } from '../ui';
+import { Button } from '../primitives';
+import { Logomark } from '../brand';
 import { signup } from '../../lib/signup';
 import heroArt from '../assets/hero-sanctuary.webp';
 
@@ -74,7 +75,7 @@ export default function Hero() {
         src={heroArt}
         alt=""
         aria-hidden="true"
-        fetchPriority="high"
+        fetchpriority="high"
         className="pointer-events-none absolute inset-0 h-full w-full select-none object-cover object-bottom"
       />
 

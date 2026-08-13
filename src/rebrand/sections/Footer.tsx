@@ -1,4 +1,4 @@
-import { Logomark } from '../ui';
+import { Logomark } from '../brand';
 
 export default function Footer() {
   return (

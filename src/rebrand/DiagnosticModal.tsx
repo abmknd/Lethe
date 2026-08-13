@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
-import { TitlePill, Button } from './ui';
+import { TitlePill, Button, SegmentedBar } from './primitives';
 import { signup } from '../lib/signup';
 
 /**
@@ -163,19 +163,9 @@ export default function DiagnosticModal({ isOpen, onClose, onComplete }: Props) 
           </button>
         </div>
 
-        {/* Progress, using the same bar language as the cohort scroller. */}
-        <div className="mt-[24px] flex w-full items-center gap-[4px]" aria-hidden="true">
-          {QUESTIONS.map((_, i) => (
-            <span
-              key={i}
-              className={
-                'h-[4px] flex-1 transition-colors duration-300 ' +
-                (i === 0 ? 'rounded-l-[8px] ' : '') +
-                (i === QUESTIONS.length - 1 ? 'rounded-r-[8px] ' : '') +
-                (i < step ? 'bg-[var(--color-yellow-600)]' : 'bg-[var(--color-surface-raised)]')
-              }
-            />
-          ))}
+        {/* Progress. Same bar language as the cohort indicator, read-only here. */}
+        <div className="mt-[24px]">
+          <SegmentedBar count={QUESTIONS.length} active={step - 1} />
         </div>
 
         {q ? (

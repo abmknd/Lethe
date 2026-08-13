@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { TitlePill, SpirographFlower, Button } from '../ui';
+import { TitlePill, Button } from '../primitives';
+import { SpirographFlower } from '../brand';
 import DiagnosticModal from '../DiagnosticModal';
 
 export default function Survey() {

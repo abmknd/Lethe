@@ -1,4 +1,4 @@
-import { TitlePill } from '../ui';
+import { TitlePill } from '../primitives';
 
 export default function Story() {
   return (

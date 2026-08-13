@@ -1,4 +1,4 @@
-import { TitlePill, DescriptivePill } from '../ui';
+import { TitlePill, DescriptivePill } from '../primitives';
 import step1 from '../assets/step-1-tell-us.webp';
 import step2 from '../assets/step-2-introduced.webp';
 import step3 from '../assets/step-3-matches.webp';
