@@ -383,6 +383,58 @@ container.
 
 ---
 
+## 5.11 Match card, and the surface convention
+
+**SURFACE ENCODES WHAT IS KNOWN.**
+
+```
+Blue 600 surface   not yet known    the blind offer
+Light surface      known            everything after the reveal
+```
+
+The app is light mode after onboarding, so a blue card is visually rare and
+reads as a held breath. When a match reveals, it resolves into the light with
+the rest of the product, which is the same idea the brand's dither-resolve
+expresses. Any later screen with a "not yet known" state inherits this rather
+than inventing its own treatment.
+
+### Why one card, not two
+
+The in-app reference showed a name, socials and named mutuals above PASS /
+MATCH. Those cannot coexist: PASS/MATCH is the decision taken while the match
+is still BLIND, and the blind gate exists so no identity crosses it before both
+sides commit. The API enforces it — while blind, `candidate` is null and only
+`blindRationale` ships.
+
+So the match card is ONE component with two states. The information
+architecture is identical; only the resolution changes. The user recognises the
+card they accepted, and the reveal is that same object coming into focus.
+
+| | Blind | Revealed |
+|---|---|---|
+| Surface | Blue 600 | White, Blue 100 header band |
+| Headline | role category | display name |
+| Overlap | descriptive-pills | signal-pills + prose |
+| Confidence | band, never a number | n/a |
+| Mutuals | withheld | avatar stack + sentence |
+| Availability | compatibility sentence | concrete day + windows |
+| Decision | PASS / ACCEPT | NOT NOW / SCHEDULE |
+
+### Supporting components
+
+- **SignalGroup** — a labelled block. Every group on a match or profile card is
+  one, so vertical rhythm is a system property, not a per-screen decision.
+- **ConfidenceBand** — reuses SegmentedBar, so confidence and progress read as
+  one visual language. Three steps, never a percentage.
+- **AvatarStack** — caps at `max` and returns the remainder to the caller,
+  because "+3" and "and 3 others have met her" are different sentences.
+- **AvailabilitySlot** — a day and its concrete windows. Availability is never
+  a vague "evenings".
+- **DecisionBar** — PASS hugs, the affirmative takes the remaining width, so
+  commitment is physically the larger target.
+
+---
+
 ## 6. State matrix
 
 Applies to every interactive component. **[proposed]** except where a state is

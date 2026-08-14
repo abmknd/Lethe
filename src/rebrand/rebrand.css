@@ -1,3 +1,14 @@
+/* Cascade layer order, declared explicitly so it does not depend on import
+   sequence. Lowest priority first:
+     legacy      the outgoing brand stylesheet
+     theme/base  resets, including the rebrand element reset
+     components  Tailwind component classes
+     utilities   Tailwind utilities, which must beat everything above
+   Without this line the reset either loses to legacy or beats the utilities,
+   and both failure modes look like a broken component rather than a cascade
+   problem. */
+@layer legacy, theme, base, components, utilities;
+
 /* Rebrand surface styles.
    Tokens live in src/styles/tokens.css on :root and are shared with the app,
    so there is exactly one definition of every colour. This file only sets what
@@ -6,6 +17,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@300;400;500&family=Parkinsans:wght@400;600&display=swap');
 @import 'tailwindcss';
 @import '../styles/tokens.css';
+
+
 
 .rebrand-root {
   --font-display: 'Parkinsans', sans-serif;
@@ -21,6 +34,29 @@
 .rebrand-root *,
 .rebrand-root *::before,
 .rebrand-root *::after { box-sizing: border-box; }
+
+/* Element type reset.
+   colors_and_type.css styles bare h1-h6 and p globally: Cormorant, italic,
+   its own sizes. Those are the OLD system and they leak into every rebrand
+   component that uses a semantic heading. A component must own its type, so
+   inside .rebrand-root the elements carry nothing and the utility classes on
+   them decide everything.
+
+   Sits in `base`: above `legacy` so it clears the old element styles, below
+   `utilities` so a component's own type classes still win. Unlayered it would
+   outrank every layer, including the utilities, and silently flatten every
+   heading to 16px. */
+@layer base {
+  .rebrand-root :is(h1, h2, h3, h4, h5, h6, p, ul, ol, li, figure, blockquote) {
+    font: inherit;
+    font-style: normal;
+    letter-spacing: normal;
+    color: inherit;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+}
 
 .rebrand-display { font-family: var(--font-display); }
 

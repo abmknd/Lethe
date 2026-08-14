@@ -439,3 +439,159 @@ export function CompactListItem({
     </li>
   );
 }
+
+// ---------------------------------------------------------------- in-app
+
+/**
+ * A labelled group of related facts. Every block on a match or profile card is
+ * one of these, so the vertical rhythm is a property of the system rather than
+ * something each screen re-decides.
+ */
+export function SignalGroup({
+  label,
+  children,
+  surface = 'light',
+}: {
+  label: string;
+  children: ReactNode;
+  surface?: Surface;
+}) {
+  return (
+    <section className="flex flex-col gap-[8px]">
+      <h3
+        className={cx(
+          'text-[14px] font-medium leading-[100%] tracking-[0.5px]',
+          surface === 'blue' ? 'text-[var(--color-blue-300)]' : 'text-[var(--color-black-500)]',
+        )}
+      >
+        {label}
+      </h3>
+      {children}
+    </section>
+  );
+}
+
+/**
+ * Overlapping avatars for "people you both know". Caps at `max` and returns the
+ * remainder so the caller can word it, because "+3" and "and 3 others have met
+ * him" are different sentences and only the caller knows which one fits.
+ */
+export function AvatarStack({
+  people,
+  max = 3,
+  onLight = true,
+}: {
+  people: { src?: string; name: string }[];
+  max?: number;
+  onLight?: boolean;
+}) {
+  const shown = people.slice(0, max);
+  return (
+    <span className="flex items-center">
+      {shown.map((p, i) => (
+        <span
+          key={p.name}
+          className="rounded-full ring-2 ring-[var(--color-white)]"
+          style={{ marginLeft: i === 0 ? 0 : -10, zIndex: shown.length - i }}
+          title={p.name}
+        >
+          <Avatar src={p.src} alt={p.name} size={28} onLight={onLight} />
+        </span>
+      ))}
+    </span>
+  );
+}
+
+/**
+ * Confidence as a BAND, never a number. A percentage invites the user to
+ * argue with the matcher; three steps say "how sure we are" without pretending
+ * to a precision the score does not have. Reuses SegmentedBar so confidence and
+ * progress read as the same visual language.
+ */
+export function ConfidenceBand({
+  band,
+  surface = 'blue',
+}: {
+  band: 'low' | 'medium' | 'high';
+  surface?: Surface;
+}) {
+  const active = { low: 0, medium: 1, high: 2 }[band];
+  return (
+    <span className="flex items-center gap-[12px]">
+      <span className="w-[84px]">
+        <SegmentedBar count={3} active={active} surface={surface} />
+      </span>
+      <span
+        className={cx(
+          'text-[13px] leading-[18px] capitalize',
+          surface === 'blue' ? 'text-[var(--color-white)]' : 'text-[var(--color-black-700)]',
+        )}
+      >
+        {band} confidence
+      </span>
+    </span>
+  );
+}
+
+/**
+ * The two-action footer for an irreversible choice. Destructive-ish action sits
+ * left as the secondary, commitment sits right as the primary, and neither is
+ * ever the same width as the other by accident: PASS hugs, MATCH takes the
+ * remaining room, so the affirmative is physically the bigger target.
+ */
+export function DecisionBar({
+  passLabel = 'PASS',
+  actionLabel,
+  onPass,
+  onAction,
+  disabled,
+  surface = 'light',
+}: {
+  passLabel?: string;
+  actionLabel: string;
+  onPass: () => void;
+  onAction: () => void;
+  disabled?: boolean;
+  surface?: Surface;
+}) {
+  return (
+    <div className="flex items-center gap-[12px]">
+      <Button variant="secondary" surface={surface} size="lg" onClick={onPass} disabled={disabled}>
+        {passLabel}
+      </Button>
+      <Button surface={surface} size="lg" className="flex-1" onClick={onAction} disabled={disabled}>
+        {actionLabel}
+      </Button>
+    </div>
+  );
+}
+
+/** A day plus its concrete windows. Availability is never a vague "evenings". */
+export function AvailabilitySlot({ day, times, surface = 'light' }: { day: string; times: string[]; surface?: Surface }) {
+  const onBlue = surface === 'blue';
+  return (
+    <div
+      className={cx(
+        'flex min-w-0 flex-1 flex-col gap-[4px] rounded-[10px] p-[12px]',
+        onBlue ? 'bg-[var(--color-blue-700)]' : 'bg-[var(--color-blue-50)]',
+      )}
+    >
+      <span
+        className={cx(
+          'text-[12px] font-medium uppercase leading-[120%] tracking-[1px]',
+          onBlue ? 'text-[var(--color-blue-300)]' : 'text-[var(--color-black-500)]',
+        )}
+      >
+        {day}
+      </span>
+      {times.map((t) => (
+        <span
+          key={t}
+          className={cx('text-[14px] leading-[16px]', onBlue ? 'text-[var(--color-white)]' : 'text-[var(--color-black-700)]')}
+        >
+          {t}
+        </span>
+      ))}
+    </div>
+  );
+}
