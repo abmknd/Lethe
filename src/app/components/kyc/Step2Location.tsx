@@ -1,95 +1,173 @@
-import { Search } from 'lucide-react';
 import { useState } from 'react';
-import { KYCData } from '../KYCModal';
+import { Search } from 'lucide-react';
+import type { StepProps } from './kycData';
+import {
+  CITIES,
+  EVENING_END,
+  EVENING_START,
+  cityTimezoneLabel,
+  cityTimezoneValue,
+  eveningOverlaps,
+  type City,
+} from '../../constants/cities';
+import {
+  DaylightBand,
+  FieldInput,
+  ListBand,
+  ListContainer,
+  SectionLabel,
+  StepHeader,
+  Well,
+} from '../../../rebrand/primitives';
 
-interface Step2Props {
-  isActive: boolean;
-  direction: 'forward' | 'back';
-  data: KYCData;
-  updateData: (updates: Partial<KYCData>) => void;
-}
+/**
+ * Step 2, redesigned rather than restyled.
+ *
+ * The old screen was a search box over a flat list: it ASKED for a city and
+ * told you nothing back. But location only matters here because it decides who
+ * you can actually meet — so the row now carries that answer. Each city's 6–9pm
+ * is drawn on YOUR 24-hour line, and picking a city re-frames every other row
+ * against it.
+ *
+ * The new component this produced is DaylightBand (redesign.md 5.12). Step 10
+ * reuses it.
+ */
+export function Step2Location({ data, updateData }: StepProps) {
+  const [query, setQuery] = useState('');
 
-const cityData = [
-  { flag: '🇳🇬', name: 'Lagos', tz: 'WAT (UTC+1)' },
-  { flag: '🇬🇧', name: 'London', tz: 'GMT (UTC+0)' },
-  { flag: '🇺🇸', name: 'New York', tz: 'EST (UTC-5)' },
-  { flag: '🇺🇸', name: 'San Francisco', tz: 'PST (UTC-8)' },
-  { flag: '🇳🇱', name: 'Amsterdam', tz: 'CET (UTC+1)' },
-  { flag: '🇩🇪', name: 'Berlin', tz: 'CET (UTC+1)' },
-  { flag: '🇸🇬', name: 'Singapore', tz: 'SGT (UTC+8)' },
-  { flag: '🇯🇵', name: 'Tokyo', tz: 'JST (UTC+9)' },
-  { flag: '🇮🇳', name: 'Bangalore', tz: 'IST (UTC+5:30)' },
-  { flag: '🇿🇦', name: 'Cape Town', tz: 'SAST (UTC+2)' },
-  { flag: '🇫🇷', name: 'Paris', tz: 'CET (UTC+1)' },
-  { flag: '🇧🇷', name: 'São Paulo', tz: 'BRT (UTC-3)' },
-];
-
-export function Step2Location({ isActive, direction, data, updateData }: Step2Props) {
-  const [searchQuery, setSearchQuery] = useState('');
-
-  const getClassName = () => {
-    if (isActive) return 'kyc-step-active';
-    if (direction === 'forward') return 'kyc-step-exit-left';
-    return 'kyc-step-exit-right';
-  };
-
-  const filteredCities = searchQuery
-    ? cityData.filter((city) => city.name.toLowerCase().includes(searchQuery.toLowerCase()))
-    : cityData;
-
-  const selectCity = (city: typeof cityData[0]) => {
-    updateData({ city: city.name, timezone: city.tz });
-  };
+  const me: City = CITIES.find((c) => c.name === data.city) ?? CITIES[0];
+  const q = query.trim().toLowerCase();
+  const shown = q ? CITIES.filter((c) => c.name.toLowerCase().includes(q)) : CITIES;
+  const overlapCount = CITIES.filter((c) => c.name !== me.name && eveningOverlaps(c, me)).length;
 
   return (
-    <div className={`kyc-step ${getClassName()}`}>
-      <span className="font-['Inter'] text-[10px] tracking-[0.3em] uppercase text-[#7FFF00]/50 mb-[14px] block">
-        Your world
-      </span>
-      <h1 className="font-['Cormorant_Garamond'] text-[clamp(28px,4vw,40px)] font-light italic leading-[1.15] tracking-[-0.02em] text-white/90 mb-[10px]">
-        Where are<br />
-        you <em className="not-italic text-[#7FFF00]">based?</em>
-      </h1>
-      <p className="text-[15px] font-light leading-[1.75] text-white/45 mb-8">
-        This helps us find people in your world — and people worth crossing timezones for.
-      </p>
+    <div>
+      <StepHeader
+        label="YOUR LOCATION"
+        heading={
+          <>
+            Who could you
+            <br />
+            meet <span className="text-[var(--color-blue-600)]">tonight?</span>
+          </>
+        }
+        body="Pick your city and the rest of the cohort reorganises around your evening. Bars are each city's 6–9pm, drawn on your clock."
+      />
 
-      {/* Search */}
-      <div className="flex items-center gap-[10px] bg-white/[0.08] border border-white/[0.07] rounded-xl px-4 py-3 mb-5 transition-colors focus-within:border-[#7FFF00]/30">
-        <Search size={16} className="text-white/30 flex-shrink-0" strokeWidth={1.5} />
-        <input
-          type="text"
-          placeholder="Search cities…"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="flex-1 bg-transparent border-none outline-none font-['Inter'] text-[13px] tracking-[0.04em] text-white/90 placeholder:text-white/30"
+      <SectionLabel>YOUR CITY</SectionLabel>
+      <Well className="mt-[8px] flex flex-col gap-[12px]">
+        <div className="flex items-baseline justify-between gap-[12px]">
+          <span className="rebrand-display text-[20px] font-medium leading-[100%] text-[var(--color-black-700)]">
+            {me.name}
+          </span>
+          <span className="whitespace-nowrap text-[12px] leading-[120%] text-[var(--color-black-500)]">
+            {cityTimezoneLabel(me)}
+          </span>
+        </div>
+        <DaylightBand
+          windows={[[EVENING_START, EVENING_END]]}
+          tone="me"
+          label={`Your evening, 6pm to 9pm in ${me.name}`}
         />
-      </div>
+        <span className="text-[13px] leading-[18px] text-[var(--color-black-700)]">
+          {overlapCount} of {CITIES.length - 1} cohort cities share your 6–9pm. The rest get matched into your morning
+          instead, never your 2am.
+        </span>
+      </Well>
 
-      {/* Cities list */}
-      <div className="flex flex-col gap-[1px] mb-5">
-        {filteredCities.map((city) => (
-          <button
-            key={city.name}
-            onClick={() => selectCity(city)}
-            className={`flex items-center gap-[14px] px-4 py-[13px] rounded-[10px] border transition-all ${
-              data.city === city.name
-                ? 'bg-[#7FFF00]/[0.12] border-[#7FFF00]/25'
-                : 'border-transparent hover:bg-white/[0.04] hover:border-white/[0.07]'
-            }`}
-          >
-            <span className="text-[20px] leading-none w-7 text-center">{city.flag}</span>
-            <span className="flex-1 text-left text-[16px] font-light text-white/90">{city.name}</span>
-            <span className="font-['Inter'] text-[10px] tracking-[0.1em] text-white/30">{city.tz}</span>
-          </button>
-        ))}
-      </div>
+      <SectionLabel className="mt-[24px]">THE COHORT</SectionLabel>
+      <ListContainer className="mt-[8px]">
+        {/* The filter and the axis live INSIDE the list, divided off. A search
+            field floating above its list reads as a second, unrelated object. */}
+        <ListBand className="gap-[10px]">
+          {/* A bare ring reads as an unselected radio, not as search. The
+              handle is what makes it a magnifier. */}
+          <Search size={14} strokeWidth={1.5} className="shrink-0 text-[var(--color-black-400)]" />
+          <FieldInput
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Filter cities…"
+            aria-label="Filter cities"
+          />
+        </ListBand>
 
-      {/* Timezone display */}
-      <div className="flex items-center gap-[10px] px-4 py-3 bg-white/[0.08] border border-white/[0.07] rounded-[10px] mt-1">
-        <span className="flex-1 font-['Inter'] text-[10px] tracking-[0.18em] uppercase text-white/30">Timezone</span>
-        <span className="font-['Inter'] text-[12px] text-[#7FFF00]/60">{data.timezone || '—'}</span>
-      </div>
+        <ListBand recessed className="gap-[14px]">
+          <span className="w-[144px] shrink-0 text-[12px] leading-none text-[var(--color-black-500)]">
+            their 6–9pm →
+          </span>
+          <span className="flex flex-1 justify-between">
+            {['12a', '6a', '12p', '6p', '12a'].map((t, i) => (
+              <span key={i} className="text-[12px] leading-none text-[var(--color-black-500)]">
+                {t}
+              </span>
+            ))}
+          </span>
+        </ListBand>
+
+        <div className="flex flex-col gap-[4px] p-[8px]">
+          {shown.map((city) => {
+            const isMe = city.name === me.name;
+            const shift = city.offsetHours - me.offsetHours;
+            const overlaps = isMe || eveningOverlaps(city, me);
+            const note = isMe
+              ? 'your evening'
+              : overlaps
+                ? 'overlaps your evening'
+                : `${Math.abs(shift)}h ${shift > 0 ? 'ahead' : 'behind'}`;
+
+            return (
+              <button
+                key={city.name}
+                type="button"
+                aria-pressed={isMe}
+                onClick={() => updateData({ city: city.name, timezone: cityTimezoneValue(city) })}
+                className={
+                  'flex w-full items-center gap-[14px] rounded-[8px] border px-[14px] py-[10px] text-left transition-colors ' +
+                  'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--color-blue-600)] ' +
+                  // Rows live inside a bordered container, so an unselected row
+                  // draws no border of its own. Only the selected row resolves
+                  // into a surface.
+                  (isMe
+                    ? 'border-[var(--color-blue-600)] bg-[var(--color-blue-100)]'
+                    : 'border-transparent hover:bg-[var(--color-black-50)]')
+                }
+              >
+                <span className="w-[20px] shrink-0 text-center text-[16px] leading-none">{city.flag}</span>
+                <span className="flex w-[104px] shrink-0 flex-col gap-[4px]">
+                  <span className="text-[14px] font-medium leading-[16px] text-[var(--color-black-700)]">
+                    {city.name}
+                  </span>
+                  <span
+                    className={
+                      'text-[12px] leading-[120%] ' +
+                      (overlaps ? 'text-[var(--color-blue-600)]' : 'text-[var(--color-black-500)]')
+                    }
+                  >
+                    {note}
+                  </span>
+                </span>
+                <span className="flex min-w-0 flex-1 flex-col gap-[6px]">
+                  <DaylightBand
+                    windows={[[EVENING_START - shift, EVENING_END - shift]]}
+                    tone={isMe ? 'me' : overlaps ? 'overlap' : 'off'}
+                    label={`${city.name}'s evening on your clock`}
+                  />
+                  <span className="text-[12px] leading-none text-[var(--color-black-500)]">
+                    {cityTimezoneLabel(city)}
+                  </span>
+                </span>
+              </button>
+            );
+          })}
+
+          {shown.length === 0 && (
+            <p className="px-[14px] py-[20px] text-[14px] leading-[16px] text-[var(--color-black-500)]">
+              No city matches “{query}”. Pick the closest major city; you can refine it later.
+            </p>
+          )}
+        </div>
+      </ListContainer>
     </div>
   );
 }

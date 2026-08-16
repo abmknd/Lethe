@@ -1,4 +1,28 @@
+/* Cascade layer order, declared explicitly so it does not depend on import
+   sequence. Lowest priority first:
+     legacy      the outgoing brand stylesheet
+     theme/base  resets, including the rebrand element reset
+     components  Tailwind component classes
+     utilities   Tailwind utilities, which must beat everything above
+   Without this line the reset either loses to legacy or beats the utilities,
+   and both failure modes look like a broken component rather than a cascade
+   problem. */
+@layer legacy, theme, base, components, utilities;
+
 @import './fonts.css';
+/* Design tokens. Additive: nothing references these yet, so no pixels move.
+   Migration onto them is tracked in REBRAND-PLAN.md. */
+@import './tokens.css';
+/* The rebrand surface. Phase 4 mounts rebrand components (onboarding, match
+   card) inside the real app, so `.rebrand-root` has to mean something here and
+   not only in the gallery. Brings Parkinsans + Archivo with it. */
+@import './rebrand-surface.css';
 @import './tailwind.css';
 @import './theme.css';
-@import './colors_and_type.css';
+/* legacy layer: unlayered CSS outranks every cascade layer, so while this file
+   sat unlayered its bare h1-h6 / p rules beat every Tailwind utility, including
+   inside rebrand components. Layering it makes utilities win again without
+   editing any rule in it. It is named `legacy` because it is what the rebrand
+   is replacing; when the last consumer is migrated, the file and this line go
+   together. */
+@import './colors_and_type.css' layer(legacy);

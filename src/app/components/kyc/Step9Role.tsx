@@ -1,104 +1,90 @@
-import { Check } from 'lucide-react';
-import { KYCData } from '../KYCModal';
-import { ROLE_OPTIONS } from '../../constants/roles';
+import type { StepProps } from './kycData';
+import { MEETABLE_ROLE_OPTIONS, ROLE_OPTIONS, ROLE_OTHER_INDEX } from '../../constants/roles';
+import { Chip, FieldInput, FieldShell, SelectRow, StepHeader, StepSection } from '../../../rebrand/primitives';
 
-interface Step9Props {
-  isActive: boolean;
-  direction: 'forward' | 'back';
-  data: KYCData;
-  updateData: (updates: Partial<KYCData>) => void;
-}
-
-export function Step9Role({ isActive, direction, data, updateData }: Step9Props) {
-  const getClassName = () => {
-    if (isActive) return 'kyc-step-active';
-    if (direction === 'forward') return 'kyc-step-exit-left';
-    return 'kyc-step-exit-right';
+/**
+ * Step 9. Role FAMILIES, not job titles — see constants/roles.ts for why.
+ *
+ * "Open to anyone" sits ABOVE the meet-list rather than inside it, because it
+ * is not one more thing to tick: it is the answer that makes the list moot. So
+ * it takes the list out of play instead of adding to it.
+ */
+export function Step9Role({ data, updateData }: StepProps) {
+  const togglePreferred = (index: number) => {
+    const next = new Set(data.preferredUserTypes);
+    if (next.has(index)) next.delete(index);
+    else next.add(index);
+    updateData({ preferredUserTypes: next });
   };
 
-  const togglePreferred = (index: number) => {
-    const newSet = new Set(data.preferredUserTypes);
-    if (newSet.has(index)) newSet.delete(index);
-    else newSet.add(index);
-    updateData({ preferredUserTypes: newSet });
+  const toggleOpen = () => {
+    const openToAnyone = !data.openToAnyone;
+    updateData({ openToAnyone, preferredUserTypes: openToAnyone ? new Set() : data.preferredUserTypes });
   };
 
   return (
-    <div className={`kyc-step ${getClassName()}`}>
-      <span className="font-['Inter'] text-[10px] tracking-[0.3em] uppercase text-[#7FFF00]/50 mb-[14px] block">
-        Your role
-      </span>
-      <h1 className="font-['Cormorant_Garamond'] text-[clamp(28px,4vw,40px)] font-light italic leading-[1.15] tracking-[-0.02em] text-white/90 mb-[10px]">
-        What best<br />
-        describes <em className="not-italic text-[#7FFF00]">you?</em>
-      </h1>
-      <p className="text-[15px] font-light leading-[1.75] text-white/45 mb-6">
-        Pick one for yourself, then choose every role you'd like to meet.
-      </p>
+    <div>
+      <StepHeader
+        label="YOUR ROLE"
+        heading={
+          <>
+            What best
+            <br />
+            describes <span className="text-[var(--color-blue-600)]">you?</span>
+          </>
+        }
+        body="Pick one for yourself, then choose every role you'd like to meet."
+      />
 
-      {/* Own role — single select */}
-      <div className="mb-5">
-        <p className="font-['Inter'] text-[10px] tracking-[0.18em] uppercase text-white/45 mb-2">
-          I am a…
-        </p>
-        <div className="grid grid-cols-2 gap-[6px]">
-          {ROLE_OPTIONS.map((option, index) => {
-            const selected = data.userType === index;
-            return (
-              <button
-                key={option}
-                onClick={() => updateData({ userType: index })}
-                className={`flex items-center justify-between px-[14px] py-[12px] rounded-xl border transition-all ${
-                  selected
-                    ? 'bg-[#7FFF00]/[0.12] border-[#7FFF00]/30'
-                    : 'bg-transparent border-white/[0.05] hover:bg-white/[0.04]'
-                }`}
-              >
-                <span className="text-[14px] font-light text-white/90">{option}</span>
-                <div
-                  className={`w-4 h-4 rounded-full border flex items-center justify-center transition-all ${
-                    selected ? 'bg-[#7FFF00] border-[#7FFF00]' : 'border-white/10'
-                  }`}
-                >
-                  {selected && <Check size={9} className="text-[#050705]" strokeWidth={2.5} />}
-                </div>
-              </button>
-            );
-          })}
+      <StepSection label="I AM A…">
+        <div className="flex flex-wrap gap-[8px]">
+          {ROLE_OPTIONS.map((label, index) => (
+            <Chip key={label} selected={data.userType === index} onClick={() => updateData({ userType: index })}>
+              {label}
+            </Chip>
+          ))}
         </div>
-      </div>
 
-      {/* Preferred — multi select */}
-      <div>
-        <p className="font-['Inter'] text-[10px] tracking-[0.18em] uppercase text-white/45 mb-2">
-          I'd like to meet…
-        </p>
-        <div className="grid grid-cols-2 gap-[6px]">
-          {ROLE_OPTIONS.map((option, index) => {
-            const selected = data.preferredUserTypes.has(index);
-            return (
-              <button
-                key={option}
+        {data.userType === ROLE_OTHER_INDEX && (
+          <FieldShell>
+            <FieldInput
+              type="text"
+              value={data.roleOther}
+              onChange={(e) => updateData({ roleOther: e.target.value })}
+              placeholder="Drone pilot, midwife, luthier…"
+              aria-label="Your role"
+            />
+            <span className="shrink-0 text-[12px] leading-none text-[var(--color-black-400)]">free text</span>
+          </FieldShell>
+        )}
+      </StepSection>
+
+      <StepSection label="I'D LIKE TO MEET…">
+        <SelectRow selected={data.openToAnyone} onClick={toggleOpen}>
+          <span className="flex flex-col gap-[4px]">
+            <span className="text-[14px] font-medium leading-[16px] text-[var(--color-black-700)]">
+              Open to anyone
+            </span>
+            <span className="text-[13px] leading-[18px] text-[var(--color-black-500)]">
+              Let the overlap decide instead of the job title
+            </span>
+          </span>
+        </SelectRow>
+
+        {!data.openToAnyone && (
+          <div className="flex flex-col gap-[8px]">
+            {MEETABLE_ROLE_OPTIONS.map((label, index) => (
+              <SelectRow
+                key={label}
+                selected={data.preferredUserTypes.has(index)}
                 onClick={() => togglePreferred(index)}
-                className={`flex items-center justify-between px-[14px] py-[12px] rounded-xl border transition-all ${
-                  selected
-                    ? 'bg-[#7FFF00]/[0.12] border-[#7FFF00]/30'
-                    : 'bg-transparent border-white/[0.05] hover:bg-white/[0.04]'
-                }`}
               >
-                <span className="text-[14px] font-light text-white/90">{option}</span>
-                <div
-                  className={`w-4 h-4 rounded-full border flex items-center justify-center transition-all ${
-                    selected ? 'bg-[#7FFF00] border-[#7FFF00]' : 'border-white/10'
-                  }`}
-                >
-                  {selected && <Check size={9} className="text-[#050705]" strokeWidth={2.5} />}
-                </div>
-              </button>
-            );
-          })}
-        </div>
-      </div>
+                {label}
+              </SelectRow>
+            ))}
+          </div>
+        )}
+      </StepSection>
     </div>
   );
 }

@@ -1,96 +1,71 @@
-import { KYCData } from '../KYCModal';
+import type { StepProps } from './kycData';
+import { INTRO_EXAMPLES, INTRO_MAX } from '../../constants/kyc';
+import { SegmentedToggle, StepHeader, StepSection, Textarea } from '../../../rebrand/primitives';
 
-interface Step6Props {
-  isActive: boolean;
-  direction: 'forward' | 'back';
-  data: KYCData;
-  updateData: (updates: Partial<KYCData>) => void;
-}
-
-export function Step6Intro({ isActive, direction, data, updateData }: Step6Props) {
-  const getClassName = () => {
-    if (isActive) return 'kyc-step-active';
-    if (direction === 'forward') return 'kyc-step-exit-left';
-    return 'kyc-step-exit-right';
-  };
-
-  const remaining = 300 - data.intro.length;
-  const isWarn = remaining < 50;
+export function Step6Intro({ data, updateData }: StepProps) {
+  const remaining = INTRO_MAX - data.intro.length;
 
   return (
-    <div className={`kyc-step ${getClassName()}`}>
-      <span className="font-['Inter'] text-[10px] tracking-[0.3em] uppercase text-[#7FFF00]/50 mb-[14px] block">
-        Your voice
-      </span>
-      <h1 className="font-['Cormorant_Garamond'] text-[clamp(28px,4vw,40px)] font-light italic leading-[1.15] tracking-[-0.02em] text-white/90 mb-[10px]">
-        How would you<br />
-        <em className="not-italic text-[#7FFF00]">introduce yourself?</em>
-      </h1>
-      <p className="text-[15px] font-light leading-[1.75] text-white/45 mb-8">
-        This is the first thing your match reads. Write like a person, not a profile.
-      </p>
-
-      {/* Textarea */}
-      <textarea
-        value={data.intro}
-        onChange={(e) => updateData({ intro: e.target.value })}
-        maxLength={300}
-        placeholder="I'm a product designer who thinks about the ethics of what we build…"
-        className="w-full bg-white/[0.08] border border-white/[0.07] rounded-[14px] px-[18px] py-[18px] font-['Cormorant_Garamond'] text-[17px] font-light leading-[1.75] text-white/90 resize-none outline-none focus:border-[#7FFF00]/30 transition-colors placeholder:text-white/30 placeholder:italic min-h-[140px]"
+    <div>
+      <StepHeader
+        label="YOUR VOICE"
+        heading={
+          <>
+            How would you
+            <br />
+            <span className="text-[var(--color-blue-600)]">introduce yourself?</span>
+          </>
+        }
+        body="This is the first thing your match reads. Write like a person, not a profile."
       />
-      
-      {/* Character count */}
-      <div className="flex justify-end mt-2 mb-6">
-        <span className={`font-['Inter'] text-[10px] tracking-[0.12em] transition-colors ${isWarn ? 'text-[#CC9933]' : 'text-white/30'}`}>
+
+      <Textarea
+        value={data.intro}
+        onChange={(e) => updateData({ intro: e.target.value.slice(0, INTRO_MAX) })}
+        maxLength={INTRO_MAX}
+        aria-label="Your introduction"
+        placeholder="I'm a product designer who thinks about the ethics of what we build…"
+        className="min-h-[132px]"
+      />
+      <div className="mt-[4px] flex justify-end">
+        <span className="whitespace-nowrap text-[12px] leading-[120%] text-[var(--color-black-500)]">
           {remaining} remaining
         </span>
       </div>
 
-      {/* Toggle */}
-      <div className="flex items-center justify-between gap-4 px-4 py-[14px] mb-6 bg-white/[0.08] border border-white/[0.07] rounded-xl">
-        <div className="flex flex-col gap-[3px]">
-          <span className="text-[14px] font-light text-white/90">Make this my profile bio</span>
-          <span className="font-['Inter'] text-[10px] tracking-[0.08em] text-white/30">
-            Your intro will also appear on your public profile
+      {/* A yes/no is a segmented toggle, not a switch. The switch we had was a
+          third control shape for a binary the system already answers. */}
+      <div className="mt-[24px] flex items-center gap-[16px] rounded-[12px] border border-[var(--color-black-100)] p-[12px]">
+        <div className="flex flex-1 flex-col gap-[4px]">
+          <span className="text-[14px] font-medium leading-[16px] text-[var(--color-black-700)]">
+            Make this my profile bio
+          </span>
+          <span className="text-[13px] leading-[18px] text-[var(--color-black-500)]">
+            Your intro also appears on your public profile
           </span>
         </div>
-        <button
-          onClick={() => updateData({ bioAsProfile: !data.bioAsProfile })}
-          className={`relative w-11 h-[26px] rounded-[13px] border-none flex-shrink-0 transition-colors ${
-            data.bioAsProfile ? 'bg-[#7FFF00]' : 'bg-white/10'
-          }`}
-        >
-          <div
-            className={`absolute top-[3px] w-5 h-5 rounded-full transition-all ${
-              data.bioAsProfile 
-                ? 'left-[calc(100%-23px)] bg-[#050705]' 
-                : 'left-[3px] bg-white/50'
-            }`}
+        <div className="w-[150px] shrink-0">
+          <SegmentedToggle
+            label="Make this my profile bio"
+            options={['NO', 'YES'] as const}
+            value={data.bioAsProfile ? 'YES' : 'NO'}
+            onChange={(v) => updateData({ bioAsProfile: v === 'YES' })}
           />
-        </button>
+        </div>
       </div>
 
-      {/* Examples */}
-      <span className="font-['Inter'] text-[10px] tracking-[0.22em] uppercase text-white/30 mb-3 block">
-        Some examples
-      </span>
-      <div className="flex flex-col gap-2">
-        <div className="px-4 py-[14px] bg-[#101410] border border-white/[0.07] rounded-[10px]">
-          <p className="text-[13px] font-light italic leading-[1.7] text-white/30">
-            "An early-stage founder who can't stop thinking about the problem I'm building for. Looking for people who are obsessed with something."
-          </p>
+      <StepSection label="SOME EXAMPLES">
+        <div className="flex flex-col gap-[8px]">
+          {INTRO_EXAMPLES.map((example) => (
+            <p
+              key={example}
+              className="rounded-[10px] border border-[var(--color-black-200)] bg-[var(--color-black-50)] px-[16px] py-[12px] text-[13px] leading-[18px] text-[var(--color-black-500)]"
+            >
+              {example}
+            </p>
+          ))}
         </div>
-        <div className="px-4 py-[14px] bg-[#101410] border border-white/[0.07] rounded-[10px]">
-          <p className="text-[13px] font-light italic leading-[1.7] text-white/30">
-            "Researcher by training, creative by habit. I like conversations that go somewhere I didn't expect."
-          </p>
-        </div>
-        <div className="px-4 py-[14px] bg-[#101410] border border-white/[0.07] rounded-[10px]">
-          <p className="text-[13px] font-light italic leading-[1.7] text-white/30">
-            "I work at the intersection of design and systems thinking. Happiest in rooms where someone disagrees with me."
-          </p>
-        </div>
-      </div>
+      </StepSection>
     </div>
   );
 }

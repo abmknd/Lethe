@@ -1,18 +1,17 @@
 import { useState, useRef } from 'react';
-import { Upload } from 'lucide-react';
 import { toast } from 'sonner';
-import { KYCData } from '../KYCModal';
+import type { StepProps } from './kycData';
 import { supabase } from '../../../lib/supabase';
+import { Button, StepHeader } from '../../../rebrand/primitives';
 
-interface Step7Props {
-  isActive: boolean;
-  direction: 'forward' | 'back';
-  data: KYCData;
-  updateData: (updates: Partial<KYCData>) => void;
-  userId?: string;
-}
-
-export function Step7ProfileImage({ isActive, direction, data, updateData, userId }: Step7Props) {
+/**
+ * Step 7.
+ *
+ * Light, like the rest of the flow — and here the convention earns it twice
+ * over: the photo is the first thing that becomes KNOWN about you, and known
+ * reads light. (redesign.md 5.11, surface encodes what is known.)
+ */
+export function Step7ProfileImage({ data, updateData, userId }: StepProps & { userId?: string }) {
   // `data.profileImage` is the public URL that will be persisted to
   // `users.avatar_url` in handleFinish. We keep `localPreview` for the
   // instant-feedback render between file-pick and Storage upload completing.
@@ -21,12 +20,6 @@ export function Step7ProfileImage({ isActive, direction, data, updateData, userI
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const preview = localPreview ?? data.profileImage ?? null;
-
-  const getClassName = () => {
-    if (isActive) return 'kyc-step-active';
-    if (direction === 'forward') return 'kyc-step-exit-left';
-    return 'kyc-step-exit-right';
-  };
 
   // #78.2 — upload picked image to the `avatars` Supabase Storage bucket
   // (public-read + owner-write via RLS). We mirror SettingsPage.handleAvatarFile
@@ -76,77 +69,56 @@ export function Step7ProfileImage({ isActive, direction, data, updateData, userI
     }
   };
 
-  const handleUploadClick = () => {
-    fileInputRef.current?.click();
-  };
-
   return (
-    <div className={`kyc-step ${getClassName()}`}>
-      <span className="font-['Inter'] text-[10px] tracking-[0.3em] uppercase text-[#7FFF00]/50 mb-[14px] block">
-        Your profile
-      </span>
-      <h1 className="font-['Cormorant_Garamond'] text-[clamp(28px,4vw,40px)] font-light italic leading-[1.15] tracking-[-0.02em] text-white/90 mb-[10px]">
-        Add a profile<br />
-        <em className="not-italic text-[#7FFF00]">image.</em>
-      </h1>
-      <p className="text-[15px] font-light leading-[1.75] text-white/45 mb-10">
-        This basic information will be shown to your matches every week. Tell us what you'd like to show!
-      </p>
+    <div>
+      <StepHeader
+        label="YOUR PROFILE"
+        heading={
+          <>
+            Add a profile
+            <br />
+            <span className="text-[var(--color-blue-600)]">image.</span>
+          </>
+        }
+        body="Your matches see this every week. Tell us what you'd like to show."
+      />
 
-      {/* Profile Image Display */}
-      <div className="flex flex-col items-center mb-8">
-        <div className="relative w-[140px] h-[140px] mb-6">
+      <div className="flex flex-col items-center gap-[20px] py-[24px]">
+        <div
+          className="grid size-[140px] place-items-center overflow-hidden rounded-full"
+          // A hatch, not a grey disc: an empty avatar has to read as "nothing
+          // here yet" rather than as a photo that failed to load. Both stripes
+          // are ramp steps.
+          style={{
+            background: preview
+              ? undefined
+              : 'repeating-linear-gradient(135deg, var(--color-black-50) 0 6px, var(--color-black-100) 6px 12px)',
+          }}
+        >
           {preview ? (
-            <img 
-              src={preview} 
-              alt="Profile preview" 
-              className="w-full h-full rounded-full object-cover border-2 border-white/[0.12]"
-            />
+            <img src={preview} alt="Profile preview" className="h-full w-full object-cover" />
           ) : (
-            <div className="w-full h-full rounded-full bg-[#7FFF00]/[0.04] flex items-center justify-center border-2 border-[#7FFF00]/30">
-              <svg 
-                width="60" 
-                height="80" 
-                viewBox="0 0 60 80" 
-                fill="none" 
-                xmlns="http://www.w3.org/2000/svg"
-                className="opacity-100"
-              >
-                {/* Head */}
-                <circle cx="30" cy="20" r="15" fill="#7FFF00" />
-                {/* Shoulders/body */}
-                <path 
-                  d="M0 80 C0 80, 10 50, 30 50 C50 50, 60 80, 60 80 Z" 
-                  fill="#7FFF00"
-                />
-              </svg>
-            </div>
+            <span className="rounded-[6px] bg-[var(--color-white)] px-[8px] py-[5px] text-[12px] leading-none text-[var(--color-black-700)]">
+              portrait
+            </span>
           )}
         </div>
 
-        {/* Upload Button */}
-        <button
-          onClick={handleUploadClick}
+        <Button
+          variant="secondary"
+          size="lg"
+          className="w-full max-w-[380px]"
           disabled={uploading}
-          className="w-full max-w-[380px] py-[16px] px-6 rounded-full border-none font-['Inter'] text-[11px] tracking-[0.22em] uppercase bg-[#7FFF00] hover:bg-[#c8ff4f] disabled:opacity-60 disabled:cursor-not-allowed text-[#050705] transition-all flex items-center justify-center gap-2"
+          onClick={() => fileInputRef.current?.click()}
         >
-          <Upload size={14} strokeWidth={2.5} />
-          {uploading ? 'Uploading…' : preview ? 'Change image' : 'Upload image'}
-        </button>
+          {uploading ? 'UPLOADING…' : preview ? 'CHANGE IMAGE' : 'UPLOAD IMAGE'}
+        </Button>
 
-        {/* Hidden file input */}
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          onChange={handleFileChange}
-          className="hidden"
-        />
+        <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
       </div>
 
-      {/* Optional: Skip message */}
-      <p className="text-center font-['Inter'] text-[10px] tracking-[0.14em] text-white/30 mt-6">
-        You can always add this later in your profile settings
+      <p className="text-center text-[13px] leading-[18px] text-[var(--color-black-500)]">
+        You can always add this later in your profile settings.
       </p>
     </div>
   );

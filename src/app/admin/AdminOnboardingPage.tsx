@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { getUserProfile, listUsers, saveUserProfile } from "../api";
 import { DAY_OPTIONS, formatSlot } from "../time";
 import type { AvailabilitySlot, AppUser, UserProfile } from "../types";
-import { ROLE_OPTIONS } from "../constants/roles";
+import { bridgeRoleTaxonomy, LEGACY_ROLE_OPTIONS, ROLE_OPTIONS } from "../constants/roles";
 
 const defaultSlot: AvailabilitySlot = {
   dayOfWeek: 1,
@@ -200,7 +200,16 @@ export default function AdminOnboardingPage() {
     }
 
     try {
-      const saved = await saveUserProfile(profile.user.id, profile);
+      // Same bridge KYC applies: a preferred-roles list written here has to
+      // intersect with profiles stored under the pre-rebrand taxonomy, and
+      // every write point has to do it or the two disagree.
+      const saved = await saveUserProfile(profile.user.id, {
+        ...profile,
+        preferences: {
+          ...profile.preferences,
+          preferredUserTypes: bridgeRoleTaxonomy(profile.preferences.preferredUserTypes ?? []),
+        },
+      });
       setProfile(normalizeProfileForUi(saved));
       setMessage('Onboarding/settings data saved to SQLite.');
     } catch (error) {
@@ -383,6 +392,17 @@ export default function AdminOnboardingPage() {
                     {option}
                   </option>
                 ))}
+                {/* A role saved under the old taxonomy, or typed into KYC's
+                    "Something else" field, has no option to select. Without
+                    this the control renders blank and reads as missing data
+                    rather than as data the list no longer offers. */}
+                {profile.preferences.userType &&
+                !ROLE_OPTIONS.includes(profile.preferences.userType as (typeof ROLE_OPTIONS)[number]) ? (
+                  <option value={profile.preferences.userType}>
+                    {profile.preferences.userType}
+                    {LEGACY_ROLE_OPTIONS.includes(profile.preferences.userType) ? ' (retired)' : ' (free text)'}
+                  </option>
+                ) : null}
               </select>
             </label>
             <fieldset className="text-sm text-white/70">
