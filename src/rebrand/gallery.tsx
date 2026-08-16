@@ -78,14 +78,14 @@ const NOTES: { title: string; body: string }[] = [
  * Dev-only: a separate Vite entry that never ships.
  */
 const FRAMES = {
-  '1216 DESKTOP': { w: 1216, h: 720 },
+  '1120 DESKTOP': { w: 1120, h: 720 },
   '560 CARD': { w: 560, h: 720 },
   '375 MOBILE': { w: 375, h: 760 },
 } as const;
 
 function Gallery() {
   const [step, setStep] = useState(1);
-  const [width, setWidth] = useState<keyof typeof FRAMES>('1216 DESKTOP');
+  const [width, setWidth] = useState<keyof typeof FRAMES>('1120 DESKTOP');
   const frame = FRAMES[width];
 
   return (

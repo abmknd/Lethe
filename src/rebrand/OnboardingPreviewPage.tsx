@@ -27,15 +27,20 @@ export default function OnboardingPreviewPage() {
   ];
 
   return (
-    <div className="rebrand-root flex min-h-screen w-full flex-col bg-[var(--color-yellow-50)]">
+    // dvh, not vh: on mobile the browser's own chrome shrinks the visual
+    // viewport, and vh keeps measuring the larger one — which is precisely how
+    // a primary action ends up under the address bar.
+    <div className="rebrand-root flex h-[100dvh] w-full flex-col overflow-hidden bg-[var(--color-yellow-50)]">
       {chrome && (
-        <div className="flex flex-wrap items-center gap-[12px] border-b border-[var(--color-black-200)] bg-[var(--color-yellow-50)] px-[24px] py-[12px]">
-          <span className="rebrand-display text-[13px] font-semibold uppercase leading-[16px] tracking-[4px] text-[var(--color-blue-600)]">
+        <div className="flex shrink-0 items-center gap-[12px] border-b border-[var(--color-black-200)] bg-[var(--color-yellow-50)] px-[12px] py-[8px] sm:px-[24px] sm:py-[12px]">
+          <span className="rebrand-display hidden text-[13px] font-semibold uppercase leading-[16px] tracking-[4px] text-[var(--color-blue-600)] sm:block">
             Onboarding
           </span>
-          <div className="flex flex-1 flex-wrap gap-[4px]">
+          {/* One scrolling row on a phone rather than four wrapped ones — the
+              control strip must not eat the screen it exists to preview. */}
+          <div className="flex flex-1 gap-[4px] overflow-x-auto sm:flex-wrap sm:overflow-visible">
             {labels.map(({ n, label }) => (
-              <Chip key={label} selected={step === n} onClick={() => setStep(n)}>
+              <Chip key={label} selected={step === n} onClick={() => setStep(n)} className="shrink-0">
                 {label}
               </Chip>
             ))}
@@ -43,15 +48,18 @@ export default function OnboardingPreviewPage() {
           <button
             type="button"
             onClick={() => setChrome(false)}
-            className="rounded-[8px] px-[10px] py-[6px] text-[13px] leading-[18px] text-[var(--color-black-500)] transition-colors hover:text-[var(--color-black-700)]"
+            className="hidden shrink-0 rounded-[8px] px-[10px] py-[6px] text-[13px] leading-[18px] text-[var(--color-black-500)] transition-colors hover:text-[var(--color-black-700)] sm:block"
           >
             Hide controls
           </button>
         </div>
       )}
 
-      <div className="flex flex-1 items-center justify-center p-[24px]">
-        <div className="h-[min(760px,calc(100vh-96px))] w-full max-w-[1216px]">
+      {/* min-h-0 so the flow is bounded by the space LEFT OVER after the
+          control strip, not by a guess. The previous fixed height assumed the
+          strip's height and put CONTINUE 94px below the fold on a phone. */}
+      <div className="flex min-h-0 flex-1 items-center justify-center p-[12px] sm:p-[24px]">
+        <div className="h-full max-h-[760px] w-full max-w-[1120px]">
           <KYCFlow step={step} onStep={setStep} />
         </div>
       </div>

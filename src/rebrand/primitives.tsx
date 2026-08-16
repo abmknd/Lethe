@@ -626,8 +626,14 @@ export function StepHeader({ label, heading, body }: { label: string; heading: R
       <h2 className="rebrand-display mt-[6px] text-[32px] font-normal leading-[100%] text-[var(--color-black-700)]">
         {heading}
       </h2>
+      {/* 12, not the 4 the scale first said. The scale measures BOXES, and a
+          32px display line set at line-height 100% has zero leading under it —
+          its descenders sit flush on the box edge — while the 14px uppercase
+          label above has no descenders at all. So a metric 4 here read TIGHTER
+          than the metric 6 above it, under a heading four times the size.
+          These are optical values; see redesign.md 3. */}
       {body ? (
-        <p className="mt-[4px] max-w-[44ch] text-[16px] leading-[120%] text-[var(--color-black-700)]">{body}</p>
+        <p className="mt-[12px] max-w-[44ch] text-[16px] leading-[120%] text-[var(--color-black-700)]">{body}</p>
       ) : null}
     </header>
   );

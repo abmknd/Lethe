@@ -70,6 +70,12 @@ const KYC_SELECTION = {
 // is worth the 0.4x. Below ~q84 the dither starts to bleed — that is the floor.
 const KYC_ENCODE = { width: 900, quality: 86 };
 
+// A second, smaller source for the stacked layout. Below 1120 the plate is a
+// BANNER — full-bleed but only ~180px tall — so it needs a fraction of the
+// pixels, and mobile is exactly where paying 480KB a step is least acceptable.
+// The browser picks between them via srcset.
+const KYC_ENCODE_SM = { width: 640, quality: 82, suffix: '-sm' };
+
 const KB = (bytes) => (bytes / 1024).toFixed(0) + ' KB';
 
 async function encode(srcAbs, outAbs, { width = 1280, quality = 94 } = {}) {
@@ -107,10 +113,9 @@ async function main() {
     path.join(OUT, `${slot}.webp`),
     {},
   ]);
-  const kyc = Object.entries(KYC_SELECTION).map(([slot, rel]) => [
-    path.join(SRC, rel),
-    path.join(OUT, 'kyc', `${slot}.webp`),
-    KYC_ENCODE,
+  const kyc = Object.entries(KYC_SELECTION).flatMap(([slot, rel]) => [
+    [path.join(SRC, rel), path.join(OUT, 'kyc', `${slot}.webp`), KYC_ENCODE],
+    [path.join(SRC, rel), path.join(OUT, 'kyc', `${slot}${KYC_ENCODE_SM.suffix}.webp`), KYC_ENCODE_SM],
   ]);
 
   const pairs = all

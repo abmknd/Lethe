@@ -73,6 +73,19 @@
   .rebrand-root .rebrand-display { font-family: var(--font-display); }
 }
 
+/* Touch targets, on touch devices only.
+   The graphic may be smaller than the target; the target may not be smaller
+   than the finger. Nav pills and the wordmark link measured 32-34px tall on the
+   landing — legible, but under the 44px floor. Gated on `pointer: coarse` so
+   desktop keeps the drawn size and only real touch input pays for the padding.
+   Opt out with .rb-hit-exempt where a control is genuinely decorative. */
+@media (pointer: coarse) {
+  .rebrand-root :is(button, [role="button"], a[href]):not(.rb-hit-exempt) {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
 /* Scroll chrome. A track gets its own reserved gutter so it never overlays a
    row, and the thumb is a ramp step rather than the platform default grey.
    redesign.md "Chrome - scroll and type". */

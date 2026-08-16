@@ -208,7 +208,7 @@ chosen per screen**:
 
 ```
 label → heading                6
-heading → body                 4
+heading → body                12
 header block → content        24
 group → sibling group         24
 group label → its group        8
@@ -216,9 +216,86 @@ item → item within a group   4–8
 inside a card / well         12–16
 ```
 
+**These are OPTICAL values, not metric ones**, and the difference bit once
+already. `heading → body` was 4 in the first cut, taken straight from the
+reference. It read cramped, and measuring says why: the heading is 32px set at
+`line-height: 100%`, so there is **zero leading beneath it** — its descenders
+sit flush on the box edge — while the body's 120% line-height contributes only
+1.6px above. A metric 4 was therefore a ~5.6px optical gap, *tighter* than the
+metric 6 above it, under a heading four times the label's size.
+
+So when two elements have different internal leading, the number that makes
+their gaps *read* equal is not the same number. Set the value by what it looks
+like and record the reason; do not derive it from the box model alone.
+
 Margins must not double-count. Where a section label follows body copy, the
 copy drops its bottom margin and the label owns the 24. Body copy is capped at
 **44ch** — past that a 560px card starts reading like a document.
+
+---
+
+## 3a. Mobile — normative
+
+Mobile is not a narrower desktop. These rules apply to every surface, and a
+surface is not finished until it has been checked at **375** as well as at
+desktop.
+
+### The primary action must always be reachable
+
+Non-negotiable, and the rule most easily broken by accident. The onboarding
+preview shipped for a few hours with CONTINUE **94px below the fold** on a
+375px screen, unreachable, because a fixed pixel height assumed how tall the
+surrounding chrome was.
+
+```
+never   h-[min(760px, 100vh)]     a guess about the space, and vh is the wrong unit
+always  a flex column with min-h-0 on the scrolling child
+```
+
+The container gives the height; the surface fills it. Only the card BODY
+scrolls, so the footer stays put.
+
+### Units and insets
+
+- **`dvh`, never `vh`.** Mobile browser chrome shrinks the visual viewport and
+  `vh` keeps measuring the larger one. That is exactly how a primary action ends
+  up under the address bar.
+- **Safe areas are not padding the browser gives you.** Anything pinned to an
+  edge takes `max(<pad>, env(safe-area-inset-*))`.
+- Touch targets are **44px** minimum, even where the graphic is smaller — pad
+  the hit area rather than growing the mark (SegmentedBar already does this).
+
+### Layout transforms
+
+Breakpoints are **container** queries wherever a component can be mounted at
+more than one width — a modal, a preview route and a gallery frame are three
+different widths for the same component, and a viewport query gets all three
+wrong.
+
+| Space | Onboarding shell |
+|---|---|
+| ≥ 1120 | split: card left, plate right, two flush halves |
+| < 1120 | stacked: plate as a banner above the card |
+
+**A side-by-side layout stacks; it does not drop its other half.** Hiding the
+plate on mobile would strip the brand from the breakpoint most people use. The
+banner is a share of the shell (`22%`, floor 112, ceiling 200) so a short
+viewport gives the form its room back, and it anchors `center 30%` because a
+hard crop from a portrait plate should keep faces, not torsos.
+
+### Page padding
+
+```
+page gutter    12 mobile · 24 desktop
+card padding   16 everywhere
+```
+
+### Images
+
+A surface that shows art at two very different sizes ships **two sources** and
+lets `srcset` choose. The onboarding plates are 900px for the 560px column and
+640px for the banner: 480KB against 200KB a step, and mobile is where that
+matters most.
 
 The rhythm is owned by `StepHeader` and `StepSection` (5.13) rather than
 re-applied per screen, so it is a property of the system and not eleven

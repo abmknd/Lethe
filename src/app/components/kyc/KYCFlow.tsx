@@ -185,19 +185,46 @@ export function KYCFlow({ onComplete, onClose, userId, accessToken, step, onStep
   const art = KYC_ART[current];
 
   return (
-    // Desktop is TWO COLUMNS: the card, and a plate beside it. The breakpoint is
-    // a CONTAINER query, not a viewport one — the same flow renders inside a
-    // full-screen modal and inside a fixed-width gallery frame, and only the
-    // space actually available to it should decide whether the plate appears.
-    <div className="@container flex h-full w-full justify-center gap-[16px]">
+    // Desktop is a SPLIT: one 1120px shell, radius 16, holding the card and the
+    // plate as flush halves. One rounded rectangle, not two sitting next to each
+    // other — the outer corners are round and the meeting edge is straight.
+    //
+    // The breakpoint is a CONTAINER query, not a viewport one: the same flow
+    // renders inside a full-screen modal, a preview route and a fixed-width
+    // gallery frame, and only the space actually available to it should decide
+    // whether the plate appears. Without the plate the shell narrows to a single
+    // card rather than stretching a form across 1120px.
+    <div className="@container flex h-full w-full justify-center">
       <div
         className={
-          'flex h-full w-full max-w-[600px] flex-col gap-[16px] overflow-hidden rounded-[16px] border p-[16px] ' +
+          // Stacked below 1120, split at and above it. Same shell either way:
+          // one rounded rectangle, outer corners round, meeting edge straight.
+          'flex h-full w-full max-w-[600px] flex-col overflow-hidden rounded-[16px] border @[1120px]:flex-row ' +
+          (art ? '@[1120px]:max-w-[1120px] ' : '') +
           (paused
             ? 'border-[var(--color-blue-500)] bg-[var(--color-blue-600)]'
             : 'border-[var(--color-black-100)] bg-[var(--color-white)]')
         }
       >
+        {/* The plate, stacked: a banner above the card rather than a column
+            beside it. Dropping the art entirely on mobile would strip the
+            brand from the breakpoint most people actually use. Sized as a
+            share of the shell so a short viewport gives the form its room
+            back, and ordered after the card in the DOM at desktop only. */}
+        {art ? (
+          <aside className="h-[22%] max-h-[200px] min-h-[112px] w-full shrink-0 @[1120px]:hidden">
+            <img
+              src={art.srcSm}
+              alt={art.alt}
+              className="h-full w-full object-cover"
+              // The banner crops hard from a portrait plate; anchoring top
+              // keeps faces in frame rather than centring on torsos.
+              style={{ objectPosition: 'center 30%' }}
+            />
+          </aside>
+        ) : null}
+
+        <div className="flex h-full min-h-0 w-full min-w-0 flex-1 flex-col gap-[16px] p-[16px] @[1120px]:w-1/2 @[1120px]:flex-none">
       {inFlow && (
         <div className="flex flex-col gap-[8px]">
           {/* Ten segments, one per step, not a continuous fill: the user can see
@@ -270,18 +297,18 @@ export function KYCFlow({ onComplete, onClose, userId, accessToken, step, onStep
                 FINISH LATER
               </Button>
             )}
-          </div>
-        )}
-      </div>
+            </div>
+          )}
+        </div>
 
-      {/* The plate. Hidden until the container can hold both columns at their
-          full width — a squeezed plate beside a squeezed card is worse than no
-          plate. Decorative: the card carries every word that matters. */}
-      {art ? (
-        <aside className="hidden h-full w-full max-w-[600px] overflow-hidden rounded-[16px] border border-[var(--color-black-100)] bg-[var(--color-white)] @[1160px]:block">
-          <img src={art.src} alt={art.alt} className="h-full w-full object-cover" />
-        </aside>
-      ) : null}
+        {/* The plate, split: the other half of the shell. Decorative either
+            way — the card carries every word that matters. */}
+        {art ? (
+          <aside className="hidden h-full w-1/2 min-w-0 @[1120px]:block">
+            <img src={art.src} alt="" aria-hidden className="h-full w-full object-cover" />
+          </aside>
+        ) : null}
+      </div>
     </div>
   );
 }
