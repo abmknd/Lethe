@@ -188,7 +188,75 @@ From the supplied in-app reference image, already partially spec'd in
 - Signal overview: header block, bullets, common interests, mutuals,
   availability day cards, socials, pass/match
 
-### 4c. Edge cases and loose ends
+### 4c. Asset systems
+
+Two asset workstreams that are not screens and do not belong to any one surface.
+Both sit in Phase 4 rather than later because **every surface after this one
+consumes them** — an icon decided in Phase 5 is an icon re-drawn in Phase 5.
+
+#### 4c-i. `system_icons` — the product icon set
+
+Up to **240 icons**, each in **outlined and filled** variants, drawn in a
+minimalist **cyber-classical** style that carries Relethe's brand persona.
+Delivered twice: as components in the Figma design library, and as files under
+`src/assets/system_icons/`.
+
+**The inventory is derived, not invented.** The product currently imports **42
+distinct icons from `lucide-react` across 47 files** — that is the floor, and it
+is a real measurement rather than an estimate. The 240 is the ceiling once the
+un-built surfaces in 4a are counted. So the inventory is a *running artifact*:
+
+1. **Now** — take the 42 in use as the seed list, with the file that uses each.
+2. **Per surface** — every rebuild adds the icons that surface needs. A screen is
+   not finished until its icons are in the list.
+3. **In batches** — draw once a coherent group is known (navigation, social,
+   status, actions), not one at a time and not all 240 up front.
+
+**Rules this set has to satisfy**, so it does not become the next thing that
+disagrees with the tokens:
+
+```
+grid            24 square, drawn on a 24 grid, exported at 1x
+stroke          1.25px, matching IconButton and the existing chevrons
+colour          never baked in — currentColor only, so a caller's token decides
+variants        outlined (default) and filled; filled is for SELECTED state,
+                not for emphasis, since emphasis is a colour decision
+optical size    a 16px usage is a redrawn 16 icon, not a scaled 24
+naming          semantic, not pictorial: `profile`, not `person-circle`
+```
+
+**Completion test:** `lucide-react` is removed from `package.json`. While a
+single lucide import survives, the set is not done — a half-migrated icon set is
+two icon languages on one screen, which is worse than either alone.
+
+#### 4c-ii. `dynamic_icons` — ten animated marks
+
+Ten square marks, **80px base size, responsive up to 200px**, animated with
+WebGL/GLSL, living in `src/assets/dynamic_icons/`. The diagnostic illustration
+on the landing page is the first: it should be alive, not a static plate.
+
+**Rules:**
+
+```
+aspect          1:1, always
+size            80 base, fluid to 200; a shader must not assume pixel size
+motion          ambient and slow — a mark that loops visibly is a distraction.
+                No motion under `prefers-reduced-motion`; render one static frame
+fallback        every dynamic icon has a static WebP twin, shown when WebGL is
+                unavailable or the program fails to link. A hole is not a state
+colour          samples the ramp via uniforms; a shader does not carry its own
+                hex any more than a component does
+budget          one shared canvas/context where several appear together — ten
+                contexts on one page is ten GPU allocations
+```
+
+**Carried from the deleted hero WebGL work, so it is not re-learned:** a guard
+of the form `if (!src.includes('vLocal'))` matched the existing `vLocalY`, so a
+varying was never injected and the program silently failed to link. Shader
+string surgery needs exact-token matching, and a link failure must be *loud* in
+dev and *fall back* in production.
+
+### 4d. Edge cases and loose ends
 
 The parts that never make it into a reference frame and are therefore always
 missing at build time. Each needs a design, not an improvisation:
