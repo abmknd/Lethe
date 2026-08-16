@@ -25,16 +25,24 @@ import AdminReviewPage from "./admin/AdminReviewPage";
 import AdminEventsPage from "./admin/AdminEventsPage";
 import ErrorBoundary from "./ErrorBoundary";
 import RebrandPage from "../rebrand/RebrandPage";
+import OnboardingPreviewPage from "../rebrand/OnboardingPreviewPage";
 
 const baseUrl = import.meta.env.BASE_URL;
 const routerOptions = baseUrl === "/" ? undefined : { basename: baseUrl.replace(/\/$/, "") };
 
 // Router configuration for Relethe app
 export const router = createBrowserRouter([
-  // Staged rebrand preview — full-bleed, outside the app shell (sunset later).
+  // Staged rebrand previews — full-bleed, outside the app shell (sunset later).
+  // One route per rebranded surface, so every surface can be clicked through in
+  // the real router while it is being built rather than reviewed as a picture.
   {
     path: "/rebrand",
     Component: RebrandPage,
+    ErrorBoundary,
+  },
+  {
+    path: "/rebrand/onboarding",
+    Component: OnboardingPreviewPage,
     ErrorBoundary,
   },
   {
