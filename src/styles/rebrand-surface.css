@@ -1,0 +1,115 @@
+/* The rebrand SURFACE, shared by the marketing preview and the live app.
+ *
+ * This used to live inside src/rebrand/rebrand.css, which only the rebrand and
+ * gallery entries import. That was survivable while the rebrand was confined to
+ * /rebrand, and stopped being survivable in Phase 4: KYCModal renders inside the
+ * REAL app, and there `.rebrand-root` matched nothing at all. No font, no
+ * element reset. `theme.css` re-points `--font-display` at Cormorant on :root,
+ * so every rebrand heading in the app was rendering in the old display face
+ * while looking correct in the gallery.
+ *
+ * One file, imported by both stylesheets, so a rebrand component looks the same
+ * wherever it is mounted.
+ *
+ * Tokens are NOT here — they are on :root in tokens.css and shared with the app.
+ * This file only sets what is specific to the rebrand surface.
+ *
+ * The two font faces are NOT imported here either: a nested @import lands
+ * mid-file once this is inlined, and `@import must precede all other
+ * statements`. Each entry point loads them first instead — fonts.css for the
+ * app, the head of rebrand.css for the rebrand entries.
+ */
+
+/* `base`, not unlayered.
+   Unlayered declarations outrank every cascade layer, including utilities. With
+   `background` unlayered here, `.rebrand-root` painted Blue 600 over any bg-*
+   utility on the same element — which is why the onboarding scrim was blue
+   instead of the Black 700 it asked for. In `base` the canvas still applies
+   wherever nothing overrides it, and a utility on the element wins. */
+@layer base {
+  .rebrand-root {
+    --font-display: 'Parkinsans', sans-serif;
+    --font-body: 'Archivo', system-ui, sans-serif;
+
+    background: var(--color-blue-600);
+    color: var(--color-white);
+    font-family: var(--font-body);
+    font-variation-settings: 'wdth' 100; /* Archivo variable width axis */
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+.rebrand-root *,
+.rebrand-root *::before,
+.rebrand-root *::after { box-sizing: border-box; }
+
+/* Element type reset.
+   colors_and_type.css styles bare h1-h6 and p globally: Cormorant, italic,
+   its own sizes. Those are the OLD system and they leak into every rebrand
+   component that uses a semantic heading. A component must own its type, so
+   inside .rebrand-root the elements carry nothing and the utility classes on
+   them decide everything.
+
+   Sits in `base`: above `legacy` so it clears the old element styles, below
+   `utilities` so a component's own type classes still win. Unlayered it would
+   outrank every layer, including the utilities, and silently flatten every
+   heading to 16px. */
+@layer base {
+  .rebrand-root :is(h1, h2, h3, h4, h5, h6, p, ul, ol, li, figure, blockquote) {
+    font: inherit;
+    font-style: normal;
+    letter-spacing: normal;
+    color: inherit;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* The display face, declared AFTER the reset and at the same (0,2,0)
+     specificity so it wins on order. The reset above sets `font: inherit` on
+     every heading element, which silently beat a single-class rule and put
+     every Parkinsans heading back into Archivo. */
+  .rebrand-display,
+  .rebrand-root .rebrand-display { font-family: var(--font-display); }
+}
+
+/* Scroll chrome. A track gets its own reserved gutter so it never overlays a
+   row, and the thumb is a ramp step rather than the platform default grey.
+   redesign.md "Chrome - scroll and type". */
+.rebrand-scroll {
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-black-100) transparent;
+}
+.rebrand-scroll::-webkit-scrollbar { width: 8px; }
+.rebrand-scroll::-webkit-scrollbar-track { background: transparent; }
+.rebrand-scroll::-webkit-scrollbar-thumb {
+  background: var(--color-black-100);
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+.rebrand-scroll-blue { scrollbar-color: var(--color-blue-500) transparent; }
+.rebrand-scroll-blue::-webkit-scrollbar-thumb { background: var(--color-blue-500); background-clip: content-box; }
+
+/* Step entry. The card's header and footer are fixed and only the body swaps,
+   so the motion belongs to the body content and nothing else moves. */
+@keyframes rb-step-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: none; }
+}
+.rebrand-step-in { animation: rb-step-in 320ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+/* Persona rotation in the cohort card: a short rise-and-settle, not a slide.
+   Suppressed for anyone who has asked for less motion. */
+@keyframes rb-fade {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rebrand-root *, .rebrand-root *::before, .rebrand-root *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

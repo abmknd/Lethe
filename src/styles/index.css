@@ -13,6 +13,10 @@
 /* Design tokens. Additive: nothing references these yet, so no pixels move.
    Migration onto them is tracked in REBRAND-PLAN.md. */
 @import './tokens.css';
+/* The rebrand surface. Phase 4 mounts rebrand components (onboarding, match
+   card) inside the real app, so `.rebrand-root` has to mean something here and
+   not only in the gallery. Brings Parkinsans + Archivo with it. */
+@import './rebrand-surface.css';
 @import './tailwind.css';
 @import './theme.css';
 /* legacy layer: unlayered CSS outranks every cascade layer, so while this file

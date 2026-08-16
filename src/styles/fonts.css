@@ -1,3 +1,10 @@
+/* The rebrand's two faces. Loaded app-wide because Phase 4 mounts rebrand
+   components (onboarding, match card) inside the real app, not only under
+   /rebrand. Archivo 300 is included: redesign.md 8 specifies it for Body 6 and
+   the timezone label. */
+@import url('https://fonts.googleapis.com/css2?family=Parkinsans:wght@400;600&family=Archivo:wght@300;400;500&display=swap');
+
+/* The outgoing three-font system. Goes when the last legacy surface does. */
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&display=swap');

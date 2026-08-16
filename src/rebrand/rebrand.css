@@ -11,65 +11,12 @@
 
 /* Rebrand surface styles.
    Tokens live in src/styles/tokens.css on :root and are shared with the app,
-   so there is exactly one definition of every colour. This file only sets what
-   is specific to the rebrand SURFACE: the two-font system and the canvas.
+   so there is exactly one definition of every colour. The `.rebrand-root`
+   surface itself lives in src/styles/rebrand-surface.css, imported here AND by
+   the app stylesheet, because Phase 4 mounts rebrand components inside the real
+   app and they have to carry the same fonts and reset in both places.
    @import rules must come first per CSS/PostCSS ordering. */
-@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@300;400;500&family=Parkinsans:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Parkinsans:wght@400;600&family=Archivo:wght@300;400;500&display=swap');
 @import 'tailwindcss';
 @import '../styles/tokens.css';
-
-
-
-.rebrand-root {
-  --font-display: 'Parkinsans', sans-serif;
-  --font-body: 'Archivo', system-ui, sans-serif;
-
-  background: var(--color-blue-600);
-  color: var(--color-white);
-  font-family: var(--font-body);
-  font-variation-settings: 'wdth' 100; /* Archivo variable width axis */
-  -webkit-font-smoothing: antialiased;
-}
-
-.rebrand-root *,
-.rebrand-root *::before,
-.rebrand-root *::after { box-sizing: border-box; }
-
-/* Element type reset.
-   colors_and_type.css styles bare h1-h6 and p globally: Cormorant, italic,
-   its own sizes. Those are the OLD system and they leak into every rebrand
-   component that uses a semantic heading. A component must own its type, so
-   inside .rebrand-root the elements carry nothing and the utility classes on
-   them decide everything.
-
-   Sits in `base`: above `legacy` so it clears the old element styles, below
-   `utilities` so a component's own type classes still win. Unlayered it would
-   outrank every layer, including the utilities, and silently flatten every
-   heading to 16px. */
-@layer base {
-  .rebrand-root :is(h1, h2, h3, h4, h5, h6, p, ul, ol, li, figure, blockquote) {
-    font: inherit;
-    font-style: normal;
-    letter-spacing: normal;
-    color: inherit;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-}
-
-.rebrand-display { font-family: var(--font-display); }
-
-/* Persona rotation in the cohort card: a short rise-and-settle, not a slide.
-   Suppressed for anyone who has asked for less motion. */
-@keyframes rb-fade {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: none; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .rebrand-root *, .rebrand-root *::before, .rebrand-root *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-}
+@import '../styles/rebrand-surface.css';
