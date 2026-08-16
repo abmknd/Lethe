@@ -1,4 +1,4 @@
-import type { ReactNode, ButtonHTMLAttributes, InputHTMLAttributes } from 'react';
+import type { ReactNode, ButtonHTMLAttributes, InputHTMLAttributes, TextareaHTMLAttributes } from 'react';
 
 /**
  * The primitive layer. See redesign.md sections 5 and 6.
@@ -92,7 +92,7 @@ export function Button({
   className = '',
   ...rest
 }: ButtonHTMLAttributes<HTMLButtonElement> & {
-  variant?: 'primary' | 'secondary';
+  variant?: 'primary' | 'secondary' | 'tertiary';
   surface?: Surface;
   size?: keyof typeof BTN_SIZE;
   fullWidth?: boolean;
@@ -100,14 +100,22 @@ export function Button({
   // Website rule: hover is a TEXT change only. Fills and borders hold, so a
   // button never restates itself as a different object on hover; the label
   // just steps along its ramp. (redesign.md 6)
+  //
+  // tertiary is the deferral slot: no fill, no border, muted label. It exists
+  // so SKIP / LATER can sit under a primary without competing with it, and it
+  // is the only variant whose default state carries no boundary at all.
   const skin =
     variant === 'primary'
       ? surface === 'blue'
         ? 'bg-[var(--color-white)] text-[var(--color-blue-600)] hover:text-[var(--color-blue-700)]'
         : 'bg-[var(--color-blue-600)] text-[var(--color-white)] hover:text-[var(--color-blue-100)]'
-      : surface === 'blue'
-        ? 'border border-[var(--color-white)] text-[var(--color-white)] hover:text-[var(--color-blue-200)]'
-        : 'border border-[var(--color-blue-600)] text-[var(--color-blue-600)] hover:text-[var(--color-blue-700)]';
+      : variant === 'tertiary'
+        ? surface === 'blue'
+          ? 'text-[var(--color-blue-200)] hover:text-[var(--color-white)]'
+          : 'text-[var(--color-black-500)] hover:text-[var(--color-black-700)]'
+        : surface === 'blue'
+          ? 'border border-[var(--color-white)] text-[var(--color-white)] hover:text-[var(--color-blue-200)]'
+          : 'border border-[var(--color-blue-600)] text-[var(--color-blue-600)] hover:text-[var(--color-blue-700)]';
 
   return (
     <button
@@ -115,7 +123,13 @@ export function Button({
         'inline-flex shrink-0 items-center justify-center gap-[2px] rounded-[40px] font-medium transition-colors',
         'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2',
         surface === 'blue' ? 'focus-visible:outline-[var(--color-white)]' : 'focus-visible:outline-[var(--color-blue-600)]',
-        'disabled:cursor-not-allowed disabled:border-transparent disabled:bg-[var(--color-white)] disabled:text-[var(--color-black-400)]',
+        // Disabled has its own FILL, and the fill has to differ from the
+        // surface. White-on-blue reads as an inert button; the same white on a
+        // white card reads as nothing at all — the primary action simply
+        // disappeared. So the disabled fill is chosen by surface like every
+        // other fill in the system.
+        'disabled:cursor-not-allowed disabled:border-transparent disabled:text-[var(--color-black-400)]',
+        surface === 'blue' ? 'disabled:bg-[var(--color-white)]' : 'disabled:bg-[var(--color-black-100)]',
         BTN_SIZE[size],
         skin,
         fullWidth && 'w-full',
@@ -352,12 +366,18 @@ export function SegmentedBar({
           : 'bg-[var(--color-blue-600)]'
         : onBlue
           ? 'bg-[var(--color-blue-500)]'
-          : 'bg-[var(--color-black-100)]',
+          : 'bg-[var(--color-black-200)]',
     );
 
   if (!onSelect) {
     return (
-      <div aria-hidden className="flex w-full items-center gap-[2px] rounded-[40px] p-[2px]">
+      <div
+        aria-hidden
+        className={cx(
+          'flex w-full items-center gap-[2px] rounded-[40px] p-[2px]',
+          onBlue ? 'bg-[var(--color-blue-700)]' : 'bg-[var(--color-black-100)]',
+        )}
+      >
         {Array.from({ length: count }).map((_, i) => (
           <span key={i} className={seg(i)} />
         ))}
@@ -563,6 +583,423 @@ export function DecisionBar({
         {actionLabel}
       </Button>
     </div>
+  );
+}
+
+// ------------------------------------------------------- step scaffolding
+//
+// Onboarding is the app and the app is LIGHT (redesign.md 7), so everything
+// from here down is written light-only rather than taking a `surface` prop.
+// That is deliberate: a step CANNOT accidentally be built on blue, because
+// there is no switch to flip. Blue is spent where it is earned — the paused
+// state and the blind match card — and those compose the blue primitives above.
+
+/** Title 4A. The uppercase label above a heading or a group. */
+export function SectionLabel({ children, className = '' }: { children: ReactNode; className?: string }) {
+  return (
+    <span
+      className={cx(
+        'block text-[14px] font-medium uppercase leading-[100%] tracking-[0.5px] text-[var(--color-black-500)]',
+        className,
+      )}
+    >
+      {children}
+    </span>
+  );
+}
+
+/**
+ * label → heading → body, and the 24 that separates the header block from the
+ * content under it. The rhythm lives HERE rather than in each step, so
+ * "6 then 4 then 24" is a property of the system and not eleven independent
+ * decisions that drift apart. (redesign.md 3, vertical rhythm.)
+ *
+ * Body copy caps at 44ch. Longer measures are where a 560px card starts reading
+ * like a document.
+ */
+export function StepHeader({ label, heading, body }: { label: string; heading: ReactNode; body?: ReactNode }) {
+  return (
+    <header className="mb-[24px] flex flex-col">
+      <SectionLabel>{label}</SectionLabel>
+      {/* Heading 4. On a light surface the heading is Black 700 and the
+          emphasis inside it is Blue 600 — yellow never lands on light. */}
+      <h2 className="rebrand-display mt-[6px] text-[32px] font-normal leading-[100%] text-[var(--color-black-700)]">
+        {heading}
+      </h2>
+      {body ? (
+        <p className="mt-[4px] max-w-[44ch] text-[16px] leading-[120%] text-[var(--color-black-700)]">{body}</p>
+      ) : null}
+    </header>
+  );
+}
+
+/**
+ * A labelled group inside a step. 8 from its label to its content, 24 from the
+ * group above it. `aside` is the right-hand counter ("1 of 3") when the group
+ * has one.
+ */
+export function StepSection({
+  label,
+  aside,
+  children,
+  className = '',
+}: {
+  label?: string;
+  aside?: ReactNode;
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <section className={cx('mt-[24px] flex flex-col gap-[8px] first:mt-0', className)}>
+      {label ? (
+        <div className="flex items-center justify-between gap-[12px]">
+          <SectionLabel>{label}</SectionLabel>
+          {aside ? (
+            <span className="text-[13px] font-medium leading-[120%] tracking-[1.5px] text-[var(--color-black-500)]">
+              {aside}
+            </span>
+          ) : null}
+        </div>
+      ) : null}
+      {children}
+    </section>
+  );
+}
+
+/** A recessed container. The light-surface equivalent of a Blue 700 well. */
+export function Well({ children, className = '' }: { children: ReactNode; className?: string }) {
+  return (
+    <div
+      className={cx(
+        'rounded-[12px] border border-[var(--color-black-200)] bg-[var(--color-black-50)] p-[16px]',
+        className,
+      )}
+    >
+      {children}
+    </div>
+  );
+}
+
+/**
+ * A bordered list. The CONTAINER owns the boundary: rows inside draw no border
+ * of their own, and only a selected row resolves into a surface. A search field
+ * or a column header belongs INSIDE this box, divided off — never floating
+ * above it as a peer, which reads as two unrelated objects. (redesign.md 5.7.)
+ */
+export function ListContainer({ children, className = '' }: { children: ReactNode; className?: string }) {
+  return (
+    <div className={cx('overflow-hidden rounded-[12px] border border-[var(--color-black-100)]', className)}>
+      {children}
+    </div>
+  );
+}
+
+/** A divided strip inside a ListContainer: search row, column header, footer. */
+export function ListBand({
+  children,
+  recessed,
+  className = '',
+}: {
+  children: ReactNode;
+  recessed?: boolean;
+  className?: string;
+}) {
+  return (
+    <div
+      className={cx(
+        'flex items-center border-b border-[var(--color-black-100)] px-[16px]',
+        recessed ? 'bg-[var(--color-black-50)] py-[8px]' : 'py-[12px]',
+        className,
+      )}
+    >
+      {children}
+    </div>
+  );
+}
+
+/** The tile a glyph or a mark sits in. 48 in a list row, 28 inline in a field. */
+export function IconTile({ children, size = 48 }: { children: ReactNode; size?: 48 | 28 }) {
+  return (
+    <span
+      className={cx(
+        'grid shrink-0 place-items-center bg-[var(--color-blue-100)] text-[var(--color-blue-600)]',
+        size === 48 ? 'size-[48px] rounded-[12px]' : 'size-[28px] rounded-[8px] text-[12px] leading-none',
+      )}
+    >
+      {children}
+    </span>
+  );
+}
+
+/**
+ * The selection mark. Filled Blue 600 with a white check when on; an empty ring
+ * when off. Never an opacity change — the off state is its own treatment.
+ */
+export function CheckDot({ checked }: { checked: boolean }) {
+  return (
+    <span
+      aria-hidden
+      className={cx(
+        'grid size-[20px] shrink-0 place-items-center rounded-full border text-[11px] font-medium leading-none transition-colors',
+        checked
+          ? 'border-[var(--color-blue-600)] bg-[var(--color-blue-600)] text-[var(--color-white)]'
+          : 'border-[var(--color-black-200)] text-transparent',
+      )}
+    >
+      ✓
+    </span>
+  );
+}
+
+/**
+ * One selectable row. Selection is a SURFACE change (Blue 100 fill, Blue 600
+ * border) plus the mark; it is never a tint of the accent over the row.
+ *
+ * `bare` drops the row's own border for use inside a ListContainer, which owns
+ * the boundary instead.
+ */
+export function SelectRow({
+  selected,
+  leading,
+  trailing,
+  dot = true,
+  bare,
+  className = '',
+  children,
+  ...rest
+}: ButtonHTMLAttributes<HTMLButtonElement> & {
+  selected: boolean;
+  leading?: ReactNode;
+  trailing?: ReactNode;
+  dot?: boolean;
+  bare?: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      aria-pressed={selected}
+      className={cx(
+        'flex w-full items-center gap-[12px] rounded-[10px] border px-[16px] py-[12px] text-left transition-colors',
+        'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-blue-600)]',
+        selected
+          ? 'border-[var(--color-blue-600)] bg-[var(--color-blue-100)]'
+          : bare
+            ? 'border-transparent hover:bg-[var(--color-black-50)]'
+            : 'border-[var(--color-black-100)] hover:bg-[var(--color-black-50)]',
+        className,
+      )}
+      {...rest}
+    >
+      {leading}
+      <span className="min-w-0 flex-1 text-[14px] leading-[16px] text-[var(--color-black-700)]">{children}</span>
+      {trailing}
+      {dot ? <CheckDot checked={selected} /> : null}
+    </button>
+  );
+}
+
+/**
+ * A selectable chip. Same three-category logic as the pills: this is the
+ * INTERACTIVE one, so unlike title- and descriptive-pills it is a real button.
+ * Selected takes the primary-button pair (Blue 600 / White) rather than a tint.
+ */
+export function Chip({
+  selected,
+  className = '',
+  children,
+  ...rest
+}: ButtonHTMLAttributes<HTMLButtonElement> & { selected: boolean; children: ReactNode }) {
+  return (
+    <button
+      type="button"
+      aria-pressed={selected}
+      className={cx(
+        'rounded-[8px] border px-[14px] py-[8px] text-[13px] leading-[18px] transition-colors',
+        'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-blue-600)]',
+        selected
+          ? 'border-[var(--color-blue-600)] bg-[var(--color-blue-600)] text-[var(--color-white)]'
+          : 'border-[var(--color-black-100)] bg-[var(--color-black-100)] text-[var(--color-black-700)] hover:border-[var(--color-black-200)]',
+        className,
+      )}
+      {...rest}
+    >
+      {children}
+    </button>
+  );
+}
+
+/**
+ * The shell an input sits in when the field carries more than the input itself
+ * — a mark, a fixed label, a hint. The border and focus ring belong to the
+ * shell so the whole composite lights up as one control.
+ */
+export function FieldShell({ children, className = '' }: { children: ReactNode; className?: string }) {
+  return (
+    <div
+      className={cx(
+        'flex items-center gap-[12px] rounded-[8px] border border-[var(--color-black-200)] bg-[var(--color-white)] px-[16px] py-[12px]',
+        'transition-colors focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-[var(--color-blue-600)]',
+        className,
+      )}
+    >
+      {children}
+    </div>
+  );
+}
+
+/** The bare input that lives inside a FieldShell. */
+export function FieldInput({ className = '', ...rest }: InputHTMLAttributes<HTMLInputElement>) {
+  return (
+    <input
+      className={cx(
+        'min-w-0 flex-1 bg-transparent text-[14px] leading-[100%] text-[var(--color-black-700)] outline-none',
+        'placeholder:text-[var(--color-black-400)]',
+        className,
+      )}
+      {...rest}
+    />
+  );
+}
+
+export function Textarea({ className = '', ...rest }: TextareaHTMLAttributes<HTMLTextAreaElement>) {
+  return (
+    <textarea
+      className={cx(
+        'w-full resize-none rounded-[8px] border border-[var(--color-black-200)] bg-[var(--color-white)] px-[16px] py-[12px]',
+        'text-[16px] leading-[120%] text-[var(--color-black-700)] outline-none placeholder:text-[var(--color-black-400)]',
+        'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-blue-600)]',
+        className,
+      )}
+      {...rest}
+    />
+  );
+}
+
+/** A disclosure with a count. The count is the answer to "did I do this one?". */
+export function Accordion({
+  title,
+  count,
+  open,
+  onToggle,
+  children,
+}: {
+  title: string;
+  count?: number;
+  open: boolean;
+  onToggle: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <div className="overflow-hidden rounded-[12px] border border-[var(--color-black-100)]">
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-expanded={open}
+        className={cx(
+          'flex w-full items-center gap-[10px] px-[16px] py-[14px] text-left transition-colors hover:bg-[var(--color-black-50)]',
+          'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--color-blue-600)]',
+        )}
+      >
+        <span className="flex-1 text-[16px] font-medium leading-[20px] tracking-[0.5px] text-[var(--color-black-700)]">
+          {title}
+        </span>
+        <span className="min-w-[14px] text-right text-[13px] leading-[18px] text-[var(--color-black-500)]">
+          {count || ''}
+        </span>
+        <ChevronGlyph open={open} />
+      </button>
+      {open ? (
+        <div className="flex flex-col gap-[6px] border-t border-[var(--color-black-100)] p-[8px]">{children}</div>
+      ) : null}
+    </div>
+  );
+}
+
+function ChevronGlyph({ open }: { open: boolean }) {
+  return (
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 12 12"
+      aria-hidden
+      className={cx('shrink-0 text-[var(--color-black-500)] transition-transform', open && 'rotate-180')}
+    >
+      <path d="M2.5 4.5L6 8l3.5-3.5" fill="none" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+/**
+ * DAYLIGHTBAND — a 24-hour track with a window drawn on it, always in the
+ * VIEWER's local frame. (redesign.md 5.12.)
+ *
+ * The point is that a timezone is unreadable as a number and obvious as a
+ * picture: "UTC+9" tells you nothing about whether you can meet someone, and a
+ * bar that does or does not sit under yours tells you immediately.
+ *
+ * A window that crosses midnight renders as TWO segments, one at each end,
+ * because that is what it is. A single wrapped bar would draw 9pm–1am as though
+ * it ran backwards through the whole day.
+ */
+export function DaylightBand({
+  windows,
+  tone = 'overlap',
+  surface = 'light',
+  label,
+  className = '',
+}: {
+  /** `[startHour, endHour]` pairs in the viewer's frame. May be negative or
+   *  past 24 — they wrap. */
+  windows: [number, number][];
+  tone?: 'me' | 'overlap' | 'off';
+  surface?: Surface;
+  label: string;
+  className?: string;
+}) {
+  const onBlue = surface === 'blue';
+  const track = onBlue ? 'var(--color-blue-700)' : 'var(--color-black-100)';
+  const fill = onBlue
+    ? { me: 'var(--color-white)', overlap: 'var(--color-blue-400)', off: 'var(--color-blue-500)' }[tone]
+    : { me: 'var(--color-blue-600)', overlap: 'var(--color-blue-300)', off: 'var(--color-black-300)' }[tone];
+
+  const norm = (h: number) => ((h % 24) + 24) % 24;
+  const pct = (h: number) => ((h / 24) * 100).toFixed(2);
+
+  // Split anything that crosses midnight, then sort and merge, so two touching
+  // windows draw as one bar and the gradient stops stay monotonic.
+  const parts: [number, number][] = [];
+  for (const [start, end] of windows) {
+    const s = norm(start);
+    const e = norm(end);
+    if (s === e) continue;
+    if (s < e) parts.push([s, e]);
+    else parts.push([0, e], [s, 24]);
+  }
+  parts.sort((a, b) => a[0] - b[0]);
+  const merged: [number, number][] = [];
+  for (const p of parts) {
+    const last = merged[merged.length - 1];
+    if (last && p[0] <= last[1]) last[1] = Math.max(last[1], p[1]);
+    else merged.push([p[0], p[1]]);
+  }
+
+  const stops: string[] = [];
+  let cursor = 0;
+  for (const [from, to] of merged) {
+    if (from > cursor) stops.push(`transparent ${pct(cursor)}% ${pct(from)}%`);
+    stops.push(`${fill} ${pct(from)}% ${pct(to)}%`);
+    cursor = to;
+  }
+  if (cursor < 24) stops.push(`transparent ${pct(cursor)}% 100%`);
+
+  return (
+    <span
+      role="img"
+      aria-label={label}
+      className={cx('block h-[16px] rounded-[4px]', className)}
+      style={{ backgroundColor: track, backgroundImage: `linear-gradient(90deg, ${stops.join(',')})` }}
+    />
   );
 }
 
