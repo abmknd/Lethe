@@ -29,20 +29,85 @@ disagrees with them is drift and snaps to the nearest ramp step.
 ## Phases
 
 - [x] **0. Safety and baseline.** Committed on `front-end-demo-updates`, tagged
-      `pre-rebrand-baseline`, pushed. 245MB of illustration masters kept out of
-      immutable history and backed up outside the repo.
+      `pre-rebrand-baseline`, pushed. The artwork masters (`src/assets/artworks/`,
+      ~366MB) kept out of immutable history and backed up outside the repo.
 - [x] **1. Specification.** `redesign.md` carries components, states, theme.
       Pill trio, button axes, reconciliation rule, blue elevation model.
 - [x] **2. Primitive layer.** 12 primitives, surface-driven. Landing retro-fitted.
 - [ ] **3. Marketing surface complete.** Landing finished on the primitives,
       hero decision resolved, responsive verified from 375 up.
 - [ ] **4. In-app surface.** See scope below.
-- [ ] **5. De-hardcode the app.** 313 hardcoded hexes across 54 files.
-      Behaviour-preserving, screenshot-gated, shipped in reviewable slices.
+- [ ] **5. De-hardcode the app.** ~570 hardcoded hex occurrences across 41
+      files in `src/app` + `src/components`, 22 of them still carrying the old
+      chartreuse `#7FFF00` (re-counted 2026-08-16; the earlier "313 across 54"
+      was measured differently and is retired). Behaviour-preserving,
+      screenshot-gated, shipped in reviewable slices. In practice this phase
+      dissolves into Phase 4: a surface gets de-hardcoded when it gets rebuilt.
 - [ ] **6. Non-React surfaces and dissolution.** Email templates, favicon, OG
       image, logomark, 404. Then dissolve `src/rebrand/`, delete
       `rebrand-preview.html`, the `/rebrand` route, dead `src/imports` files,
       this file, and promote `redesign.md` to `design.md`.
+
+---
+
+## How this lands in the product
+
+**It lands surface by surface, in place, as we go. Not in one swap at the end.**
+
+This is already true and worth stating so nobody plans around the opposite:
+`KYCModal` is rendered by `Feed.tsx`, so the rebuilt onboarding is live in the
+real app the moment this branch merges. It was never staged behind a flag.
+
+Why not a big-bang cutover at Phase 6: a rebrand held back until the end is one
+enormous diff that has never run against real data, reviewed in a single sitting
+by someone who has lost the context for the early decisions. Every failure mode
+we have hit so far — the cascade, the unlayered `.rebrand-root`, the missing
+font import in the app entry — was invisible in the gallery and only showed up
+when a component was mounted for real. Landing continuously is what surfaces
+those while they are still cheap.
+
+What makes it safe rather than reckless:
+
+1. **Tokens are already global.** `src/styles/tokens.css` is on `:root` and
+   shared. A migrated surface changes only its own markup.
+2. **The surface is opt-in per element.** Rebrand styling hangs off
+   `.rebrand-root`; nothing leaks into a page that has not been migrated.
+3. **One surface per slice, `npm run build` green before each.** A slice that
+   breaks is one page, revertable on its own.
+4. **`pre-rebrand-baseline` is the floor.** The whole thing can be undone.
+
+### The seam rule
+
+**When a rebranded surface routes to an un-rebranded one, that target moves to
+the front of the queue.** The seam a user actually walks through is worth more
+than finishing a tidy category of screens.
+
+This is not hypothetical: `KYCPaused` says *"You'll find it in Connect"*, and
+`ConnectPage` is still old brand. Onboarding currently hands the user across a
+visible brand boundary. That is what makes Connect next, rather than a
+preference about which page is most interesting.
+
+### Merge cadence
+
+Merge **per completed surface**, not at the end of the phase. As of this
+writing the branch is 11 commits and ~36 changed files ahead of `main`, with
+nothing merged since 2026-08-10. That gap is the actual risk to manage — not
+the rebrand technique. Each surface should become its own PR to `main` once its
+build is green and it has been clicked through at `/rebrand/<surface>`.
+
+### Preview, always
+
+Every rebranded surface gets a route under `/rebrand/` in the real router so it
+can be **clicked through, not looked at**:
+
+| Route | Surface |
+|---|---|
+| `/rebrand` | landing |
+| `/rebrand/onboarding` | the twelve KYC screens |
+| `/gallery.html` | components without auth (dev entry) |
+
+A preview must mount the same component the product mounts. A preview that
+re-creates the screen is a preview that can lie about it.
 
 ---
 
@@ -149,5 +214,5 @@ missing at build time. Each needs a design, not an improvisation:
 |---|---|
 | Hero | **closed.** `sanctuary_of_lethe` ships. The WebGL piece and the `hero/` workspace are deleted. |
 | `signal-pill` variants beyond neutral | open |
-| Illustration library: commit all 69 web-sized, or per-use | leaning per-use |
+| Illustration library: commit all 69 web-sized, or per-use | **closed: per-use.** Onboarding committed 11 plates (5.0MB) from `white_themes/portrait_art` at 900px q86. Slots are named in `scripts/optimize-illustrations.mjs`, so a re-map is a one-line edit and a re-run. |
 | Self-host Parkinsans/Archivo vs Google CDN | open, affects LCP and CSP |

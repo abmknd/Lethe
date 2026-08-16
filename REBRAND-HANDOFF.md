@@ -23,16 +23,41 @@ that govern it, and the things that were learned the hard way.
 ### Done in Phase 4 so far
 - Token spine promoted to `:root` in `src/styles/tokens.css`, shared by app
   and rebrand. 55 tokens. `rebrand.css` declares none of its own.
-- **Onboarding shell** (`KYCModal`): segmented progress, tokenised header,
-  solid footer.
-- **Step 2 Location**: three-level well.
 - **Match card** (`src/rebrand/app/MatchCard.tsx`): blind / awaiting / revealed.
-- **Component gallery** at `gallery.html`.
+- **All twelve onboarding screens**, rebuilt light on the ramp from the KYC
+  reference. Shell split into `KYCFlow` (the card) and `KYCModal` (the scrim),
+  so the gallery drives all twelve without auth.
+- **Desktop two-column layout** per the Figma `Implement Design Specifications`
+  frame: card left, illustration plate right, gated on a CONTAINER query at
+  1160px so the gallery's fixed frames behave correctly. 11 plates committed
+  from `white_themes/portrait_art` (5.0MB, 900px q86).
+- **New primitives:** DaylightBand, SelectRow, CheckDot, Chip, Well,
+  ListContainer/ListBand, FieldShell/FieldInput, Textarea, Accordion, IconTile,
+  StepHeader/StepSection/SectionLabel, Button `tertiary`.
+- **`src/styles/rebrand-surface.css`**, imported by the app AND the rebrand.
+- **Component gallery** at `gallery.html`: step chips 1–12, 560/375 toggle.
 
-### Next up
-Still old brand: KYC Steps 1 and 3–10, `KYCDone`, `KYCPaused`, then the feed
-post card, profile card, ConnectPage, MatchesPage, MatchRevealPage,
-MessagesPage, SettingsPage.
+### Next up — in this order
+
+Ordered by the seam rule (REBRAND-PLAN, "How this lands in the product"): the
+boundary a user actually walks across comes first.
+
+1. **ConnectPage** — `KYCPaused` says "You'll find it in Connect", so onboarding
+   hands the user straight across a brand boundary today. 363 lines, 19 hexes,
+   no chartreuse: small, and it closes the seam we just created.
+2. **Post card → Feed** — drawn in Figma on the `components` board. Feed itself
+   is only 6 hexes; the card is the work.
+3. **Profile card → ProfilePage** — also drawn in Figma (Blue 100 header band,
+   availability toggle, checklist, interest pills). 687 lines, 49 hexes. Note
+   Figma tints completed checklist rows blue where redesign.md 5.7 says
+   Black 100 — reconcile before building.
+4. **MatchesPage / MatchRevealPage** — 8 and 10 hexes; both consume the match
+   card, which already exists.
+5. **MessagesPage** — 452 lines, 25 hexes, 15 chartreuse.
+6. **SettingsPage** — 1366 lines, 77 hexes, 36 chartreuse. The biggest single
+   surface in the app; do it last, when every primitive it needs exists.
+
+Counts from `grep` on 2026-08-16, not from the Changelog.
 
 ---
 
@@ -56,8 +81,9 @@ These came from the user directly. Violating one is a defect, not a preference.
    appears on a light surface.
 7. **Missing screens get built in-phase**, not deferred. If a screen we are
    rebranding links to one that does not exist yet, build it then.
-8. **In-app after onboarding is light mode**, unless a blue surface is
-   semantically earned (see the surface convention below).
+8. **The app is light mode, onboarding included**, unless a blue surface is
+   semantically earned (see the surface convention below). The all-blue
+   onboarding built earlier was compared against this and dropped. Normative.
 
 ### Conventions established
 - **SURFACE ENCODES WHAT IS KNOWN.** Blue 600 = not yet known (the blind
@@ -101,6 +127,24 @@ retyped. `npm run verify:diagnostic` asserts scoring and all 12 result variants.
 
 **Any time a migration involves retyping content, extract it instead.**
 
+### The cascade, part two
+Two more of the same class, both found by measuring rather than looking:
+
+- `.rebrand-root` was **unlayered**, so its `background: Blue 600` beat the
+  `bg-*` utility on the same element and the onboarding scrim rendered blue
+  instead of Black 700 at 80%. It now sits in `@layer base`.
+- Moving `.rebrand-display` into `base` alongside it then broke every heading:
+  the element reset `.rebrand-root :is(h1…h6, p…)` is `(0,2,0)` and
+  `.rebrand-display` is `(0,1,0)`, so `font: inherit` won and Parkinsans
+  silently became Archivo. Fixed by declaring it after the reset at matching
+  specificity.
+
+**And the one nobody had noticed:** the app entry never imported `rebrand.css`,
+so in the REAL app `.rebrand-root` matched nothing — no fonts, no reset — while
+the gallery looked perfect. The surface now lives in
+`src/styles/rebrand-surface.css`, imported by both. Check the app, not only the
+gallery.
+
 ### Other traps hit
 - Guarding with `if ('vLocal' not in src)` matched the existing `vLocalY`, so a
   varying was never added and the program silently failed to link.
@@ -134,16 +178,27 @@ node scripts/optimize-illustrations.mjs # masters -> WebP q94 @1280
 ## 5. Open flags
 
 **In my court**
-- KYC Steps 1, 3–10, `KYCDone`, `KYCPaused` still old brand.
 - The old `src/app/components/DiagnosticModal.tsx` still holds its own copy of
   the survey data. It should import from `src/lib/diagnostic.ts` so the two
   cannot drift, or be deleted once the rebrand landing goes live.
 - `SignalPill` exists but nothing uses it on the landing; it is for in-app.
 - Determine which of the 59 `src/imports` Figma dumps are live; the rest are
   dead weight that can reintroduce old brand values.
+- `OnboardingOne/Two/Three.tsx` and `AdminOnboardingPage` are still old brand.
+  Admin now offers the 14 role families through the same `ROLE_OPTIONS`, so it
+  is correct but ugly.
 
 **In your court**
-- `src/assets/illustrations/` is ~245MB, gitignored, and **not backed up by
+- **Committed art weight.** Onboarding added 5.0MB of WebP. Dropping the KYC
+  encode to 760px q82 would halve it; the constant is one line in
+  `scripts/optimize-illustrations.mjs`.
+- **Role taxonomy migration.** `ROLE_OPTIONS` went from 6 entries to 14
+  families. Profiles saved before this carry `Creative` or `Other`, which are no
+  longer offered — the matcher compares these strings, so those users are
+  matching against values nothing new will produce. Needs a backfill decision.
+- **Step 10 as a band** and the **unselected-control contrast** question, both
+  logged under redesign.md 9 "Open".
+- `src/assets/artworks/` is ~366MB, gitignored, and **not backed up by
   git**. A manual folder copy exists. It needs a real home.
 - OAuth credentials (LinkedIn OIDC primary) are unset; blocks verification
   tiers and the sign-in screen design.
