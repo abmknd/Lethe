@@ -11,6 +11,7 @@ import {
   type City,
 } from '../../constants/cities';
 import {
+  CountryMark,
   DaylightBand,
   FieldInput,
   ListBand,
@@ -133,7 +134,7 @@ export function Step2Location({ data, updateData }: StepProps) {
                     : 'border-transparent hover:bg-[var(--color-black-50)]')
                 }
               >
-                <span className="w-[20px] shrink-0 text-center text-[16px] leading-none">{city.flag}</span>
+                <CountryMark code={city.country} />
                 <span className="flex w-[104px] shrink-0 flex-col gap-[4px]">
                   <span className="text-[14px] font-medium leading-[16px] text-[var(--color-black-700)]">
                     {city.name}

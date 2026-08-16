@@ -589,6 +589,42 @@ is no `surface` prop to flip, so a step *cannot* accidentally be built on blue.
 | **FieldShell** / **FieldInput** | A field that carries more than its input — a mark, a fixed label, a hint. The border and focus ring belong to the shell so the composite lights up as one control. |
 | **Textarea** | White fill, Black 200 border, radius 8, Body 3. |
 | **Accordion** | A disclosure with a count, where the count answers "did I do this one?". |
+| **CountryMark** | A country as two letters on a Blue 100 tile in Blue 600. See below. |
+
+**CountryMark, and why it is not a flag.** Emoji flags were the first attempt
+and they are unreliable by platform: Windows ships no flag glyphs at all and
+renders the regional-indicator pair as bare grey letters, which is how the
+cohort list arrived as "almost invisible". Real flag artwork fixes legibility
+and breaks something worse — twelve full-colour rectangles would be the only
+full-colour elements in a system built from two hues, and [2](#2-color) exists
+to prevent exactly that. So the ISO code IS the mark, drawn from the ramp:
+identical on every platform, and needing no asset, no CDN and no licence.
+
+```
+28 x 20 · radius 4 · Blue 100 fill · Blue 600 text
+Archivo Medium 11 / 0.5px tracking, uppercase
+aria-hidden — the city name beside it already says where this is
+```
+
+This also retires the flag-emoji exemption in [7](#chrome-scroll-and-type):
+there is now **no emoji anywhere in the system**, data or otherwise.
+
+### 5.14 Review-surface components
+
+Components for looking at the product, never part of it. They live in the
+primitive layer because they are reused across review surfaces, and they are
+listed separately so nobody reaches for one on a real screen.
+
+| Component | Where it belongs |
+|---|---|
+| **NumberPagination** | The gallery, and previews whose purpose is jumping between states. **Not onboarding.** |
+
+**NumberPagination is not a progress control.** It arrived from the KYC round's
+HTML guide, where jumping straight to screen 9 is the whole point of the page,
+and it does not belong in the flow itself: a sequence you can skip around is not
+a sequence. The product's progress read-out is the **SegmentedBar** ([5.8](#58-progress-bar)),
+which is deliberately non-interactive and `aria-hidden`, because the step is
+already announced in the copy.
 
 ---
 
@@ -699,8 +735,10 @@ Consequences, all of which follow from the one decision:
   content, so a row does not reflow the moment a list gets one item longer.
 - A card's header and footer are **fixed**; only the body scrolls. Progress and
   the primary action never move between steps.
-- **No emoji in the type system.** The objectives list loses its icons. City
-  flags stay: they are data, not decoration.
+- **No emoji in the type system, with no exceptions.** The objectives list loses
+  its icons. City flags were briefly exempted as "data, not decoration" — that
+  exemption is retired, because a flag emoji is not data on a platform that
+  cannot draw one. Countries render as **CountryMark** ([5.13](#513-step-scaffolding)).
 - **No italic display face exists**, so former italic quotes become Body 5A in a
   well — same role, different signal.
 

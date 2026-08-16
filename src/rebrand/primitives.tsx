@@ -854,6 +854,81 @@ export function FieldShell({ children, className = '' }: { children: ReactNode; 
   );
 }
 
+/**
+ * NUMBER PAGINATION — a review control, not a product control.
+ *
+ * It came from the KYC round's HTML guide, where jumping straight to screen 9
+ * is the whole point of the page. It has no business inside onboarding itself:
+ * a flow whose steps you can skip around is not a flow, and the product's
+ * progress read-out is the SegmentedBar, which is deliberately non-interactive.
+ *
+ * Kept here because it is genuinely reusable across review surfaces — the
+ * gallery, and whatever previews come after it. Registered in redesign.md as a
+ * review-surface component so nobody reaches for it on a real screen.
+ */
+export function NumberPagination({
+  items,
+  value,
+  onChange,
+  label,
+  className = '',
+}: {
+  items: { value: number; label: string }[];
+  value: number;
+  onChange: (value: number) => void;
+  label: string;
+  className?: string;
+}) {
+  return (
+    <nav aria-label={label} className={cx('flex gap-[4px]', className)}>
+      {items.map((item) => {
+        const active = item.value === value;
+        return (
+          <button
+            key={item.value}
+            type="button"
+            aria-current={active ? 'step' : undefined}
+            onClick={() => onChange(item.value)}
+            className={cx(
+              'shrink-0 rounded-[8px] border px-[9px] py-[6px] text-[13px] leading-[18px] tabular-nums transition-colors',
+              'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-blue-600)]',
+              active
+                ? 'border-[var(--color-blue-600)] bg-[var(--color-blue-600)] text-[var(--color-white)]'
+                : 'border-[var(--color-black-200)] bg-[var(--color-white)] text-[var(--color-black-700)] hover:border-[var(--color-black-300)]',
+            )}
+          >
+            {item.label}
+          </button>
+        );
+      })}
+    </nav>
+  );
+}
+
+/**
+ * A country, as a mark. Two letters on a Blue 100 tile in Blue 600.
+ *
+ * NOT a flag. Emoji flags were the first attempt and they are unreliable by
+ * platform — Windows has no flag glyphs at all and renders the regional
+ * indicator pair as bare grey letters, which is how this arrived as "almost
+ * invisible". Real flag artwork fixes legibility and breaks something worse:
+ * twelve full-colour rectangles would be the only full-colour elements in a
+ * system built from two hues, and 2.x exists to stop exactly that.
+ *
+ * So the code is the mark, drawn from the ramp, identical on every platform
+ * and needing no asset, no CDN and no licence.
+ */
+export function CountryMark({ code }: { code: string }) {
+  return (
+    <span
+      aria-hidden
+      className="grid h-[20px] w-[28px] shrink-0 place-items-center rounded-[4px] bg-[var(--color-blue-100)] text-[11px] font-medium leading-none tracking-[0.5px] text-[var(--color-blue-600)]"
+    >
+      {code}
+    </span>
+  );
+}
+
 /** The bare input that lives inside a FieldShell. */
 export function FieldInput({ className = '', ...rest }: InputHTMLAttributes<HTMLInputElement>) {
   return (

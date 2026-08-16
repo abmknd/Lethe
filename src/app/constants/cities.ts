@@ -13,7 +13,8 @@
 // rather than anything from this table.
 
 export type City = {
-  flag: string;
+  /** ISO 3166-1 alpha-2. Rendered as a CountryMark, never as a flag emoji. */
+  country: string;
   name: string;
   /** Zone abbreviation as people say it: WAT, GMT, EST. */
   abbr: string;
@@ -22,18 +23,18 @@ export type City = {
 };
 
 export const CITIES: City[] = [
-  { flag: '🇳🇬', name: 'Lagos', abbr: 'WAT', offsetHours: 1 },
-  { flag: '🇬🇧', name: 'London', abbr: 'GMT', offsetHours: 0 },
-  { flag: '🇺🇸', name: 'New York', abbr: 'EST', offsetHours: -5 },
-  { flag: '🇺🇸', name: 'San Francisco', abbr: 'PST', offsetHours: -8 },
-  { flag: '🇳🇱', name: 'Amsterdam', abbr: 'CET', offsetHours: 1 },
-  { flag: '🇩🇪', name: 'Berlin', abbr: 'CET', offsetHours: 1 },
-  { flag: '🇸🇬', name: 'Singapore', abbr: 'SGT', offsetHours: 8 },
-  { flag: '🇯🇵', name: 'Tokyo', abbr: 'JST', offsetHours: 9 },
-  { flag: '🇮🇳', name: 'Bangalore', abbr: 'IST', offsetHours: 5.5 },
-  { flag: '🇿🇦', name: 'Cape Town', abbr: 'SAST', offsetHours: 2 },
-  { flag: '🇫🇷', name: 'Paris', abbr: 'CET', offsetHours: 1 },
-  { flag: '🇧🇷', name: 'São Paulo', abbr: 'BRT', offsetHours: -3 },
+  { country: 'NG', name: 'Lagos', abbr: 'WAT', offsetHours: 1 },
+  { country: 'GB', name: 'London', abbr: 'GMT', offsetHours: 0 },
+  { country: 'US', name: 'New York', abbr: 'EST', offsetHours: -5 },
+  { country: 'US', name: 'San Francisco', abbr: 'PST', offsetHours: -8 },
+  { country: 'NL', name: 'Amsterdam', abbr: 'CET', offsetHours: 1 },
+  { country: 'DE', name: 'Berlin', abbr: 'CET', offsetHours: 1 },
+  { country: 'SG', name: 'Singapore', abbr: 'SGT', offsetHours: 8 },
+  { country: 'JP', name: 'Tokyo', abbr: 'JST', offsetHours: 9 },
+  { country: 'IN', name: 'Bangalore', abbr: 'IST', offsetHours: 5.5 },
+  { country: 'ZA', name: 'Cape Town', abbr: 'SAST', offsetHours: 2 },
+  { country: 'FR', name: 'Paris', abbr: 'CET', offsetHours: 1 },
+  { country: 'BR', name: 'São Paulo', abbr: 'BRT', offsetHours: -3 },
 ];
 
 /** `+1`, `−5`, `+5:30`. `minus` picks the typographic minus for display or the
