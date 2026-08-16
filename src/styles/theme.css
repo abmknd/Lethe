@@ -399,46 +399,10 @@
     }
   }
 
-  /* KYC Modal Step Animations */
-  .kyc-step {
-    position: absolute;
-    inset: 0;
-    padding: 16px 32px 96px;
-    overflow-y: auto;
-    overflow-x: hidden;
-    opacity: 0;
-    pointer-events: none;
-    transform: translateX(40px) scale(0.98);
-    transition: opacity 450ms cubic-bezier(0.16, 1, 0.3, 1), 
-                transform 450ms cubic-bezier(0.16, 1, 0.3, 1);
-    scrollbar-width: none;
-  }
-
-  .kyc-step::-webkit-scrollbar {
-    display: none;
-  }
-
-  .kyc-step-active {
-    opacity: 1;
-    pointer-events: all;
-    transform: translateX(0) scale(1);
-  }
-
-  .kyc-step-exit-left {
-    opacity: 0;
-    pointer-events: none;
-    transform: translateX(-40px) scale(0.98);
-    transition: opacity 400ms cubic-bezier(0.16, 1, 0.3, 1), 
-                transform 400ms cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  .kyc-step-exit-right {
-    opacity: 0;
-    pointer-events: none;
-    transform: translateX(40px) scale(0.98);
-    transition: opacity 400ms cubic-bezier(0.16, 1, 0.3, 1), 
-                transform 400ms cubic-bezier(0.16, 1, 0.3, 1);
-  }
+  /* The KYC step animations that lived here are gone with the old onboarding.
+     They stacked every step absolutely inside the card and gave each one its
+     own scroll region, which the rebrand replaces with one scroll region per
+     card and a single enter animation in rebrand-surface.css. */
 }
 
 /* Communities page animations */

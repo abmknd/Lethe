@@ -1,65 +1,29 @@
-import { Check } from 'lucide-react';
+import { Button } from '../../../rebrand/primitives';
 
-interface KYCDoneProps {
-  onFinish: () => void;
-}
-
-export function KYCDone({ onFinish }: KYCDoneProps) {
+/** Terminal screen, light: everything about you is now known. */
+export function KYCDone({ onFinish }: { onFinish: () => void }) {
   return (
-    <div className="absolute inset-0 flex flex-col items-center justify-center px-10 text-center animate-[fadeIn_0.6s_ease_forwards]">
-      {/* Ripple animation */}
-      <div className="relative w-18 h-18 flex items-center justify-center mb-7">
-        <div className="absolute inset-0 border border-[#7FFF00]/25 rounded-full animate-[ripple_2.4s_ease-out_infinite]" />
-        <div className="absolute inset-0 border border-[#7FFF00]/25 rounded-full animate-[ripple_2.4s_ease-out_infinite] [animation-delay:1.2s]" />
-        <div className="w-6 h-6 rounded-full bg-[#7FFF00] flex items-center justify-center shadow-[0_0_24px_rgba(127,255,0,0.5)]">
-          <Check size={12} className="text-[#050705]" strokeWidth={2.5} />
-        </div>
+    <div className="flex min-h-full flex-col items-center justify-center gap-[16px] p-[24px] text-center">
+      <div className="grid size-[72px] place-items-center rounded-full border border-[var(--color-black-100)]">
+        <span className="grid size-[32px] place-items-center rounded-full bg-[var(--color-blue-600)] text-[15px] font-medium leading-none text-[var(--color-white)]">
+          ✓
+        </span>
       </div>
 
-      <div className="font-['Cormorant_Garamond'] text-[32px] font-light italic mb-[10px] text-white/90">
-        You're live.
-      </div>
-      
-      <div className="text-[15px] font-light text-white/45 leading-[1.75] max-w-[340px] mb-8">
+      <h2 className="rebrand-display mt-[6px] text-[40px] font-normal leading-[100%] text-[var(--color-black-700)]">
+        You're <span className="text-[var(--color-blue-600)]">live.</span>
+      </h2>
+
+      <p className="max-w-[340px] text-[16px] leading-[120%] text-[var(--color-black-700)]">
         Your first match arrives next week. In the meantime, the feed is yours.
-      </div>
-      
-      <div className="font-['Inter'] text-[10px] tracking-[0.12em] text-white/30 -mt-5 mb-8">
+      </p>
+      <p className="text-[13px] leading-[18px] text-[var(--color-black-500)]">
         You can pause matching anytime from your settings.
-      </div>
-      
-      <button
-        onClick={onFinish}
-        className="font-['Inter'] text-[11px] tracking-[0.22em] uppercase text-[#050705] bg-[#7FFF00] border-none rounded-full px-10 py-[14px] hover:bg-[#c8ff4f] transition-colors"
-      >
-        Go to my feed
-      </button>
+      </p>
 
-      <style jsx>{`
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(8px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        @keyframes ripple {
-          0% {
-            width: 24px;
-            height: 24px;
-            opacity: 0.6;
-          }
-          100% {
-            width: 72px;
-            height: 72px;
-            opacity: 0;
-          }
-        }
-      `}</style>
+      <Button size="lg" className="mt-[8px] px-[32px]" onClick={onFinish}>
+        GO TO MY FEED
+      </Button>
     </div>
   );
 }

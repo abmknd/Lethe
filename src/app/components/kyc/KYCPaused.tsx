@@ -1,70 +1,42 @@
-import { Pause } from 'lucide-react';
+import { Button } from '../../../rebrand/primitives';
 
-interface KYCPausedProps {
-  onCompleteNow: () => void;
-  onMaybeLater: () => void;
-}
-
-export function KYCPaused({ onCompleteNow, onMaybeLater }: KYCPausedProps) {
+/**
+ * The one blue screen in onboarding.
+ *
+ * SURFACE ENCODES WHAT IS KNOWN (redesign.md 5.11). Everywhere else in the flow
+ * something is being established, so the surface is light. Here matching is
+ * suspended and nothing is known yet — the same held breath as the blind match
+ * card, and the only place in the flow that earns Blue 600. Emphasis is
+ * therefore Yellow 600, which appears nowhere else in onboarding.
+ */
+export function KYCPaused({ onCompleteNow, onMaybeLater }: { onCompleteNow: () => void; onMaybeLater: () => void }) {
   return (
-    <div className="absolute inset-0 flex flex-col items-center justify-center px-10 text-center animate-[fadeIn_0.6s_ease_forwards]">
-      {/* Ripple animation with pause icon */}
-      <div className="relative w-18 h-18 flex items-center justify-center mb-7">
-        <div className="absolute inset-0 border border-white/10 rounded-full animate-[ripple_2.4s_ease-out_infinite]" />
-        <div className="absolute inset-0 border border-white/10 rounded-full animate-[ripple_2.4s_ease-out_infinite] [animation-delay:1.2s]" />
-        <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center border border-white/[0.07]">
-          <Pause size={12} className="text-white/60" strokeWidth={2.5} />
-        </div>
+    <div className="flex min-h-full flex-col items-center justify-center gap-[16px] p-[24px] text-center">
+      <div className="flex size-[72px] items-center justify-center gap-[4px] rounded-full border border-[var(--color-blue-500)]">
+        <span className="h-[18px] w-[5px] bg-[var(--color-blue-200)]" />
+        <span className="h-[18px] w-[5px] bg-[var(--color-blue-200)]" />
       </div>
 
-      <div className="font-['Cormorant_Garamond'] text-[32px] font-light mb-[10px] text-white/90">
-        Matching is on pause for you.
-      </div>
-      
-      <div className="text-[15px] font-light text-white/45 leading-[1.75] max-w-[340px] mb-8">
+      <h2 className="rebrand-display mt-[6px] text-[32px] font-normal leading-[100%] text-[var(--color-white)]">
+        Matching is on
+        <br />
+        <span className="text-[var(--color-yellow-600)]">pause for you.</span>
+      </h2>
+
+      <p className="max-w-[340px] text-[16px] leading-[120%] text-[var(--color-white)]">
         Finish setting up your profile whenever you're ready. You'll find it in Connect.
-      </div>
-      
-      <div className="flex items-center gap-3 w-full max-w-[340px]">
-        <button
-          onClick={onCompleteNow}
-          className="flex-1 font-['Inter'] text-[11px] tracking-[0.22em] uppercase text-[#050705] bg-[#7FFF00] border-none rounded-full py-[14px] hover:bg-[#c8ff4f] transition-colors"
-        >
-          Complete now
-        </button>
-        <button
-          onClick={onMaybeLater}
-          className="flex-shrink-0 font-['Inter'] text-[11px] tracking-[0.22em] uppercase text-white bg-[#1a1a1a] border border-white/[0.12] rounded-full px-6 py-[14px] hover:bg-[#252525] transition-colors"
-        >
-          Maybe later
-        </button>
-      </div>
+      </p>
 
-      <style jsx>{`
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(8px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        @keyframes ripple {
-          0% {
-            width: 24px;
-            height: 24px;
-            opacity: 0.6;
-          }
-          100% {
-            width: 72px;
-            height: 72px;
-            opacity: 0;
-          }
-        }
-      `}</style>
+      {/* Wraps rather than shrinks: at 375 the two labels do not fit on one
+          line, and a squeezed button is worse than a stacked pair. */}
+      <div className="mt-[8px] flex w-full max-w-[360px] flex-wrap justify-center gap-[8px]">
+        <Button surface="blue" size="lg" className="grow" onClick={onCompleteNow}>
+          COMPLETE NOW
+        </Button>
+        <Button surface="blue" variant="secondary" size="lg" onClick={onMaybeLater}>
+          MAYBE LATER
+        </Button>
+      </div>
     </div>
   );
 }

@@ -1,87 +1,64 @@
 import { useState } from 'react';
-import { KYCData } from '../KYCModal';
+import type { StepProps } from './kycData';
+import { HOBBIES } from '../../constants/kyc';
+import { Chip, FieldInput, FieldShell, StepHeader } from '../../../rebrand/primitives';
 
-interface Step5Props {
-  isActive: boolean;
-  direction: 'forward' | 'back';
-  data: KYCData;
-  updateData: (updates: Partial<KYCData>) => void;
-}
+export function Step5Hobbies({ data, updateData }: StepProps) {
+  const [custom, setCustom] = useState('');
 
-const defaultHobbies = [
-  'Photography', 'Running', 'Coffee', 'Books', 'Travel', 'Design',
-  'Music', 'Gaming', 'Cooking', 'Film', 'Writing', 'Startups',
-  'Meditation', 'Cycling', 'Football', 'Architecture', 'Podcasts', 'Philosophy'
-];
-
-export function Step5Hobbies({ isActive, direction, data, updateData }: Step5Props) {
-  const [customInput, setCustomInput] = useState('');
-
-  const getClassName = () => {
-    if (isActive) return 'kyc-step-active';
-    if (direction === 'forward') return 'kyc-step-exit-left';
-    return 'kyc-step-exit-right';
+  const toggle = (hobby: string) => {
+    const next = new Set(data.hobbies);
+    if (next.has(hobby)) next.delete(hobby);
+    else next.add(hobby);
+    updateData({ hobbies: next });
   };
 
-  const toggleHobby = (hobby: string) => {
-    const newHobbies = new Set(data.hobbies);
-    if (newHobbies.has(hobby)) {
-      newHobbies.delete(hobby);
-    } else {
-      newHobbies.add(hobby);
-    }
-    updateData({ hobbies: newHobbies });
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key !== 'Enter') return;
+    e.preventDefault();
+    const value = custom.trim();
+    if (!value) return;
+    toggle(value);
+    setCustom('');
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && customInput.trim()) {
-      toggleHobby(customInput.trim());
-      setCustomInput('');
-    }
-  };
+  // Anything the user added shows up in the cloud alongside the presets, so a
+  // custom interest can be un-picked the same way as any other.
+  const added = [...data.hobbies].filter((h) => !HOBBIES.includes(h as (typeof HOBBIES)[number]));
 
   return (
-    <div className={`kyc-step ${getClassName()}`}>
-      <span className="font-['Inter'] text-[10px] tracking-[0.3em] uppercase text-[#7FFF00]/50 mb-[14px] block">
-        Your texture
-      </span>
-      <h1 className="font-['Cormorant_Garamond'] text-[clamp(28px,4vw,40px)] font-light italic leading-[1.15] tracking-[-0.02em] text-white/90 mb-[10px]">
-        What are<br />
-        you <em className="not-italic text-[#7FFF00]">into?</em>
-      </h1>
-      <p className="text-[15px] font-light leading-[1.75] text-white/45 mb-8">
-        The unexpected common ground makes the best conversations.
-      </p>
+    <div>
+      <StepHeader
+        label="YOUR TEXTURE"
+        heading={
+          <>
+            What are
+            <br />
+            you <span className="text-[var(--color-blue-600)]">into?</span>
+          </>
+        }
+        body="The unexpected common ground makes the best conversations."
+      />
 
-      {/* Tags cloud */}
-      <div className="flex flex-wrap gap-2 mb-4">
-        {defaultHobbies.map((hobby) => (
-          <button
-            key={hobby}
-            onClick={() => toggleHobby(hobby)}
-            className={`font-['Inter'] text-[11px] tracking-[0.1em] px-4 py-2 rounded-[20px] border transition-all ${
-              data.hobbies.has(hobby)
-                ? 'bg-[#7FFF00]/[0.12] border-[#7FFF00]/35 text-[#7FFF00]/90'
-                : 'bg-[#101410] border-white/[0.07] text-white/90 hover:border-white/10 hover:bg-white/[0.05]'
-            }`}
-          >
+      <div className="flex flex-wrap gap-[8px]">
+        {[...HOBBIES, ...added].map((hobby) => (
+          <Chip key={hobby} selected={data.hobbies.has(hobby)} onClick={() => toggle(hobby)}>
             {hobby}
-          </button>
+          </Chip>
         ))}
       </div>
 
-      {/* Custom input */}
-      <div className="flex items-center gap-[10px] mt-1 bg-white/[0.08] border border-white/[0.07] rounded-[20px] px-4 py-2 focus-within:border-[#7FFF00]/30 transition-colors">
-        <input
+      <FieldShell className="mt-[16px]">
+        <FieldInput
           type="text"
-          value={customInput}
-          onChange={(e) => setCustomInput(e.target.value)}
-          onKeyDown={handleKeyDown}
+          value={custom}
+          onChange={(e) => setCustom(e.target.value)}
+          onKeyDown={onKeyDown}
           placeholder="Add your own…"
-          className="flex-1 bg-transparent border-none outline-none font-['Inter'] text-[11px] tracking-[0.1em] text-white/90 placeholder:text-white/30"
+          aria-label="Add your own interest"
         />
-        <span className="font-['Inter'] text-[9px] tracking-[0.14em] uppercase text-white/30">↵ Enter</span>
-      </div>
+        <span className="shrink-0 text-[12px] leading-none text-[var(--color-black-400)]">↵ enter</span>
+      </FieldShell>
     </div>
   );
 }
