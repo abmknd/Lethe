@@ -229,6 +229,61 @@ naming          semantic, not pictorial: `profile`, not `person-circle`
 single lucide import survives, the set is not done — a half-migrated icon set is
 two icon languages on one screen, which is worse than either alone.
 
+**The inventory itself is `scripts/icon-inventory.mjs`**, which generates
+`docs/system-icons.md`. It asserts the count, rejects non-kebab names and
+duplicates, and fails if an icon in use today is missing from the list. A
+hand-maintained list of 240 names does all three of those things silently.
+
+#### Figma or hardcoded SVG — closed: both, in that order
+
+The question is a false binary. Drawing and shipping are different problems and
+the answer is different for each:
+
+```
+DRAW in Figma        it is where an icon is designed, reviewed and corrected,
+                     and half the deliverable is a Figma library anyway
+SHIP as SVG          generated from the Figma export, never hand-written
+                     and never hand-edited afterwards
+```
+
+**Why not hand-author the SVG.** 240 icons of hand-written path data is 240
+chances to typo a stroke width, and no surface on which to see them together.
+Drawing by typing coordinates is the slowest way to draw and the worst way to
+iterate. Consistency across a set is a *visual* property — it needs a canvas.
+
+**Why not ship from Figma.** There is no runtime path from Figma to the product
+that is not a network call to a third party on every render. Code needs its own
+copy. So the copy is **generated**: export → SVGO → codegen → one React
+component per icon. Re-running the script after a redraw is the whole update
+process, which is what keeps the two in sync instead of drifting.
+
+**Why per-icon components rather than a sprite or an icon font:**
+
+| | Tree-shakes | `currentColor` | Fails as |
+|---|---|---|---|
+| **Per-icon components** | yes | yes | one missing icon |
+| Sprite sheet | no | yes | *all 240 at once* |
+| Icon font | no | text colour only | tofu, and a11y noise |
+
+Tree-shaking is the load-bearing difference. Today's 42 icons ship as ~4KB
+gzipped instead of the ~20KB of all 240, and that stays true as the set grows —
+the app only ever ships what it imports. And a sprite that fails to load takes
+every icon on the page with it, which is a bad failure mode for a file whose
+whole job is being present.
+
+**The pipeline, to be built with the first batch:**
+
+```
+Figma page (24 grid, outlined)
+  → export SVG @1x
+  → SVGO: strip fills, ids, metadata; keep viewBox
+  → codegen: src/assets/system_icons/<name>.tsx, currentColor, 1.25 stroke
+  → an index that re-exports all of them by name
+```
+
+Nothing in `src/assets/system_icons/` is ever edited by hand. If an icon is
+wrong, it is wrong in Figma.
+
 #### 4c-ii. `dynamic_icons` — ten animated marks
 
 Ten square marks, **80px base size, responsive up to 200px**, animated with
