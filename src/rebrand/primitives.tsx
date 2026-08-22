@@ -1006,7 +1006,8 @@ function ChevronGlyph({ open }: { open: boolean }) {
       aria-hidden
       className={cx('shrink-0 text-[var(--color-black-500)] transition-transform', open && 'rotate-180')}
     >
-      <path d="M2.5 4.5L6 8l3.5-3.5" fill="none" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" />
+      {/* 1.5 to match the icon library's drawn weight (redesign.md 5.5). */}
+      <path d="M2.5 4.5L6 8l3.5-3.5" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }

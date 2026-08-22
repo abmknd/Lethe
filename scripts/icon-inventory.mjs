@@ -1,5 +1,10 @@
 /**
- * The system_icons inventory.
+ * The system_icons usage map.
+ *
+ * THE LIBRARY IS HUGEICONS, adopted whole as the Relethe icon library and
+ * shipped from `@hugeicons/react` + `@hugeicons/core-free-icons` (MIT). Nothing
+ * in here is drawn by us and nothing here restricts which icons may be used —
+ * the whole library is available.
  *
  * This file is the SOURCE. `docs/system-icons.md` is generated from it, so the
  * list cannot drift from its own documentation — run `node scripts/icon-inventory.mjs`
@@ -18,8 +23,8 @@
  */
 
 /** The 42 lucide icons the product imports today, mapped to house names.
- *  This is the migration checklist: every one must be drawn before
- *  `lucide-react` can leave package.json. */
+ *  This is the migration checklist: every one must resolve to a library icon
+ *  before `lucide-react` can leave package.json. */
 export const IN_USE = {
   'activity-pulse': 'Activity',
   'alert-circle': 'AlertCircle',
@@ -109,7 +114,7 @@ export const GROUPS = [
   },
   {
     name: 'Role families',
-    note: 'One per family in Step 9. These are not decoration — a chip grid of fourteen text labels is the densest thing in onboarding, and a mark per family is what makes it scannable.',
+    note: 'One per family in Step 9. A chip grid of fourteen text labels is the densest thing in onboarding, and a mark per family is what makes it scannable. Fourteen judgement calls, since the library has no role taxonomy.',
     icons: [
       'role-founder', 'role-operator', 'role-engineer', 'role-designer',
       'role-researcher', 'role-writer', 'role-artist', 'role-investor',
@@ -119,7 +124,7 @@ export const GROUPS = [
   },
   {
     name: 'Matching and intro',
-    note: 'The product\'s actual subject. Nothing off-the-shelf covers these, which is most of the argument for drawing our own set.',
+    note: 'The product\'s actual subject, and the group most likely to need a substituted or composed icon — the library has no `match-blind`, so these resolve by meaning rather than by name.',
     icons: [
       'match-blind', 'match-revealed', 'match-accept', 'match-pass',
       'match-pending', 'intro-sent', 'intro-scheduled', 'intro-complete',
@@ -129,7 +134,7 @@ export const GROUPS = [
   },
   {
     name: 'Trust and review',
-    note: 'The surfaces in Phase 4b that do not exist yet. Listed now so they are drawn in the same batch rather than improvised later.',
+    note: 'The surfaces in Phase 4b that do not exist yet. Mapped now so the icon is chosen once, deliberately, rather than grabbed at build time.',
     icons: [
       'review-blind', 'review-unlocked', 'rating-scale', 'trust-ledger',
       'provenance', 'dispute', 'dispute-resolved', 'suspension', 'reinstate',
@@ -156,7 +161,7 @@ export const GROUPS = [
   },
   {
     name: 'Content and feed',
-    note: 'The three content-state icons carry Relethe\'s core idea: posts move flowing to fading to faded. No icon set on earth ships these.',
+    note: 'The three content-state icons carry Relethe\'s core idea: posts move flowing to fading to faded. No library ships that concept, so these are the likeliest to need composing from what is there.',
     icons: [
       'post', 'post-add', 'feed', 'image', 'video', 'document-text', 'quote',
       'list-bullet', 'layout-grid', 'layout-list', 'bookmark', 'echo',
@@ -173,7 +178,7 @@ export const GROUPS = [
   },
   {
     name: 'Brand marks',
-    note: 'DRAWN DIFFERENTLY, ON PURPOSE. A brand mark is a trademark and its recognisability IS its function — restyling LinkedIn into our house line weight makes it both legally dubious and harder to recognise. These are sourced from each brand\'s own asset kit, normalised to the 24 grid, and are the ONE group exempt from the house style.',
+    note: 'The library ships these in its Brand Logo sheet. Use them AS DRAWN — a brand mark is a trademark and its recognisability is its function, so this is the one group that never gets re-stroked to match the house weight.',
     icons: [
       'brand-linkedin', 'brand-x', 'brand-github', 'brand-substack',
       'brand-instagram', 'brand-youtube', 'brand-figma', 'brand-discord', 'brand-google',
@@ -214,7 +219,7 @@ export const GROUPS = [
   },
   {
     name: 'Objects and texture',
-    note: 'The cyber-classical end of the set: the interests in Step 5, and the flavour marks that keep the system from reading as generic SaaS. This is where the style is most visible and most worth getting right.',
+    note: 'The interests in Step 5. The library covers most of these across its Food, Game and Sports, and Education sheets.',
     icons: [
       'book', 'coffee', 'camera', 'vinyl', 'palette', 'bicycle', 'telescope',
       'flask', 'lantern', 'feather-quill', 'emoji-smile',
@@ -254,18 +259,31 @@ if (process.argv[1]?.endsWith('icon-inventory.mjs')) {
   const lines = [];
   const w = (s = '') => lines.push(s);
 
-  w('# system_icons — the inventory');
+  w('# system_icons — the usage map');
   w();
   w('**Generated** by `scripts/icon-inventory.mjs`. Edit the script, not this file.');
   w();
-  w(`**${TOTAL} icons** in ${GROUPS.length} groups. **${COVERED}** are already in the product`);
-  w('today (as `lucide-react` imports across 47 files) and are marked **in use** below —');
-  w('those are the migration set, and `lucide-react` cannot leave `package.json`');
-  w('until every one of them is drawn.');
+  w('## What this is now');
   w();
-  w('Outlined only for now. The filled variants come after the outlined set is');
-  w('complete and reviewed as a whole, because filled is a derivative of the');
-  w('outlined drawing, not an independent one.');
+  w('**The library is HugeIcons, adopted whole as the Relethe icon library.**');
+  w('Nothing here needs drawing. The whole set is available — this file is not a');
+  w('restriction on which icons may be used.');
+  w();
+  w(`So these **${TOTAL} names in ${GROUPS.length} groups** are a *usage map*, not a`);
+  w('drawing list: the semantic names the product calls icons by, and what each one');
+  w('resolves to in the library. That layer is worth keeping for three reasons:');
+  w();
+  w('1. A call site reads `match-blind`, not `user-search-01`.');
+  w('2. Swapping the underlying pack later touches one file instead of 47.');
+  w('3. It is the only place that records which icons the product actually uses,');
+  w('   which is what makes the lucide migration finishable.');
+  w();
+  w(`**${COVERED}** of them are in the product today as \`lucide-react\` imports and are`);
+  w('marked **in use** below. That is the migration set: `lucide-react` cannot leave');
+  w('`package.json` until every one resolves to a library icon.');
+  w();
+  w('`RESOLVES TO` is blank on every row until the mapping pass runs against the');
+  w('library\'s own names. A blank is an open question, not an omission.');
   w();
   w('---');
   w();
@@ -286,21 +304,29 @@ if (process.argv[1]?.endsWith('icon-inventory.mjs')) {
   w();
   w('---');
   w();
-  w('## Drawing rules');
+  w('## Style');
+  w();
+  w('Measured from `calendar-01` as drawn in the Figma library, not specified');
+  w('from memory:');
   w();
   w('```');
-  w('grid           24 x 24, drawn on the grid, exported at 1x');
-  w('stroke         1.25px, matching IconButton and the existing chevrons');
-  w('caps / joins   round, round');
-  w('colour         NONE. currentColor only, so the caller\'s token decides');
-  w('optical size   a 16px usage is a redrawn 16 icon, not a scaled-down 24');
-  w('padding        2px minimum inside the 24 box, so nothing touches the edge');
-  w('fill           no fills in the outlined set, including white knockouts');
+  w('viewBox        0 0 24 24');
+  w('stroke-width   1.5          NOT 1.25 — see the reconciliation note below');
+  w('linecap        round');
+  w('linejoin       round');
+  w('fill           none, everywhere. Strokes only');
+  w('colour         currentColor, so the caller\'s token decides');
   w('```');
   w();
-  w('Style: minimalist cyber-classical — a single fine line weight, geometric');
-  w('construction, and the occasional classical object (flask, lantern, quill)');
-  w('rather than the rounded-corner SaaS default.');
+  w('Two artefacts come out of a Figma SVG export and both have to be stripped:');
+  w('a `<rect width="24" height="24" fill="#1E1E1E"/>` behind the glyph, and the');
+  w('parent sheet\'s `<rect width="1144" ... fill="white"/>`. The stroke colour');
+  w('also exports as a literal `#100A0A` and must become `currentColor`.');
+  w();
+  w('**Stroke reconciliation.** The library draws at 1.5 and our own components');
+  w('(IconButton, the chevrons) were specified at 1.25. Mixing them puts a heavier');
+  w('icon next to a lighter chevron in the same row. The library wins — re-stroking');
+  w('a few components is a three-line change, re-stroking thousands of icons is not.');
   w();
   w('---');
   w();
@@ -313,18 +339,21 @@ if (process.argv[1]?.endsWith('icon-inventory.mjs')) {
     if (g.note) { w(g.note); w(); }
     for (const name of g.icons) {
       const lucide = IN_USE[name];
-      w(`- [ ] \`${name}\`${lucide ? ` — **in use**, replaces \`${lucide}\`` : ''}`);
+      w(`- [ ] \`${name}\` → \`?\`${lucide ? ` · **in use**, replaces \`${lucide}\`` : ''}`);
     }
     w();
   }
 
   w('---');
   w();
-  w('## Not in this set');
+  w('## Not in this map');
   w();
-  w('- **Filled variants.** A second pass over the same 240 once the outlined set');
-  w('  is reviewed whole. Filled means SELECTED, never emphasis — emphasis is a');
-  w('  colour decision.');
+  w('- **The rest of the library.** Thousands of icons across ~52 category sheets');
+  w('  are available and unlisted. A name earns a row here once the product calls');
+  w('  it by that name.');
+  w('- **Filled variants.** The library ships them; the map covers outlined until a');
+  w('  surface needs a filled one. Filled means SELECTED, never emphasis — emphasis');
+  w('  is a colour decision.');
   w('- **`dynamic_icons`.** Ten animated marks, a separate workstream (PLAN 4c-ii).');
   w('- **Artwork plates.** `src/assets/artworks/`, a different kind of asset entirely.');
   w();

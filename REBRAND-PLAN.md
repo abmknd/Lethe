@@ -196,93 +196,91 @@ consumes them** — an icon decided in Phase 5 is an icon re-drawn in Phase 5.
 
 #### 4c-i. `system_icons` — the product icon set
 
-Up to **240 icons**, each in **outlined and filled** variants, drawn in a
-minimalist **cyber-classical** style that carries Relethe's brand persona.
-Delivered twice: as components in the Figma design library, and as files under
-`src/assets/system_icons/`.
+**Closed: the library is HugeIcons, adopted whole as the Relethe icon library.**
+Nothing is drawn by us. The whole set is in scope, not a 240-icon subset.
 
-**The inventory is derived, not invented.** The product currently imports **42
-distinct icons from `lucide-react` across 47 files** — that is the floor, and it
-is a real measurement rather than an estimate. The 240 is the ceiling once the
-un-built surfaces in 4a are counted. So the inventory is a *running artifact*:
-
-1. **Now** — take the 42 in use as the seed list, with the file that uses each.
-2. **Per surface** — every rebuild adds the icons that surface needs. A screen is
-   not finished until its icons are in the list.
-3. **In batches** — draw once a coherent group is known (navigation, social,
-   status, actions), not one at a time and not all 240 up front.
-
-**Rules this set has to satisfy**, so it does not become the next thing that
-disagrees with the tokens:
+**Ship it from npm, not from a Figma export.**
 
 ```
-grid            24 square, drawn on a 24 grid, exported at 1x
-stroke          1.25px, matching IconButton and the existing chevrons
-colour          never baked in — currentColor only, so a caller's token decides
-variants        outlined (default) and filled; filled is for SELECTED state,
-                not for emphasis, since emphasis is a colour decision
-optical size    a 16px usage is a redrawn 16 icon, not a scaled 24
-naming          semantic, not pictorial: `profile`, not `person-circle`
+@hugeicons/react            the renderer
+@hugeicons/core-free-icons  the icon data — MIT
 ```
 
-**Completion test:** `lucide-react` is removed from `package.json`. While a
-single lucide import survives, the set is not done — a half-migrated icon set is
-two icon languages on one screen, which is worse than either alone.
+This settles the earlier "Figma or hardcoded SVG" question by making it moot:
+the drawing already exists as a maintained, versioned, tree-shakeable package,
+so exporting thousands of SVGs out of Figma reproduces by hand what `npm i`
+does correctly. The Figma file stays the design-side source; the package is the
+code-side source; they are the same drawings from the same publisher.
 
-**The inventory itself is `scripts/icon-inventory.mjs`**, which generates
-`docs/system-icons.md`. It asserts the count, rejects non-kebab names and
-duplicates, and fails if an icon in use today is missing from the list. A
-hand-maintained list of 240 names does all three of those things silently.
+What an export would cost, concretely, and why we are not paying it: the MCP
+caps SVG assets at 20 per node, so the library is ~169 calls. Every exported
+file also carries two baked-in artefacts that have to be stripped — a
+`<rect width="24" height="24" fill="#1E1E1E"/>` behind the glyph and the parent
+sheet's `<rect width="1144" ... fill="white"/>` — plus a literal `#100A0A`
+stroke that must become `currentColor`. That is a bespoke cleanup pipeline
+maintained forever, against a package that needs none of it.
 
-#### Figma or hardcoded SVG — closed: both, in that order
+##### The style, measured
 
-The question is a false binary. Drawing and shipping are different problems and
-the answer is different for each:
-
-```
-DRAW in Figma        it is where an icon is designed, reviewed and corrected,
-                     and half the deliverable is a Figma library anyway
-SHIP as SVG          generated from the Figma export, never hand-written
-                     and never hand-edited afterwards
-```
-
-**Why not hand-author the SVG.** 240 icons of hand-written path data is 240
-chances to typo a stroke width, and no surface on which to see them together.
-Drawing by typing coordinates is the slowest way to draw and the worst way to
-iterate. Consistency across a set is a *visual* property — it needs a canvas.
-
-**Why not ship from Figma.** There is no runtime path from Figma to the product
-that is not a network call to a third party on every render. Code needs its own
-copy. So the copy is **generated**: export → SVGO → codegen → one React
-component per icon. Re-running the script after a redraw is the whole update
-process, which is what keeps the two in sync instead of drifting.
-
-**Why per-icon components rather than a sprite or an icon font:**
-
-| | Tree-shakes | `currentColor` | Fails as |
-|---|---|---|---|
-| **Per-icon components** | yes | yes | one missing icon |
-| Sprite sheet | no | yes | *all 240 at once* |
-| Icon font | no | text colour only | tofu, and a11y noise |
-
-Tree-shaking is the load-bearing difference. Today's 42 icons ship as ~4KB
-gzipped instead of the ~20KB of all 240, and that stays true as the set grows —
-the app only ever ships what it imports. And a sprite that fails to load takes
-every icon on the page with it, which is a bad failure mode for a file whose
-whole job is being present.
-
-**The pipeline, to be built with the first batch:**
+Read off `calendar-01` as it exists in the file, not specified from memory:
 
 ```
-Figma page (24 grid, outlined)
-  → export SVG @1x
-  → SVGO: strip fills, ids, metadata; keep viewBox
-  → codegen: src/assets/system_icons/<name>.tsx, currentColor, 1.25 stroke
-  → an index that re-exports all of them by name
+viewBox        0 0 24 24
+stroke-width   1.5
+linecap        round
+linejoin       round
+fill           none — strokes only
+colour         currentColor
 ```
 
-Nothing in `src/assets/system_icons/` is ever edited by hand. If an icon is
-wrong, it is wrong in Figma.
+**Stroke reconciliation.** The library draws at **1.5**; our own components were
+specified at **1.25**. Mixing them puts a heavier icon beside a lighter chevron
+in the same row. The library wins: re-stroking three components is trivial,
+re-stroking thousands of icons is not. `redesign.md` 5.5 and `ChevronGlyph`
+move to 1.5.
+
+This is a *stroke* width, not a *border* width. The 1.25px card borders in
+redesign.md 4 and 5.4 are a different property and do not change.
+
+##### The usage map survives, with a different job
+
+`scripts/icon-inventory.mjs` no longer lists what to draw. It maps the **240
+semantic names the product calls icons by** onto library icons, and generates
+`docs/system-icons.md`. Worth keeping because:
+
+1. A call site reads `match-blind`, not `user-search-01`.
+2. Swapping the pack later touches one file rather than 47.
+3. It is the only record of which icons the product actually uses, which is
+   what makes the lucide migration finishable.
+
+Using an icon outside the map is fine — the whole library is available. The map
+is a naming layer, not a whitelist.
+
+##### What still needs a human decision
+
+Around 60 of the 240 have no name-equivalent in any general library and resolve
+by *meaning* rather than by name. These are one judgement call each:
+
+- the fourteen role families from Step 9
+- `match-blind` / `match-revealed` / `match-pending`
+- `content-flowing` / `content-fading` / `content-faded`
+- `daylight-band`, `confidence-band`, `signal-overlap`
+- `trust-ledger`, `provenance`, `no-show`
+
+##### Steps
+
+1. `npm i @hugeicons/react @hugeicons/core-free-icons`
+2. One `Icon` wrapper owning size, 1.5 stroke and `currentColor`, so no caller
+   sets any of them.
+3. Resolve the 240 map entries against the library's own names; the ~60 above
+   get chosen deliberately.
+4. Migrate the 42 lucide call sites, surface by surface.
+5. Remove `lucide-react` from `package.json`. That is the completion test.
+
+**Coverage caveat.** The Figma file carries both `-round` and `-sharp` variants,
+which suggests the paid tier; `core-free-icons` is the free set. If a mapped
+icon turns out to be pro-only, that is a coverage question to settle at step 3,
+not a licensing one — the free package is MIT.
 
 #### 4c-ii. `dynamic_icons` — ten animated marks
 

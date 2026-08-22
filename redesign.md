@@ -459,7 +459,13 @@ round, post card `0` with the sections carrying their own inset.
 
 ### 5.5 Icon button
 
-`40 x 40`, padding `10px`, radius `40px`. Icon `20px`, stroke 1.25px.
+`40 x 40`, padding `10px`, radius `40px`. Icon `20px`, stroke **1.5px**.
+
+Icon stroke is 1.5 across the system, matching the drawn weight of the icon
+library (`system_icons`, HugeIcons). It was 1.25 while the only icons were
+lucide's; a 1.25 chevron beside a 1.5 icon in the same row reads as two
+different sets. This is a *stroke* width — the 1.25px card borders elsewhere in
+this document are a different property and are unchanged.
 
 | Intent | Fill | Icon |
 |---|---|---|

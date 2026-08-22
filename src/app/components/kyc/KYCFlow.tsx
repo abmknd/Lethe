@@ -243,7 +243,7 @@ export function KYCFlow({ onComplete, onClose, userId, accessToken, step, onStep
                 (current > 1 ? '' : 'invisible')
               }
             >
-              <ChevronLeft size={16} strokeWidth={1.25} />
+              <ChevronLeft size={16} strokeWidth={1.5} />
             </button>
             <span className="whitespace-nowrap text-[13px] font-medium leading-[120%] tracking-[1.5px] text-[var(--color-black-500)]">
               {current} of {TOTAL_STEPS}
