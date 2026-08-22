@@ -50,7 +50,7 @@ from memory:
 
 ```
 viewBox        0 0 24 24
-stroke-width   1.5          NOT 1.25 — see the reconciliation note below
+stroke-width   1.5          as DRAWN — we render it lighter, see below
 linecap        round
 linejoin       round
 fill           none, everywhere. Strokes only
@@ -62,10 +62,27 @@ a `<rect width="24" height="24" fill="#1E1E1E"/>` behind the glyph, and the
 parent sheet's `<rect width="1144" ... fill="white"/>`. The stroke colour
 also exports as a literal `#100A0A` and must become `currentColor`.
 
-**Stroke reconciliation.** The library draws at 1.5 and our own components
-(IconButton, the chevrons) were specified at 1.25. Mixing them puts a heavier
-icon next to a lighter chevron in the same row. The library wins — re-stroking
-a few components is a three-line change, re-stroking thousands of icons is not.
+## Rendered stroke — size-relative
+
+| Rendered size | Stroke on screen |
+|---|---|
+| **16px** | **1px** |
+| **24px** | **1.25px** |
+
+The drawn weight is the vendor's decision; the rendered weight is ours.
+The smaller size takes proportionally more weight and less absolute weight,
+because a hairline that reads on a 24 glyph closes up on a 16 one.
+
+**The attribute is not the rendered value.** `stroke-width` is in viewBox
+units, so a 24-grid icon rendered at 16px has its stroke scaled by 16/24 too.
+The number goes DOWN as the icon gets bigger:
+
+```
+16px display  ->  strokeWidth 1.5   ->  1.0 rendered
+24px display  ->  strokeWidth 1.25  ->  1.25 rendered
+```
+
+`iconStroke(size)` in the primitives owns that arithmetic. No call site does it.
 
 ---
 

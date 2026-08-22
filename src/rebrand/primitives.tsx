@@ -17,6 +17,35 @@ import type { ReactNode, ButtonHTMLAttributes, InputHTMLAttributes, TextareaHTML
 
 export type Surface = 'light' | 'blue';
 
+// ---------------------------------------------------------------- icon stroke
+
+/** The two sanctioned icon sizes. Anything else still resolves, but these are
+ *  the ones the system draws for. */
+export const ICON_SIZE = { sm: 16, md: 24 } as const;
+
+/**
+ * The stroke-width ATTRIBUTE for an icon rendered at `size`.
+ *
+ * The visual weight we want is size-relative: **1px at 16, 1.25px at 24**. A
+ * hairline that reads correctly on a 24 glyph closes up and turns to mud on a
+ * 16 one, so the smaller size takes proportionally more weight (1/16 = 6.25%
+ * against 1.25/24 = 5.2%) and less absolute weight.
+ *
+ * The trap this function exists to remove: `strokeWidth` is in VIEWBOX UNITS,
+ * not screen pixels. A 24-grid icon rendered into a 16px box is scaled by
+ * 16/24, and its stroke scales with it — so hitting 1px on screen means
+ * PASSING 1.5, and the attribute goes DOWN as the icon gets bigger:
+ *
+ *     16px display -> 1.5 attr -> 1.0 rendered
+ *     24px display -> 1.25 attr -> 1.25 rendered
+ *
+ * Nobody should be doing that arithmetic at a call site.
+ */
+export function iconStroke(size: number, grid = 24): number {
+  const visualPx = size <= ICON_SIZE.sm ? 1 : 1.25;
+  return Number(((visualPx * grid) / size).toFixed(3));
+}
+
 const cx = (...parts: (string | false | null | undefined)[]) => parts.filter(Boolean).join(' ');
 
 // ---------------------------------------------------------------- pills
@@ -1006,8 +1035,8 @@ function ChevronGlyph({ open }: { open: boolean }) {
       aria-hidden
       className={cx('shrink-0 text-[var(--color-black-500)] transition-transform', open && 'rotate-180')}
     >
-      {/* 1.5 to match the icon library's drawn weight (redesign.md 5.5). */}
-      <path d="M2.5 4.5L6 8l3.5-3.5" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      {/* Drawn on a 12 grid at 12px, so the attribute IS the rendered weight. */}
+      <path d="M2.5 4.5L6 8l3.5-3.5" fill="none" stroke="currentColor" strokeWidth={iconStroke(12, 12)} strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }

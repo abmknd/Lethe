@@ -13,6 +13,8 @@ import {
 import {
   CountryMark,
   DaylightBand,
+  ICON_SIZE,
+  iconStroke,
   FieldInput,
   ListBand,
   ListContainer,
@@ -83,7 +85,7 @@ export function Step2Location({ data, updateData }: StepProps) {
         <ListBand className="gap-[10px]">
           {/* A bare ring reads as an unselected radio, not as search. The
               handle is what makes it a magnifier. */}
-          <Search size={14} strokeWidth={1.5} className="shrink-0 text-[var(--color-black-400)]" />
+          <Search size={ICON_SIZE.sm} strokeWidth={iconStroke(ICON_SIZE.sm)} className="shrink-0 text-[var(--color-black-400)]" />
           <FieldInput
             type="text"
             value={query}

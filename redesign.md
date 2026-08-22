@@ -459,13 +459,40 @@ round, post card `0` with the sections carrying their own inset.
 
 ### 5.5 Icon button
 
-`40 x 40`, padding `10px`, radius `40px`. Icon `20px`, stroke **1.5px**.
+`40 x 40`, padding `10px`, radius `40px`. Icon `20px`, stroke per 5.5.1.
 
-Icon stroke is 1.5 across the system, matching the drawn weight of the icon
-library (`system_icons`, HugeIcons). It was 1.25 while the only icons were
-lucide's; a 1.25 chevron beside a 1.5 icon in the same row reads as two
-different sets. This is a *stroke* width — the 1.25px card borders elsewhere in
-this document are a different property and are unchanged.
+### 5.5.1 Icon stroke — normative
+
+Two sanctioned sizes, and the weight is **size-relative**:
+
+| Rendered size | Stroke on screen |
+|---|---|
+| **16px** | **1px** |
+| **24px** | **1.25px** |
+
+A hairline that reads correctly on a 24 glyph closes up and turns to mud on a
+16 one, so the smaller size takes proportionally *more* weight and less absolute
+weight — `1/16` is 6.25% against `1.25/24` at 5.2%.
+
+**The attribute is not the rendered value.** `stroke-width` is in viewBox units,
+so a 24-grid icon rendered into a 16px box has its stroke scaled by `16/24` with
+everything else. Hitting 1px on screen means *passing* 1.5, and the number goes
+DOWN as the icon gets bigger:
+
+```
+16px display   ->  strokeWidth 1.5    ->  1.0 rendered
+24px display   ->  strokeWidth 1.25   ->  1.25 rendered
+```
+
+Nobody does that arithmetic at a call site. `iconStroke(size)` in the primitives
+owns it, and `ICON_SIZE.sm` / `ICON_SIZE.md` name the two sizes.
+
+This is a *stroke* width. The 1.25px card borders elsewhere in this document are
+a different property and are unchanged.
+
+> The library (`system_icons`, HugeIcons) is drawn at 1.5 in a 24 viewBox, which
+> renders 1.5px at 24. We render it lighter on purpose — the drawn weight is the
+> vendor's decision, the rendered weight is ours.
 
 | Intent | Fill | Icon |
 |---|---|---|

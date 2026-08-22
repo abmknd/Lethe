@@ -226,18 +226,29 @@ Read off `calendar-01` as it exists in the file, not specified from memory:
 
 ```
 viewBox        0 0 24 24
-stroke-width   1.5
+stroke-width   1.5          as DRAWN by the vendor
 linecap        round
 linejoin       round
 fill           none — strokes only
 colour         currentColor
 ```
 
-**Stroke reconciliation.** The library draws at **1.5**; our own components were
-specified at **1.25**. Mixing them puts a heavier icon beside a lighter chevron
-in the same row. The library wins: re-stroking three components is trivial,
-re-stroking thousands of icons is not. `redesign.md` 5.5 and `ChevronGlyph`
-move to 1.5.
+**We render it lighter than it is drawn.** Decision: **1px at 16, 1.25px at 24**
+(redesign.md 5.5.1). The drawn weight is the vendor's decision; the rendered
+weight is ours, and 1.5 at every size reads heavy against Archivo at 13–14px.
+
+The trap, which is why `iconStroke(size)` exists rather than a constant:
+`stroke-width` is in viewBox units, so a 24-grid icon rendered at 16px has its
+stroke scaled by `16/24` along with everything else. **The attribute goes DOWN
+as the icon gets bigger.**
+
+```
+16px display   ->  strokeWidth 1.5    ->  1.0 rendered
+24px display   ->  strokeWidth 1.25   ->  1.25 rendered
+```
+
+Passing `1` for a 16px icon gives 0.67 on screen, which is the mistake this
+would otherwise invite at all 47 call sites.
 
 This is a *stroke* width, not a *border* width. The 1.25px card borders in
 redesign.md 4 and 5.4 are a different property and do not change.
