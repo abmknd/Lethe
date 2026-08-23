@@ -69,6 +69,26 @@ Titles / Buttons / Body — Archivo:
 
 > Note: earlier extractions labelled Body 5A/5B and the tags as "Inter". That was wrong — they are Archivo. (Archivo Light 300 is now loaded, so Body 6 and the timezone label render as specified rather than falling back to Regular.)
 
+#### Corrections from the Figma variables, 2026-08-23
+
+The table above predates the file's type variables. Where they disagree, **the
+variables win** — they are what the frames actually reference:
+
+| Style | This document said | Figma variable |
+|---|---|---|
+| Heading 6 | Parkinsans Medium 20 / 100% | **Parkinsans Medium 24 / 28** |
+| Body 4 | Archivo Regular 14 / 16 | **Archivo Regular 14 / 20** |
+| Body 5A | Archivo Regular 13 / 18 | **Archivo Regular 13 / 16** |
+| Body 5B | Archivo Regular 13 / 16 | **Archivo Light 13 / 16** |
+| Title 4B | Archivo Medium 14 / 16 | **Archivo Medium 14 / 20** |
+| Title 6 | Archivo Medium 12 / 120% | **Archivo Medium 12 / 16** |
+| Button 3 | Archivo Medium 13 / 120% / 1px | **Archivo Medium 13 / 16 / 1px** |
+
+The line-heights are the substantive change: the paragraph scale is `P4 20`,
+`P5 16`, `P6 16`, so 14px body copy leads at 20 and everything at 13 or 12 leads
+at 16. Body 5B is also **Light (300)**, not Regular — which is why 300 had to be
+in the font import.
+
 ### How styles are actually applied
 
 | Role | Style |
@@ -98,6 +118,57 @@ Error     CC0003  FF0004  FF3336  FF6668  FF999B  FFCCCD  FFE6E6  FFF2F2
 Warning   CC4400  FF5500  FF7733  FF9966  FFBB99  FFDDCC  FFEEE6  FFF6F2
           700     600     500     400     300     200     100     50
 ```
+
+### 2.1 The Neutral ramp, and Figma's semantic layer
+
+**Correction, 2026-08-23.** The ramps above were extracted before the Figma file
+grew a variable system. It has two things this document did not:
+
+**A NEUTRAL ramp, which is warm and is not Black.** Every step carries slightly
+more red than blue. Ink on a Relethe surface is Neutral; Black stays for the
+places that want a true grey — hairlines, scrim, the daylight band's off state.
+
+```
+Neutral   100A0A  282323  403B3B  888585  F2F2F2  FAFAFA
+          900     800     700     400     100     50
+```
+
+This retracts an earlier mistake worth naming: `#403b3b` and `#888585` arrived
+from a frame, were not in the Black ramp, and got snapped to Black 600 and
+Black 400 under the reconciliation rule. They were never drift — they are named
+steps in a ramp the token file did not have. **The reconciliation rule only
+applies to a hex with no variable behind it.** If Figma names it, it is a token,
+and the answer is to add the ramp rather than round the value.
+
+**A semantic layer.** Figma names colour by ROLE, and the frames reference those
+names. The code uses the same vocabulary — `/` becomes `-` — so a frame and a
+component describe one thing rather than two:
+
+```
+surface-page-beta         Neutral 50    the page ground
+surface-neutral-default   White         cards, bars
+surface-neutral-subtle    Neutral 50    tags, inset rows
+surface-primary-subtle    Blue 50       primary-tinted fills
+surface-primary-default   Blue 600
+
+text-default-body         Neutral 800   body copy
+text-default-caption      Neutral 700   tag and secondary text
+text-default-placeholder  Neutral 400   labels, meta, hints
+text-default-highlight-blue  Blue 600
+text-primary-on-color     Blue 50       label ON Blue 600 — not White
+text-on-color-heading     White
+
+border-disabled-deep      Neutral 100   every divider and card edge
+border-primary-default    Blue 600
+border-page-alpha         White         the ring that separates a badge
+
+icons-neutral-default     Neutral 900
+icons-primary-default     Blue 600
+icons-disabled-on-color   Neutral 400
+```
+
+Defined in [src/styles/tokens.css](src/styles/tokens.css). Each resolves to a
+ramp step; none carries its own hex.
 
 ### Retired one-offs
 

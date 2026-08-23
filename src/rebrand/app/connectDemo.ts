@@ -28,7 +28,15 @@ export const DEMO_SUGGESTION: Suggestion = {
   birthday: 'September, 21st',
   about:
     'I build at the intersection of design and systems thinking. Happiest in rooms where someone disagrees with me. Currently focused on ethical design frameworks for emerging tech.',
-  commonInterests: ['Design Ethics', 'Systems Thinking', 'Effective Altruism', 'Architecture', 'Coffee'],
+  commonInterests: [
+    'Design Ethics',
+    'Systems Thinking',
+    'Effective Altruism',
+    'Architecture',
+    'Coffee',
+    'Game Theory',
+    'Cats',
+  ],
   meetingFormats: ['Video call', 'In person'],
   signalBullets: [
     "You're both active in the **Effective Altruism community**. She has attended the same chapter events.",

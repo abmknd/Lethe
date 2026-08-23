@@ -1,7 +1,7 @@
 /**
- * notification-01 — GENERATED from Figma node 613:2659. Do not edit.
+ * notification-01 — GENERATED from Figma node 724:1456. Do not edit.
  *
- * Flattened lucide vector in an unnamed frame, not a HugeIcons instance. Replace it in Figma and re-import.
+ * Now a real HugeIcons instance — was a flattened lucide vector.
  *
  * Regenerate: node scripts/import-figma-icons.mjs
  */
@@ -22,8 +22,9 @@ export function Notification01Icon({ size = 16, strokeWidth, className }: {
       className={className}
       aria-hidden
     >
-      <path d="M12 5.33333C12 4.27247 11.5786 3.25505 10.8284 2.50491C10.0783 1.75476 9.06087 1.33333 8 1.33333C6.93913 1.33333 5.92172 1.75476 5.17157 2.50491C4.42143 3.25505 4 4.27247 4 5.33333C4 10 2 11.3333 2 11.3333H14C14 11.3333 12 10 12 5.33333Z" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
-      <path d="M9.13333 14C9.01376 14.1929 8.8469 14.3522 8.64857 14.4626C8.45023 14.573 8.227 14.631 8 14.631C7.773 14.631 7.54977 14.573 7.35143 14.4626C7.1531 14.3522 6.98624 14.1929 6.86667 14" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M3.43891 7.66059C3.38993 8.59126 3.44624 9.5819 2.61475 10.2055C2.22776 10.4958 2 10.9513 2 11.435C2 12.1005 2.5212 12.6666 3.2 12.6666L12.8 12.6666C13.4788 12.6666 14 12.1005 14 11.435C14 10.9513 13.7722 10.4958 13.3852 10.2055C12.5538 9.58191 12.6101 8.59126 12.5611 7.6606C12.4334 5.23474 10.4292 3.33325 8 3.33325C5.57078 3.33325 3.56659 5.23474 3.43891 7.66059Z" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M7 2.08325C7 2.63554 7.44772 3.33325 8 3.33325C8.55228 3.33325 9 2.63554 9 2.08325C9 1.53097 8.55228 1.33325 8 1.33325C7.44772 1.33325 7 1.53097 7 2.08325Z" stroke="currentColor"/>
+      <path d="M10 12.6665C10 13.7711 9.10457 14.6665 8 14.6665C6.89543 14.6665 6 13.7711 6 12.6665" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   );
 }

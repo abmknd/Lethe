@@ -61,17 +61,17 @@
     },
     {
       "name": "notification-01",
-      "nodeId": "613:2659",
+      "nodeId": "724:1456",
       "size": 16,
-      "note": "Flattened lucide vector in an unnamed frame, not a HugeIcons instance. Replace it in Figma and re-import.",
-      "url": "https://www.figma.com/api/mcp/asset/1f9e4e80-ea1e-4e09-b941-0bc1210d860a.svg"
+      "note": "Now a real HugeIcons instance — was a flattened lucide vector.",
+      "url": "https://www.figma.com/api/mcp/asset/0258dda9-e59e-4d7d-b221-d0c4f3edfe68.svg"
     },
     {
       "name": "mail-01",
-      "nodeId": "613:2664",
+      "nodeId": "724:1468",
       "size": 16,
-      "note": "Flattened lucide vector in an unnamed frame, not a HugeIcons instance. Replace it in Figma and re-import.",
-      "url": "https://www.figma.com/api/mcp/asset/28891352-6560-4280-9c88-441bae839108.svg"
+      "note": "Now a real HugeIcons instance — was a flattened lucide vector.",
+      "url": "https://www.figma.com/api/mcp/asset/12f00612-0f8e-40e1-b31e-fc96d14efc4a.svg"
     }
   ]
 }

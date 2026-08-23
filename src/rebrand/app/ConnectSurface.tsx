@@ -23,7 +23,7 @@ function NavToggle({ value, onChange }: { value: ConnectTab; onChange: (t: Conne
     <div
       role="radiogroup"
       aria-label="Connect view"
-      className="flex items-center gap-[2px] rounded-[40px] bg-[var(--color-black-50)] p-[4px]"
+      className="flex items-center gap-[2px] rounded-[40px] bg-[var(--surface-neutral-subtle)] p-[4px]"
     >
       {CONNECT_TABS.map((t) => {
         const active = t === value;
@@ -38,11 +38,11 @@ function NavToggle({ value, onChange }: { value: ConnectTab; onChange: (t: Conne
               'text-[13px] font-medium leading-[16px] tracking-[1px] transition-colors ' +
               'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--color-blue-600)] ' +
               (active
-                ? 'bg-[var(--color-white)] text-[var(--color-blue-600)]'
-                : 'text-[var(--color-black-400)] hover:text-[var(--color-black-600)]')
+                ? 'bg-[var(--surface-neutral-default)] text-[var(--text-default-highlight-blue)]'
+                : 'text-[var(--text-default-placeholder)] hover:text-[var(--text-default-caption)]')
             }
           >
-            {active ? <span aria-hidden className="size-[6px] shrink-0 rounded-full bg-[var(--color-blue-600)]" /> : null}
+            {active ? <span aria-hidden className="size-[6px] shrink-0 rounded-full bg-[var(--icons-primary-default)]" /> : null}
             {t}
           </button>
         );
@@ -69,10 +69,10 @@ export function ConnectSurface({
   children: ReactNode;
 }) {
   return (
-    <div className="rebrand-root flex min-h-screen w-full flex-col bg-[var(--color-white)] text-[var(--color-black-700)]">
+    <div className="rebrand-root flex min-h-screen w-full flex-col bg-[var(--surface-page-beta)] text-[var(--text-default-body)]">
       <AppHeader active="connect" avatarSrc={avatarSrc} unread onNavigate={onNavigate} onInvite={onInvite} />
 
-      <div className="flex h-[64px] shrink-0 items-center gap-[16px] border-b border-[var(--color-black-100)] bg-[var(--color-white)] px-[28px]">
+      <div className="flex h-[64px] shrink-0 items-center gap-[16px] border-b border-[var(--border-disabled-deep)] bg-[var(--surface-neutral-default)] px-[28px]">
         <NavToggle value={tab} onChange={onTab} />
         <div className="ml-auto">
           <DailyGoal done={goalDone} />
@@ -101,8 +101,10 @@ export function SuggestionView({
 
   return (
     <>
-      <h1 className="rebrand-display mb-[48px] flex h-[60px] items-center text-center text-[28px] font-normal leading-[28px] text-[var(--color-black-700)]">
-        Would you like to meet&nbsp;<span className="text-[var(--color-blue-600)]">{suggestion.name}?</span>
+      {/* Heading 6 — Parkinsans Medium 24/28. */}
+      <h1 className="rebrand-display mb-[48px] flex h-[60px] items-center text-center text-[24px] font-medium leading-[28px] text-[var(--text-default-body)]">
+        Would you like to meet&nbsp;
+        <span className="text-[var(--text-default-highlight-blue)]">{suggestion.name}?</span>
       </h1>
       <SuggestionCard
         suggestion={suggestion}
@@ -120,8 +122,8 @@ export function SuggestionView({
 export function ConnectMessage({ title, body }: { title: string; body: string }) {
   return (
     <div className="flex flex-col items-center gap-[12px] py-[64px] text-center">
-      <h1 className="rebrand-display text-[28px] font-normal leading-[32px] text-[var(--color-black-700)]">{title}</h1>
-      <p className="max-w-[420px] text-[14px] leading-[20px] text-[var(--color-black-400)]">{body}</p>
+      <h1 className="rebrand-display text-[24px] font-medium leading-[28px] text-[var(--text-default-body)]">{title}</h1>
+      <p className="max-w-[420px] text-[14px] leading-[20px] text-[var(--text-default-placeholder)]">{body}</p>
     </div>
   );
 }

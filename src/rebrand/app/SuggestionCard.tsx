@@ -16,13 +16,13 @@ import { Icon } from './Icon';
  * THE SUGGESTION CARD — built to `connect-default` / `connect-open`
  * (ProfileCard 720:347, signal-bar 613:2784). Card 600, panel 320.
  *
- * ── Two hexes snapped ───────────────────────────────────────────────────────
+ * ── Colour comes from Figma's semantic layer ────────────────────────────────
  *
- * The frames carry `#403b3b` and `#888585`, neither of which is in the ramp.
- * Per redesign.md 2.x every hex arriving from Figma that is not in a ramp is
- * drift and snaps to its nearest step, so they render Black 600 and Black 400.
- * The difference is a couple of percent of luminance; the alternative is two
- * new greys in a system whose first rule is that there are none.
+ * `text/default/caption`, `surface/primary/subtle` and the rest are Figma
+ * variables, and the code uses the same names so a frame and a component are
+ * describing one thing rather than two. I previously read #403b3b and #888585
+ * as drift and snapped them to the Black ramp; they are named steps in the
+ * WARM Neutral ramp, which the token file did not have. See tokens.css.
  *
  * ── A note on the blind gate ────────────────────────────────────────────────
  *
@@ -60,7 +60,7 @@ function Emphasised({ text }: { text: string }) {
     <>
       {text.split(/(\*\*[^*]+\*\*)/g).map((part, i) =>
         part.startsWith('**') && part.endsWith('**') ? (
-          <span key={i} className="text-[var(--color-black-700)]">
+          <span key={i} className="text-[var(--text-default-body)]">
             {part.slice(2, -2)}
           </span>
         ) : (
@@ -74,14 +74,14 @@ function Emphasised({ text }: { text: string }) {
 /** Title 6 — Archivo Medium 12/16, Black 400. */
 function Label({ children, className = '' }: { children: ReactNode; className?: string }) {
   return (
-    <span className={'text-[12px] font-medium uppercase leading-[16px] text-[var(--color-black-400)] ' + className}>
+    <span className={'text-[12px] font-medium uppercase leading-[16px] text-[var(--text-default-placeholder)] ' + className}>
       {children}
     </span>
   );
 }
 
 function Divider() {
-  return <div className="h-px w-full shrink-0 bg-[var(--color-black-100)]" />;
+  return <div className="h-px w-full shrink-0 bg-[var(--border-disabled-deep)]" />;
 }
 
 /** Body 5A in a tinted box. Read-only, so never a `<button>`. */
@@ -89,8 +89,10 @@ function Tag({ children, tone }: { children: ReactNode; tone: 'neutral' | 'blue'
   return (
     <span
       className={
-        'inline-flex items-center rounded-[8px] px-[12px] py-[8px] text-[13px] leading-[16px] text-[var(--color-black-600)] ' +
-        (tone === 'blue' ? 'bg-[var(--color-blue-50)]' : 'bg-[var(--color-black-50)]')
+        // Body 4, 14/20. Padding is 12 across and 6 down — the tag is sized by
+        // its line box, not by a fixed height.
+        'inline-flex items-center rounded-[8px] px-[12px] py-[6px] text-[14px] leading-[20px] text-[var(--text-default-caption)] ' +
+        (tone === 'blue' ? 'bg-[var(--surface-primary-subtle)]' : 'bg-[var(--surface-neutral-subtle)]')
       }
     >
       {children}
@@ -106,7 +108,7 @@ const SOCIAL = {
 
 function MetaItem({ icon, children }: { icon: ReactNode; children: ReactNode }) {
   return (
-    <span className="flex items-center gap-[4px] text-[13px] leading-[16px] text-[var(--color-black-400)]">
+    <span className="flex items-center gap-[4px] text-[13px] leading-[16px] text-[var(--text-default-placeholder)]">
       {icon}
       {children}
     </span>
@@ -144,7 +146,7 @@ export function SuggestionCard({
     >
       <article
         className={
-          'flex w-[600px] max-w-full shrink-0 flex-col overflow-hidden border border-[var(--color-black-100)] bg-[var(--color-white)] ' +
+          'flex w-[600px] max-w-full shrink-0 flex-col overflow-hidden border border-[var(--border-disabled-deep)] bg-[var(--surface-neutral-default)] ' +
           (signalOpen ? 'rounded-l-[16px] border-r-0' : 'rounded-[16px]')
         }
       >
@@ -163,13 +165,13 @@ export function SuggestionCard({
             <h2 className="text-[20px] font-medium leading-[20px] text-[var(--color-black-700)]">{s.name}</h2>
 
             <div className="flex flex-col gap-[12px]">
-              <span className="self-start rounded-[8px] bg-[var(--color-blue-50)] px-[12px] py-[8px] text-[13px] leading-[16px] text-[var(--color-black-600)]">
+              <span className="self-start rounded-[8px] bg-[var(--surface-primary-subtle)] px-[12px] py-[8px] text-[13px] leading-[16px] text-[var(--text-default-caption)]">
                 {s.role}
               </span>
 
               <div className="flex flex-wrap items-center gap-[12px]">
                 <MetaItem icon={<Icon as={Location09Icon} size={20} />}>{s.location}</MetaItem>
-                <span aria-hidden className="size-[4px] shrink-0 rounded-full bg-[var(--color-black-400)]" />
+                <span aria-hidden className="size-[4px] shrink-0 rounded-full bg-[var(--icons-disabled-on-color)]" />
                 <MetaItem icon={<Icon as={FemaleSymbolIcon} size={20} />}>{s.pronouns}</MetaItem>
                 <span aria-hidden className="size-[4px] shrink-0 rounded-full bg-[var(--color-black-400)]" />
                 <MetaItem icon={<Icon as={BirthdayCakeIcon} size={20} />}>{s.birthday}</MetaItem>
@@ -184,7 +186,7 @@ export function SuggestionCard({
               aria-expanded={signalOpen}
               aria-controls={`signal-${s.id}`}
               className={
-                'absolute right-[24px] top-[20px] flex h-[32px] shrink-0 items-center gap-[6px] rounded-[40px] bg-[var(--color-blue-50)] px-[12px] ' +
+                'absolute right-[24px] top-[20px] flex h-[32px] shrink-0 items-center gap-[6px] rounded-[40px] bg-[var(--surface-primary-subtle)] px-[12px] ' +
                 'text-[13px] font-medium leading-[16px] tracking-[1px] text-[var(--color-blue-600)] transition-colors ' +
                 'hover:bg-[var(--color-blue-100)] ' +
                 'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-blue-600)]'
@@ -234,7 +236,7 @@ export function SuggestionCard({
             {s.meetingFormats.map((f) => (
               <span
                 key={f}
-                className="inline-flex items-center self-stretch rounded-[10px] bg-[var(--color-blue-50)] px-[14px] text-[13px] leading-[16px] text-[var(--color-black-600)]"
+                className="inline-flex items-center self-stretch rounded-[10px] bg-[var(--surface-primary-subtle)] px-[14px] text-[13px] leading-[16px] text-[var(--text-default-caption)]"
               >
                 {f}
               </span>
@@ -251,8 +253,8 @@ export function SuggestionCard({
               onClick={onPass}
               disabled={busy}
               className={
-                'flex-1 rounded-[40px] bg-[var(--color-blue-50)] py-[8px] text-[13px] font-medium leading-[16px] tracking-[1px] ' +
-                'text-[var(--color-black-600)] transition-colors hover:bg-[var(--color-blue-100)] disabled:cursor-not-allowed disabled:text-[var(--color-black-400)] ' +
+                'flex-1 rounded-[40px] bg-[var(--surface-primary-subtle)] py-[8px] text-[13px] font-medium leading-[16px] tracking-[1px] ' +
+                'text-[var(--text-default-caption)] transition-colors hover:bg-[var(--color-blue-100)] disabled:cursor-not-allowed disabled:text-[var(--color-black-400)] ' +
                 'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-blue-600)]'
               }
             >
@@ -263,8 +265,8 @@ export function SuggestionCard({
               onClick={onMatch}
               disabled={busy}
               className={
-                'flex-1 rounded-[40px] bg-[var(--color-blue-600)] py-[8px] text-[13px] font-medium leading-[16px] tracking-[1px] ' +
-                'text-[var(--color-blue-50)] transition-colors hover:text-[var(--color-white)] disabled:cursor-not-allowed disabled:bg-[var(--color-black-100)] disabled:text-[var(--color-black-400)] ' +
+                'flex-1 rounded-[40px] bg-[var(--surface-primary-default)] py-[8px] text-[13px] font-medium leading-[16px] tracking-[1px] ' +
+                'text-[var(--text-primary-on-color)] transition-colors hover:text-[var(--color-white)] disabled:cursor-not-allowed disabled:bg-[var(--color-black-100)] disabled:text-[var(--color-black-400)] ' +
                 'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-blue-600)]'
               }
             >
@@ -286,9 +288,9 @@ function SignalPanel({ id, suggestion, onClose }: { id: string; suggestion: Sugg
   return (
     <aside
       id={id}
-      className="flex w-[320px] shrink-0 flex-col overflow-hidden rounded-r-[16px] border border-[var(--color-black-100)] bg-[var(--color-white)]"
+      className="flex w-[320px] shrink-0 flex-col overflow-hidden rounded-r-[16px] border border-[var(--border-disabled-deep)] bg-[var(--surface-neutral-default)]"
     >
-      <div className="relative flex flex-col gap-[14px] bg-[var(--color-blue-50)] p-[20px]">
+      <div className="relative flex flex-col gap-[14px] bg-[var(--surface-primary-subtle)] p-[20px]">
         <div className="flex flex-col gap-[6px]">
           <span className="flex items-center gap-[6px] text-[13px] font-medium leading-[16px] tracking-[1px] text-[var(--color-blue-600)]">
             <Icon as={BulbIcon} />
@@ -303,8 +305,8 @@ function SignalPanel({ id, suggestion, onClose }: { id: string; suggestion: Sugg
         <ul className="flex flex-col gap-[10px]">
           {s.signalBullets.map((line, i) => (
             <li key={i} className="flex gap-[10px]">
-              <span aria-hidden className="mt-[7px] size-[5px] shrink-0 rounded-full bg-[var(--color-black-700)]" />
-              <span className="text-[14px] leading-[20px] text-[var(--color-black-400)]">
+              <span aria-hidden className="mt-[7px] size-[5px] shrink-0 rounded-full bg-[var(--text-default-body)]" />
+              <span className="text-[14px] leading-[20px] text-[var(--text-default-placeholder)]">
                 <Emphasised text={line} />
               </span>
             </li>
@@ -345,7 +347,7 @@ function SignalPanel({ id, suggestion, onClose }: { id: string; suggestion: Sugg
             ))}
           </span>
           <span className="flex-1 pb-[2px]">
-            <span className="text-[14px] font-medium leading-[20px] text-[var(--color-black-600)]">
+            <span className="text-[14px] font-medium leading-[20px] text-[var(--text-default-caption)]">
               {s.endorsedBy.people[0]?.name}
             </span>{' '}
             <span className="text-[13px] leading-[16px] text-[var(--color-black-400)]">{s.endorsedBy.sentence}</span>
@@ -370,7 +372,7 @@ function SignalPanel({ id, suggestion, onClose }: { id: string; suggestion: Sugg
                 rel="noreferrer noopener"
                 aria-label={def.label}
                 className={
-                  'grid size-[32px] place-items-center rounded-[40px] bg-[var(--color-blue-50)] text-[var(--color-blue-600)] ' +
+                  'grid size-[32px] place-items-center rounded-[40px] bg-[var(--surface-primary-subtle)] text-[var(--icons-primary-default)] ' +
                   'transition-colors hover:bg-[var(--color-blue-100)] ' +
                   'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-blue-600)]'
                 }

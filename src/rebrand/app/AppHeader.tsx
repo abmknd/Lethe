@@ -37,7 +37,7 @@ function HeaderIconButton({
       onClick={onClick}
       className={
         'relative grid size-[32px] shrink-0 place-items-center rounded-full border border-[var(--color-black-200)] ' +
-        'bg-[var(--color-white)] text-[var(--color-black-700)] transition-colors hover:text-[var(--color-blue-600)] ' +
+        'bg-[var(--surface-neutral-default)] text-[var(--icons-neutral-default)] transition-colors hover:text-[var(--icons-primary-default)] ' +
         'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-blue-600)]'
       }
     >
@@ -45,7 +45,7 @@ function HeaderIconButton({
       {badge ? (
         <span
           aria-hidden
-          className="absolute right-[6px] top-[5px] size-[6px] rounded-full border border-[var(--color-white)] bg-[var(--color-blue-600)]"
+          className="absolute left-[13px] top-[7px] size-[6px] rounded-full border border-[var(--border-page-alpha)] bg-[var(--icons-primary-default)]"
         />
       ) : null}
     </button>
@@ -66,7 +66,7 @@ export function AppHeader({
   onInvite?: () => void;
 }) {
   return (
-    <header className="flex h-[64px] shrink-0 items-center border-b border-[var(--color-black-100)] bg-[var(--color-white)] px-[32px]">
+    <header className="flex h-[64px] shrink-0 items-center border-b border-[var(--border-disabled-deep)] bg-[var(--surface-neutral-default)] px-[32px]">
       <div className="flex flex-1 items-center">
         <button
           type="button"
@@ -90,8 +90,8 @@ export function AppHeader({
               'px-[16px] py-[8px] text-[13px] font-medium leading-[16px] tracking-[1px] transition-colors ' +
               'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--color-blue-600)] ' +
               (s.key === active
-                ? 'text-[var(--color-black-700)]'
-                : 'text-[var(--color-black-400)] hover:text-[var(--color-black-700)]')
+                ? 'text-[var(--text-default-body)]'
+                : 'text-[var(--text-default-placeholder)] hover:text-[var(--text-default-body)]')
             }
           >
             {s.label}
@@ -104,8 +104,8 @@ export function AppHeader({
           type="button"
           onClick={onInvite}
           className={
-            'rounded-[40px] border border-[var(--color-blue-600)] bg-[var(--color-white)] px-[16px] py-[8px] ' +
-            'text-[13px] font-medium leading-[16px] tracking-[1px] text-[var(--color-blue-600)] transition-colors ' +
+            'rounded-[40px] border border-[var(--border-primary-default)] bg-[var(--surface-neutral-default)] px-[16px] py-[8px] ' +
+            'text-[13px] font-medium leading-[16px] tracking-[1px] text-[var(--text-default-highlight-blue)] transition-colors ' +
             'hover:text-[var(--color-blue-700)] ' +
             'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-blue-600)]'
           }
@@ -139,14 +139,14 @@ export function AppHeader({
 export function DailyGoal({ done, total = 10 }: { done: number; total?: number }) {
   return (
     <div className="flex items-center gap-[12px]">
-      <span className="text-[12px] font-medium uppercase leading-[16px] text-[var(--color-black-400)]">Daily goal</span>
+      <span className="text-[12px] font-medium uppercase leading-[16px] text-[var(--text-default-placeholder)]">Daily goal</span>
       <span className="flex items-center gap-[4px]" role="img" aria-label={`${done} of ${total} reviewed today`}>
         {Array.from({ length: total }).map((_, i) => (
           <span
             key={i}
             className={
               'h-[6px] w-[8px] rounded-[40px] ' +
-              (i < done ? 'bg-[var(--color-blue-600)]' : 'bg-[var(--color-black-200)]')
+              (i < done ? 'bg-[var(--icons-primary-default)]' : 'bg-[var(--color-black-200)]')
             }
           />
         ))}
