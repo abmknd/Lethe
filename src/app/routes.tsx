@@ -26,6 +26,7 @@ import AdminEventsPage from "./admin/AdminEventsPage";
 import ErrorBoundary from "./ErrorBoundary";
 import RebrandPage from "../rebrand/RebrandPage";
 import OnboardingPreviewPage from "../rebrand/OnboardingPreviewPage";
+import ConnectPreviewPage from "../rebrand/ConnectPreviewPage";
 
 const baseUrl = import.meta.env.BASE_URL;
 const routerOptions = baseUrl === "/" ? undefined : { basename: baseUrl.replace(/\/$/, "") };
@@ -43,6 +44,11 @@ export const router = createBrowserRouter([
   {
     path: "/rebrand/onboarding",
     Component: OnboardingPreviewPage,
+    ErrorBoundary,
+  },
+  {
+    path: "/rebrand/connect",
+    Component: ConnectPreviewPage,
     ErrorBoundary,
   },
   {

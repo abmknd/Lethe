@@ -329,11 +329,16 @@ export function SegmentedToggle<T extends string>({
   value,
   onChange,
   label,
+  marker,
 }: {
   options: readonly T[];
   value: T;
   onChange: (v: T) => void;
   label: string;
+  /** Puts a Blue 600 dot on the active segment. For navigation, where "which
+   *  one am I on" has to survive a glance; a plain fill change does not, once
+   *  the track and the segment are both near-white. */
+  marker?: boolean;
 }) {
   return (
     <div role="radiogroup" aria-label={label} className="flex w-full gap-0 rounded-[40px] bg-[var(--color-black-100)] p-[4px]">
@@ -346,13 +351,17 @@ export function SegmentedToggle<T extends string>({
             aria-checked={active}
             onClick={() => onChange(opt)}
             className={cx(
-              'flex-1 rounded-[40px] px-[12px] py-[8px] text-[13px] font-medium leading-[1.2] tracking-[1px] transition-colors',
+              'flex flex-1 items-center justify-center gap-[8px] whitespace-nowrap rounded-[40px] px-[12px] py-[8px]',
+              'text-[13px] font-medium leading-[1.2] tracking-[1px] transition-colors',
               'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-blue-600)]',
               active
                 ? 'bg-[var(--color-white)] text-[var(--color-blue-600)]'
                 : 'text-[var(--color-black-400)] hover:text-[var(--color-black-500)]',
             )}
           >
+            {marker && active ? (
+              <span aria-hidden className="size-[6px] shrink-0 rounded-full bg-[var(--color-blue-600)]" />
+            ) : null}
             {opt}
           </button>
         );

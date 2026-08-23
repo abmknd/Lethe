@@ -1,32 +1,60 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
-import { X, Check, EyeOff } from 'lucide-react';
-import ReletheLogo from '../imports/ReletheLogo';
-import { listUserRecommendations, markMatchesSeen, respondToRecommendation } from "./api";
-import type { Recommendation } from "./types";
+import { listUserRecommendations, markMatchesSeen, respondToRecommendation } from './api';
+import type { Recommendation } from './types';
 import { useAuth } from './context/AuthContext';
+import {
+  ConnectMessage,
+  ConnectSurface,
+  SuggestionView,
+  type ConnectTab,
+} from '../rebrand/app/ConnectSurface';
+import type { Suggestion } from '../rebrand/app/SuggestionCard';
 
-function initials(name: string) {
-  return name.split(' ').map(p => p[0] ?? '').join('').slice(0, 2).toUpperCase();
+/**
+ * Map a recommendation onto the card's view model.
+ *
+ * WHERE THE DATA IS NOT: the reference design shows identity — name, photo,
+ * socials, endorsements — above PASS / MATCH, but `candidate` is null while a
+ * match is blind and the endpoint sends `blindRationale` instead. Several
+ * fields the card asks for (pronouns, birthday, meeting formats, endorsements,
+ * socials) have no column anywhere.
+ *
+ * So this maps what exists and leaves the rest empty rather than inventing it.
+ * A card with an empty COMMON INTERESTS block is a visible, honest gap; a card
+ * filled with plausible fiction is a lie that survives to production.
+ */
+function toSuggestion(rec: Recommendation): Suggestion {
+  const c = rec.candidate;
+  return {
+    id: rec.id,
+    // Blind: the role category is the only thing we may say about them.
+    name: c?.displayName ?? rec.blindRationale?.roleCategory ?? 'A match',
+    avatarSrc: undefined,
+    role: c ? '' : 'Identity opens when you both accept',
+    location: c?.location ?? '',
+    pronouns: '',
+    birthday: '',
+    about: c?.introText ?? rec.insightText ?? '',
+    commonInterests: (rec.blindRationale?.overlapThemes ?? []).map((t) => t.label),
+    meetingFormats: [],
+    signalBullets: rec.whyMatched ?? [],
+    endorsedBy: { people: [], sentence: '' },
+    socials: [],
+  };
 }
 
 export default function ConnectPage() {
   const navigate = useNavigate();
   const { user, getAccessToken } = useAuth();
   const userId = user?.id ?? '';
-  const selfDisplayName = (user?.user_metadata?.name as string | undefined)
-    ?? user?.email?.split('@')[0]
-    ?? '';
+  const avatarSrc = user?.user_metadata?.avatar_url as string | undefined;
+
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [currentIdx, setCurrentIdx] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
-  const [matchingOn, setMatchingOn] = useState(true);
-  const [showMatchFlash, setShowMatchFlash] = useState(false);
-  const [toastMessage, setToastMessage] = useState('');
-  const [showToast, setShowToast] = useState(false);
-  const [profileFade, setProfileFade] = useState(false);
-  const [activeTab, setActiveTab] = useState<'suggestions' | 'matches'>('suggestions');
+  const [tab, setTab] = useState<ConnectTab>('SUGGESTIONS');
 
   useEffect(() => {
     if (!userId) return;
@@ -51,23 +79,18 @@ export default function ConnectPage() {
     })();
   }, [userId, getAccessToken]);
 
-  useEffect(() => {
-    if (recommendations[currentIdx]) {
-      setProfileFade(true);
-      setTimeout(() => setProfileFade(false), 220);
-    }
-  }, [currentIdx]);
-
   const rec = recommendations[currentIdx];
   const isComplete = !isLoading && currentIdx >= recommendations.length;
 
   const handlePass = async () => {
     if (isAnimating || !rec) return;
     setIsAnimating(true);
-    setProfileFade(true);
     const token = await getAccessToken();
-    try { await respondToRecommendation({ recommendationId: rec.id, userId, decision: 'pass' }, token); } catch {}
-    setTimeout(() => { setCurrentIdx(i => i + 1); setProfileFade(false); setIsAnimating(false); }, 300);
+    try {
+      await respondToRecommendation({ recommendationId: rec.id, userId, decision: 'pass' }, token);
+    } catch {}
+    setCurrentIdx((i) => i + 1);
+    setIsAnimating(false);
   };
 
   const handleMatch = async () => {
@@ -79,285 +102,53 @@ export default function ConnectPage() {
       const result = await respondToRecommendation({ recommendationId: rec.id, userId, decision: 'accept' }, token);
       mutual = Boolean(result.mutual);
     } catch {}
-    // The match flash only fires on a mutual accept — a lone accept is a
-    // vote, not a match (double-blind gate). On mutual, the flash hands off
-    // into the dedicated reveal screen for that match.
+    // A lone accept is a vote, not a match — the blind gate means identity only
+    // opens when both sides have said yes.
     if (mutual) {
-      setShowMatchFlash(true);
-      setTimeout(() => { setShowMatchFlash(false); setIsAnimating(false); navigate(`/matches/${rec.id}`); }, 1600);
-    } else {
-      displayToast('Accepted. Waiting on the other side.');
-      setProfileFade(true);
-      setTimeout(() => { setCurrentIdx(i => i + 1); setProfileFade(false); setIsAnimating(false); }, 300);
+      navigate(`/matches/${rec.id}`);
+      return;
     }
+    setCurrentIdx((i) => i + 1);
+    setIsAnimating(false);
   };
 
-  const toggleMatching = () => {
-    setMatchingOn(on => !on);
-    displayToast(matchingOn ? 'Matching paused' : 'Matching is on');
-  };
-
-  const displayToast = (msg: string) => {
-    setToastMessage(msg);
-    setShowToast(true);
-    setTimeout(() => setShowToast(false), 2600);
+  const changeTab = (next: ConnectTab) => {
+    setTab(next);
+    if (next === 'ALL MATCHES') navigate('/matches');
+    if (next === 'UPCOMING') navigate('/matches?filter=upcoming');
   };
 
   return (
-    <div className="min-h-screen bg-[#050705] text-white/[0.88] font-['Inter'] overflow-hidden flex flex-col">
-      {/* Nav */}
-      <nav className="h-14 flex-shrink-0 flex items-center justify-between px-8 bg-[rgba(5,7,5,0.97)] backdrop-blur-[20px] border-b border-white/[0.07]">
-        <button
-          onClick={() => navigate('/feed')}
-          className="font-['Cormorant_Garamond'] text-[13px] tracking-[0.32em] uppercase text-white/[0.52] flex items-center gap-[9px] hover:text-white/70 transition-colors"
-        >
-          <ReletheLogo className="w-[15px] h-[15px] opacity-55" />
-          Relethe
-        </button>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => navigate('/profile')}
-            className="w-8 h-8 rounded-full bg-gradient-to-br from-[#1a2a1a] to-[#0d150d] border-[1.5px] border-[#ADFF2F]/[0.22] flex items-center justify-center text-[11px] font-semibold text-[#ADFF2F]/70 font-['Cormorant_Garamond']"
-          >
-            {initials(selfDisplayName || '?')}
-          </button>
-        </div>
-      </nav>
-
-      {/* Tabs */}
-      <div className="h-12 flex-shrink-0 flex items-center px-8 bg-[#0b0e0b] border-b border-white/[0.07]">
-        <button
-          onClick={() => setActiveTab('suggestions')}
-          className={`h-full px-0 mr-7 text-[11px] font-medium tracking-[0.14em] uppercase border-b-2 transition-colors ${
-            activeTab === 'suggestions'
-              ? 'text-white/[0.88] border-[#ADFF2F]'
-              : 'text-white/[0.25] border-transparent hover:text-white/[0.52]'
-          }`}
-        >
-          Suggestions
-        </button>
-        <button
-          onClick={() => { setActiveTab('matches'); navigate('/matches'); }}
-          className={`h-full px-0 mr-7 text-[11px] font-medium tracking-[0.14em] uppercase border-b-2 transition-colors ${
-            activeTab === 'matches'
-              ? 'text-white/[0.88] border-[#ADFF2F]'
-              : 'text-white/[0.25] border-transparent hover:text-white/[0.52]'
-          }`}
-        >
-          All matches
-        </button>
-        <div className="ml-auto flex items-center gap-[10px]">
-          <span className="text-[11px] text-white/[0.25] tracking-[0.06em]">{matchingOn ? 'Matching on' : 'Matching off'}</span>
-          <button
-            onClick={toggleMatching}
-            className={`w-9 h-[22px] rounded-[11px] border-none relative transition-all ${matchingOn ? 'bg-[#ADFF2F]' : 'bg-white/[0.08]'}`}
-          >
-            <div className={`absolute top-[3px] w-4 h-4 rounded-full transition-all ${matchingOn ? 'left-[17px] bg-[#050705]' : 'left-[3px] bg-white/[0.28]'}`} />
-          </button>
-        </div>
-      </div>
-
-      {/* Weekly banner */}
-      <div className="flex-shrink-0 px-8 bg-[rgba(173,255,47,0.03)] border-b border-[rgba(173,255,47,0.07)] flex items-center justify-between h-10">
-        <div className="flex items-center gap-[9px]">
-          <div className="w-[5px] h-[5px] rounded-full bg-[#ADFF2F] flex-shrink-0 shadow-[0_0_7px_rgba(173,255,47,0.55)]" />
-          <div className="text-[11px] text-[rgba(173,255,47,0.6)] tracking-[0.03em]">
-            {isLoading
-              ? 'Loading recommendations…'
-              : recommendations.length > 0
-              ? <><strong className="text-[rgba(173,255,47,0.85)] font-semibold">{recommendations.length} suggestions</strong> ready for review.</>
-              : 'No approved suggestions yet — run the weekly matcher from the MVP home.'}
-          </div>
-        </div>
-        {!isLoading && recommendations.length > 0 && (
-          <div className="text-[11px] font-medium text-white/[0.25] tracking-[0.04em] whitespace-nowrap">
-            <strong className="text-white/[0.52] font-semibold">{Math.min(currentIdx, recommendations.length)} of {recommendations.length}</strong> reviewed
-          </div>
-        )}
-      </div>
-
-      {/* Body */}
-      <div className="flex-1 min-h-0 flex overflow-hidden p-5 gap-4">
-        {/* Profile panel */}
-        <div className="flex-1 min-w-0 bg-[#0b0e0b] border border-white/[0.07] rounded-2xl flex flex-col overflow-hidden">
-          {isLoading ? (
-            <div className="flex-1 flex items-center justify-center text-[13px] text-white/[0.25]">Loading…</div>
-          ) : !isComplete && rec ? (
-            <>
-              <div className={`flex-1 min-h-0 overflow-y-auto transition-opacity duration-[220ms] ${profileFade ? 'opacity-0' : 'opacity-100'}`}>
-                {/* Blind hero — role category only, no identity until both accept */}
-                <div className="flex items-center gap-4 p-5 flex-shrink-0 border-b border-white/[0.07]">
-                  <div className="w-[52px] h-[52px] rounded-full flex-shrink-0 bg-[#1a2a1a] border border-[#ADFF2F]/[0.15] flex items-center justify-center text-[#ADFF2F]/50">
-                    <EyeOff size={20} strokeWidth={1.5} />
-                  </div>
-                  <div className="flex flex-col justify-center gap-[3px]">
-                    <div className="font-['Cormorant_Garamond'] text-[20px] leading-[1.2] text-white/[0.88]">
-                      {rec.blindRationale?.roleCategory ?? 'A match'}
-                    </div>
-                    <div className="text-[11px] text-white/[0.25] tracking-[0.05em]">Identity revealed after you both accept</div>
-                  </div>
-                </div>
-
-                {/* Confidence band — never a percentage */}
-                <div className="px-5 py-3 border-b border-white/[0.07] flex-shrink-0 flex items-center gap-[10px]">
-                  <div className="text-[9px] font-semibold tracking-[0.22em] uppercase text-white/[0.25]">Confidence</div>
-                  <div className="flex items-center gap-[5px]">
-                    {(['low', 'medium', 'high'] as const).map((tier) => {
-                      const band = rec.blindRationale?.confidenceBand ?? 'low';
-                      const rank = { low: 1, medium: 2, high: 3 };
-                      const on = rank[tier] <= rank[band];
-                      return (
-                        <div
-                          key={tier}
-                          className={`h-[6px] w-[26px] rounded-[2px] ${on ? 'bg-[#ADFF2F]/70' : 'bg-white/[0.08]'}`}
-                        />
-                      );
-                    })}
-                  </div>
-                  <div className="text-[11px] font-light text-white/[0.4] capitalize">{rec.blindRationale?.confidenceBand ?? 'low'}</div>
-                </div>
-
-                {/* Why this match — abstracted, non-identifying */}
-                <div className="px-5 py-4 border-b border-white/[0.07]">
-                  <div className="text-[9px] font-semibold tracking-[0.22em] uppercase text-white/[0.25] mb-[12px]">Why this match</div>
-                  <div className="flex flex-col gap-[11px]">
-                    {(rec.blindRationale?.overlapThemes ?? []).map((theme, idx) => (
-                      <div key={idx} className="flex items-start gap-[9px]">
-                        <div className="w-1 h-1 rounded-full bg-[rgba(173,255,47,0.4)] flex-shrink-0 mt-[7px]" />
-                        <div className="text-[13px] font-light leading-[1.6] text-white/[0.55]">{theme.label}</div>
-                      </div>
-                    ))}
-                    {(rec.blindRationale?.overlapThemes?.length ?? 0) === 0 && (
-                      <div className="text-[13px] font-light leading-[1.6] text-white/[0.35]">
-                        A promising overlap our matcher surfaced this week.
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Availability */}
-                <div className="px-5 py-4">
-                  <div className="text-[9px] font-semibold tracking-[0.22em] uppercase text-white/[0.25] mb-[8px]">Availability</div>
-                  <div className="text-[12px] font-light leading-[1.6] text-white/[0.45]">
-                    {rec.blindRationale?.availabilityCompatibility ?? 'Scheduling to be arranged once you both accept'}
-                  </div>
-                </div>
-              </div>
-
-              {/* Action buttons */}
-              <div className="px-5 py-4 flex gap-[10px] flex-shrink-0 border-t border-white/[0.07] bg-[#0b0e0b]">
-                <button
-                  onClick={handlePass}
-                  disabled={isAnimating}
-                  className="flex-1 px-3 py-[13px] rounded-[13px] bg-transparent border border-white/[0.18] text-white/[0.45] text-[11px] font-semibold tracking-[0.1em] uppercase flex items-center justify-center gap-[7px] transition-all hover:bg-white/[0.05] hover:text-white/70 hover:border-white/[0.28] disabled:opacity-50"
-                >
-                  <X size={12} strokeWidth={1.8} />
-                  Pass
-                </button>
-                <button
-                  onClick={handleMatch}
-                  disabled={isAnimating}
-                  className="flex-[1.6] px-3 py-[13px] rounded-[13px] bg-white/[0.1] border border-white/[0.18] text-white/[0.88] text-[11px] font-semibold tracking-[0.1em] uppercase flex items-center justify-center gap-[7px] transition-all hover:bg-white/[0.16] hover:border-white/[0.3] hover:text-white disabled:opacity-50"
-                >
-                  <Check size={12} strokeWidth={2} />
-                  Match
-                </button>
-              </div>
-            </>
-          ) : (
-            <div className="flex-1 flex flex-col items-center justify-center gap-3 px-10 py-[60px] text-center">
-              {recommendations.length === 0 ? (
-                <>
-                  <p className="font-['Cormorant_Garamond'] text-[20px] italic text-white/[0.88]">No suggestions yet.</p>
-                  <p className="text-[13px] font-light text-white/[0.52] leading-[1.7] max-w-[260px]">
-                    Run the weekly matcher from the MVP home to generate recommendations.
-                  </p>
-                </>
-              ) : (
-                <>
-                  <p className="font-['Cormorant_Garamond'] text-[20px] italic text-white/[0.88]">You're all caught up.</p>
-                  <p className="text-[13px] font-light text-white/[0.52] leading-[1.7] max-w-[240px]">
-                    New suggestions arrive each Monday.
-                  </p>
-                </>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* Right card — how the blind match works */}
-        {!isLoading && !isComplete && rec && (
-          <div className="w-[420px] min-w-[400px] flex-shrink-0 flex flex-col bg-transparent overflow-y-auto">
-            <div className="bg-[#0b0e0b] border border-white/[0.07] rounded-2xl overflow-hidden flex flex-col">
-              <div className={`bg-[rgba(173,255,47,0.03)] transition-opacity duration-[220ms] ${profileFade ? 'opacity-0' : 'opacity-100'}`}>
-                <div className="flex items-center gap-[10px] px-4 pt-[13px] pb-[10px]">
-                  <div className="w-[26px] h-[26px] rounded-[7px] bg-[rgba(173,255,47,0.08)] border border-[rgba(173,255,47,0.12)] flex items-center justify-center flex-shrink-0 text-[rgba(173,255,47,0.6)]">
-                    <EyeOff size={12} strokeWidth={1.5} />
-                  </div>
-                  <div>
-                    <div className="text-[10px] font-semibold tracking-[0.16em] uppercase text-[rgba(173,255,47,0.65)]">Blind match</div>
-                    <div className="text-[10px] font-light text-white/[0.25] mt-[1px]">
-                      You decide before you see who
-                    </div>
-                  </div>
-                </div>
-                <div className="px-4 pb-[16px] flex flex-col gap-[12px]">
-                  <p className="text-[13px] font-light leading-[1.75] text-white/[0.55]">
-                    You're seeing what matters for the decision, not who it is. Names and photos stay hidden until you both accept, so no one can browse or target a specific person.
-                  </p>
-                  <div className="flex flex-col gap-[9px] pt-[2px]">
-                    {[
-                      'Accept, and the other side decides too.',
-                      'If you both accept, identities open together.',
-                      'If either passes, nothing is revealed.',
-                    ].map((line, idx) => (
-                      <div key={idx} className="flex items-start gap-[9px]">
-                        <div className="text-[11px] font-semibold text-[rgba(173,255,47,0.5)] font-['DM_Mono'] flex-shrink-0 mt-[1px]">{idx + 1}</div>
-                        <div className="text-[12px] font-light leading-[1.6] text-white/[0.5]">{line}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Match flash overlay */}
-      <div
-        className={`fixed inset-0 z-[500] bg-[rgba(5,7,5,0.92)] flex flex-col items-center justify-center gap-[14px] transition-opacity duration-[350ms] ${
-          showMatchFlash ? 'opacity-100 pointer-events-all' : 'opacity-0 pointer-events-none'
-        }`}
-      >
-        <div className="w-[60px] h-[60px] relative flex items-center justify-center">
-          <div className="absolute border-[rgba(173,255,47,0.2)] border rounded-full animate-[mfRipple_2s_ease-out_infinite]" />
-          <div className="absolute border-[rgba(173,255,47,0.2)] border rounded-full animate-[mfRipple_2s_ease-out_infinite] [animation-delay:1s]" />
-          <div className="w-[22px] h-[22px] rounded-full bg-white/[0.12] border border-white/[0.25] flex items-center justify-center">
-            <Check size={11} className="text-white/80" strokeWidth={2.5} />
-          </div>
-        </div>
-        <div className="font-['Cormorant_Garamond'] text-[22px] italic text-white/[0.88]">Match set.</div>
-        <div className="text-[12px] font-light text-white/[0.52] text-center max-w-[220px] leading-[1.65]">
-          Relethe will handle the introduction when the time is right.
-        </div>
-      </div>
-
-      {/* Toast */}
-      <div
-        className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-[999] bg-[#181e18] border border-white/[0.12] rounded-[20px] px-[18px] py-2 text-[11px] tracking-[0.1em] text-white/[0.52] whitespace-nowrap transition-all duration-[400ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${
-          showToast ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-[14px] pointer-events-none'
-        }`}
-      >
-        {toastMessage}
-      </div>
-
-      <style>{`
-        @keyframes mfRipple {
-          0% { width: 22px; height: 22px; opacity: 0.7; }
-          100% { width: 60px; height: 60px; opacity: 0; }
-        }
-      `}</style>
-    </div>
+    <ConnectSurface
+      tab={tab}
+      onTab={changeTab}
+      goalDone={Math.min(currentIdx, recommendations.length)}
+      avatarSrc={avatarSrc}
+      onNavigate={navigate}
+      onInvite={() => navigate('/profile')}
+    >
+      {isLoading ? (
+        <ConnectMessage title="Finding this week's people." body="One moment." />
+      ) : isComplete || !rec ? (
+        recommendations.length === 0 ? (
+          <ConnectMessage
+            title="No suggestions yet."
+            body="Your first introduction arrives once the weekly matcher has run. Nothing to do until then."
+          />
+        ) : (
+          <ConnectMessage
+            title="You're all caught up."
+            body="New suggestions arrive each Monday. We'd rather send you one worth reading than a list worth skimming."
+          />
+        )
+      ) : (
+        <SuggestionView
+          suggestion={toSuggestion(rec)}
+          onPass={handlePass}
+          onMatch={handleMatch}
+          busy={isAnimating}
+        />
+      )}
+    </ConnectSurface>
   );
 }
