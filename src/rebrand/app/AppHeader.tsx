@@ -1,5 +1,6 @@
 import { Avatar } from '../primitives';
-import { MailIcon, NotificationIcon } from '../../assets/system_icons';
+import { Mail01Icon, Notification01Icon } from '../../assets/system_icons';
+import { Icon } from './Icon';
 import logomark from '../../assets/logos/logomark_blue.svg';
 
 /**
@@ -112,10 +113,10 @@ export function AppHeader({
           INVITE
         </button>
         <HeaderIconButton label="Notifications" badge={unread} onClick={() => onNavigate?.('/notifications')}>
-          <NotificationIcon />
+          <Icon as={Notification01Icon} />
         </HeaderIconButton>
         <HeaderIconButton label="Messages" onClick={() => onNavigate?.('/messages')}>
-          <MailIcon />
+          <Icon as={Mail01Icon} />
         </HeaderIconButton>
         <button
           type="button"

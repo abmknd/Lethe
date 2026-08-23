@@ -7,10 +7,10 @@ import {
   GlobalIcon,
   Linkedin02Icon,
   Location09Icon,
-} from '@hugeicons/core-free-icons';
+  SubstackIcon,
+} from '../../assets/system_icons';
 import { Avatar } from '../primitives';
 import { Icon } from './Icon';
-import { SubstackIcon } from '../../assets/system_icons';
 
 /**
  * THE SUGGESTION CARD — built to `connect-default` / `connect-open`
@@ -101,7 +101,7 @@ function Tag({ children, tone }: { children: ReactNode; tone: 'neutral' | 'blue'
 const SOCIAL = {
   linkedin: { icon: Linkedin02Icon, label: 'LinkedIn' },
   website: { icon: GlobalIcon, label: 'Website' },
-  substack: { icon: null, label: 'Substack' },
+  substack: { icon: SubstackIcon, label: 'Substack' },
 } as const;
 
 function MetaItem({ icon, children }: { icon: ReactNode; children: ReactNode }) {
@@ -168,11 +168,11 @@ export function SuggestionCard({
               </span>
 
               <div className="flex flex-wrap items-center gap-[12px]">
-                <MetaItem icon={<Icon icon={Location09Icon} size={20} />}>{s.location}</MetaItem>
+                <MetaItem icon={<Icon as={Location09Icon} size={20} />}>{s.location}</MetaItem>
                 <span aria-hidden className="size-[4px] shrink-0 rounded-full bg-[var(--color-black-400)]" />
-                <MetaItem icon={<Icon icon={FemaleSymbolIcon} size={20} />}>{s.pronouns}</MetaItem>
+                <MetaItem icon={<Icon as={FemaleSymbolIcon} size={20} />}>{s.pronouns}</MetaItem>
                 <span aria-hidden className="size-[4px] shrink-0 rounded-full bg-[var(--color-black-400)]" />
-                <MetaItem icon={<Icon icon={BirthdayCakeIcon} size={20} />}>{s.birthday}</MetaItem>
+                <MetaItem icon={<Icon as={BirthdayCakeIcon} size={20} />}>{s.birthday}</MetaItem>
               </div>
             </div>
           </div>
@@ -190,7 +190,7 @@ export function SuggestionCard({
                 'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-blue-600)]'
               }
             >
-              <Icon icon={BulbIcon} />
+              <Icon as={BulbIcon} />
               SIGNAL
             </button>
           )}
@@ -291,7 +291,7 @@ function SignalPanel({ id, suggestion, onClose }: { id: string; suggestion: Sugg
       <div className="relative flex flex-col gap-[14px] bg-[var(--color-blue-50)] p-[20px]">
         <div className="flex flex-col gap-[6px]">
           <span className="flex items-center gap-[6px] text-[13px] font-medium leading-[16px] tracking-[1px] text-[var(--color-blue-600)]">
-            <Icon icon={BulbIcon} />
+            <Icon as={BulbIcon} />
             SIGNAL
           </span>
           {/* Body 5B — Archivo Light 13. The 300 weight is loaded. */}
@@ -321,7 +321,7 @@ function SignalPanel({ id, suggestion, onClose }: { id: string; suggestion: Sugg
             'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-blue-600)]'
           }
         >
-          <Icon icon={Cancel01Icon} />
+          <Icon as={Cancel01Icon} />
         </button>
       </div>
 
@@ -375,7 +375,7 @@ function SignalPanel({ id, suggestion, onClose }: { id: string; suggestion: Sugg
                   'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-blue-600)]'
                 }
               >
-                {def.icon ? <Icon icon={def.icon} /> : <SubstackIcon />}
+                <Icon as={def.icon} />
               </a>
             );
           })}

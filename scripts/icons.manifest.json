@@ -1,0 +1,77 @@
+{
+  "$comment": [
+    "Every icon the product uses, and where it comes from in Figma.",
+    "`url` is a Figma asset URL and EXPIRES IN ABOUT SEVEN DAYS — it is a fetch",
+    "token, not a permanent address. Refresh it with download_assets(nodeId,",
+    "defaultFormat:'svg') before re-running the importer. The committed .tsx",
+    "files are the durable artefact; this file records provenance."
+  ],
+  "fileKey": "d4i3aGDu0mH8BRe5zxmMmA",
+  "icons": [
+    {
+      "name": "bulb",
+      "nodeId": "712:313",
+      "size": 16,
+      "note": "SIGNAL. Figma description: lamp, idea.",
+      "url": "https://www.figma.com/api/mcp/asset/9cad0070-14ec-4f2a-9089-ddd47d915270.svg"
+    },
+    {
+      "name": "cancel-01",
+      "nodeId": "719:324",
+      "size": 16,
+      "note": "Close. Figma description: delete, remove.",
+      "url": "https://www.figma.com/api/mcp/asset/f4234571-ceef-40bf-92f2-f132a3311110.svg"
+    },
+    {
+      "name": "linkedin-02",
+      "nodeId": "685:2",
+      "size": 16,
+      "url": "https://www.figma.com/api/mcp/asset/3cf5be23-2f10-4c48-acbe-d17f9393b08d.svg"
+    },
+    {
+      "name": "global",
+      "nodeId": "705:22",
+      "size": 16,
+      "url": "https://www.figma.com/api/mcp/asset/b4beb2ac-ef27-4d18-82ff-3a9afeef0dee.svg"
+    },
+    {
+      "name": "substack",
+      "nodeId": "705:28",
+      "size": 16,
+      "note": "HugeIcons pro — absent from the free package. Exactly why these are local.",
+      "url": "https://www.figma.com/api/mcp/asset/c388be48-db38-4b7b-9141-643bb2176cc0.svg"
+    },
+    {
+      "name": "location-09",
+      "nodeId": "720:358",
+      "size": 20,
+      "url": "https://www.figma.com/api/mcp/asset/c18ef133-bb3b-4a60-92f7-1836794fd196.svg"
+    },
+    {
+      "name": "female-symbol",
+      "nodeId": "720:363",
+      "size": 20,
+      "url": "https://www.figma.com/api/mcp/asset/25721c36-cdda-4a74-b4f5-4af2863b1d47.svg"
+    },
+    {
+      "name": "birthday-cake",
+      "nodeId": "720:368",
+      "size": 20,
+      "url": "https://www.figma.com/api/mcp/asset/bf311488-1916-4b47-b748-38b59bb097f5.svg"
+    },
+    {
+      "name": "notification-01",
+      "nodeId": "613:2659",
+      "size": 16,
+      "note": "Flattened lucide vector in an unnamed frame, not a HugeIcons instance. Replace it in Figma and re-import.",
+      "url": "https://www.figma.com/api/mcp/asset/1f9e4e80-ea1e-4e09-b941-0bc1210d860a.svg"
+    },
+    {
+      "name": "mail-01",
+      "nodeId": "613:2664",
+      "size": 16,
+      "note": "Flattened lucide vector in an unnamed frame, not a HugeIcons instance. Replace it in Figma and re-import.",
+      "url": "https://www.figma.com/api/mcp/asset/28891352-6560-4280-9c88-441bae839108.svg"
+    }
+  ]
+}
