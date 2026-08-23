@@ -101,8 +101,14 @@ export function SuggestionView({
 
   return (
     <>
-      {/* Heading 6 — Parkinsans Medium 24/28. */}
-      <h1 className="rebrand-display mb-[48px] flex h-[60px] items-center text-center text-[24px] font-medium leading-[28px] text-[var(--text-default-body)]">
+      {/*
+        Heading 6 — Parkinsans Medium 24/28.
+
+        The 60px box and the 20px gap are both read off the frame, not chosen:
+        `heading` is y=32 h=60, so it ends at 92, and `full` starts at y=112.
+        This was 48 and it was simply wrong.
+      */}
+      <h1 className="rebrand-display mb-[20px] flex h-[60px] items-center text-center text-[24px] font-medium leading-[28px] text-[var(--text-default-body)]">
         Would you like to meet&nbsp;
         <span className="text-[var(--text-default-highlight-blue)]">{suggestion.name}?</span>
       </h1>

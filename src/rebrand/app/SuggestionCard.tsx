@@ -90,11 +90,12 @@ function Tag({ children, tone }: { children: ReactNode; tone: 'neutral' | 'blue'
     <span
       className={
         // EVERY pill on this card is Body 4 (14/20) in text/default/caption on a
-        // tinted fill. Only the padding differs by role, which is the part worth
-        // reading off the frame rather than assuming:
-        //   interest    12 / 6   radius 8
-        //   role chip   12 / 8   radius 8
-        //   format      14 / 12  radius 10, stretched into a 32 row
+        // tinted fill, at 12 / 6, radius 8 — which lands them all on 32 tall.
+        //
+        // The role chip used to be hand-rolled here at 12 / 8. Nobody could see
+        // the 4px, but it made the chip 36, the details block 68, the header 144
+        // and the whole card 4 too tall. A one-off is how that happens: the
+        // shared component got the correction and the copy of it did not.
         'inline-flex items-center rounded-[8px] px-[12px] py-[6px] text-[14px] leading-[20px] text-[var(--text-default-caption)] ' +
         (tone === 'blue' ? 'bg-[var(--surface-primary-subtle)]' : 'bg-[var(--surface-neutral-subtle)]')
       }
@@ -163,13 +164,13 @@ export function SuggestionCard({
             <h2 className="text-[20px] font-medium leading-[20px] text-[var(--color-black-700)]">{s.name}</h2>
 
             <div className="flex flex-col gap-[12px]">
-              <span className="self-start rounded-[8px] bg-[var(--surface-primary-subtle)] px-[12px] py-[8px] text-[14px] leading-[20px] text-[var(--text-default-caption)]">
-                {s.role}
+              <span className="self-start">
+                <Tag tone="blue">{s.role}</Tag>
               </span>
 
               <div className="flex flex-wrap items-center gap-[12px]">
                 <MetaItem icon={<Icon as={Location09Icon} size={20} />}>{s.location}</MetaItem>
-                <span aria-hidden className="size-[4px] shrink-0 rounded-full bg-[var(--icons-disabled-on-color)]" />
+                <span aria-hidden className="size-[4px] shrink-0 rounded-full bg-[var(--color-black-400)]" />
                 <MetaItem icon={<Icon as={FemaleSymbolIcon} size={20} />}>{s.pronouns}</MetaItem>
                 <span aria-hidden className="size-[4px] shrink-0 rounded-full bg-[var(--color-black-400)]" />
                 <MetaItem icon={<Icon as={BirthdayCakeIcon} size={20} />}>{s.birthday}</MetaItem>
