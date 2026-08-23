@@ -2,6 +2,7 @@ import type { Suggestion } from './SuggestionCard';
 import lauren from '../../assets/dummies/lauren-shepard.png';
 import marcus from '../../assets/dummies/marcus-webb.png';
 import anika from '../../assets/dummies/anika-sharma.png';
+import priya from '../../assets/dummies/priya-nair.png';
 import remi from '../../assets/dummies/remi-falade.png';
 
 /** The signed-in viewer, for the header. */
@@ -37,6 +38,7 @@ export const DEMO_SUGGESTION: Suggestion = {
     people: [
       { src: marcus, name: 'George Tracy' },
       { src: anika, name: 'Anika Sharma' },
+      { src: priya, name: 'Priya Nair' },
     ],
     sentence: 'and 3 others.',
   },

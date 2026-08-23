@@ -1,14 +1,12 @@
-import { Bell, Mail } from 'lucide-react';
-import { Avatar, Button, ICON_SIZE, iconStroke } from '../primitives';
+import { Avatar } from '../primitives';
+import { MailIcon, NotificationIcon } from '../../assets/system_icons';
 import logomark from '../../assets/logos/logomark_blue.svg';
 
 /**
- * The app's top chrome. Shared by every in-app surface, which is why it lives
- * here rather than inside ConnectPage — the second page to need it would
- * otherwise copy it, and then there would be two.
+ * The app's top chrome, built to `connect-default` / `connect-open` (613:2646).
  *
- * Three zones on one row: identity left, place centre, self right. The centre
- * is the only part that changes between pages.
+ * Three columns on a 64px row: identity, place, self. Only the centre changes
+ * between pages, which is why this is shared rather than owned by ConnectPage.
  */
 
 export type AppSection = 'connect' | 'feed';
@@ -18,15 +16,17 @@ const SECTIONS: { key: AppSection; label: string; href: string }[] = [
   { key: 'feed', label: 'FEED', href: '/feed' },
 ];
 
-/** A bordered circular control. Distinct from IconButton, which is filled:
- *  header actions sit on white and need an outline to exist at all. */
+/** 32px, bordered, white. Not IconButton — that one is filled and 40px; a
+ *  header action sits on white and needs an outline to exist at all. */
 function HeaderIconButton({
   label,
   onClick,
+  badge,
   children,
 }: {
   label: string;
   onClick?: () => void;
+  badge?: boolean;
   children: React.ReactNode;
 }) {
   return (
@@ -35,12 +35,18 @@ function HeaderIconButton({
       aria-label={label}
       onClick={onClick}
       className={
-        'grid size-[40px] shrink-0 place-items-center rounded-full border border-[var(--color-black-200)] ' +
-        'text-[var(--color-black-700)] transition-colors hover:border-[var(--color-black-300)] ' +
+        'relative grid size-[32px] shrink-0 place-items-center rounded-full border border-[var(--color-black-200)] ' +
+        'bg-[var(--color-white)] text-[var(--color-black-700)] transition-colors hover:text-[var(--color-blue-600)] ' +
         'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-blue-600)]'
       }
     >
       {children}
+      {badge ? (
+        <span
+          aria-hidden
+          className="absolute right-[6px] top-[5px] size-[6px] rounded-full border border-[var(--color-white)] bg-[var(--color-blue-600)]"
+        />
+      ) : null}
     </button>
   );
 }
@@ -48,37 +54,40 @@ function HeaderIconButton({
 export function AppHeader({
   active = 'connect',
   avatarSrc,
+  unread,
   onNavigate,
   onInvite,
 }: {
   active?: AppSection;
   avatarSrc?: string;
+  unread?: boolean;
   onNavigate?: (href: string) => void;
   onInvite?: () => void;
 }) {
   return (
-    <header className="flex h-[80px] shrink-0 items-center gap-[16px] border-b border-[var(--color-black-100)] bg-[var(--color-white)] px-[32px]">
-      <button
-        type="button"
-        aria-label="Relethe home"
-        onClick={() => onNavigate?.('/feed')}
-        className="shrink-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--color-blue-600)]"
-      >
-        <img src={logomark} alt="" className="size-[26px]" />
-      </button>
+    <header className="flex h-[64px] shrink-0 items-center border-b border-[var(--color-black-100)] bg-[var(--color-white)] px-[32px]">
+      <div className="flex flex-1 items-center">
+        <button
+          type="button"
+          aria-label="Relethe home"
+          onClick={() => onNavigate?.('/feed')}
+          className="grid size-[32px] shrink-0 place-items-center focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--color-blue-600)]"
+        >
+          <img src={logomark} alt="" className="size-[32px]" />
+        </button>
+      </div>
 
-      <nav className="flex flex-1 items-center justify-center gap-[36px]">
+      <nav className="flex shrink-0 items-center">
         {SECTIONS.map((s) => (
           <button
             key={s.key}
             type="button"
             aria-current={s.key === active ? 'page' : undefined}
             onClick={() => onNavigate?.(s.href)}
-            // Text-only hover, per the state matrix: the label steps along its
-            // ramp and nothing else about the control moves.
+            // Button 3. Text-only hover, per the state matrix.
             className={
-              'text-[15px] font-medium leading-[100%] tracking-[0.5px] transition-colors ' +
-              'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--color-blue-600)] ' +
+              'px-[16px] py-[8px] text-[13px] font-medium leading-[16px] tracking-[1px] transition-colors ' +
+              'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--color-blue-600)] ' +
               (s.key === active
                 ? 'text-[var(--color-black-700)]'
                 : 'text-[var(--color-black-400)] hover:text-[var(--color-black-700)]')
@@ -89,23 +98,32 @@ export function AppHeader({
         ))}
       </nav>
 
-      <div className="flex shrink-0 items-center gap-[12px]">
-        <Button variant="secondary" size="lg" onClick={onInvite}>
+      <div className="flex flex-1 items-center justify-end gap-[10px]">
+        <button
+          type="button"
+          onClick={onInvite}
+          className={
+            'rounded-[40px] border border-[var(--color-blue-600)] bg-[var(--color-white)] px-[16px] py-[8px] ' +
+            'text-[13px] font-medium leading-[16px] tracking-[1px] text-[var(--color-blue-600)] transition-colors ' +
+            'hover:text-[var(--color-blue-700)] ' +
+            'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-blue-600)]'
+          }
+        >
           INVITE
-        </Button>
-        <HeaderIconButton label="Notifications" onClick={() => onNavigate?.('/notifications')}>
-          <Bell size={ICON_SIZE.sm} strokeWidth={iconStroke(ICON_SIZE.sm)} />
+        </button>
+        <HeaderIconButton label="Notifications" badge={unread} onClick={() => onNavigate?.('/notifications')}>
+          <NotificationIcon />
         </HeaderIconButton>
         <HeaderIconButton label="Messages" onClick={() => onNavigate?.('/messages')}>
-          <Mail size={ICON_SIZE.sm} strokeWidth={iconStroke(ICON_SIZE.sm)} />
+          <MailIcon />
         </HeaderIconButton>
         <button
           type="button"
           aria-label="Your profile"
           onClick={() => onNavigate?.('/profile')}
-          className="shrink-0 rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-blue-600)]"
+          className="size-[32px] shrink-0 overflow-hidden rounded-full border border-[var(--color-black-200)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-blue-600)]"
         >
-          <Avatar src={avatarSrc} alt="" size={40} onLight />
+          <Avatar src={avatarSrc} alt="" size={32} onLight />
         </button>
       </div>
     </header>
@@ -113,22 +131,20 @@ export function AppHeader({
 }
 
 /**
- * The progress read-out beside the tabs. Dots rather than a bar because the
- * unit is a decision, and a decision is countable — a continuous fill would
- * imply partial progress through one.
+ * The progress read-out beside the tabs. Ten 8x6 marks, not circles — the unit
+ * is a decision, and a decision is countable, so a continuous bar would imply
+ * partial progress through one.
  */
 export function DailyGoal({ done, total = 10 }: { done: number; total?: number }) {
   return (
     <div className="flex items-center gap-[12px]">
-      <span className="text-[13px] font-medium uppercase leading-[120%] tracking-[1.5px] text-[var(--color-black-500)]">
-        Daily goal
-      </span>
-      <span className="flex items-center gap-[5px]" role="img" aria-label={`${done} of ${total} reviewed today`}>
+      <span className="text-[12px] font-medium uppercase leading-[16px] text-[var(--color-black-400)]">Daily goal</span>
+      <span className="flex items-center gap-[4px]" role="img" aria-label={`${done} of ${total} reviewed today`}>
         {Array.from({ length: total }).map((_, i) => (
           <span
             key={i}
             className={
-              'size-[8px] rounded-full ' +
+              'h-[6px] w-[8px] rounded-[40px] ' +
               (i < done ? 'bg-[var(--color-blue-600)]' : 'bg-[var(--color-black-200)]')
             }
           />
