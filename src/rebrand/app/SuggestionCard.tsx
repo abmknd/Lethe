@@ -89,8 +89,12 @@ function Tag({ children, tone }: { children: ReactNode; tone: 'neutral' | 'blue'
   return (
     <span
       className={
-        // Body 4, 14/20. Padding is 12 across and 6 down — the tag is sized by
-        // its line box, not by a fixed height.
+        // EVERY pill on this card is Body 4 (14/20) in text/default/caption on a
+        // tinted fill. Only the padding differs by role, which is the part worth
+        // reading off the frame rather than assuming:
+        //   interest    12 / 6   radius 8
+        //   role chip   12 / 8   radius 8
+        //   format      14 / 12  radius 10, stretched into a 32 row
         'inline-flex items-center rounded-[8px] px-[12px] py-[6px] text-[14px] leading-[20px] text-[var(--text-default-caption)] ' +
         (tone === 'blue' ? 'bg-[var(--surface-primary-subtle)]' : 'bg-[var(--surface-neutral-subtle)]')
       }
@@ -134,19 +138,13 @@ export function SuggestionCard({
   const firstName = s.name.split(' ')[0];
 
   return (
-    <div
-      className={
-        'flex items-stretch ' +
-        // The card holds its position when the panel opens: pulling the row's
-        // layout width back by the panel width keeps the card centred where it
-        // was and lets the panel extend right. Otherwise the thing you are
-        // reading slides left the moment you ask for more about it.
-        (signalOpen ? 'xl:mr-[-320px]' : '')
-      }
-    >
+    // The panel is ABSOLUTE, as it is in the frame, so it is outside layout
+    // entirely and the card cannot move when it opens. Opening SIGNAL has to
+    // read as the same card saying more, not as a second card arriving.
+    <div className="relative flex w-[600px] max-w-full items-stretch">
       <article
         className={
-          'flex w-[600px] max-w-full shrink-0 flex-col overflow-hidden border border-[var(--border-disabled-deep)] bg-[var(--surface-neutral-default)] ' +
+          'flex w-full flex-col overflow-hidden border border-[var(--border-disabled-deep)] bg-[var(--surface-neutral-default)] ' +
           (signalOpen ? 'rounded-l-[16px] border-r-0' : 'rounded-[16px]')
         }
       >
@@ -165,7 +163,7 @@ export function SuggestionCard({
             <h2 className="text-[20px] font-medium leading-[20px] text-[var(--color-black-700)]">{s.name}</h2>
 
             <div className="flex flex-col gap-[12px]">
-              <span className="self-start rounded-[8px] bg-[var(--surface-primary-subtle)] px-[12px] py-[8px] text-[13px] leading-[16px] text-[var(--text-default-caption)]">
+              <span className="self-start rounded-[8px] bg-[var(--surface-primary-subtle)] px-[12px] py-[8px] text-[14px] leading-[20px] text-[var(--text-default-caption)]">
                 {s.role}
               </span>
 
@@ -236,7 +234,7 @@ export function SuggestionCard({
             {s.meetingFormats.map((f) => (
               <span
                 key={f}
-                className="inline-flex items-center self-stretch rounded-[10px] bg-[var(--surface-primary-subtle)] px-[14px] text-[13px] leading-[16px] text-[var(--text-default-caption)]"
+                className="inline-flex items-center self-stretch rounded-[10px] bg-[var(--surface-primary-subtle)] px-[14px] text-[14px] leading-[20px] text-[var(--text-default-caption)]"
               >
                 {f}
               </span>
@@ -288,7 +286,7 @@ function SignalPanel({ id, suggestion, onClose }: { id: string; suggestion: Sugg
   return (
     <aside
       id={id}
-      className="flex w-[320px] shrink-0 flex-col overflow-hidden rounded-r-[16px] border border-[var(--border-disabled-deep)] bg-[var(--surface-neutral-default)]"
+      className="absolute bottom-0 left-full top-0 flex w-[320px] flex-col overflow-hidden rounded-r-[16px] border border-[var(--border-disabled-deep)] bg-[var(--surface-neutral-default)]"
     >
       <div className="relative flex flex-col gap-[14px] bg-[var(--surface-primary-subtle)] p-[20px]">
         <div className="flex flex-col gap-[6px]">

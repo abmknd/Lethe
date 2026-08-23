@@ -320,6 +320,22 @@ varying was never injected and the program silently failed to link. Shader
 string surgery needs exact-token matching, and a link failure must be *loud* in
 dev and *fall back* in production.
 
+### 4c-iii. Backend gaps, logged not fixed
+
+Rebuilding a surface against its frame forces every field on screen to come from
+somewhere, and when it cannot, that is a gap. They are collected in
+[docs/backend-gaps.md](docs/backend-gaps.md) and **deferred by decision** until
+the UI overhaul is done.
+
+The one that is not a column and blocks the others: **the blind gate contradicts
+the Connect design.** `Recommendation.candidate` is null while a match is blind,
+but the frames show identity above PASS / MATCH. Answering that decides whether
+the rest is real work or post-reveal-only.
+
+Standing rule while they are open: **a missing field renders empty, never
+invented.** An empty block is an honest gap; plausible fiction is a lie that
+reaches production.
+
 ### 4d. Edge cases and loose ends
 
 The parts that never make it into a reference frame and are therefore always
