@@ -6,8 +6,12 @@ re-derived later from memory.
 
 **How these were found:** rebuilding a surface against its Figma frame forces
 every field on screen to come from somewhere. When it cannot, that is a gap.
-Each entry below is a real thing a designed screen asks for and the API does
-not currently provide.
+
+**Check the schema, not the payload.** The first version of this file called
+seven fields missing because they were absent from one API projection. Five of
+them had columns. A field you cannot see from where you are standing is not the
+same as a field that does not exist, and the difference is a projection change
+versus a migration.
 
 **The rule the UI follows meanwhile:** a missing field renders EMPTY, never
 invented. An empty COMMON INTEREST block is an honest gap; a card filled with
@@ -30,6 +34,22 @@ before both sides commit.
 **The design.** `connect-default` / `connect-open` show name, photo, role,
 location, pronouns, birthday, endorsements and socials — all above PASS / MATCH.
 
+**This has flipped before, which is why it needs an actual decision rather than
+an assumption.** Three data points, in order:
+
+1. The **Lethe-era prototype** showed full identity at suggestion time — name,
+   handle, photo, role, location, pronouns, "94% match", availability.
+2. The **ConnectPage this rebuild replaced** was blind. Checked at `27d82ef~1`:
+   it renders only `blindRationale.roleCategory`, `confidenceBand`,
+   `overlapThemes` and `availabilityCompatibility`. No `candidate.displayName`
+   anywhere in the file.
+3. The **new Figma frames** show identity again.
+
+So the gate was added after the prototype and the new design returns to the
+earlier model. Neither direction is a mistake — but the API, `redesign.md` 5.11
+and the frames currently describe two different products, and the fields in 2b
+only matter under one of them.
+
 Two ways this resolves, and they lead to different work:
 
 | | What changes |
@@ -42,24 +62,46 @@ blank.
 
 ---
 
-## 2. Fields the Connect card needs that have no column
+## 2. Fields the Connect card needs
 
-`Recommendation.candidate` is `{ id, displayName, handle, location, timezone,
-introText }`. The card asks for more:
+**Corrected 2026-08-23.** An earlier version of this list said seven fields had
+"no column". That was wrong, and wrong in a way worth naming: I read
+`Recommendation.candidate` — `{ id, displayName, handle, location, timezone,
+introText }` — and treated its shape as the schema. Most of these fields do have
+columns; they are simply not in that one projection.
 
-| Field | Where it shows | Status |
+Two very different kinds of problem, and only the second is real work:
+
+### 2a. Has a column, not in the payload — widen the projection
+
+| Field | Lives at | Verified |
 |---|---|---|
-| `pronouns` | Header meta row | No column anywhere |
-| `birthday` | Header meta row | No column. Also a PII question, not just a schema one |
-| `role` / job title | Role chip | `preferences.userType` exists, but it is a role FAMILY, not a job title |
-| `meetingFormats` | MEETING FORMAT | No column. `meeting.provider` is about a booked call, not a preference |
-| `endorsedBy` | Signal panel | No endorsement concept exists at all — see 3 |
-| `socials` | Signal panel | Only `preferences.linkedinUrl` exists. KYC Step 8 collects four, and only LinkedIn is persisted |
-| `avatarUrl` on a candidate | Header | Stored on `users.avatar_url` but not returned in the `candidate` shape |
+| `role` | `preferences.user_type` | `user_type TEXT NOT NULL DEFAULT ''` |
+| `meetingFormats` | `preferences.meeting_format` | `meeting_format TEXT NOT NULL DEFAULT 'video'` |
+| `avatarUrl` | `users.avatar_url` | Written by KYC Step 7 |
+| `availability` | `availability_slots` table | Own table, indexed on user and day |
+| `interests` | `preferences.interests` | `JSONB` |
 
-**Cheapest fix for socials:** KYC already collects LinkedIn, Twitter, website
-and GitHub. Three of the four are dropped on save. Persisting all four is a
-small change and unblocks most of the Signal panel's socials row.
+One change unblocks all five: return them on `candidate`. This is a projection
+widening, not a migration.
+
+**One genuine mismatch inside 2a:** `meeting_format` is a scalar `TEXT` in the
+database while `Preferences.meetingFormat` is `string[]` in TypeScript, and the
+design shows multiple format pills. So the column exists but cannot hold what
+the screen displays. Scalar → array is a real migration, just a small one.
+
+### 2b. No column anywhere — real work
+
+| Field | Where it shows | Note |
+|---|---|---|
+| `pronouns` | Header meta row | Nothing in any table |
+| `birthday` | Header meta row | Nothing. Also a PII question, not just a schema one |
+| `endorsedBy` | Signal panel | No endorsement concept at all — see 3 |
+| `socials` beyond LinkedIn | Signal panel | KYC Step 8 collects four, only `linkedinUrl` is persisted |
+
+**Cheapest fix for socials:** three of the four collected values are dropped on
+save. Persisting all four is a small change and unblocks most of the Signal
+panel's socials row.
 
 ---
 
@@ -98,7 +140,7 @@ behalf. Probably better to prompt those users to re-pick.
 
 | Surface | Needs |
 |---|---|
-| DAILY GOAL (10 dots) | A per-day decision count. Currently derived from the local session index, so it resets on reload |
+| DAILY GOAL (10 dots) | **Not a gap.** The pre-rebrand page already showed "0 of 10 reviewed", derived client-side from the recommendations list, and the dots are the same number drawn differently. Only *persistence* is missing — the index resets on reload |
 | Notification badge | An unread count. Currently hardcoded true |
 | UPCOMING tab | A scheduled-meetings-for-me query. Currently routes to `/matches?filter=upcoming`, which nothing reads |
 | ALL MATCHES tab | Routes to the old-brand `/matches` |
