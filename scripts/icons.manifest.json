@@ -72,6 +72,126 @@
       "size": 16,
       "note": "Now a real HugeIcons instance — was a flattened lucide vector.",
       "url": "https://www.figma.com/api/mcp/asset/12f00612-0f8e-40e1-b31e-fc96d14efc4a.svg"
+    },
+    {
+      "name": "home-01",
+      "nodeId": "671:1176",
+      "size": 20,
+      "url": "https://www.figma.com/api/mcp/asset/6df830cc-8c47-4255-9052-23cf4607c5ce.svg"
+    },
+    {
+      "name": "user-multiple",
+      "nodeId": "671:2342",
+      "size": 20,
+      "url": "https://www.figma.com/api/mcp/asset/5c52c52d-5178-41f4-ae73-e1bb514f6a1f.svg"
+    },
+    {
+      "name": "analytics-01",
+      "nodeId": "671:278",
+      "size": 20,
+      "url": "https://www.figma.com/api/mcp/asset/d40f6764-e2da-419c-88c8-6010b747d8ab.svg"
+    },
+    {
+      "name": "compass",
+      "nodeId": "671:1954",
+      "size": 20,
+      "url": "https://www.figma.com/api/mcp/asset/a8454354-019c-4b66-9905-a26fe1412e8e.svg"
+    },
+    {
+      "name": "bookmark-01",
+      "nodeId": "671:228",
+      "size": 20,
+      "url": "https://www.figma.com/api/mcp/asset/4c4e4a7a-e2e0-44b2-9266-e7d175265b07.svg"
+    },
+    {
+      "name": "flash",
+      "nodeId": "671:1438",
+      "size": 20,
+      "url": "https://www.figma.com/api/mcp/asset/2c08eb46-fb09-453a-a155-637e7f4d49ac.svg"
+    },
+    {
+      "name": "dashboard-square-01",
+      "nodeId": "671:482",
+      "size": 20,
+      "url": "https://www.figma.com/api/mcp/asset/52141b99-4851-4d8c-a8f4-5466271fb4c9.svg"
+    },
+    {
+      "name": "sparkles",
+      "nodeId": "671:2358",
+      "size": 20,
+      "url": "https://www.figma.com/api/mcp/asset/70b60e17-09e9-4289-9e87-65c34d9410f2.svg"
+    },
+    {
+      "name": "calendar-01",
+      "nodeId": "671:535",
+      "size": 20,
+      "url": "https://www.figma.com/api/mcp/asset/15931a86-4b28-4fc5-b07c-f2499d3826a3.svg"
+    },
+    {
+      "name": "checkmark-badge-01",
+      "nodeId": "671:464",
+      "size": 20,
+      "url": "https://www.figma.com/api/mcp/asset/9ead555b-bf1b-40f6-8dbb-345aa1be1e10.svg"
+    },
+    {
+      "name": "user-add-01",
+      "nodeId": "671:2330",
+      "size": 20,
+      "url": "https://www.figma.com/api/mcp/asset/5a3edca8-e8e9-4e6c-9762-f078ba5fb202.svg"
+    },
+    {
+      "name": "user-remove-01",
+      "nodeId": "671:2328",
+      "size": 20,
+      "url": "https://www.figma.com/api/mcp/asset/48fd9aaa-edb3-469c-bd96-76be72ff0bbb.svg"
+    },
+    {
+      "name": "more-horizontal",
+      "nodeId": "671:1815",
+      "size": 18,
+      "url": "https://www.figma.com/api/mcp/asset/2468880c-7e8d-44b3-b8ea-d7867840c5c0.svg"
+    },
+    {
+      "name": "favourite",
+      "nodeId": "671:214",
+      "size": 18,
+      "url": "https://www.figma.com/api/mcp/asset/2c1cc47b-1f25-412f-8486-ebf05df270b8.svg"
+    },
+    {
+      "name": "message-01",
+      "nodeId": "671:336",
+      "size": 18,
+      "url": "https://www.figma.com/api/mcp/asset/a42f7f54-4b88-47ec-acc1-40b51984ef4b.svg"
+    },
+    {
+      "name": "signal",
+      "nodeId": "671:295",
+      "size": 18,
+      "url": "https://www.figma.com/api/mcp/asset/88273902-4abd-4d8a-a033-5c88a3622573.svg"
+    },
+    {
+      "name": "share-01",
+      "nodeId": "671:1561",
+      "size": 18,
+      "url": "https://www.figma.com/api/mcp/asset/c391ee41-1d5d-47bc-b03a-a0ef741c0f34.svg"
+    },
+    {
+      "name": "sent",
+      "nodeId": "644:16954",
+      "size": 20,
+      "url": "https://www.figma.com/api/mcp/asset/7b5e03ce-e692-4cd7-9398-08d95c7b31da.svg"
+    },
+    {
+      "name": "search",
+      "nodeId": "671:2134",
+      "size": 18,
+      "url": "https://www.figma.com/api/mcp/asset/6bd023e4-01a0-4814-a440-30aa2d926f86.svg"
+    },
+    {
+      "name": "plus-sign",
+      "nodeId": "671:1966",
+      "size": 18,
+      "url": "https://www.figma.com/api/mcp/asset/b107ba69-b4d9-4d1d-83b5-4ead781427d9.svg"
     }
   ]
 }
