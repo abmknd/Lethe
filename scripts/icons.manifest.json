@@ -192,6 +192,42 @@
       "nodeId": "671:1966",
       "size": 18,
       "url": "https://www.figma.com/api/mcp/asset/b107ba69-b4d9-4d1d-83b5-4ead781427d9.svg"
+    },
+    {
+      "name": "bulb-chargeing",
+      "nodeId": "694:112910",
+      "size": 20,
+      "url": "https://www.figma.com/api/mcp/asset/ccb4f188-4f91-43a9-99e4-e27e7eef3370.svg"
+    },
+    {
+      "name": "message-multiple-02",
+      "nodeId": "695:56646",
+      "size": 20,
+      "url": "https://www.figma.com/api/mcp/asset/2a1f310b-2145-4c1d-b96a-e72f7ab20d18.svg"
+    },
+    {
+      "name": "approximately-equal-circle",
+      "nodeId": "695:34098",
+      "size": 20,
+      "url": "https://www.figma.com/api/mcp/asset/2e2149e8-dc32-48e9-8dbe-9f15be4778cc.svg"
+    },
+    {
+      "name": "bookmark-02",
+      "nodeId": "694:9590",
+      "size": 20,
+      "url": "https://www.figma.com/api/mcp/asset/af30ca29-618f-439b-9866-11353209de21.svg"
+    },
+    {
+      "name": "share-05",
+      "nodeId": "694:14246",
+      "size": 20,
+      "url": "https://www.figma.com/api/mcp/asset/676f7571-8b67-4653-a0b9-14325d57f132.svg"
+    },
+    {
+      "name": "more-horizontal-circle-01",
+      "nodeId": "694:33266",
+      "size": 20,
+      "url": "https://www.figma.com/api/mcp/asset/755a9579-663f-4e59-9e7a-4b54b157c5f7.svg"
     }
   ]
 }

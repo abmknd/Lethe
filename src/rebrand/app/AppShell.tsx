@@ -1,12 +1,17 @@
 import { useState, type ReactNode } from 'react';
 import { Icon } from './Icon';
+import { Avatar, AvatarStack, BadgeButton } from './Avatar';
+import adamArt from '../assets/app/creation-of-adam.webp';
 import {
-  Analytics01Icon, Bookmark01Icon, Calendar01Icon, CheckmarkBadge01Icon, CompassIcon,
-  DashboardSquare01Icon, FavouriteIcon, FlashIcon, GlobalIcon, Home01Icon, Linkedin02Icon,
-  Mail01Icon, Message01Icon, MoreHorizontalIcon, Notification01Icon, PlusSignIcon, SearchIcon,
-  SentIcon, Share01Icon, SignalIcon, SparklesIcon, SubstackIcon, UserAdd01Icon, UserMultipleIcon,
-  UserRemove01Icon, Location09Icon, BulbIcon,
+  Analytics01Icon, ApproximatelyEqualCircleIcon, Bookmark01Icon, Bookmark02Icon,
+  BulbChargeingIcon, Calendar01Icon, CheckmarkBadge01Icon, CompassIcon,
+  DashboardSquare01Icon, FavouriteIcon, FlashIcon, GlobalIcon, Home01Icon,
+  Linkedin02Icon, Mail01Icon, MessageMultiple02Icon, MoreHorizontalCircle01Icon,
+  Notification01Icon, PlusSignIcon, SearchIcon, SentIcon, Share05Icon,
+  SparklesIcon, SubstackIcon, UserAdd01Icon, UserMultipleIcon, UserRemove01Icon,
+  Location09Icon,
 } from '../../assets/system_icons';
+import type { AvatarName } from '../../assets/avatars';
 import {
   FAVES, FEED_RAIL, FOLLOW, MATCHES, MATCH_RAIL, ME, NAV, POSTS, PROFILES,
   type NavTab, type Post, type Profile,
@@ -49,20 +54,6 @@ const CARD = 'rounded-[16px] bg-[var(--surface-neutral-default)]';
 // exactly 3px short of the frame.
 const LABEL = 'text-[13px] font-medium uppercase leading-[16px] tracking-[1px] text-[var(--text-default-caption)]';
 const HAIRLINE = 'bg-[var(--border-disabled-deep)]';
-
-function Avatar({ src, size, ring }: { src: string; size: number; ring?: boolean }) {
-  return (
-    <span
-      role="img"
-      aria-hidden
-      className={
-        'block shrink-0 rounded-full bg-[var(--border-disabled-deep)] bg-cover bg-center ' +
-        (ring ? 'border-2 border-[var(--surface-neutral-default)]' : '')
-      }
-      style={{ width: size, height: size, backgroundImage: `url(${src})` }}
-    />
-  );
-}
 
 /**
  * TAG — the library's own component, reduced to the axes this screen uses.
@@ -174,8 +165,8 @@ function Header({ nav, onNav }: { nav: number; onNav: (i: number) => void }) {
         <PillButton tone="outline"><span className="grid h-[32px] w-[70px] place-items-center">INVITE</span></PillButton>
         <HeaderIconButton label="Notifications" glyph={Notification01Icon} badge />
         <HeaderIconButton label="Messages" glyph={Mail01Icon} />
-        <button type="button" aria-label="Your profile" className="block size-[32px] overflow-hidden rounded-[32px] border border-[var(--color-black-200)]">
-          <img src={ME} alt="" className="size-full object-cover" />
+        <button type="button" aria-label="Your profile" className="block shrink-0 rounded-full">
+          <Avatar name={ME.avatar} size="sm" alt="Elena Voss" />
         </button>
       </div>
     </header>
@@ -227,12 +218,12 @@ function PostActions({ post }: { post: Post }) {
     <div className="mt-[8px] flex items-center justify-between gap-[16px] px-[16px] pb-[12px] pt-[8px]">
       <div className="flex items-center gap-[4px]">
         <button type="button" aria-label="Like" className={act}><Icon as={FavouriteIcon} size={18} />{post.likes}</button>
-        <button type="button" aria-label="Reply" className={act}><Icon as={Message01Icon} size={18} />{post.replies}</button>
-        <button type="button" aria-label="Echo" className={act}><Icon as={SignalIcon} size={18} />{post.echoes}</button>
+        <button type="button" aria-label="Reply" className={act}><Icon as={MessageMultiple02Icon} size={18} />{post.replies}</button>
+        <button type="button" aria-label="Echo" className={act}><Icon as={ApproximatelyEqualCircleIcon} size={18} />{post.echoes}</button>
       </div>
       <div className="flex items-center gap-[4px]">
-        <button type="button" aria-label="Bookmark" className={round}><Icon as={Bookmark01Icon} size={18} /></button>
-        <button type="button" aria-label="Share" className={round}><Icon as={Share01Icon} size={18} /></button>
+        <button type="button" aria-label="Bookmark" className={round}><Icon as={Bookmark02Icon} size={18} /></button>
+        <button type="button" aria-label="Share" className={round}><Icon as={Share05Icon} size={18} /></button>
       </div>
     </div>
   );
@@ -245,7 +236,7 @@ function FeedView() {
         type="button"
         className="sticky top-0 z-20 flex w-full items-center gap-[14px] rounded-t-[16px] border-b border-[var(--border-disabled-deep)] bg-[var(--surface-neutral-default)] px-[18px] py-[16px] text-left text-[var(--text-default-body)] transition-colors hover:bg-[var(--surface-primary-subtle)] hover:text-[var(--text-default-highlight-blue)]"
       >
-        <Avatar src={ME} size={44} />
+        <Avatar name={ME.avatar} size="lg" />
         <span className="min-w-0 flex-1 text-[18px] leading-[22px] text-[var(--text-default-placeholder)]">What's up?</span>
         <span className="grid size-[40px] shrink-0 place-items-center rounded-[40px]"><Icon as={SentIcon} size={20} /></span>
       </button>
@@ -260,7 +251,7 @@ function FeedView() {
           }
         >
           <div className="flex items-start gap-[14px] px-[22px] pt-[20px]">
-            <Avatar src={post.avatar} size={44} />
+            <Avatar name={post.avatar} size="lg" />
             <div className="flex min-w-0 flex-1 flex-col gap-[8px]">
               <div className="flex flex-wrap items-center gap-[8px]">
                 <span className="text-[16px] font-medium leading-[100%] text-[var(--text-default-body)]">{post.name}</span>
@@ -270,7 +261,7 @@ function FeedView() {
               <span className="text-[14px] leading-[100%] text-[var(--text-default-placeholder)]">{post.handle}</span>
             </div>
             <button type="button" aria-label="More" className="grid size-[32px] shrink-0 place-items-center rounded-[32px] text-[var(--text-default-placeholder)] transition-colors hover:bg-[var(--surface-neutral-subtle)]">
-              <Icon as={MoreHorizontalIcon} size={18} />
+              <Icon as={MoreHorizontalCircle01Icon} size={18} />
             </button>
           </div>
 
@@ -314,7 +305,7 @@ function MatchListView({ rail }: { rail: string }) {
           }
         >
           <div className="flex items-start gap-[14px] px-[22px] pt-[20px]">
-            <Avatar src={m.avatar} size={44} />
+            <Avatar name={m.avatar} size="lg" />
             <div className="flex min-w-0 flex-1 flex-col gap-[8px]">
               <span className="text-[16px] font-medium leading-[100%] text-[var(--text-default-body)]">{m.name}</span>
               <div className="flex flex-wrap items-center gap-[10px]">
@@ -337,8 +328,14 @@ function MatchListView({ rail }: { rail: string }) {
           <p className="mx-[22px] mt-[14px] text-[16px] leading-[150%] text-[var(--text-default-body)]">{m.about}</p>
 
           <div className="mx-[22px] mt-[18px] flex items-start gap-[10px] rounded-[12px] bg-[var(--surface-primary-subtle)] px-[14px] py-[12px]">
-            <span className="mt-[2px] text-[var(--text-default-highlight-blue)]"><Icon as={SignalIcon} size={16} /></span>
-            <span className="text-[15px] leading-[140%] text-[var(--text-default-body)]">{m.signal}</span>
+            <span className="mt-[2px] text-[var(--text-default-highlight-blue)]"><Icon as={BulbChargeingIcon} size={16} /></span>
+            {/* The frame renders the date as a link inside the sentence, which
+                is why `signal` is split rather than one string. */}
+            <span className="text-[15px] leading-[140%] text-[var(--text-default-body)]">
+              {m.signal.pre}
+              <span className="text-[var(--text-default-highlight-blue)]">{m.signal.link}</span>
+              {m.signal.post}
+            </span>
           </div>
         </article>
       ))}
@@ -366,7 +363,7 @@ function SuggestionsView({ profile, done, onDecide }: { profile: Profile; done: 
           <div className="flex min-w-0 flex-[1_1_459px] flex-col">
             {/* top-info-block: 136 = 20 + 96 + 20 */}
             <div className="flex items-start gap-[16px] p-[20px]">
-              <Avatar src={profile.avatar} size={72} />
+              <Avatar name={profile.avatar} size="xxl" />
               <div className="flex min-w-0 flex-1 flex-col">
                 <h2 className="mt-[4px] text-[20px] font-medium leading-[20px] text-[var(--text-default-body)]">
                   {profile.name}
@@ -429,7 +426,7 @@ function SuggestionsView({ profile, done, onDecide }: { profile: Profile; done: 
             {/* signal-section: 220 = 20 + 36 + 14 + 130 + 20 */}
             <section className="flex flex-col bg-[var(--surface-primary-subtle)] p-[20px]">
               <div className="flex h-[36px] items-start gap-[6px]">
-                <Icon as={BulbIcon} size={32} className="text-[var(--text-default-highlight-blue)]" />
+                <Icon as={BulbChargeingIcon} size={32} className="text-[var(--text-default-highlight-blue)]" />
                 <span className="flex flex-col gap-[4px]">
                   <span className="text-[14px] font-medium leading-[16px] tracking-[1px] text-[var(--text-default-highlight-blue)]">
                     SIGNAL
@@ -455,11 +452,7 @@ function SuggestionsView({ profile, done, onDecide }: { profile: Profile; done: 
             <section className="flex flex-col p-[20px]">
               <span className={LABEL}>ENDORSED BY</span>
               <div className="mt-[12px] flex h-[32px] items-center gap-[8px]">
-                <span className="flex w-[64px] items-center">
-                  {profile.endorsers.map((src, i) => (
-                    <span key={src} style={{ marginLeft: i ? -12 : 0 }}><Avatar src={src} size={32} ring /></span>
-                  ))}
-                </span>
+                <AvatarStack people={profile.endorsers} size="md" />
                 <span className="text-[15px] leading-[20px] text-[var(--text-default-body)]">
                   {profile.endorseName}
                   <span className="text-[var(--text-default-placeholder)]"> {profile.endorseRest}</span>
@@ -530,40 +523,51 @@ function SuggestionsView({ profile, done, onDecide }: { profile: Profile; done: 
 
 function PeopleCard({
   title, people, action,
-}: { title: string; people: { name: string; handle: string; avatar: string; signal: ReactNode }[]; action: string }) {
+}: { title: string; people: { name: string; handle: string; avatar: AvatarName; note: string }[]; action: ReactNode }) {
   return (
-    <div className={'flex flex-col gap-[4px] px-[18px] py-[22px] ' + CARD}>
-      <div className="flex items-baseline justify-between gap-[12px] px-[4px] pb-[10px]">
-        <span className="text-[20px] font-medium leading-[100%] text-[var(--text-default-body)]">{title}</span>
-        <a href="#see-all" className="text-[14px] leading-[100%] text-[var(--text-default-highlight-blue)]">See all</a>
+    <div className={'flex flex-col ' + CARD}>
+      {/* header-row 320x64 */}
+      <div className="flex h-[64px] items-center justify-between px-[16px]">
+        <span className="text-[18px] font-medium leading-[24px] text-[var(--text-default-body)]">{title}</span>
+        <a href="#see-all" className="text-[14px] leading-[16px] text-[var(--text-default-highlight-blue)]">See all</a>
       </div>
+      {/* each follow-profile is 84: a 40 info row at y=8, then the note at y=56 */}
       {people.map((p) => (
-        <div key={p.handle} className="flex items-start gap-[12px] px-[4px] py-[10px]">
-          <Avatar src={p.avatar} size={44} />
-          <div className="flex min-w-0 flex-1 flex-col gap-[12px]">
-            <div className="flex items-start gap-[12px]">
-              <div className="flex min-w-0 flex-1 flex-col gap-[8px]">
-                <span className="truncate text-[16px] font-medium leading-[100%] text-[var(--text-default-body)]">{p.name}</span>
-                <span className="truncate text-[14px] leading-[100%] text-[var(--text-default-placeholder)]">{p.handle}</span>
-              </div>
-              <PillButton tone="neutral"><span className="block px-[14px] py-[9px] text-[12px] leading-[100%]">{action}</span></PillButton>
-            </div>
-            <span className="self-start"><Tag>{p.signal}</Tag></span>
+        <div key={p.handle} className="flex h-[84px] flex-col px-[16px] pt-[8px]">
+          <div className="flex h-[40px] items-center gap-[6px]">
+            <Avatar name={p.avatar} size="lg" />
+            <span className="flex min-w-0 flex-1 flex-col">
+              <span className="truncate text-[14px] font-medium leading-[20px] text-[var(--text-default-body)]">{p.name}</span>
+              <span className="truncate text-[14px] leading-[20px] text-[var(--text-default-placeholder)]">{p.handle}</span>
+            </span>
+            <BadgeButton label={p.name} style="fill">{action}</BadgeButton>
           </div>
+          <span className="mt-[8px] text-[13px] leading-[20px] text-[var(--text-default-placeholder)]">{p.note}</span>
         </div>
       ))}
     </div>
   );
 }
 
+/**
+ * `card-playful-illustrated`, 320x340. The artwork is the top 140 and the
+ * content the remaining 200 — it is NOT a tinted panel with text laid over it,
+ * which is what I had. The image does the colour work, so the copy below sits
+ * on white and the action is the plain outline button.
+ */
 function PromoCard({ title, body, action }: { title: string; body: ReactNode; action: string }) {
   return (
-    <div className="flex flex-col gap-[12px] rounded-[16px] bg-[var(--surface-primary-subtle)] p-[22px]">
-      <span className="text-[20px] font-medium leading-[100%] text-[var(--text-default-body)]">{title}</span>
-      <p className="text-[15px] leading-[150%] text-[var(--text-default-caption)]">{body}</p>
-      <span className="mt-[2px] self-start">
-        <PillButton tone="outline"><span className="block px-[20px] py-[12px]">{action}</span></PillButton>
-      </span>
+    <div className={'overflow-hidden ' + CARD}>
+      <img src={adamArt} alt="" className="block h-[140px] w-full object-cover" />
+      <div className="flex flex-col px-[20px] pb-[24px] pt-[16px]">
+        <span className="text-[18px] font-medium leading-[24px] text-[var(--text-default-body)]">{title}</span>
+        <p className="mt-[8px] text-[14px] leading-[20px] text-[var(--text-default-caption)]">{body}</p>
+        <span className="mt-[16px] self-start">
+          <PillButton tone="outline">
+            <span className="grid h-[32px] w-[70px] place-items-center">{action}</span>
+          </PillButton>
+        </span>
+      </div>
     </div>
   );
 }
@@ -571,12 +575,15 @@ function PromoCard({ title, body, action }: { title: string; body: ReactNode; ac
 function AsideColumn({ isFeed }: { isFeed: boolean }) {
   return (
     <aside className="sticky top-[88px] flex flex-col gap-[16px]">
-      <div className={'flex items-center gap-[12px] px-[18px] py-[14px] ' + CARD}>
-        <span className="text-[var(--text-default-placeholder)]"><Icon as={SearchIcon} size={18} /></span>
+      {/* search-bar: 320x44, a pill — not a 16-radius card. */}
+      <div className="flex h-[44px] items-center gap-[6px] rounded-full bg-[var(--surface-neutral-default)] pl-[12px] pr-[16px]">
+        <span className="grid size-[24px] shrink-0 place-items-center text-[var(--text-default-placeholder)]">
+          <Icon as={SearchIcon} size={16} />
+        </span>
         <input
           placeholder="Search"
           aria-label="Search"
-          className="min-w-0 flex-1 bg-transparent text-[16px] leading-[18px] text-[var(--text-default-body)] outline-none placeholder:text-[var(--text-default-placeholder)]"
+          className="min-w-0 flex-1 bg-transparent text-[16px] leading-[20px] text-[var(--text-default-body)] outline-none placeholder:text-[var(--text-default-placeholder)]"
         />
       </div>
 
@@ -585,9 +592,9 @@ function AsideColumn({ isFeed }: { isFeed: boolean }) {
           <PromoCard
             title="Invite someone"
             action="INVITE"
-            body={<>Help grow the Relethe community by bringing on someone you know. Earn 3 <span className="text-[var(--text-default-highlight-blue)]">karmas</span> when they sign up, and earn 6 more when they take their first meeting.</>}
+            body="Help grow the Relethe community by bringing on someone you know. Earn 3 karmas when they sign up, and 6 more when they take their first meeting."
           />
-          <PeopleCard title="Who to follow" action="FOLLOW" people={FOLLOW} />
+          <PeopleCard title="Who to follow" action={<Icon as={UserAdd01Icon} size={16} />} people={FOLLOW} />
         </>
       ) : (
         <>
@@ -596,14 +603,7 @@ function AsideColumn({ isFeed }: { isFeed: boolean }) {
             action="ACTIVATE"
             body="Set your own standards for who reaches you, meet beyond your weekly ten, and let the engine work a wider circle on your behalf."
           />
-          <PeopleCard
-            title="Your faves"
-            action="MESSAGE"
-            people={FAVES.map((f) => ({
-              ...f,
-              signal: <span className="text-[var(--text-default-caption)]">Met <span className="text-[var(--text-default-body)]">{f.times}</span>{f.rest}</span>,
-            }))}
-          />
+          <PeopleCard title="Your faves" action={<Icon as={MessageMultiple02Icon} size={16} />} people={FAVES} />
         </>
       )}
     </aside>
@@ -637,7 +637,7 @@ export function AppShell() {
           'mx-auto grid max-w-[1080px] items-start gap-[24px] p-[24px] pb-[80px] ' +
           (isSuggestions
             ? 'grid-cols-[248px_minmax(0,1fr)] max-[740px]:grid-cols-[minmax(0,1fr)]'
-            : 'grid-cols-[248px_minmax(0,1fr)_324px] max-[1000px]:grid-cols-[248px_minmax(0,1fr)] max-[740px]:grid-cols-[minmax(0,1fr)]')
+            : 'grid-cols-[248px_minmax(0,1fr)_320px] max-[1000px]:grid-cols-[248px_minmax(0,1fr)] max-[740px]:grid-cols-[minmax(0,1fr)]')
         }
       >
         <div className="max-[740px]:hidden">
