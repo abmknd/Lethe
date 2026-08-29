@@ -24,13 +24,19 @@ export function Icon({
   className,
   label,
 }: {
-  as: ComponentType<{ size?: number; strokeWidth?: number; className?: string }> & { grid?: number };
+  as?: ComponentType<{ size?: number; strokeWidth?: number; className?: string }> & { grid?: number };
   size?: number;
   className?: string;
   /** Only when the icon is the sole carrier of meaning. Otherwise it stays
    *  hidden from assistive tech, which the generated components default to. */
   label?: string;
 }) {
+  // A missing glyph renders as empty space rather than taking the page down.
+  // This caught a real one: renaming a rail item to "Matches" left RAIL_ICON
+  // keyed on "All", so the lookup returned undefined and `Glyph.grid` threw
+  // through the whole shell. A gap in an icon map should cost an icon.
+  if (!Glyph) return <span aria-hidden className={className} style={{ width: size, height: size }} />;
+
   return (
     <span
       className={'inline-grid shrink-0 place-items-center ' + (className ?? '')}

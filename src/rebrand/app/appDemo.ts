@@ -24,7 +24,7 @@ export const NAV = ['FEED', 'MATCHES', 'COMMUNITIES'] as const;
 export type NavTab = (typeof NAV)[number];
 
 export const FEED_RAIL = ['For you', 'Following', 'Insights', 'Explore', 'Bookmarks', 'Activity'] as const;
-export const MATCH_RAIL = ['All', 'Suggested', 'Upcoming', 'Endorsed', 'Invited', 'Disavowed'] as const;
+export const MATCH_RAIL = ['Matches', 'Suggested', 'Upcoming', 'Endorsed', 'Invited', 'Disavowed'] as const;
 
 export type Post = {
   name: string; handle: string; time: string;
@@ -108,16 +108,16 @@ export type Profile = {
 
 export const PROFILES: Profile[] = [
   {
-    name: 'Elena Voss', handle: '@elenavoss', avatar: AV.elena, role: 'Design Engineer',
+    name: 'Elena Voss', handle: '@elenavoss', avatar: AV.elena, role: 'Software Engineer',
     city: 'Frankfurt, Germany', pronouns: 'She/Her/Hers', birthday: 'September, 21st',
     about: 'I build at the intersection of design and systems thinking. Happiest in rooms where someone disagrees with me. Currently focused on ethical design frameworks for emerging tech.',
-    interests: ['Design Ethics', 'Systems Thinking', 'Effective Altruism', 'Architecture', 'Coffee'],
+    interests: ['Design Ethics', 'Systems Thinking', 'Effective Altruism', 'Coffee', 'Architecture', 'Cats', 'Game Theory'],
     bullets: [
       { pre: "You're both active in the ", emph: 'Effective Altruism community', post: '. She has attended the same chapter events.' },
       { pre: 'She left agency work to go independent ', emph: 'within the same six-month window', post: ' as you.' },
     ],
     endorsers: [AV.marcus, AV.nova], endorseName: 'George Tracy', endorseRest: 'and 3 others.',
-    formats: ['Video call', 'In person'],
+    formats: ['Video call', 'In-person'],
   },
   {
     name: 'Nova Winters', handle: '@novawinters', avatar: AV.nova, role: 'Researcher',

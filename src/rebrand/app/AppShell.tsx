@@ -5,7 +5,7 @@ import {
   DashboardSquare01Icon, FavouriteIcon, FlashIcon, GlobalIcon, Home01Icon, Linkedin02Icon,
   Mail01Icon, Message01Icon, MoreHorizontalIcon, Notification01Icon, PlusSignIcon, SearchIcon,
   SentIcon, Share01Icon, SignalIcon, SparklesIcon, SubstackIcon, UserAdd01Icon, UserMultipleIcon,
-  UserRemove01Icon, BirthdayCakeIcon, FemaleSymbolIcon, Location09Icon,
+  UserRemove01Icon, Location09Icon, BulbIcon,
 } from '../../assets/system_icons';
 import {
   FAVES, FEED_RAIL, FOLLOW, MATCHES, MATCH_RAIL, ME, NAV, POSTS, PROFILES,
@@ -44,7 +44,10 @@ import {
 // ---------------------------------------------------------------- primitives
 
 const CARD = 'rounded-[16px] bg-[var(--surface-neutral-default)]';
-const LABEL = 'text-[13px] font-medium uppercase leading-[100%] tracking-[1px] text-[var(--text-default-caption)]';
+// 13/16, not 13/100%. Every `section-label` frame in the file is 16 tall, and
+// a 100% leading made it 13 — which is why four separate sections each came out
+// exactly 3px short of the frame.
+const LABEL = 'text-[13px] font-medium uppercase leading-[16px] tracking-[1px] text-[var(--text-default-caption)]';
 const HAIRLINE = 'bg-[var(--border-disabled-deep)]';
 
 function Avatar({ src, size, ring }: { src: string; size: number; ring?: boolean }) {
@@ -61,24 +64,26 @@ function Avatar({ src, size, ring }: { src: string; size: number; ring?: boolean
   );
 }
 
-/** A muted pill: interests, follow reasons. Neutral 50 fill. */
-function MutedPill({ children, className = '' }: { children: ReactNode; className?: string }) {
+/**
+ * TAG — the library's own component, reduced to the axes this screen uses.
+ *
+ * Figma ships 84 variants across Status (default/hover/focus/disabled/success/
+ * error/warning) x Size (sm 24 / md 32) x State x Type. Only `Size=md,
+ * Status=default` appears on Connect, in two tones, so that is what exists here.
+ * The rest are drawn but unused — building all 84 before a screen asks for one
+ * is how a component library fills up with code nothing imports.
+ */
+function Tag({ children, tone = 'neutral', size = 'md' }: { children: ReactNode; tone?: 'neutral' | 'blue'; size?: 'sm' | 'md' }) {
   return (
     <span
       className={
-        'rounded-[8px] bg-[var(--surface-neutral-subtle)] px-[13px] py-[10px] text-[14px] leading-[15px] ' +
-        'text-[var(--text-default-body)] ' + className
+        'inline-flex shrink-0 items-center whitespace-nowrap rounded-[8px] px-[12px] text-[14px] leading-[20px] ' +
+        (size === 'md' ? 'h-[32px] ' : 'h-[24px] ') +
+        (tone === 'blue'
+          ? 'bg-[var(--surface-primary-subtle)] text-[var(--text-default-body)]'
+          : 'bg-[var(--surface-neutral-subtle)] text-[var(--text-default-body)]')
       }
     >
-      {children}
-    </span>
-  );
-}
-
-/** A blue pill: role, meeting format. */
-function BluePill({ children }: { children: ReactNode }) {
-  return (
-    <span className="whitespace-nowrap rounded-[8px] bg-[var(--surface-primary-subtle)] px-[14px] py-[10px] text-[14px] leading-[15px] text-[var(--text-default-body)]">
       {children}
     </span>
   );
@@ -119,7 +124,7 @@ function HeaderIconButton({ label, glyph, badge }: { label: string; glyph: typeo
     <button
       type="button"
       aria-label={label}
-      className="relative grid size-[40px] place-items-center rounded-[40px] border border-[var(--color-black-200)] bg-[var(--surface-neutral-default)] text-[var(--icons-neutral-default)] transition-colors hover:bg-[var(--surface-page-beta)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--border-primary-default)]"
+      className="relative grid size-[32px] place-items-center rounded-[32px] border border-[var(--color-black-200)] bg-[var(--surface-neutral-default)] text-[var(--icons-neutral-default)] transition-colors hover:bg-[var(--surface-page-beta)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--border-primary-default)]"
     >
       <Icon as={glyph} size={18} />
       {badge && (
@@ -145,7 +150,7 @@ function Logomark() {
 
 function Header({ nav, onNav }: { nav: number; onNav: (i: number) => void }) {
   return (
-    <header className="sticky top-0 z-40 flex h-[64px] items-center justify-between gap-[24px] border-b border-[var(--border-disabled-deep)] bg-[var(--surface-neutral-default)] px-[28px]">
+    <header className="sticky top-0 z-40 flex h-[64px] items-center justify-between gap-[24px] border-b border-[var(--border-disabled-deep)] bg-[var(--surface-neutral-default)] px-[32px]">
       <div className="flex min-w-0 items-center gap-[24px]">
         <Logomark />
         <nav className="flex items-center gap-[4px]">
@@ -165,11 +170,11 @@ function Header({ nav, onNav }: { nav: number; onNav: (i: number) => void }) {
           ))}
         </nav>
       </div>
-      <div className="flex shrink-0 items-center gap-[10px]">
-        <PillButton tone="outline"><span className="block px-[20px] py-[12px]">INVITE</span></PillButton>
+      <div className="flex shrink-0 items-center gap-[14px]">
+        <PillButton tone="outline"><span className="grid h-[32px] w-[70px] place-items-center">INVITE</span></PillButton>
         <HeaderIconButton label="Notifications" glyph={Notification01Icon} badge />
         <HeaderIconButton label="Messages" glyph={Mail01Icon} />
-        <button type="button" aria-label="Your profile" className="block size-[40px] overflow-hidden rounded-[40px] border border-[var(--color-black-200)]">
+        <button type="button" aria-label="Your profile" className="block size-[32px] overflow-hidden rounded-[32px] border border-[var(--color-black-200)]">
           <img src={ME} alt="" className="size-full object-cover" />
         </button>
       </div>
@@ -185,7 +190,7 @@ const RAIL_ICON: Record<string, typeof Home01Icon> = {
   // The library has no pulse or heart-rate glyph. `flash` is the substitution,
   // recorded here rather than silently drawn.
   Activity: FlashIcon,
-  All: DashboardSquare01Icon, Suggested: SparklesIcon, Upcoming: Calendar01Icon,
+  Matches: DashboardSquare01Icon, Suggested: SparklesIcon, Upcoming: Calendar01Icon,
   Endorsed: CheckmarkBadge01Icon, Invited: UserAdd01Icon, Disavowed: UserRemove01Icon,
 };
 
@@ -345,112 +350,129 @@ function MatchListView({ rail }: { rail: string }) {
 
 function SuggestionsView({ profile, done, onDecide }: { profile: Profile; done: number; onDecide: () => void }) {
   const first = profile.name.split(' ')[0];
-  const meta = [
-    { glyph: Location09Icon, text: profile.city },
-    { glyph: FemaleSymbolIcon, text: profile.pronouns },
-    { glyph: BirthdayCakeIcon, text: profile.birthday },
-  ];
   return (
-    <div className="col-start-2 -col-end-1 flex min-w-0 flex-col gap-[20px]">
-      <div className="px-[4px] pt-[6px] text-center">
-        <h1 className="text-[20px] font-medium leading-[130%] text-[var(--text-default-body)]">
+    <div className="flex min-w-0 flex-col gap-[20px]">
+      {/* prompt-banner: 40 tall, heading 24. */}
+      <div className="flex h-[40px] items-center justify-center text-center">
+        <h1 className="text-[20px] font-medium leading-[24px] text-[var(--text-default-body)]">
           Would you like to meet <span className="text-[var(--text-default-highlight-blue)]">{profile.name}?</span>
         </h1>
       </div>
 
+      {/* profile-detail-card: 760 wide. profile-columns 527, bottom-bar 74. */}
       <div className={'flex flex-col overflow-hidden ' + CARD}>
         <div className="flex items-stretch max-[1000px]:flex-col">
-          {/* left — the profile */}
-          <div className="flex min-w-0 flex-[1_1_460px] flex-col">
-            <div className="flex flex-wrap items-start gap-[16px] px-[24px] py-[22px]">
+          {/* left-profile-info — 459 of the 760, padding 20 throughout */}
+          <div className="flex min-w-0 flex-[1_1_459px] flex-col">
+            {/* top-info-block: 136 = 20 + 96 + 20 */}
+            <div className="flex items-start gap-[16px] p-[20px]">
               <Avatar src={profile.avatar} size={72} />
-              <div className="flex min-w-0 flex-[1_1_260px] flex-col gap-[12px]">
-                <h2 className="text-[20px] font-medium leading-[100%] text-[var(--text-default-body)]">{profile.name}</h2>
-                <div className="flex flex-wrap gap-[8px]"><BluePill>{profile.role}</BluePill></div>
-                {/* Flat siblings — item, dot, item, dot, item — exactly as the
-                    source has them. Nesting each dot inside its item orphans a
-                    bullet at the start of a line the moment the row wraps. */}
-                <div className="mt-[2px] flex flex-wrap items-center gap-[12px]">
-                  {meta.flatMap(({ glyph, text }, i) => [
-                    ...(i > 0 ? [<Dot key={text + '-dot'} />] : []),
-                    <span
-                      key={text}
-                      className="flex items-center gap-[7px] whitespace-nowrap text-[14px] leading-[100%] text-[var(--text-default-caption)]"
-                    >
-                      <span className="text-[var(--text-default-placeholder)]"><Icon as={glyph} size={15} /></span>
-                      {text}
-                    </span>,
-                  ])}
+              <div className="flex min-w-0 flex-1 flex-col">
+                <h2 className="mt-[4px] text-[20px] font-medium leading-[20px] text-[var(--text-default-body)]">
+                  {profile.name}
+                </h2>
+                <div className="mt-[12px] flex flex-col gap-[12px]">
+                  <span className="self-start"><Tag>{profile.role}</Tag></span>
+                  {/*
+                    ONE meta item now. The frame's meta-details-row is 131x16 and
+                    holds only `location-meta`; pronouns and birthday are gone and
+                    the separator beside them is hidden="true". Removed rather
+                    than kept as a nicety — neither has a column behind it, so
+                    keeping them means inventing data (docs/backend-gaps.md 2b).
+                  */}
+                  <span className="flex h-[16px] items-center gap-[8px] whitespace-nowrap text-[14px] leading-[16px] text-[var(--text-default-caption)]">
+                    <span className="text-[var(--text-default-placeholder)]"><Icon as={Location09Icon} size={16} /></span>
+                    {profile.city}
+                  </span>
                 </div>
               </div>
             </div>
 
             <div className={'h-px ' + HAIRLINE} />
 
-            <section className="flex flex-col gap-[10px] px-[24px] pb-[4px] pt-[22px]">
+            {/* about-section: 144 = 20 + 16 + 8 + 80 + 20 */}
+            <section className="flex flex-col p-[20px]">
               <span className={LABEL}>ABOUT</span>
-              <p className="max-w-[62ch] text-[16px] leading-[150%] text-[var(--text-default-body)]">{profile.about}</p>
+              <p className="mt-[8px] text-[16px] leading-[20px] text-[var(--text-default-body)]">{profile.about}</p>
             </section>
 
-            <section className="flex flex-col gap-[10px] px-[24px] pb-[4px] pt-[22px]">
-              <span className={LABEL}>COMMON INTERESTS</span>
-              <div className="flex flex-wrap gap-[8px]">
-                {profile.interests.map((t) => <MutedPill key={t} className="whitespace-nowrap">{t}</MutedPill>)}
+            <div className={'h-px ' + HAIRLINE} />
+
+            {/* interest-section: 138 = 20 + 16 + 10 + 72 + 20 */}
+            <section className="flex flex-col p-[20px]">
+              <span className={LABEL}>COMMON INTEREST</span>
+              <div className="mt-[10px] flex flex-wrap gap-[8px]">
+                {profile.interests.map((t) => <Tag key={t}>{t}</Tag>)}
               </div>
             </section>
 
-            <section className="flex flex-col gap-[10px] px-[24px] pb-[24px] pt-[22px]">
-              <div className="flex items-baseline justify-between gap-[16px]">
+            <div className={'h-px ' + HAIRLINE} />
+
+            {/* meeting-format-section: 106 = 20 + 20 + 10 + 32 + 24 */}
+            <section className="flex flex-col px-[20px] pb-[24px] pt-[20px]">
+              <div className="flex h-[20px] items-center justify-between gap-[16px]">
                 <span className={LABEL}>MEETING FORMAT</span>
-                <span className="whitespace-nowrap text-[13px] leading-[100%] text-[var(--text-default-placeholder)]">{first}'s preference</span>
+                <span className="whitespace-nowrap text-[13px] leading-[16px] text-[var(--text-default-placeholder)]">
+                  {first}&rsquo;s preference
+                </span>
               </div>
-              <div className="flex flex-wrap gap-[8px]">
-                {profile.formats.map((f) => <BluePill key={f}>{f}</BluePill>)}
+              <div className="mt-[10px] flex flex-wrap gap-[8px]">
+                {profile.formats.map((f) => <Tag key={f} tone="blue">{f}</Tag>)}
               </div>
             </section>
           </div>
 
-          {/* right — the signal panel */}
-          <div className="flex min-w-0 flex-[0_1_348px] flex-col border-l border-[var(--border-disabled-deep)] max-[1000px]:border-l-0 max-[1000px]:border-t">
-            <div className="flex flex-col gap-[6px] bg-[var(--surface-primary-subtle)] px-[22px] pb-[24px] pt-[22px]">
-              <div className="flex items-center gap-[8px] text-[var(--text-default-highlight-blue)]">
-                <Icon as={SignalIcon} size={17} />
-                <span className="text-[14px] font-medium leading-[100%] tracking-[1px]">SIGNAL</span>
+          <div className={'w-px shrink-0 max-[1000px]:h-px max-[1000px]:w-auto ' + HAIRLINE} />
+
+          {/* right-profile-sidebar — 300 wide, 20 padding */}
+          <div className="flex w-[300px] shrink-0 flex-col max-[1000px]:w-auto">
+            {/* signal-section: 220 = 20 + 36 + 14 + 130 + 20 */}
+            <section className="flex flex-col bg-[var(--surface-primary-subtle)] p-[20px]">
+              <div className="flex h-[36px] items-start gap-[6px]">
+                <Icon as={BulbIcon} size={32} className="text-[var(--text-default-highlight-blue)]" />
+                <span className="flex flex-col gap-[4px]">
+                  <span className="text-[14px] font-medium leading-[16px] tracking-[1px] text-[var(--text-default-highlight-blue)]">
+                    SIGNAL
+                  </span>
+                  <span className="text-[14px] leading-[16px] text-[var(--text-default-placeholder)]">
+                    What you and {first} have in common
+                  </span>
+                </span>
               </div>
-              <span className="text-[14px] leading-[140%] text-[var(--text-default-placeholder)]">
-                What you and {first} have in common
-              </span>
-              <div className="mt-[10px] flex flex-col gap-[12px]">
+              <div className="mt-[14px] flex flex-col gap-[10px]">
                 {profile.bullets.map((b) => (
                   <div key={b.emph} className="flex items-start gap-[10px]">
-                    <span className="mt-[8px] size-[4px] shrink-0 rounded-full bg-[var(--text-default-body)]" />
-                    <p className="text-[15px] leading-[145%] text-[var(--text-default-body)]">
+                    <span className="mt-[7px] size-[5px] shrink-0 rounded-full bg-[var(--text-default-body)]" />
+                    <p className="text-[14px] leading-[20px] text-[var(--text-default-body)]">
                       {b.pre}<span className="font-semibold">{b.emph}</span>{b.post}
                     </p>
                   </div>
                 ))}
               </div>
-            </div>
+            </section>
 
-            <section className="flex flex-col gap-[12px] p-[22px]">
+            {/* endorsed-section: 100 = 20 + 16 + 12 + 32 + 20 */}
+            <section className="flex flex-col p-[20px]">
               <span className={LABEL}>ENDORSED BY</span>
-              <div className="flex items-center gap-[12px]">
-                <span className="flex items-center">
+              <div className="mt-[12px] flex h-[32px] items-center gap-[8px]">
+                <span className="flex w-[64px] items-center">
                   {profile.endorsers.map((src, i) => (
-                    <span key={src} style={{ marginLeft: i ? -12 : 0 }}><Avatar src={src} size={34} ring /></span>
+                    <span key={src} style={{ marginLeft: i ? -12 : 0 }}><Avatar src={src} size={32} ring /></span>
                   ))}
                 </span>
-                <span className="text-[15px] leading-[120%] text-[var(--text-default-body)]">
-                  {profile.endorseName}<span className="text-[var(--text-default-placeholder)]"> {profile.endorseRest}</span>
+                <span className="text-[15px] leading-[20px] text-[var(--text-default-body)]">
+                  {profile.endorseName}
+                  <span className="text-[var(--text-default-placeholder)]"> {profile.endorseRest}</span>
                 </span>
               </div>
             </section>
 
-            <div className={'mx-[22px] h-px ' + HAIRLINE} />
+            <div className={'h-px ' + HAIRLINE} />
 
-            <section className="flex flex-col gap-[12px] p-[22px]">
+            {/* socials-section: 100. Three 32x32 badge buttons at a 44 pitch. */}
+            <section className="flex flex-col p-[20px]">
               <span className={LABEL}>SOCIALS</span>
-              <div className="flex flex-wrap gap-[8px]">
+              <div className="mt-[12px] flex h-[32px] gap-[12px]">
                 {[
                   { label: 'LinkedIn', glyph: Linkedin02Icon },
                   { label: 'Personal website', glyph: GlobalIcon },
@@ -460,21 +482,24 @@ function SuggestionsView({ profile, done, onDecide }: { profile: Profile; done: 
                     key={label}
                     type="button"
                     aria-label={label}
-                    className="grid size-[38px] shrink-0 place-items-center rounded-[10px] bg-[var(--surface-primary-subtle)] text-[var(--text-default-highlight-blue)]"
+                    className="grid size-[32px] shrink-0 place-items-center rounded-[8px] bg-[var(--surface-primary-subtle)] text-[var(--text-default-highlight-blue)]"
                   >
-                    <Icon as={glyph} size={18} />
+                    <Icon as={glyph} size={16} />
                   </button>
                 ))}
               </div>
             </section>
-            <div className="min-h-[10px] flex-1" />
+            <div className="flex-1" />
           </div>
         </div>
 
         <div className={'h-px ' + HAIRLINE} />
-        <div className="flex flex-wrap items-center justify-between gap-[24px] px-[24px] py-[18px]">
+        {/* bottom-bar: 74 tall, goal left at 24, actions right. */}
+        <div className="flex h-[74px] items-center justify-between px-[24px]">
           <div className="flex items-center gap-[12px]">
-            <span className={LABEL + ' whitespace-nowrap'}>DAILY GOAL</span>
+            <span className="text-[12px] font-medium uppercase leading-[14px] tracking-[1px] text-[var(--text-default-caption)]">
+              DAILY GOAL
+            </span>
             <div className="flex items-center gap-[5px]">
               {Array.from({ length: 10 }, (_, i) => (
                 <span
@@ -487,9 +512,13 @@ function SuggestionsView({ profile, done, onDecide }: { profile: Profile; done: 
               ))}
             </div>
           </div>
-          <div className="flex items-center gap-[14px]">
-            <PillButton tone="subtle" onClick={onDecide}><span className="block px-[34px] py-[14px]">PASS</span></PillButton>
-            <PillButton tone="primary" onClick={onDecide}><span className="block px-[34px] py-[14px]">MATCH</span></PillButton>
+          <div className="flex items-center gap-[12px]">
+            <PillButton tone="subtle" onClick={onDecide}>
+              <span className="grid h-[32px] w-[62px] place-items-center">PASS</span>
+            </PillButton>
+            <PillButton tone="primary" onClick={onDecide}>
+              <span className="grid h-[32px] w-[73px] place-items-center">MATCH</span>
+            </PillButton>
           </div>
         </div>
       </div>
@@ -519,7 +548,7 @@ function PeopleCard({
               </div>
               <PillButton tone="neutral"><span className="block px-[14px] py-[9px] text-[12px] leading-[100%]">{action}</span></PillButton>
             </div>
-            <MutedPill className="self-start leading-[140%]">{p.signal}</MutedPill>
+            <span className="self-start"><Tag>{p.signal}</Tag></span>
           </div>
         </div>
       ))}
@@ -605,8 +634,10 @@ export function AppShell() {
 
       <div
         className={
-          'mx-auto grid max-w-[1200px] items-start gap-[24px] px-[28px] pb-[80px] pt-[24px] ' +
-          'grid-cols-[248px_minmax(0,1fr)_348px] max-[1120px]:grid-cols-[248px_minmax(0,1fr)] max-[740px]:grid-cols-[minmax(0,1fr)]'
+          'mx-auto grid max-w-[1080px] items-start gap-[24px] p-[24px] pb-[80px] ' +
+          (isSuggestions
+            ? 'grid-cols-[248px_minmax(0,1fr)] max-[740px]:grid-cols-[minmax(0,1fr)]'
+            : 'grid-cols-[248px_minmax(0,1fr)_324px] max-[1000px]:grid-cols-[248px_minmax(0,1fr)] max-[740px]:grid-cols-[minmax(0,1fr)]')
         }
       >
         <div className="max-[740px]:hidden">
@@ -629,7 +660,7 @@ export function AppShell() {
                 </div>
               )}
             </main>
-            <div className="max-[1120px]:hidden">
+            <div className="max-[1000px]:hidden">
               <AsideColumn isFeed={nav === 0} />
             </div>
           </>
