@@ -589,6 +589,24 @@ round, post card `0` with the sections carrying their own inset.
 
 ### 5.5.1 Icon stroke — normative
 
+**Superseded, 2026-08-30. The weight is the LIBRARY's, not ours.** Figma ships
+each glyph with a `Size` of 16, 20 or 32 and a `Weight` of 1px or 2px, and that
+is what renders. The curve below — 1px at 16, 1.25px at 24 — was a house rule
+invented before the library was read: **24 is not a size this library draws**,
+and a computed weight disagreed with the drawn one on every 20px glyph in the
+sidebars. `iconStroke(size, grid, weight)` now only rescales when a call site
+asks for a size other than the glyph's own.
+
+**And the viewBox is centred.** Figma exports the `elements` group, so the
+export's viewBox is that group's BOUNDING BOX — `searching` at 20px comes back
+17.6667 x 16, not 20 x 20. Dropping those coordinates into a `0 0 20 20` box
+pinned every glyph to its top-left corner at the wrong scale, which is what made
+the Badge Buttons read as off-centre. The importer now offsets the viewBox by
+half the difference on each axis, which is exact because the group is centred in
+the icon box.
+
+The original reasoning is kept below for the record.
+
 Two sanctioned sizes, and the weight is **size-relative**:
 
 | Rendered size | Stroke on screen |
@@ -785,12 +803,38 @@ a sequence. The product's progress read-out is the **SegmentedBar** ([5.8](#58-p
 which is deliberately non-interactive and `aria-hidden`, because the step is
 already announced in the copy.
 
-### 5.15 App-surface components — normative
+### 5.15 The design system folder — normative
 
-`src/rebrand/app/components.tsx` holds one component per Figma component, with
-the node id on each. **A screen imports from here; it never re-implements one
-inline.** That rule exists because the first pass at the app shell did
-re-implement them, and eleven separate mismatches followed from it.
+`src/rebrand/ds/` holds **one module per Figma component, named as Figma names
+it**, with the node id in the module's own doc comment. **A screen imports from
+here; it never re-implements one inline.** That rule exists because the first
+pass at the app shell did re-implement them, and eleven separate mismatches
+followed from it.
+
+The four rules the folder keeps:
+
+1. **Read the node.** Every number, token and glyph comes from
+   `get_design_context` on a named node — never a screenshot, never a frame's
+   bounding boxes. Geometry does not carry which token a fill is, or which of
+   three `chat` glyphs a control uses.
+2. **Never draw a glyph.** Icons come from `src/assets/system_icons`. The only
+   exceptions are a circle and a hairline, which have no drawing in them.
+3. **Figma strokes are INSIDE the shape** ([2.1](#21-the-neutral-ramp-and-figmas-semantic-layer)).
+4. **Figma's variant axes are the props, minus the ones the browser owns.**
+   `Status=hover` is a CSS state, not an argument.
+
+Built: Avatar · Avatar Stack · Badge Button · Badge Icon · Badge Text · Button ·
+Button Text · Button Text Cap · Check · Compact Icon · Compact Item · Divider ·
+Enter Button · Field Normal · Field Buttoned · Hint · Info Text · Input · Item
+Button Text · Label · Nav Button Text · Nav Item · Nob · Number Symbol ·
+Placeholder · Question Item · Questionnaire · Sidebar · Switch Button · Switch
+Toggle · Symbols · Tab Bar · Tag · Text Field · Text Icon Menu · Text Icon Nav ·
+Text Input · Toggle Button · location-meta · gender · birthday.
+
+Not built, and why: **Chip** (863:4043) — 224 variants and unplaced on any app
+surface so far. **Badge Icon `Shape=star`** — needs its export; the circle is
+exact, a star would have to be drawn. **`arrow-right-01-sharp`** — the 12px
+trailing glyph on `birthday`.
 
 | Component | Figma | What it is |
 |---|---|---|

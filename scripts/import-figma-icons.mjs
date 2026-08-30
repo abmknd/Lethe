@@ -66,6 +66,30 @@ export const componentName = (name) =>
  * Returns the stroke-bearing elements with colour and width normalised, or
  * throws — a silent empty icon is worse than a failed build, because it ships.
  */
+/**
+ * Where the exported artwork sits inside the icon's own box.
+ *
+ * THIS IS THE BUG THAT MADE EVERY ICON LOOK SLIGHTLY OFF-CENTRE. Figma exports
+ * the `elements` group, and the export's viewBox is that group's BOUNDING BOX —
+ * `searching` at 20px comes back 17.6667 x 16, not 20 x 20. Dropping those
+ * coordinates into a `0 0 20 20` viewBox pins the glyph to the top-left corner
+ * and scales it wrong, which reads as a Badge Button whose icon is not centred.
+ *
+ * The group is centred in the icon box in Figma (every `elements` inset in this
+ * library is symmetric to within rounding), and the export is 1:1 with the
+ * placed size. So the exact reconstruction is to offset the viewBox by half the
+ * difference on each axis and keep the icon's own size as the extent:
+ *
+ *     viewBox = "-(size-w)/2  -(size-h)/2  size  size"
+ *
+ * One viewBox unit is then one rendered pixel at the icon's native size, which
+ * is also what makes the stroke weight below a plain number.
+ */
+const centredViewBox = (w, h, size) => {
+  const trim = (n) => String(Number(n.toFixed(4)));
+  return `${trim(-(size - w) / 2)} ${trim(-(size - h) / 2)} ${size} ${size}`;
+};
+
 export function extractGlyph(svg, name, size) {
   // The icon's geometry is exactly the contents of the `elements` group. What
   // sits outside it is ancestor chrome: `location-09` once came through with the
@@ -88,7 +112,7 @@ export function extractGlyph(svg, name, size) {
     throw new Error(`${name}: the elements group is empty.`);
   }
 
-  return shapes
+  const glyph = shapes
     .map((el) =>
       el
         // A token decides the colour, never the file. BOTH paints are rewritten:
@@ -104,6 +128,14 @@ export function extractGlyph(svg, name, size) {
         .replace(/([a-z])-([a-z])/g, (m, a, b) => a + b.toUpperCase()),
     )
     .join('\n      ');
+
+  const w = Number(/<svg\b[^>]*\bwidth="([\d.]+)"/.exec(svg)?.[1]);
+  const h = Number(/<svg\b[^>]*\bheight="([\d.]+)"/.exec(svg)?.[1]);
+  if (!Number.isFinite(w) || !Number.isFinite(h)) {
+    throw new Error(`${name}: the export has no numeric width/height to centre against.`);
+  }
+
+  return { glyph, viewBox: centredViewBox(w, h, size) };
 }
 
 const manifest = JSON.parse(readFileSync(MANIFEST, 'utf8'));
@@ -113,7 +145,7 @@ const built = [];
 const skipped = [];
 
 for (const entry of manifest.icons) {
-  const { name, size = 16, url, note } = entry;
+  const { name, size = 16, weight = 1, url, note } = entry;
   if (!url) {
     skipped.push(`${name} (no url — re-run download_assets)`);
     continue;
@@ -126,9 +158,9 @@ for (const entry of manifest.icons) {
   }
   const raw = await res.text();
 
-  let glyph;
+  let glyph, viewBox;
   try {
-    glyph = extractGlyph(raw, name, size);
+    ({ glyph, viewBox } = extractGlyph(raw, name, size));
   } catch (err) {
     skipped.push(err.message);
     continue;
@@ -149,7 +181,7 @@ export function ${comp}({ size = ${size}, strokeWidth, className }: {
     <svg
       width={size}
       height={size}
-      viewBox="0 0 ${size} ${size}"
+      viewBox="${viewBox}"
       fill="none"
       strokeWidth={strokeWidth}
       strokeLinecap="round"
@@ -162,10 +194,14 @@ export function ${comp}({ size = ${size}, strokeWidth, className }: {
   );
 }
 
-/** The grid this icon is DRAWN on, which is not always 24 — Figma exports an
- *  instance at its placed size. The Icon wrapper needs it to turn a target
- *  stroke in screen pixels into the viewBox-unit attribute. */
+/** The size this icon is DRAWN at in Figma — 16, 20 or 32. One viewBox unit is
+ *  one pixel at this size, so Icon only has to rescale when a caller asks for
+ *  something else. */
 ${comp}.grid = ${size};
+
+/** Figma's Weight variant, in pixels. The library ships 1px and 2px; this is
+ *  the drawn weight, not a target we compute. */
+${comp}.weight = ${weight};
 `;
   writeFileSync(path.join(OUT, `${name}.tsx`), file);
   built.push({ name, comp });

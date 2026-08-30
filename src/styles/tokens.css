@@ -117,6 +117,8 @@
   --surface-neutral-subtle:  var(--color-neutral-50);
   --surface-primary-default: var(--color-blue-600);
   --surface-primary-subtle:  var(--color-blue-50);
+  --surface-primary-subtle-hover: var(--color-blue-100); /* a Switch Button track */
+  --border-primary-subtle-hover: var(--color-blue-100); /* a Field Normal's rest border */
   --surface-success-subtle:  var(--color-success-50);
 
   --text-default-heading:     var(--color-neutral-900);
@@ -130,11 +132,14 @@
   --text-neutral-hover:       var(--color-blue-200);
   --text-neutral-deep:        var(--color-neutral-100);
   --text-success-deep:        var(--color-success-800);
+  --text-error-default:       var(--color-error-600); /* the Label required mark */
   --text-on-color-heading:    var(--color-white);
   --text-primary-on-color:    var(--color-blue-50);
 
   --border-neutral-default: var(--color-neutral-100);
   --border-neutral-subtle:  var(--color-neutral-200);
+  --border-neutral-deep:    var(--color-neutral-300); /* an unchecked Check box */
+  --border-error-default:   var(--color-error-600);
   --border-disabled-deep:   var(--color-neutral-100);
   --border-primary-default: var(--color-blue-600);
   --border-primary-highlight: var(--color-white);
@@ -146,7 +151,9 @@
   --border-width-sm: 1px;
   --border-width-md: 1.5px;
   --border-width-lg: 2px;
+  --border-radius-xs: 2px;
   --border-radius-md: 8px;
+  --border-radius-xxl: 32px;
   --border-radius-round: 240px;
 
   --icons-neutral-default:   var(--color-neutral-900);

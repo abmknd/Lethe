@@ -10,10 +10,21 @@
     "glyph appears in a nav item the id is the `Size=20px, Weight=1px` variant;",
     "in a 32px control it is the 16px variant. Colour variants (Neutral vs",
     "Primary) are the same paths and the importer rewrites stroke to",
-    "currentColor, so only one of the pair is ever listed."
+    "currentColor, so only one of the pair is ever listed.",
+    "",
+    "`size` is Figma's Size variant (16, 20 or 32 — this library has no 24) and",
+    "`weight` is its Weight variant in pixels (1 or 2, default 1). Both are the",
+    "DRAWN values, not targets: the icon renders at the weight Figma gives it."
   ],
   "fileKey": "d4i3aGDu0mH8BRe5zxmMmA",
   "icons": [
+    {
+      "name": "flash",
+      "nodeId": "671:1438",
+      "size": 16,
+      "note": "The Compact Item demo glyph. Back after being deleted with the wrong batch — `flash` is a real library icon, it was simply never the Activity rail glyph.",
+      "url": "https://www.figma.com/api/mcp/asset/611ecb99-527d-476b-9e16-33b6dd5d8755.svg"
+    },
     {
       "name": "bulb",
       "nodeId": "712:313",
@@ -66,7 +77,6 @@
       "size": 20,
       "url": "https://www.figma.com/api/mcp/asset/bf311488-1916-4b47-b748-38b59bb097f5.svg"
     },
-
     {
       "name": "notification-01",
       "nodeId": "671:155",
@@ -89,13 +99,40 @@
       "url": "https://www.figma.com/api/mcp/asset/393635f9-cd7e-4484-be0c-1d20a49f1a0c.svg"
     },
     {
+      "name": "tick-02",
+      "nodeId": "671:457",
+      "size": 16,
+      "note": "The mark inside a selected Check, placed at 12. Figma description: accept, tick, done.",
+      "url": "https://www.figma.com/api/mcp/asset/30892569-9a19-4346-818e-c0ae8664dc19.svg"
+    },
+    {
+      "name": "help-circle",
+      "nodeId": "671:157",
+      "size": 16,
+      "note": "Label and Placeholder. Figma description: question, information.",
+      "url": "https://www.figma.com/api/mcp/asset/7b7f7269-7193-47c8-9360-1f56facaf233.svg"
+    },
+    {
+      "name": "mail-01",
+      "nodeId": "771:5079",
+      "size": 16,
+      "note": "The Placeholder component's default leading glyph. Back after being deleted with the wrong `-01` batch — Placeholder genuinely places an envelope; only the app header did not.",
+      "url": "https://www.figma.com/api/mcp/asset/511a467d-676a-49f0-87e8-1ea87aeaa91d.svg"
+    },
+    {
+      "name": "home-03",
+      "nodeId": "671:1174",
+      "size": 16,
+      "note": "The Symbols component's icon type. Figma description: house. NOT home-01, which is the feed sidebar's.",
+      "url": "https://www.figma.com/api/mcp/asset/31b23d83-8291-4902-b48e-43f530bdbe27.svg"
+    },
+    {
       "name": "search",
       "nodeId": "671:2134",
       "size": 16,
       "note": "search-bar. Figma MIRRORS it (-scale-x-100); the flip is applied at the call site, not baked in.",
       "url": "https://www.figma.com/api/mcp/asset/f0fdd0e0-636d-4683-a56e-a1afa6fa6bc9.svg"
     },
-
     {
       "name": "home-01",
       "nodeId": "694:6878",
@@ -138,7 +175,6 @@
       "note": "Sidebar feed / Activity. Replaces flash, which was a substitution I made because I could not find a pulse glyph. The file never wanted one.",
       "url": "https://www.figma.com/api/mcp/asset/9e67b1ac-3f6f-46b6-a724-78464fdd3a21.svg"
     },
-
     {
       "name": "puzzle",
       "nodeId": "695:13662",
@@ -181,7 +217,6 @@
       "note": "Sidebar matches / Disavowed. Replaces user-remove-01.",
       "url": "https://www.figma.com/api/mcp/asset/d272f6f9-6699-4e38-836a-7c141fa5dcb5.svg"
     },
-
     {
       "name": "user-group",
       "nodeId": "694:101354",
@@ -224,7 +259,6 @@
       "note": "Sidebar communities / Start a community.",
       "url": "https://www.figma.com/api/mcp/asset/973e40b9-9d7f-4267-8912-b05556be7e32.svg"
     },
-
     {
       "name": "more-horizontal",
       "nodeId": "671:1815",
@@ -267,7 +301,8 @@
       "name": "bulb-chargeing",
       "nodeId": "694:112976",
       "size": 32,
-      "note": "`signal-header` places the 32px variant, which Figma draws at Weight=2px — the only icon in the app on the 32 grid. Figma description: lamp.",
+      "weight": 2,
+      "note": "`signal-header` places the 32px variant, which Figma draws at Weight=2px — the only icon in the app on the 32 grid, and the only one not on the 1px weight. Figma description: lamp.",
       "url": "https://www.figma.com/api/mcp/asset/8db15eee-f9a4-4deb-8157-8b9ca29d89cb.svg"
     },
     {

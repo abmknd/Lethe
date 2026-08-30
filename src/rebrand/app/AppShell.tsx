@@ -1,11 +1,11 @@
 import { useState, type ReactNode } from 'react';
-import { Icon } from './Icon';
-import { Avatar, AvatarStack } from './Avatar';
 import { Brandmark } from '../brand';
 import {
-  BadgeButton, BadgeText, BODY_3A, BODY_4A, BODY_5A, BODY_5B, BUTTON_2A, Button,
-  ButtonText, Divider, NavItem, SectionLabel, Tag, TITLE_1, TITLE_3, TITLE_4B, TITLE_6,
-} from './components';
+  Avatar, AvatarStack, BadgeButton, BadgeText, BODY_3A, BODY_4A, BODY_5A, BODY_5B,
+  BUTTON_2A, Button, ButtonText, Divider, Icon, LocationMeta, NavItem, NavButtonText,
+  SectionLabel, Sidebar, TabBar as TabBarRow, Tag, TITLE_1, TITLE_3, TITLE_4B, TITLE_6,
+  ToggleButton,
+} from '../ds';
 import adamArt from '../assets/app/creation-of-adam.webp';
 import cafeArt from '../assets/app/cafe-illustration.webp';
 import {
@@ -69,29 +69,18 @@ const CARD = 'rounded-[16px] bg-[var(--surface-neutral-default)]';
 // and both containers are flex-1 so the tab bar sits left and the controls sit
 // hard right regardless of what either contains.
 
-function TabBar({ active, onPick }: { active: number; onPick: (i: number) => void }) {
+/** The header's `Tab Bar` 843:3146 — Toggle Buttons on `Type=transparent,
+ *  Style=nav`, so the selected tab is marked by weight and ink with no pill
+ *  behind it. Both components come from the library; nothing is redrawn here. */
+function AppTabBar({ active, onPick }: { active: number; onPick: (i: number) => void }) {
   return (
-    <nav className="flex items-center gap-[2px]">
+    <TabBarRow label="Sections">
       {NAV.map((label, i) => (
-        <button
-          key={label}
-          type="button"
-          onClick={() => onPick(i)}
-          aria-current={i === active ? 'page' : undefined}
-          className={
-            // No pill behind the selected tab: the file marks it with weight and
-            // ink only. px-12 py-8 still, so the hit area is the full 32.
-            'rounded-[var(--border-radius-round)] px-[12px] py-[8px] uppercase leading-[16px] ' +
-            'text-[14px] transition-colors ' +
-            (i === active
-              ? 'font-medium tracking-[0px] text-[var(--text-default-heading)]'
-              : 'font-normal text-[var(--text-default-placeholder)] hover:text-[var(--text-default-caption)]')
-          }
-        >
+        <ToggleButton key={label} active={i === active} onClick={() => onPick(i)}>
           {label}
-        </button>
+        </ToggleButton>
       ))}
-    </nav>
+    </TabBarRow>
   );
 }
 
@@ -103,7 +92,7 @@ function Header({ nav, onNav }: { nav: number; onNav: (i: number) => void }) {
             lets the first toggle's own px-12 do the separating. */}
         <Brandmark size={32} />
         <div className="min-w-0 flex-1 max-[560px]:hidden">
-          <TabBar active={nav} onPick={onNav} />
+          <AppTabBar active={nav} onPick={onNav} />
         </div>
       </div>
       <div className="flex flex-1 shrink-0 items-center justify-end gap-[14px]">
@@ -161,17 +150,19 @@ const RAIL_ICON: Record<string, typeof Home01Icon> = {
 
 function Rail({ items, active, onPick }: { items: readonly string[]; active: number; onPick: (i: number) => void }) {
   return (
-    <aside className={'sticky top-[88px] flex w-[248px] flex-col gap-[4px] p-[8px] ' + CARD}>
-      {items.map((label, i) => (
-        <NavItem
-          key={label}
-          label={label}
-          glyph={RAIL_ICON[label]}
-          selected={i === active}
-          onClick={() => onPick(i)}
-        />
-      ))}
-    </aside>
+    <div className="sticky top-[88px]">
+      <Sidebar>
+        {items.map((label, i) => (
+          <NavItem
+            key={label}
+            label={label}
+            glyph={RAIL_ICON[label]}
+            selected={i === active}
+            onClick={() => onPick(i)}
+          />
+        ))}
+      </Sidebar>
+    </div>
   );
 }
 
@@ -390,10 +381,7 @@ function SuggestionsView({ profile, done, onDecide }: { profile: Profile; done: 
                       One item only. The frame's separator beside it is
                       hidden="true" and pronouns and birthday are gone, neither
                       having a column behind it (docs/backend-gaps.md 2b). */}
-                  <span className={'flex items-center gap-[4px] whitespace-nowrap text-[var(--text-default-placeholder)] ' + BODY_5B}>
-                    <Icon as={Location09Icon} size={16} />
-                    {profile.city}
-                  </span>
+                  <LocationMeta>{profile.city}</LocationMeta>
                 </div>
               </div>
             </div>
@@ -433,8 +421,9 @@ function SuggestionsView({ profile, done, onDecide }: { profile: Profile; done: 
           <div className="flex w-[300px] shrink-0 flex-col max-[1000px]:w-auto">
             <section className="flex flex-col gap-[14px] bg-[var(--surface-primary-subtle)] p-[20px]">
               <div className="flex items-start gap-[6px]">
-                {/* Figma places the 32px variant, drawn at Weight=2px. */}
-                <Icon as={BulbChargeingIcon} size={32} strokeWidth={2} className="text-[var(--icons-primary-default)]" />
+                {/* Figma places the 32px variant. Its Weight=2px travels with
+                    the glyph, so there is nothing to say here. */}
+                <Icon as={BulbChargeingIcon} size={32} className="text-[var(--icons-primary-default)]" />
                 <span className="flex flex-col gap-[4px]">
                   <span className={'text-[var(--text-default-highlight-blue)] ' + BUTTON_2A}>SIGNAL</span>
                   <span className={'text-[var(--text-default-placeholder)] ' + BODY_5B}>
@@ -474,8 +463,10 @@ function SuggestionsView({ profile, done, onDecide }: { profile: Profile; done: 
             <section className="flex flex-col gap-[12px] p-[20px]">
               <SectionLabel>SOCIALS</SectionLabel>
               <div className="flex flex-wrap items-center gap-[12px]">
+                {/* The one place the file uses PRIMARY ink on a subtle fill.
+                    Every other Badge Button in the app is neutral. */}
                 {SOCIALS.map(({ label, glyph }) => (
-                  <BadgeButton key={label} label={label} glyph={glyph} tone="subtle" />
+                  <BadgeButton key={label} label={label} glyph={glyph} tone="subtle" ink="primary" />
                 ))}
               </div>
             </section>
@@ -670,7 +661,9 @@ function AsideColumn({ isFeed }: { isFeed: boolean }) {
           <PromoCard
             variant="blue"
             title="Activate Superconnector"
-            action="INVITE"
+            /* The frame reads INVITE here; that is stale copy in Figma, and
+               the label is ACTIVATE. Confirmed rather than assumed. */
+            action="ACTIVATE"
             body="Set your own standards for who reaches you, meet beyond your weekly ten, and let the engine work a wider circle on your behalf."
           />
           <PeopleCard

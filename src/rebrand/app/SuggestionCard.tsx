@@ -10,7 +10,7 @@ import {
   SubstackIcon,
 } from '../../assets/system_icons';
 import { Avatar } from '../primitives';
-import { Icon } from './Icon';
+import { Icon } from '../ds/Icon';
 
 /**
  * THE SUGGESTION CARD — built to `connect-default` / `connect-open`

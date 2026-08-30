@@ -14,7 +14,7 @@ export function PuzzleIcon({ size = 20, strokeWidth, className }: {
     <svg
       width={size}
       height={size}
-      viewBox="0 0 20 20"
+      viewBox="-1.167 -1.167 20 20"
       fill="none"
       strokeWidth={strokeWidth}
       strokeLinecap="round"
@@ -27,7 +27,11 @@ export function PuzzleIcon({ size = 20, strokeWidth, className }: {
   );
 }
 
-/** The grid this icon is DRAWN on, which is not always 24 — Figma exports an
- *  instance at its placed size. The Icon wrapper needs it to turn a target
- *  stroke in screen pixels into the viewBox-unit attribute. */
+/** The size this icon is DRAWN at in Figma — 16, 20 or 32. One viewBox unit is
+ *  one pixel at this size, so Icon only has to rescale when a caller asks for
+ *  something else. */
 PuzzleIcon.grid = 20;
+
+/** Figma's Weight variant, in pixels. The library ships 1px and 2px; this is
+ *  the drawn weight, not a target we compute. */
+PuzzleIcon.weight = 1;

@@ -4,6 +4,7 @@
  * Every icon on a screen comes from here. See scripts/import-figma-icons.mjs
  * for why these are local rather than an npm dependency, and how to add one.
  */
+export { FlashIcon } from './flash';
 export { BulbIcon } from './bulb';
 export { Cancel01Icon } from './cancel-01';
 export { Linkedin02Icon } from './linkedin-02';
@@ -15,6 +16,10 @@ export { BirthdayCakeIcon } from './birthday-cake';
 export { Notification01Icon } from './notification-01';
 export { Message01Icon } from './message-01';
 export { Message02Icon } from './message-02';
+export { Tick02Icon } from './tick-02';
+export { HelpCircleIcon } from './help-circle';
+export { Mail01Icon } from './mail-01';
+export { Home03Icon } from './home-03';
 export { SearchIcon } from './search';
 export { Home01Icon } from './home-01';
 export { UserMultipleIcon } from './user-multiple';

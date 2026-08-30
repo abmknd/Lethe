@@ -19,31 +19,36 @@ export type Surface = 'light' | 'blue';
 
 // ---------------------------------------------------------------- icon stroke
 
-/** The two sanctioned icon sizes. Anything else still resolves, but these are
- *  the ones the system draws for. */
-export const ICON_SIZE = { sm: 16, md: 24 } as const;
+/**
+ * The sizes the icon library is DRAWN at. Figma's `Size` variant is 16, 20 or
+ * 32 and nothing else; 24 does not exist in this library.
+ */
+export const ICON_SIZE = { sm: 16, md: 20, lg: 32 } as const;
 
 /**
  * The stroke-width ATTRIBUTE for an icon rendered at `size`.
  *
- * The visual weight we want is size-relative: **1px at 16, 1.25px at 24**. A
- * hairline that reads correctly on a 24 glyph closes up and turns to mud on a
- * 16 one, so the smaller size takes proportionally more weight (1/16 = 6.25%
- * against 1.25/24 = 5.2%) and less absolute weight.
+ * **The weight is the library's, not ours.** Figma ships each glyph with a
+ * `Weight` variant of 1px or 2px at each size, and that is now what renders. An
+ * earlier version of this file computed a target instead — 1px at 16, 1.25px at
+ * 24 — which was a house rule invented before the library was read properly. It
+ * had two problems: 24 is not a size this library draws, and a computed weight
+ * silently disagrees with the drawn one on every 20px glyph in the sidebars.
  *
- * The trap this function exists to remove: `strokeWidth` is in VIEWBOX UNITS,
- * not screen pixels. A 24-grid icon rendered into a 16px box is scaled by
- * 16/24, and its stroke scales with it — so hitting 1px on screen means
- * PASSING 1.5, and the attribute goes DOWN as the icon gets bigger:
+ * The trap this function still exists to remove: `strokeWidth` is in VIEWBOX
+ * UNITS, not screen pixels. Each generated component's viewBox is one unit per
+ * pixel AT ITS OWN `grid`, so at native size the attribute is simply the weight.
+ * Render a 16-grid glyph at 20 and it scales by 20/16, taking its stroke with
+ * it, so the attribute has to come down to compensate.
  *
- *     16px display -> 1.5 attr -> 1.0 rendered
- *     24px display -> 1.25 attr -> 1.25 rendered
+ *     16-grid at 16px, 1px weight  ->  1.0   attr
+ *     16-grid at 20px, 1px weight  ->  0.8   attr  (renders 1px)
+ *     32-grid at 32px, 2px weight  ->  2.0   attr
  *
  * Nobody should be doing that arithmetic at a call site.
  */
-export function iconStroke(size: number, grid = 24): number {
-  const visualPx = size <= ICON_SIZE.sm ? 1 : 1.25;
-  return Number(((visualPx * grid) / size).toFixed(3));
+export function iconStroke(size: number, grid: number, weight = 1): number {
+  return Number(((weight * grid) / size).toFixed(3));
 }
 
 const cx = (...parts: (string | false | null | undefined)[]) => parts.filter(Boolean).join(' ');

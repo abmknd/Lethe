@@ -1,7 +1,7 @@
 /**
  * bulb-chargeing — GENERATED from Figma node 694:112976. Do not edit.
  *
- * `signal-header` places the 32px variant, which Figma draws at Weight=2px — the only icon in the app on the 32 grid. Figma description: lamp.
+ * `signal-header` places the 32px variant, which Figma draws at Weight=2px — the only icon in the app on the 32 grid, and the only one not on the 1px weight. Figma description: lamp.
  *
  * Regenerate: node scripts/import-figma-icons.mjs
  */
@@ -14,7 +14,7 @@ export function BulbChargeingIcon({ size = 32, strokeWidth, className }: {
     <svg
       width={size}
       height={size}
-      viewBox="0 0 32 32"
+      viewBox="-4.5833 -1.9167 32 32"
       fill="none"
       strokeWidth={strokeWidth}
       strokeLinecap="round"
@@ -30,7 +30,11 @@ export function BulbChargeingIcon({ size = 32, strokeWidth, className }: {
   );
 }
 
-/** The grid this icon is DRAWN on, which is not always 24 — Figma exports an
- *  instance at its placed size. The Icon wrapper needs it to turn a target
- *  stroke in screen pixels into the viewBox-unit attribute. */
+/** The size this icon is DRAWN at in Figma — 16, 20 or 32. One viewBox unit is
+ *  one pixel at this size, so Icon only has to rescale when a caller asks for
+ *  something else. */
 BulbChargeingIcon.grid = 32;
+
+/** Figma's Weight variant, in pixels. The library ships 1px and 2px; this is
+ *  the drawn weight, not a target we compute. */
+BulbChargeingIcon.weight = 2;

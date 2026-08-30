@@ -2,7 +2,7 @@ import { Avatar } from '../primitives';
 // `mail-01` is gone: the header's second control is `chat` (671:336) in Figma,
 // not an envelope. The icon set now carries the glyph the file actually places.
 import { Message01Icon, Notification01Icon } from '../../assets/system_icons';
-import { Icon } from './Icon';
+import { Icon } from '../ds/Icon';
 import logomark from '../../assets/logos/logomark_blue.svg';
 
 /**
