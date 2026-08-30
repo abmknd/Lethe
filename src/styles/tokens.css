@@ -120,6 +120,11 @@
   --surface-primary-subtle-hover: var(--color-blue-100); /* a Switch Button track */
   --border-primary-subtle-hover: var(--color-blue-100); /* a Field Normal's rest border */
   --surface-success-subtle:  var(--color-success-50);
+  --surface-error-subtle:    var(--color-error-50);
+  --surface-warning-subtle:  var(--color-warning-50);
+  --surface-success-default: var(--color-success-600);
+  --surface-error-default:   var(--color-error-600);
+  --surface-warning-default: var(--color-warning-600);
 
   --text-default-heading:     var(--color-neutral-900);
   --text-default-body:        var(--color-neutral-800);
@@ -133,6 +138,17 @@
   --text-neutral-deep:        var(--color-neutral-100);
   --text-success-deep:        var(--color-success-800);
   --text-error-default:       var(--color-error-600); /* the Label required mark */
+  /* Chip's Status ramp. Note the steps are NOT uniform across the four hues —
+     `border/success/subtle-hover` is Success 200 where error and warning use
+     their 100. That asymmetry is the file's, read from four variants, and it is
+     recorded rather than smoothed. */
+  --text-primary-default-hover: var(--color-blue-700);
+  --text-error-default-hover:   var(--color-error-700);
+  --text-warning-default-hover: var(--color-warning-700);
+  --border-primary-subtle-focus:  var(--color-blue-200);
+  --border-success-subtle-hover:  var(--color-success-200);
+  --border-error-subtle-hover:    var(--color-error-100);
+  --border-warning-subtle-hover:  var(--color-warning-100);
   --text-on-color-heading:    var(--color-white);
   --text-primary-on-color:    var(--color-blue-50);
 

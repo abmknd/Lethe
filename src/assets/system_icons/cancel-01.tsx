@@ -1,7 +1,7 @@
 /**
- * cancel-01 — GENERATED from Figma node 719:324. Do not edit.
+ * cancel-01 — GENERATED from Figma node 671:132. Do not edit.
  *
- * Close. Figma description: delete, remove.
+ * The remove affordance on Tag, Badge Text and an active Chip, placed at 12. Figma description: delete, remove.
  *
  * Regenerate: node scripts/import-figma-icons.mjs
  */
@@ -14,7 +14,7 @@ export function Cancel01Icon({ size = 16, strokeWidth, className }: {
     <svg
       width={size}
       height={size}
-      viewBox="0 0 16 16"
+      viewBox="-4 -4 16 16"
       fill="none"
       strokeWidth={strokeWidth}
       strokeLinecap="round"
@@ -22,7 +22,7 @@ export function Cancel01Icon({ size = 16, strokeWidth, className }: {
       className={className}
       aria-hidden
     >
-      <path d="M12.667 3.33337L3.33364 12.6667M3.33364 3.33337L12.667 12.6667" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M7.5 0.5L0.5 7.5M0.5 0.5L7.5 7.5" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   );
 }

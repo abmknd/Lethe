@@ -1,9 +1,11 @@
 /**
- * more-horizontal-circle-01 — GENERATED from Figma node 694:33266. Do not edit.
+ * more-horizontal-circle-01 — GENERATED from Figma node 667:20107. Do not edit.
+ *
+ * post-header / more-options, placed at 16.
  *
  * Regenerate: node scripts/import-figma-icons.mjs
  */
-export function MoreHorizontalCircle01Icon({ size = 20, strokeWidth, className }: {
+export function MoreHorizontalCircle01Icon({ size = 16, strokeWidth, className }: {
   size?: number;
   strokeWidth?: number;
   className?: string;
@@ -12,7 +14,7 @@ export function MoreHorizontalCircle01Icon({ size = 20, strokeWidth, className }
     <svg
       width={size}
       height={size}
-      viewBox="0 0 20 20"
+      viewBox="-1.5 -6.5 16 16"
       fill="none"
       strokeWidth={strokeWidth}
       strokeLinecap="round"
@@ -20,9 +22,9 @@ export function MoreHorizontalCircle01Icon({ size = 20, strokeWidth, className }
       className={className}
       aria-hidden
     >
-      <path d="M17.5 10C17.5 9.30964 16.9404 8.75 16.25 8.75C15.5596 8.75 15 9.30964 15 10C15 10.6904 15.5596 11.25 16.25 11.25C16.9404 11.25 17.5 10.6904 17.5 10Z" stroke="currentColor"/>
-      <path d="M11.25 10C11.25 9.30964 10.6904 8.75 10 8.75C9.30964 8.75 8.75 9.30964 8.75 10C8.75 10.6904 9.30964 11.25 10 11.25C10.6904 11.25 11.25 10.6904 11.25 10Z" stroke="currentColor"/>
-      <path d="M5 10C5 9.30964 4.44036 8.75 3.75 8.75C3.05964 8.75 2.5 9.30964 2.5 10C2.5 10.6904 3.05964 11.25 3.75 11.25C4.44036 11.25 5 10.6904 5 10Z" stroke="currentColor"/>
+      <path d="M12.5 1.5C12.5 0.947715 12.0523 0.5 11.5 0.5C10.9477 0.5 10.5 0.947715 10.5 1.5C10.5 2.05228 10.9477 2.5 11.5 2.5C12.0523 2.5 12.5 2.05228 12.5 1.5Z" stroke="currentColor"/>
+      <path d="M7.5 1.5C7.5 0.947715 7.05228 0.5 6.5 0.5C5.94772 0.5 5.5 0.947715 5.5 1.5C5.5 2.05228 5.94772 2.5 6.5 2.5C7.05228 2.5 7.5 2.05228 7.5 1.5Z" stroke="currentColor"/>
+      <path d="M2.5 1.5C2.5 0.947715 2.05228 0.5 1.5 0.5C0.947715 0.5 0.5 0.947715 0.5 1.5C0.5 2.05228 0.947715 2.5 1.5 2.5C2.05228 2.5 2.5 2.05228 2.5 1.5Z" stroke="currentColor"/>
     </svg>
   );
 }
@@ -30,7 +32,7 @@ export function MoreHorizontalCircle01Icon({ size = 20, strokeWidth, className }
 /** The size this icon is DRAWN at in Figma — 16, 20 or 32. One viewBox unit is
  *  one pixel at this size, so Icon only has to rescale when a caller asks for
  *  something else. */
-MoreHorizontalCircle01Icon.grid = 20;
+MoreHorizontalCircle01Icon.grid = 16;
 
 /** Figma's Weight variant, in pixels. The library ships 1px and 2px; this is
  *  the drawn weight, not a target we compute. */

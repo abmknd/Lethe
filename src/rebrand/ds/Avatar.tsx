@@ -51,17 +51,23 @@ const initialsOf = (name: string) =>
 
 export function Avatar({
   name,
+  src: srcProp,
   person,
   size = 'sm',
 }: {
   /** A member of the `Avatar Image` set. Omit and the initials show through. */
   name?: AvatarName;
+  /**
+   * A real uploaded photo. `Avatar Image` is Figma's demo cast; the product
+   * renders whatever the user gave it, so a URL wins over a set member.
+   */
+  src?: string;
   /** The person's name — the initials fallback, and the alt text. */
   person?: string;
   size?: AvatarSize;
 }) {
   const px = AVATAR_SIZE[size];
-  const src = name ? AVATARS[name] : undefined;
+  const src = srcProp ?? (name ? AVATARS[name] : undefined);
 
   return (
     <span

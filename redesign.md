@@ -597,6 +597,12 @@ and a computed weight disagreed with the drawn one on every 20px glyph in the
 sidebars. `iconStroke(size, grid, weight)` now only rescales when a call site
 asks for a size other than the glyph's own.
 
+**Export from the size the frame PLACES.** A glyph is redrawn per size in this
+library, not scaled: `favourite` occupies 75% of its 16px box (`inset-[12.5%_8.33%]`)
+and 83.3% of its 20px one. Exporting the heart from an 18px node put it at 66.7%
+and it read visibly small next to its four neighbours in the post action bar —
+which are all 16px variants. If a frame places 16, the manifest entry is 16.
+
 **And the viewBox is centred.** Figma exports the `elements` group, so the
 export's viewBox is that group's BOUNDING BOX — `searching` at 20px comes back
 17.6667 x 16, not 20 x 20. Dropping those coordinates into a `0 0 20 20` box
@@ -831,10 +837,43 @@ Placeholder · Question Item · Questionnaire · Sidebar · Switch Button · Swi
 Toggle · Symbols · Tab Bar · Tag · Text Field · Text Icon Menu · Text Icon Nav ·
 Text Input · Toggle Button · location-meta · gender · birthday.
 
-Not built, and why: **Chip** (863:4043) — 224 variants and unplaced on any app
-surface so far. **Badge Icon `Shape=star`** — needs its export; the circle is
-exact, a star would have to be drawn. **`arrow-right-01-sharp`** — the 12px
-trailing glyph on `birthday`.
+Also built: **Chip** (863:4043) and **Text Icon Menu**.
+
+Not built: **Badge Icon `Shape=star`** — needs its export; the circle is exact
+in CSS, a star would have to be drawn.
+
+### 5.15.1 A variant set is AXES, not cases — normative
+
+`Chip` has 224 variants. It is 190 lines, because Figma composes those 224 from
+five independent axes and the component takes five props:
+
+```
+Status  default · hover · focus · disabled · success · error · warning   (7)
+Type    choice · tag · input · meta                                      (4)
+Size    sm · md                                                          (2)
+State   inactive · active                                                (2)
+Style   subtle-fill · grey-fill                                          (2)
+```
+
+**Enumerating a variant set is the wrong shape.** Read what each axis changes,
+express that, and the matrix falls out. Two of the seven Statuses — `hover` and
+`focus` — are browser states and become CSS rather than props, per rule 4.
+
+**But derive from READS, not from a pattern.** Every remaining Status was read
+from its own node (default 863:4132, disabled 863:4176, success 863:4187, error
+863:4198, warning 863:4209), and the ramp turned out not to be uniform:
+`border/success/subtle-hover` is Success **200** where error and warning border
+on their **100**. A rule inferred from one hue would have got the other three
+wrong and looked deliberate.
+
+What each axis actually changes, for the next set:
+
+| Axis | Effect |
+|---|---|
+| Size | `sm` py-4 + Body 5A → 24; `md` py-6 + Body 4A → 32. **The type size moves with it** — md is not sm with more padding. |
+| Type | `choice`/`tag` px-8 radius 8; `input`/`meta` px-12 radius 240. `meta` adds a leading 4px Badge Icon; `input` overrides the fill. |
+| State | `active` swaps to `surface/{status}/default` with a white label, drops the border, and tightens the gap 8 → 4. `tag`/`input`/`meta` gain a trailing 12px `cancel-01` — the +16 those variants show in the file. |
+| Style | `grey-fill` is the same drawing with the hue removed: Neutral 50 behind `border/disabled/deep`, body ink. |
 
 | Component | Figma | What it is |
 |---|---|---|

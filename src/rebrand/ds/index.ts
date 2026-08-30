@@ -23,10 +23,8 @@
  *
  * WHAT IS NOT HERE YET
  *
- *   Chip (863:4043) — 224 variants, unplaced on any app surface so far.
  *   Badge Icon `Shape=star` — needs its export; the circle is exact, a star
  *   would have to be drawn.
- *   `arrow-right-01-sharp` — the 12px trailing glyph on `birthday`.
  */
 
 export * from './type';
@@ -38,13 +36,14 @@ export { BadgeButton } from './BadgeButton';
 export { BadgeIcon } from './BadgeIcon';
 export { Button, ButtonText, ButtonTextCap } from './Button';
 export { Check } from './Check';
+export { Chip } from './Chip';
 export { CompactIcon, CompactItem } from './Compact';
 export { EnterButton } from './EnterButton';
 export { FieldNormal, FieldButtoned, type FieldStatus } from './Field';
 export { Hint, InfoText } from './Hint';
 export { Input, TextInput, TextField } from './Input';
 export { Label } from './Label';
-export { BirthdayMeta, GenderMeta, LocationMeta, MetaRow } from './Meta';
+export { BirthdayMeta, GenderMeta, LocationMeta, MetaRow, type GenderType } from './Meta';
 export { Divider, NavItem, SectionLabel, Sidebar, TextIconNav, ItemButtonText } from './NavItem';
 export { Nob } from './Nob';
 export { Placeholder, type PlaceholderSize } from './Placeholder';

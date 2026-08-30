@@ -1,16 +1,15 @@
 import { Fragment, type ReactNode } from 'react';
 import {
-  BirthdayCakeIcon,
-  BulbIcon,
+  BulbChargeingIcon,
   Cancel01Icon,
-  FemaleSymbolIcon,
   GlobalIcon,
   Linkedin02Icon,
-  Location09Icon,
   SubstackIcon,
 } from '../../assets/system_icons';
-import { Avatar } from '../primitives';
-import { Icon } from '../ds/Icon';
+import {
+  Avatar, BadgeButton, BirthdayMeta, BODY_4A, Button, GenderMeta, Icon,
+  LocationMeta, SectionLabel, Tag,
+} from '../ds';
 
 /**
  * THE SUGGESTION CARD — built to `connect-default` / `connect-open`
@@ -72,38 +71,16 @@ function Emphasised({ text }: { text: string }) {
 }
 
 /** Title 6 — Archivo Medium 12/16, Black 400. */
-function Label({ children, className = '' }: { children: ReactNode; className?: string }) {
-  return (
-    <span className={'text-[12px] font-medium uppercase leading-[16px] text-[var(--text-default-placeholder)] ' + className}>
-      {children}
-    </span>
-  );
-}
 
 function Divider() {
   return <div className="h-px w-full shrink-0 bg-[var(--border-disabled-deep)]" />;
 }
 
-/** Body 5A in a tinted box. Read-only, so never a `<button>`. */
-function Tag({ children, tone }: { children: ReactNode; tone: 'neutral' | 'blue' }) {
-  return (
-    <span
-      className={
-        // EVERY pill on this card is Body 4 (14/20) in text/default/caption on a
-        // tinted fill, at 12 / 6, radius 8 — which lands them all on 32 tall.
-        //
-        // The role chip used to be hand-rolled here at 12 / 8. Nobody could see
-        // the 4px, but it made the chip 36, the details block 68, the header 144
-        // and the whole card 4 too tall. A one-off is how that happens: the
-        // shared component got the correction and the copy of it did not.
-        'inline-flex items-center rounded-[8px] px-[12px] py-[6px] text-[14px] leading-[20px] text-[var(--text-default-caption)] ' +
-        (tone === 'blue' ? 'bg-[var(--surface-primary-subtle)]' : 'bg-[var(--surface-neutral-subtle)]')
-      }
-    >
-      {children}
-    </span>
-  );
-}
+// The local `Tag` that stood here is gone. It was Body 4A (14/20) at 12/6 on a
+// radius 8 — the library's `Tag` is Body 4B (14/16) at 12/8, which is what
+// Figma draws. Both land on 32 tall, so the difference was invisible until you
+// measured the leading, and it is exactly the kind of near-miss a second copy
+// of a component produces.
 
 const SOCIAL = {
   linkedin: { icon: Linkedin02Icon, label: 'LinkedIn' },
@@ -111,14 +88,6 @@ const SOCIAL = {
   substack: { icon: SubstackIcon, label: 'Substack' },
 } as const;
 
-function MetaItem({ icon, children }: { icon: ReactNode; children: ReactNode }) {
-  return (
-    <span className="flex items-center gap-[4px] text-[13px] leading-[16px] text-[var(--text-default-placeholder)]">
-      {icon}
-      {children}
-    </span>
-  );
-}
 
 export function SuggestionCard({
   suggestion,
@@ -155,7 +124,7 @@ export function SuggestionCard({
             second line, which is what pushes the header past its 140. */}
         <header className="relative flex gap-[16px] px-[24px] py-[20px]">
           <span className="size-[72px] shrink-0 overflow-hidden rounded-full border-2 border-[var(--color-white)]">
-            <Avatar src={s.avatarSrc} alt="" size={72} onLight />
+            <Avatar src={s.avatarSrc} person={s.name} size="xxl" />
           </span>
 
           <div className="flex min-w-0 flex-1 flex-col gap-[12px] pt-[4px]">
@@ -165,15 +134,15 @@ export function SuggestionCard({
 
             <div className="flex flex-col gap-[12px]">
               <span className="self-start">
-                <Tag tone="blue">{s.role}</Tag>
+                <Tag tone="default">{s.role}</Tag>
               </span>
 
               <div className="flex flex-wrap items-center gap-[12px]">
-                <MetaItem icon={<Icon as={Location09Icon} size={20} />}>{s.location}</MetaItem>
+                <LocationMeta>{s.location}</LocationMeta>
                 <span aria-hidden className="size-[4px] shrink-0 rounded-full bg-[var(--color-black-400)]" />
-                <MetaItem icon={<Icon as={FemaleSymbolIcon} size={20} />}>{s.pronouns}</MetaItem>
+                <GenderMeta type="Woman" size="md">{s.pronouns}</GenderMeta>
                 <span aria-hidden className="size-[4px] shrink-0 rounded-full bg-[var(--color-black-400)]" />
-                <MetaItem icon={<Icon as={BirthdayCakeIcon} size={20} />}>{s.birthday}</MetaItem>
+                <BirthdayMeta>{s.birthday}</BirthdayMeta>
               </div>
             </div>
           </div>
@@ -191,7 +160,7 @@ export function SuggestionCard({
                 'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-blue-600)]'
               }
             >
-              <Icon as={BulbIcon} />
+              <Icon as={BulbChargeingIcon} size={16} />
               SIGNAL
             </button>
           )}
@@ -200,7 +169,7 @@ export function SuggestionCard({
         <Divider />
 
         <div className="flex flex-col gap-[8px] px-[24px] py-[20px]">
-          <Label>About</Label>
+          <SectionLabel>ABOUT</SectionLabel>
           <p className="text-[14px] leading-[20px] text-[var(--color-black-700)]">{s.about}</p>
         </div>
 
@@ -208,7 +177,7 @@ export function SuggestionCard({
 
         <div className="flex flex-col gap-[10px] px-[24px] py-[20px]">
           {/* Singular, as drawn. */}
-          <Label>Common interest</Label>
+          <SectionLabel>COMMON INTEREST</SectionLabel>
           <div className="flex flex-wrap gap-[8px]">
             {s.commonInterests.map((i) => (
               <Tag key={i} tone="neutral">
@@ -222,23 +191,16 @@ export function SuggestionCard({
 
         <div className="flex flex-col gap-[10px] px-[24px] pb-[24px] pt-[20px]">
           <div className="flex items-center justify-between py-[2px]">
-            <Label>Meeting format</Label>
+            <SectionLabel>MEETING FORMAT</SectionLabel>
             {/* Whose preference this is, said out loud — otherwise the tags
                 read as controls the viewer is meant to pick from. */}
             <span className="shrink-0 text-[12px] leading-[18px] text-[var(--color-black-400)]">
               {firstName}'s preference
             </span>
           </div>
-          {/* The row is a fixed 32 and the tags stretch into it, so their 12px
-              padding does not add height — matching 720:403. */}
-          <div className="flex h-[32px] flex-wrap gap-[8px]">
+          <div className="flex flex-wrap gap-[8px]">
             {s.meetingFormats.map((f) => (
-              <span
-                key={f}
-                className="inline-flex items-center self-stretch rounded-[10px] bg-[var(--surface-primary-subtle)] px-[14px] text-[14px] leading-[20px] text-[var(--text-default-caption)]"
-              >
-                {f}
-              </span>
+              <Tag key={f}>{f}</Tag>
             ))}
           </div>
         </div>
@@ -247,30 +209,8 @@ export function SuggestionCard({
 
         <div className="flex h-[56px] items-center justify-center px-[24px] py-[12px]">
           <div className="flex w-full max-w-[240px] gap-[10px]">
-            <button
-              type="button"
-              onClick={onPass}
-              disabled={busy}
-              className={
-                'flex-1 rounded-[40px] bg-[var(--surface-primary-subtle)] py-[8px] text-[13px] font-medium leading-[16px] tracking-[1px] ' +
-                'text-[var(--text-default-caption)] transition-colors hover:bg-[var(--color-blue-100)] disabled:cursor-not-allowed disabled:text-[var(--color-black-400)] ' +
-                'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-blue-600)]'
-              }
-            >
-              PASS
-            </button>
-            <button
-              type="button"
-              onClick={onMatch}
-              disabled={busy}
-              className={
-                'flex-1 rounded-[40px] bg-[var(--surface-primary-default)] py-[8px] text-[13px] font-medium leading-[16px] tracking-[1px] ' +
-                'text-[var(--text-primary-on-color)] transition-colors hover:text-[var(--color-white)] disabled:cursor-not-allowed disabled:bg-[var(--color-black-100)] disabled:text-[var(--color-black-400)] ' +
-                'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-blue-600)]'
-              }
-            >
-              MATCH
-            </button>
+            <Button tone="subtle" onClick={onPass} disabled={busy}>PASS</Button>
+            <Button tone="fill" onClick={onMatch} disabled={busy}>MATCH</Button>
           </div>
         </div>
       </article>
@@ -292,7 +232,7 @@ function SignalPanel({ id, suggestion, onClose }: { id: string; suggestion: Sugg
       <div className="relative flex flex-col gap-[14px] bg-[var(--surface-primary-subtle)] p-[20px]">
         <div className="flex flex-col gap-[6px]">
           <span className="flex items-center gap-[6px] text-[13px] font-medium leading-[16px] tracking-[1px] text-[var(--color-blue-600)]">
-            <Icon as={BulbIcon} />
+            <Icon as={BulbChargeingIcon} size={16} />
             SIGNAL
           </span>
           {/* Body 5B — Archivo Light 13. The 300 weight is loaded. */}
@@ -330,7 +270,7 @@ function SignalPanel({ id, suggestion, onClose }: { id: string; suggestion: Sugg
 
       <div className="flex flex-col gap-[12px] p-[20px]">
         <div className="flex items-center py-[4px]">
-          <Label>Endorsed by</Label>
+          <SectionLabel>ENDORSED BY</SectionLabel>
         </div>
         <div className="flex h-[32px] items-end gap-[8px]">
           <span className="flex items-center">
@@ -341,7 +281,7 @@ function SignalPanel({ id, suggestion, onClose }: { id: string; suggestion: Sugg
                 style={{ marginLeft: i === 0 ? 0 : -20, zIndex: 3 - i }}
                 title={p.name}
               >
-                <Avatar src={p.src} alt="" size={32} onLight />
+                <Avatar src={p.src} person={p.name} size="sm" />
               </span>
             ))}
           </span>
@@ -358,7 +298,7 @@ function SignalPanel({ id, suggestion, onClose }: { id: string; suggestion: Sugg
 
       <div className="flex flex-col gap-[12px] p-[20px]">
         <div className="flex items-center py-[4px]">
-          <Label>Socials</Label>
+          <SectionLabel>SOCIALS</SectionLabel>
         </div>
         <div className="flex flex-wrap items-center gap-[12px]">
           {s.socials.map((social) => {

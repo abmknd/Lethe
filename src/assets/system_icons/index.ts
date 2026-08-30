@@ -51,3 +51,6 @@ export { ApproximatelyEqualCircleIcon } from './approximately-equal-circle';
 export { Bookmark02Icon } from './bookmark-02';
 export { Share05Icon } from './share-05';
 export { MoreHorizontalCircle01Icon } from './more-horizontal-circle-01';
+export { MaleSymbolIcon } from './male-symbol';
+export { NonBinaryIcon } from './non-binary';
+export { ArrowRight01SharpIcon } from './arrow-right-01-sharp';

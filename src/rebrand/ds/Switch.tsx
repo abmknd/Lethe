@@ -70,36 +70,50 @@ export function SwitchButton({
  * SWITCH TOGGLE — Figma `Switch Toggle` 844:3850.
  *
  * Not a switch: a two-up segmented control, `surface/primary/subtle` at `p-4`
- * holding two Toggle Buttons. The active one is Button 2A Medium in
- * `text/default/heading`; the other is Regular in `text/default/placeholder`.
+ * holding two Toggle Buttons. `Type` decides how the selection is marked:
  *
- * The first button carries `mr-[-12px]` in the file — the two overlap by 12 so
- * the pair reads as one control rather than two pills sharing a bed.
+ *     default    844:3851  the active label goes Medium in `text/default/heading`
+ *     highlight  844:3863  the active segment becomes a WHITE pill with a BLUE
+ *                          label — Toggle Button `Type=fill`
+ *
+ * On `default` the first button carries `mr-[-12px]` in the file: the two
+ * overlap by 12 so the pair reads as one control rather than two pills sharing
+ * a bed. `highlight` does not overlap, because the white pill needs its own
+ * edges to be visible.
  */
 export function SwitchToggle({
   first,
   second,
   value,
+  type = 'default',
   onChange,
 }: {
   first: ReactNode;
   second: ReactNode;
   value: 'first' | 'second';
+  type?: 'default' | 'highlight';
   onChange?: (v: 'first' | 'second') => void;
 }) {
-  const seg = (which: 'first' | 'second', children: ReactNode, overlap: boolean) => (
-    <button
-      type="button"
-      onClick={() => onChange?.(which)}
-      aria-pressed={value === which}
-      className={
-        'inline-flex shrink-0 items-center justify-center gap-[2px] rounded-[var(--border-radius-round)] px-[12px] py-[8px] ' +
-        (overlap ? 'mr-[-12px] ' : '')
-      }
-    >
-      <NavButtonText selected={value === which}>{children}</NavButtonText>
-    </button>
-  );
+  const highlight = type === 'highlight';
+  const seg = (which: 'first' | 'second', children: ReactNode, overlap: boolean) => {
+    const active = value === which;
+    return (
+      <button
+        type="button"
+        onClick={() => onChange?.(which)}
+        aria-pressed={active}
+        className={
+          'inline-flex shrink-0 items-center justify-center gap-[2px] rounded-[var(--border-radius-round)] px-[12px] py-[8px] transition-colors ' +
+          (highlight && active ? 'bg-[var(--surface-neutral-default)] ' : '') +
+          (!highlight && overlap ? 'mr-[-12px] ' : '')
+        }
+      >
+        <NavButtonText color={highlight && active ? 'blue' : 'black'} selected={active}>
+          {children}
+        </NavButtonText>
+      </button>
+    );
+  };
   return (
     <div className="inline-flex items-center rounded-[var(--border-radius-round)] bg-[var(--surface-primary-subtle)] p-[4px]">
       {seg('first', first, true)}

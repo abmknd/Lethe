@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from 'react';
 import { AppHeader, DailyGoal } from './AppHeader';
 import { SuggestionCard, type Suggestion } from './SuggestionCard';
+import { BODY_4A, TabBar, ToggleButton } from '../ds';
 
 /**
  * The Connect surface: chrome, tab rail, and whatever the body is.
@@ -14,39 +15,27 @@ export const CONNECT_TABS = ['SUGGESTIONS', 'ALL MATCHES', 'UPCOMING'] as const;
 export type ConnectTab = (typeof CONNECT_TABS)[number];
 
 /**
- * The tab rail. Not SegmentedToggle: that one splits its track into equal
- * segments, and here each tab is sized to its own label (143 / 123 / 104 in
- * the frame). Equal thirds would stretch UPCOMING and squeeze SUGGESTIONS.
+ * The tab rail, now `Tab Bar` + `Toggle Button` on `Type=fill`.
+ *
+ * It used to be a hand-rolled radiogroup with its own 13/16 tracking-1 type, a
+ * 6px dot and a 7px gap — none of which is in the component. `Toggle Button`
+ * `Type=fill` is the same idea done by the file: a white pill carrying a blue
+ * Button 2A label, on a tinted track at `p-4`.
+ *
+ * Three segments rather than `Switch Toggle`'s two, and each is sized to its own
+ * label — equal thirds would stretch UPCOMING and squeeze SUGGESTIONS. That is
+ * why this composes Tab Bar rather than placing a Switch Toggle.
  */
 function NavToggle({ value, onChange }: { value: ConnectTab; onChange: (t: ConnectTab) => void }) {
   return (
-    <div
-      role="radiogroup"
-      aria-label="Connect view"
-      className="flex items-center gap-[2px] rounded-[40px] bg-[var(--surface-neutral-subtle)] p-[4px]"
-    >
-      {CONNECT_TABS.map((t) => {
-        const active = t === value;
-        return (
-          <button
-            key={t}
-            role="radio"
-            aria-checked={active}
-            onClick={() => onChange(t)}
-            className={
-              'flex h-[32px] items-center gap-[7px] whitespace-nowrap rounded-[40px] px-[14px] ' +
-              'text-[13px] font-medium leading-[16px] tracking-[1px] transition-colors ' +
-              'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--color-blue-600)] ' +
-              (active
-                ? 'bg-[var(--surface-neutral-default)] text-[var(--text-default-highlight-blue)]'
-                : 'text-[var(--text-default-placeholder)] hover:text-[var(--text-default-caption)]')
-            }
-          >
-            {active ? <span aria-hidden className="size-[6px] shrink-0 rounded-full bg-[var(--icons-primary-default)]" /> : null}
+    <div className="flex items-center rounded-[var(--border-radius-round)] bg-[var(--surface-primary-subtle)] p-[4px]">
+      <TabBar label="Connect view">
+        {CONNECT_TABS.map((t) => (
+          <ToggleButton key={t} fill active={t === value} onClick={() => onChange(t)}>
             {t}
-          </button>
-        );
-      })}
+          </ToggleButton>
+        ))}
+      </TabBar>
     </div>
   );
 }
@@ -56,6 +45,7 @@ export function ConnectSurface({
   onTab,
   goalDone,
   avatarSrc,
+  person,
   onNavigate,
   onInvite,
   children,
@@ -64,15 +54,16 @@ export function ConnectSurface({
   onTab: (t: ConnectTab) => void;
   goalDone: number;
   avatarSrc?: string;
+  person?: string;
   onNavigate?: (href: string) => void;
   onInvite?: () => void;
   children: ReactNode;
 }) {
   return (
     <div className="rebrand-root flex min-h-screen w-full flex-col bg-[var(--surface-page-beta)] text-[var(--text-default-body)]">
-      <AppHeader active="connect" avatarSrc={avatarSrc} unread onNavigate={onNavigate} onInvite={onInvite} />
+      <AppHeader active="connect" avatarSrc={avatarSrc} person={person} unread onNavigate={onNavigate} onInvite={onInvite} />
 
-      <div className="flex h-[64px] shrink-0 items-center gap-[16px] border-b border-[var(--border-disabled-deep)] bg-[var(--surface-neutral-default)] px-[28px]">
+      <div className="flex h-[64px] shrink-0 items-center gap-[16px] border-b border-[var(--border-neutral-default)] bg-[var(--surface-neutral-default)] px-[28px]">
         <NavToggle value={tab} onChange={onTab} />
         <div className="ml-auto">
           <DailyGoal done={goalDone} />
@@ -129,7 +120,7 @@ export function ConnectMessage({ title, body }: { title: string; body: string })
   return (
     <div className="flex flex-col items-center gap-[12px] py-[64px] text-center">
       <h1 className="rebrand-display text-[24px] font-medium leading-[28px] text-[var(--text-default-body)]">{title}</h1>
-      <p className="max-w-[420px] text-[14px] leading-[20px] text-[var(--text-default-placeholder)]">{body}</p>
+      <p className={'max-w-[420px] text-[var(--text-default-placeholder)] ' + BODY_4A}>{body}</p>
     </div>
   );
 }

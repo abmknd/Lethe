@@ -56,7 +56,7 @@ export function NavButtonText({
 
 export function ToggleButton({
   children,
-  color = 'black',
+  color,
   active = false,
   fill = false,
   onClick,
@@ -64,10 +64,19 @@ export function ToggleButton({
   children: ReactNode;
   color?: NavButtonColor;
   active?: boolean;
-  /** `Type=fill` paints the selected state; `transparent` marks it with ink. */
+  /**
+   * `Type=fill` (844:3296) paints the selected state as a WHITE pill with a
+   * BLUE label — `surface/neutral/default` behind `Color=blue`. It is not a
+   * Blue 50 pill, which is what this was; that read as a tinted chip rather
+   * than a raised segment.
+   *
+   * `transparent` marks the selection with weight and ink only, which is what
+   * the app header's tab bar uses.
+   */
   fill?: boolean;
   onClick?: () => void;
 }) {
+  const ink = color ?? (fill && active ? 'blue' : 'black');
   return (
     <button
       type="button"
@@ -77,10 +86,10 @@ export function ToggleButton({
         'inline-flex shrink-0 items-center justify-center gap-[2px] rounded-[var(--border-radius-round)] ' +
         'px-[12px] py-[8px] transition-colors ' +
         'focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[var(--border-primary-default)] ' +
-        (fill && active ? 'bg-[var(--surface-primary-subtle)]' : '')
+        (fill && active ? 'bg-[var(--surface-neutral-default)]' : '')
       }
     >
-      <NavButtonText color={color} selected={active}>{children}</NavButtonText>
+      <NavButtonText color={ink} selected={active}>{children}</NavButtonText>
     </button>
   );
 }

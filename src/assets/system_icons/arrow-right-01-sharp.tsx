@@ -1,11 +1,11 @@
 /**
- * substack — GENERATED from Figma node 707:3. Do not edit.
+ * arrow-right-01-sharp — GENERATED from Figma node 872:14693. Do not edit.
  *
- * socials-section Badge Button. HugeIcons pro — absent from the free package. Exactly why these are local.
+ * The trailing affordance on `birthday`. Drawn at 12, the only glyph in the set below 16.
  *
  * Regenerate: node scripts/import-figma-icons.mjs
  */
-export function SubstackIcon({ size = 16, strokeWidth, className }: {
+export function ArrowRight01SharpIcon({ size = 12, strokeWidth, className }: {
   size?: number;
   strokeWidth?: number;
   className?: string;
@@ -14,7 +14,7 @@ export function SubstackIcon({ size = 16, strokeWidth, className }: {
     <svg
       width={size}
       height={size}
-      viewBox="-1.9584 -1.1666 16 16"
+      viewBox="-4.069 -2.5 12 12"
       fill="none"
       strokeWidth={strokeWidth}
       strokeLinecap="round"
@@ -22,7 +22,7 @@ export function SubstackIcon({ size = 16, strokeWidth, className }: {
       className={className}
       aria-hidden
     >
-      <path d="M0.5 0.5H11.5833M0.5 3.66667H11.5833M0.5 6.83333H11.5833V13.1667L6.04167 10L0.5 13.1667V6.83333Z" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M0.5 6.5L3.0286 3.9714C3.25082 3.74918 3.36193 3.63807 3.36193 3.5C3.36193 3.36193 3.25082 3.25082 3.0286 3.0286L0.5 0.5" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   );
 }
@@ -30,8 +30,8 @@ export function SubstackIcon({ size = 16, strokeWidth, className }: {
 /** The size this icon is DRAWN at in Figma — 16, 20 or 32. One viewBox unit is
  *  one pixel at this size, so Icon only has to rescale when a caller asks for
  *  something else. */
-SubstackIcon.grid = 16;
+ArrowRight01SharpIcon.grid = 12;
 
 /** Figma's Weight variant, in pixels. The library ships 1px and 2px; this is
  *  the drawn weight, not a target we compute. */
-SubstackIcon.weight = 1;
+ArrowRight01SharpIcon.weight = 1;

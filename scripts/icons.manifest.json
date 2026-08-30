@@ -34,29 +34,31 @@
     },
     {
       "name": "cancel-01",
-      "nodeId": "719:324",
+      "nodeId": "671:132",
       "size": 16,
-      "note": "Close. Figma description: delete, remove.",
-      "url": "https://www.figma.com/api/mcp/asset/f4234571-ceef-40bf-92f2-f132a3311110.svg"
+      "note": "The remove affordance on Tag, Badge Text and an active Chip, placed at 12. Figma description: delete, remove.",
+      "url": "https://www.figma.com/api/mcp/asset/bfaabf18-cfb2-4b33-90f8-17bc72cac9a3.svg"
     },
     {
       "name": "linkedin-02",
-      "nodeId": "685:2",
+      "nodeId": "679:7555",
       "size": 16,
-      "url": "https://www.figma.com/api/mcp/asset/3cf5be23-2f10-4c48-acbe-d17f9393b08d.svg"
+      "url": "https://www.figma.com/api/mcp/asset/2ad5e531-a522-4047-a1ea-7f4cfae71f85.svg",
+      "note": "socials-section Badge Button. Node id is the `elements` group of the 16px Primary variant."
     },
     {
       "name": "global",
-      "nodeId": "705:22",
+      "nodeId": "679:42403",
       "size": 16,
-      "url": "https://www.figma.com/api/mcp/asset/b4beb2ac-ef27-4d18-82ff-3a9afeef0dee.svg"
+      "url": "https://www.figma.com/api/mcp/asset/accfbe7e-1a03-4390-82f3-3214060d4ab7.svg",
+      "note": "socials-section Badge Button."
     },
     {
       "name": "substack",
-      "nodeId": "705:28",
+      "nodeId": "707:3",
       "size": 16,
-      "note": "HugeIcons pro — absent from the free package. Exactly why these are local.",
-      "url": "https://www.figma.com/api/mcp/asset/c388be48-db38-4b7b-9141-643bb2176cc0.svg"
+      "note": "socials-section Badge Button. HugeIcons pro — absent from the free package. Exactly why these are local.",
+      "url": "https://www.figma.com/api/mcp/asset/611bcf0a-3c8c-45ba-968d-43fbf976b7e8.svg"
     },
     {
       "name": "location-09",
@@ -67,15 +69,17 @@
     },
     {
       "name": "female-symbol",
-      "nodeId": "720:363",
-      "size": 20,
-      "url": "https://www.figma.com/api/mcp/asset/25721c36-cdda-4a74-b4f5-4af2863b1d47.svg"
+      "nodeId": "767:2841",
+      "size": 16,
+      "url": "https://www.figma.com/api/mcp/asset/40e4b13b-3683-48e0-9bcc-de900710a8e4.svg",
+      "note": "`gender` Type=Woman. The component places 16, not 20."
     },
     {
       "name": "birthday-cake",
-      "nodeId": "720:368",
-      "size": 20,
-      "url": "https://www.figma.com/api/mcp/asset/bf311488-1916-4b47-b748-38b59bb097f5.svg"
+      "nodeId": "767:2846",
+      "size": 16,
+      "url": "https://www.figma.com/api/mcp/asset/ec111ed9-dbea-4f90-a930-adceec928761.svg",
+      "note": "`birthday` meta row. The component places 16, not 20."
     },
     {
       "name": "notification-01",
@@ -268,8 +272,9 @@
     {
       "name": "favourite",
       "nodeId": "671:214",
-      "size": 18,
-      "url": "https://www.figma.com/api/mcp/asset/2c1cc47b-1f25-412f-8486-ebf05df270b8.svg"
+      "size": 16,
+      "url": "https://www.figma.com/api/mcp/asset/f6ad310f-dac3-4bf2-832f-3e4cab00f2e2.svg",
+      "note": "post action-bar / Like. The 16px variant, which is what the frame places. Figma description: love, heart, save."
     },
     {
       "name": "signal",
@@ -307,33 +312,59 @@
     },
     {
       "name": "message-multiple-02",
-      "nodeId": "695:56646",
-      "size": 20,
-      "url": "https://www.figma.com/api/mcp/asset/2a1f310b-2145-4c1d-b96a-e72f7ab20d18.svg"
+      "nodeId": "671:302",
+      "size": 16,
+      "url": "https://www.figma.com/api/mcp/asset/669de405-315f-4ba7-861a-44cfcc789e47.svg",
+      "note": "post action-bar / Reply. Figma description: chat."
     },
     {
       "name": "approximately-equal-circle",
-      "nodeId": "695:34098",
-      "size": 20,
-      "url": "https://www.figma.com/api/mcp/asset/2e2149e8-dc32-48e9-8dbe-9f15be4778cc.svg"
+      "nodeId": "667:20300",
+      "size": 16,
+      "url": "https://www.figma.com/api/mcp/asset/99e0b507-7aea-4f4b-8bb3-bb78574f9d83.svg",
+      "note": "post action-bar / Echo. Node id is the `elements` group of the 16px variant."
     },
     {
       "name": "bookmark-02",
-      "nodeId": "694:9590",
-      "size": 20,
-      "url": "https://www.figma.com/api/mcp/asset/af30ca29-618f-439b-9866-11353209de21.svg"
+      "nodeId": "671:220",
+      "size": 16,
+      "url": "https://www.figma.com/api/mcp/asset/f3a6df43-0dc3-45bb-9f17-fac7764b0548.svg",
+      "note": "post action-bar / Bookmark. Figma description: save, favorite."
     },
     {
       "name": "share-05",
-      "nodeId": "694:14246",
-      "size": 20,
-      "url": "https://www.figma.com/api/mcp/asset/676f7571-8b67-4653-a0b9-14325d57f132.svg"
+      "nodeId": "667:18841",
+      "size": 16,
+      "url": "https://www.figma.com/api/mcp/asset/f5fc9484-fb9b-4914-bbe1-d0018a044c3f.svg",
+      "note": "post action-bar / Share. Node id is the `elements` group of the 16px variant."
     },
     {
       "name": "more-horizontal-circle-01",
-      "nodeId": "694:33266",
-      "size": 20,
-      "url": "https://www.figma.com/api/mcp/asset/755a9579-663f-4e59-9e7a-4b54b157c5f7.svg"
+      "nodeId": "667:20107",
+      "size": 16,
+      "url": "https://www.figma.com/api/mcp/asset/5840c6a9-b6bd-4a49-9300-dd2ea37754bb.svg",
+      "note": "post-header / more-options, placed at 16."
+    },
+    {
+      "name": "male-symbol",
+      "nodeId": "872:14559",
+      "size": 16,
+      "note": "`gender` Type=Man.",
+      "url": "https://www.figma.com/api/mcp/asset/76d9dc8b-98f8-4bfd-8d50-0d169838f213.svg"
+    },
+    {
+      "name": "non-binary",
+      "nodeId": "872:14578",
+      "size": 16,
+      "note": "`gender` Type=Non-binary.",
+      "url": "https://www.figma.com/api/mcp/asset/865e9d7a-5ea7-4972-87e3-1fbc2f17d116.svg"
+    },
+    {
+      "name": "arrow-right-01-sharp",
+      "nodeId": "872:14693",
+      "size": 12,
+      "note": "The trailing affordance on `birthday`. Drawn at 12, the only glyph in the set below 16.",
+      "url": "https://www.figma.com/api/mcp/asset/6ac75b55-d4be-45af-a151-798c79b62e97.svg"
     }
   ]
 }

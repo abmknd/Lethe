@@ -1,9 +1,11 @@
 /**
  * favourite — GENERATED from Figma node 671:214. Do not edit.
  *
+ * post action-bar / Like. The 16px variant, which is what the frame places. Figma description: love, heart, save.
+ *
  * Regenerate: node scripts/import-figma-icons.mjs
  */
-export function FavouriteIcon({ size = 18, strokeWidth, className }: {
+export function FavouriteIcon({ size = 16, strokeWidth, className }: {
   size?: number;
   strokeWidth?: number;
   className?: string;
@@ -12,7 +14,7 @@ export function FavouriteIcon({ size = 18, strokeWidth, className }: {
     <svg
       width={size}
       height={size}
-      viewBox="-1 -1 18 18"
+      viewBox="-0.8336 -1.4999 16 16"
       fill="none"
       strokeWidth={strokeWidth}
       strokeLinecap="round"
@@ -20,7 +22,7 @@ export function FavouriteIcon({ size = 18, strokeWidth, className }: {
       className={className}
       aria-hidden
     >
-      <path d="M12.9752 2.66277C11.1874 1.56615 9.62708 2.00808 8.68973 2.71201C8.30539 3.00064 8.11323 3.14495 8.00016 3.14495C7.8871 3.14495 7.69493 3.00064 7.3106 2.71201C6.37324 2.00808 4.81289 1.56615 3.02512 2.66277C0.678875 4.10196 0.147977 8.8499 5.55985 12.8556C6.59064 13.6185 7.10604 14 8.00016 14C8.89429 14 9.40968 13.6185 10.4405 12.8556C15.8523 8.8499 15.3214 4.10196 12.9752 2.66277Z" stroke="currentColor" strokeLinecap="round"/>
+      <path d="M12.1414 1.16298C10.3537 0.0663597 8.79333 0.508283 7.85597 1.21222C7.47164 1.50085 7.27947 1.64516 7.16641 1.64516C7.05334 1.64516 6.86117 1.50085 6.47684 1.21222C5.53949 0.508283 3.97913 0.0663597 2.19137 1.16298C-0.154881 2.60216 -0.685779 7.35011 4.72609 11.3558C5.75689 12.1187 6.27228 12.5002 7.16641 12.5002C8.06053 12.5002 8.57593 12.1187 9.60672 11.3558C15.0186 7.35011 14.4877 2.60216 12.1414 1.16298Z" stroke="currentColor" strokeLinecap="round"/>
     </svg>
   );
 }
@@ -28,7 +30,7 @@ export function FavouriteIcon({ size = 18, strokeWidth, className }: {
 /** The size this icon is DRAWN at in Figma — 16, 20 or 32. One viewBox unit is
  *  one pixel at this size, so Icon only has to rescale when a caller asks for
  *  something else. */
-FavouriteIcon.grid = 18;
+FavouriteIcon.grid = 16;
 
 /** Figma's Weight variant, in pixels. The library ships 1px and 2px; this is
  *  the drawn weight, not a target we compute. */
