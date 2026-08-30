@@ -656,6 +656,12 @@ computed weight disagreed with the drawn one on every 20px glyph in the sidebars
 It has been removed rather than kept for the record, because a superseded rule
 sitting under a live one is a rule someone will implement.
 
+**`Nav Item` has a `Size` axis, and the app is on `md`.** 792:3012 ships md (40
+tall) and lg (48). Every rail in the product places md: p-12, a 16 glyph, P4
+14/16 type, Title 4C when selected. A six-item `Sidebar` is 276, not 324. This
+was built at lg before the axis existed, so the whole rail was one size too
+large — verified corrected at 248x276 with 40 rows.
+
 **Export from the size the frame PLACES.** A glyph is redrawn per size in this
 library, not scaled: `favourite` occupies 75% of its 16px box (`inset-[12.5%_8.33%]`)
 and 83.3% of its 20px one. Exporting the heart from an 18px node put it at 66.7%

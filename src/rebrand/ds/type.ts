@@ -21,6 +21,9 @@ export const TITLE_1 = 'text-[20px] font-medium leading-[24px]';
 export const TITLE_3 = 'text-[16px] font-medium leading-[20px]';
 /** Title 4B — 14/20 Medium. A person's name in a list row or a post header. */
 export const TITLE_4B = 'text-[14px] font-medium leading-[20px]';
+/** Title 4C — 14/16 Medium. A SELECTED `md` nav row. Same size as 4B, tighter
+ *  leading: 4B is on P4's own 20, 4C is on Scale/500. */
+export const TITLE_4C = 'text-[14px] font-medium leading-[16px]';
 /** Title 5 — 13/16 Medium. A field Label. */
 export const TITLE_5 = 'text-[13px] font-medium leading-[16px]';
 /** Title 6 — 12/16 Regular. Section labels, Badge Text. */
