@@ -3,6 +3,26 @@ import { Avatar, BadgeButton, Button, TabBar, ToggleButton } from '../ds';
 import { Message01Icon, Notification01Icon } from '../../assets/system_icons';
 
 /**
+ * ═══ RETIRED DESIGN — FROZEN ═══════════════════════════════════════════════
+ *
+ * This is the CONNECT surface: CONNECT / FEED in the top bar, a three-up tab
+ * rail, a 600-wide profile card. It is being sunset.
+ *
+ * The surface we are building on is `src/rebrand/app/AppShell.tsx` — FEED /
+ * MATCHES / COMMUNITIES, built from `relethe-feed` 750:184 (feed), 907:22311
+ * (matches) and 911:4246 (suggested).
+ *
+ * It still exists because `/connect` in the LIVE app mounts it (see
+ * src/app/ConnectPage.tsx). Deleting it now breaks production. Its preview
+ * route is gone, so the only way to reach it is the real page.
+ *
+ * DO NOT INVEST HERE. No new components, no Figma alignment passes, no
+ * polish. The next change this file should see is its callers moving to
+ * AppShell, and then its deletion.
+ * ══════════════════════════════════════════════════════════════════════════
+ */
+
+/**
  * The Connect surface's top chrome.
  *
  * MOVED ONTO THE LIBRARY. This used to carry its own `HeaderIconButton`, its

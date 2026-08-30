@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Icon, type Glyph } from './Icon';
+import { Icon } from './Icon';
 import { Cancel01Icon } from '../../assets/system_icons';
 import { BadgeIcon } from './BadgeIcon';
 import { BODY_4B, TITLE_6 } from './type';

@@ -839,8 +839,25 @@ Text Input · Toggle Button · location-meta · gender · birthday.
 
 Also built: **Chip** (863:4043) and **Text Icon Menu**.
 
-Not built: **Badge Icon `Shape=star`** — needs its export; the circle is exact
-in CSS, a star would have to be drawn.
+Not built: **Badge Icon `Shape=star`** — no surviving frame places one. The
+circle is exact in CSS; the star waits until a screen asks for it.
+
+### 5.15.2 The surface — normative
+
+**`src/rebrand/app/AppShell.tsx` is the app.** FEED / MATCHES / COMMUNITIES in
+the top bar, built from `relethe-feed` 750:184 (feed), 907:22311 (matches) and
+911:4246 (suggested).
+
+**The CONNECT surface is retired.** CONNECT / FEED in the top bar, a three-up
+tab rail, a 600-wide profile card — `ConnectSurface`, `SuggestionCard`,
+`MatchCard` and the old `AppHeader`. Its preview route `/rebrand/connect` is
+deleted; the files carry a FROZEN header and take no further investment.
+
+They still exist because `/connect` in the LIVE app mounts them
+(`src/app/ConnectPage.tsx`). **Migrating that page to AppShell is the next real
+piece of work, and it is a product change, not a cleanup** — the two surfaces
+disagree about what the top-level navigation is. Until then the retired design
+is reachable only through the real page, never through a review route.
 
 ### 5.15.1 A variant set is AXES, not cases — normative
 

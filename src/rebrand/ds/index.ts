@@ -23,8 +23,13 @@
  *
  * WHAT IS NOT HERE YET
  *
- *   Badge Icon `Shape=star` — needs its export; the circle is exact, a star
- *   would have to be drawn.
+ *   Badge Icon `Shape=star` — no surviving frame places one. The circle is
+ *   exact in CSS; the star waits until a screen asks for it.
+ *
+ * WHERE IT IS USED
+ *
+ *   `../app/AppShell.tsx` is the app — FEED / MATCHES / COMMUNITIES. The
+ *   CONNECT surface next to it is retired and frozen; do not extend it.
  */
 
 export * from './type';

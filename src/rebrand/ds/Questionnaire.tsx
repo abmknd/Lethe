@@ -2,7 +2,6 @@ import type { ReactNode } from 'react';
 import { Check } from './Check';
 import { Symbols } from './Symbols';
 import { type Glyph } from './Icon';
-import { BODY_4B } from './type';
 
 /**
  * ITEM BUTTON TEXT — Figma `Item Button Text` 771:5552.

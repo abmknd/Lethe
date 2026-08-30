@@ -75,7 +75,7 @@ export default function Hero() {
         src={heroArt}
         alt=""
         aria-hidden="true"
-        fetchpriority="high"
+        fetchPriority="high"
         className="pointer-events-none absolute inset-0 h-full w-full select-none object-cover object-bottom"
       />
 

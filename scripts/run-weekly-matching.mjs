@@ -11,9 +11,9 @@ try {
     maxRecommendationsPerUser,
   });
 
-  // eslint-disable-next-line no-console
+   
   console.log('Weekly matching run completed.');
-  // eslint-disable-next-line no-console
+   
   console.log(JSON.stringify(result, null, 2));
 } finally {
   app.close();

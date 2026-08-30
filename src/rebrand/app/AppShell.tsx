@@ -2,7 +2,7 @@ import { useState, type ReactNode } from 'react';
 import { Brandmark } from '../brand';
 import {
   Avatar, AvatarStack, BadgeButton, BadgeText, BODY_3A, BODY_4A, BODY_5A, BODY_5B,
-  BUTTON_2A, Button, ButtonText, Divider, Icon, LocationMeta, NavItem, NavButtonText,
+  BUTTON_2A, Button, ButtonText, Divider, Icon, LocationMeta, NavItem,
   SectionLabel, Sidebar, TabBar as TabBarRow, Tag, TITLE_1, TITLE_3, TITLE_4B, TITLE_6,
   ToggleButton,
 } from '../ds';
@@ -16,7 +16,6 @@ import {
   Notification01Icon, PlusSignCircleIcon, PlusSignIcon, PuzzleIcon, SearchIcon,
   SearchingIcon, SentIcon, Setting03Icon, Share05Icon, SubstackIcon, UserAdd02Icon,
   UserCheck02Icon, UserGroupIcon, UserMultipleIcon, UserRemove02Icon, VolleyballIcon,
-  Location09Icon,
 } from '../../assets/system_icons';
 import {
   COMMUNITY_RAIL, FAVES, FEED_RAIL, FOLLOW, MATCHES, MATCH_RAIL, ME, NAV, POSTS, PROFILES,
