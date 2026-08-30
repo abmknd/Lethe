@@ -90,29 +90,44 @@ database while `Preferences.meetingFormat` is `string[]` in TypeScript, and the
 design shows multiple format pills. So the column exists but cannot hold what
 the screen displays. Scalar → array is a real migration, just a small one.
 
-### 2a-ii. Right field, wrong shape — `whyMatched` has no emphasis
+### 2a-ii. Signal bullets — RESOLVED 2026-08-30, and my first diagnosis was wrong
 
-`Recommendation.whyMatched` is `string[]`: one flat sentence per signal bullet.
+**The fix shipped: `blindRationale.overlapThemes` now carries `{pre, emph, post}`
+alongside `label`.** The card renders the design's two-colour emphasis on live
+data. `label === pre + emph + post`, so existing consumers are untouched.
 
-The design draws each bullet in **two colours** — most of the line in
-`text/default/placeholder` (#9c9c9c) with the operative phrase stepped up to
-`text/default/body` (#282323). That is a colour change, not a bold, and
-`SuggestionsView` renders it correctly from a `{pre, emph, post}` triple. The
-demo shows it working.
+I first recorded this as "`whyMatched` is flat and needs an emphasis span". That
+was wrong on both halves, and the correction is worth keeping:
 
-A live bullet cannot use it. There is no marked span in a flat string, so the
-mapper puts the whole sentence in `pre` and the emphasis never appears. **The
-colour tokens are not the problem** — verified in the browser: base renders
-`rgb(156,156,156)` and emphasis `rgb(40,35,35)`, and they differ.
+**`whyMatched` is not the signal copy.** It is the matcher's internal scoring
+diagnostics — `Ask-offer fit 73%`, `Role fit 50% (founder ↔ investor)`,
+`Availability overlap 3.5h (timezone-normalized)`. Audit output. Adding an
+emphasis span to it would have produced three-part diagnostics, and putting any
+of it on the card would show users raw scoring internals.
 
-Two ways out, both cheap, and this needs a decision:
+**And it is empty on every card the design shows.** The blind gate in
+`supabase/functions/api/index.ts` sends `whyMatched: []`, `insightText: null`,
+`score: null` and `candidate: null` while a match is blind — which is every row
+on Suggested. The mapper was reading a field that is deliberately empty, so
+SIGNAL rendered with a heading and no bullets.
 
-1. The matcher already knows which phrase carried the signal, since that is what
-   it scored. Return `{pre, emph, post}` and the design works as drawn.
-2. Decide flat is acceptable and drop the two-tone treatment from the design, so
-   the code stops carrying a field nothing fills.
+The real source was already there. `buildBlindRationale` composes each theme as
+a stock phrase plus the shared tokens (`Shared interest in ` + `Architecture and
+Cats`), and that seam is exactly the emphasis: the part that is about these two
+people rather than the framing around it. Splitting at the point where the two
+halves are already separate is free; joining them and asking the client to find
+the seam again is not.
 
-Doing neither leaves a designed emphasis that is dead on every real record.
+`availabilityCompatibility` is appended as a final bullet with no emphasis — no
+phrase in it is more "theirs" than the rest.
+
+**The colour tokens were never implicated.** Verified in the browser: base
+renders `rgb(156,156,156)`, emphasis `rgb(40,35,35)`, and
+`--text-default-placeholder` resolves to `#9c9c9c`.
+
+Still open: **interest chips have no blind source.** `overlapThemes` are
+sentences, not tags, and a sentence in a Tag chip is a chip used as a paragraph.
+COMMON INTEREST is empty on blind records and the section hides itself.
 
 ### 2b. No column anywhere — real work
 

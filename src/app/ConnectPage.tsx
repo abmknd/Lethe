@@ -52,10 +52,35 @@ function toProfile(rec: Recommendation): Profile {
     role: rec.blindRationale?.roleCategory ?? '',
     city: c?.location ?? '',
     about: c?.introText ?? rec.insightText ?? '',
-    interests: (rec.blindRationale?.overlapThemes ?? []).map((t) => t.label),
-    // `whyMatched` is a flat sentence per bullet; the design's three-part split
-    // exists to colour an emphasis we are not given, so it all reads as body.
-    bullets: (rec.whyMatched ?? []).map((line) => ({ pre: line, emph: '', post: '' })),
+    // No interest chips while blind. `overlapThemes` are SENTENCES ("Shared
+    // interest in Architecture and Cats"), not tags, and a sentence in a Tag
+    // chip is a chip used as a paragraph. They belong in SIGNAL, below.
+    interests: [],
+    /**
+     * SIGNAL comes from `blindRationale`, NOT from `whyMatched`.
+     *
+     * Two reasons, either of which is decisive. `whyMatched` is the matcher's
+     * internal scoring diagnostics — "Ask-offer fit 73%", "Role fit 50%
+     * (founder ↔ investor)" — which is audit output, not something to show a
+     * person. And the API sends it as `[]` on every blind record by design, so
+     * reading it here rendered an empty SIGNAL section on every card.
+     *
+     * `overlapThemes` now carries `{pre, emph, post}`, so the two-colour
+     * emphasis the design draws renders on live data.
+     */
+    bullets: [
+      ...(rec.blindRationale?.overlapThemes ?? []).map((t) => ({
+        pre: t.pre,
+        emph: t.emph,
+        post: t.post,
+      })),
+      // Real signal and the one line that is about the meeting rather than the
+      // person, so it closes the list. No emphasis: there is no phrase in it
+      // that is more "theirs" than the rest.
+      ...(rec.blindRationale?.availabilityCompatibility
+        ? [{ pre: rec.blindRationale.availabilityCompatibility, emph: '', post: '' }]
+        : []),
+    ],
     endorsers: [],
     endorseName: '',
     endorseRest: '',

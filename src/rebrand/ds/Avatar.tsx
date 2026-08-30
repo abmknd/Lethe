@@ -95,12 +95,27 @@ export function Avatar({
 }
 
 /**
- * AVATAR STACK — `Avatar Stack` 935:4357. `Size=md` is 64x32, `Size=sm` 40x20.
+ * AVATAR STACK — `Avatar Stack` 935:4357.
  *
- * Those numbers are the component's own, and they encode the overlap: three
- * 32s in 64 means each sits 16 further along, not 32. The stack is a fixed
- * width, so it does not grow as people are added — it is a summary, and the
- * count beside it carries the rest.
+ * A FLEX ROW WITH NEGATIVE RIGHT MARGINS, which is how the component is built
+ * and it is not a detail. In a flex row, later siblings paint over earlier ones,
+ * so the RIGHTMOST avatar sits on top and the stack reads as receding to the
+ * left.
+ *
+ * This was absolutely positioned with `zIndex: people.length - i`, which put the
+ * LEFTMOST on top and inverted the whole thing. Every avatar overlapped the
+ * wrong neighbour and the stack leaned the wrong way. Nothing about the size or
+ * the spacing was wrong, which is why it measured correctly and still looked
+ * wrong — the same trap as building from geometry instead of reading the node.
+ *
+ * The overlap is the component's: `mr-[-16px]` at md, `mr-[-10px]` at sm, and
+ * the last child has none. The width falls out of that rather than being set —
+ * three 32s at -16 is 64, three 20s at -10 is 40, which is exactly what Figma
+ * reports. A hardcoded width would be the same number by luck and would stop
+ * being true the moment the count changed.
+ *
+ * The white ring around each avatar belongs to `Avatar` itself
+ * (`border/primary/highlight`), not to the stack.
  */
 export function AvatarStack({
   people,
@@ -110,14 +125,20 @@ export function AvatarStack({
   people: { name?: AvatarName; src?: string; person: string }[];
   size?: 'sm' | 'md';
 }) {
-  const px = size === 'md' ? 32 : 20;
-  const step = size === 'md' ? 16 : 10;
-  const width = size === 'md' ? 64 : 40;
+  const overlap = size === 'md' ? 16 : 10;
+  const shown = people.slice(0, 3);
 
   return (
-    <span className="relative inline-block shrink-0" style={{ width, height: px }}>
-      {people.slice(0, 3).map((p, i) => (
-        <span key={p.person} className="absolute top-0" style={{ left: i * step, zIndex: people.length - i }}>
+    <span className="flex shrink-0 items-center">
+      {shown.map((p, i) => (
+        <span
+          key={p.person}
+          className="flex shrink-0 items-center"
+          // Every child but the last pulls the next one back over it. No
+          // z-index: the DOM order already paints later over earlier, which is
+          // the lean the component has.
+          style={i < shown.length - 1 ? { marginRight: -overlap } : undefined}
+        >
           <Avatar name={p.name} src={p.src} person={p.person} size={size === 'md' ? 'sm' : 'xs'} />
         </span>
       ))}
