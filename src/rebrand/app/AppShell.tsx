@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { Brandmark } from '../brand';
 import {
   Avatar, AvatarStack, BadgeButton, BadgeText, BODY_3A, BODY_4A, BODY_5A, BODY_5B,
@@ -18,7 +18,7 @@ import {
   UserCheck02Icon, UserGroupIcon, UserMultipleIcon, UserRemove02Icon, VolleyballIcon,
 } from '../../assets/system_icons';
 import {
-  COMMUNITY_RAIL, FAVES, FEED_RAIL, FOLLOW, MATCHES, MATCH_RAIL, ME, NAV, POSTS, PROFILES,
+  FAVES, FEED_RAIL, FOLLOW, MATCHES, ME, NAV, POSTS, RAILS,
   type PersonRow, type Post, type Profile,
 } from './appDemo';
 
@@ -345,13 +345,27 @@ function MatchListView({ rail }: { rail: string }) {
 // 300. Padding is 20 everywhere except the two sections that close a column,
 // which take 24 at the bottom.
 
-const SOCIALS = [
-  { label: 'LinkedIn', glyph: Linkedin02Icon },
-  { label: 'Personal website', glyph: GlobalIcon },
-  { label: 'Substack', glyph: SubstackIcon },
-] as const;
+/** Keyed, so a profile names which socials it has rather than the view always
+ *  drawing all three. A live record under the blind gate has none. */
+const SOCIALS = {
+  linkedin: { label: 'LinkedIn', glyph: Linkedin02Icon },
+  website: { label: 'Personal website', glyph: GlobalIcon },
+  substack: { label: 'Substack', glyph: SubstackIcon },
+} as const;
 
-function SuggestionsView({ profile, done, onDecide }: { profile: Profile; done: number; onDecide: () => void }) {
+export type SocialKey = keyof typeof SOCIALS;
+
+function SuggestionsView({
+  profile, done, onPass, onMatch, busy = false,
+}: {
+  profile: Profile;
+  /** How many of the ten daily dots are spent. */
+  done: number;
+  onPass: () => void;
+  onMatch: () => void;
+  /** A decision is in flight; both buttons lock so it cannot be double-sent. */
+  busy?: boolean;
+}) {
   const first = profile.name.split(' ')[0];
   return (
     <div className="flex min-w-0 flex-col gap-[20px]">
@@ -374,13 +388,15 @@ function SuggestionsView({ profile, done, onDecide }: { profile: Profile; done: 
                   {profile.name}
                 </h2>
                 <div className="flex flex-col items-start gap-[12px]">
-                  {/* The role chip is Tag `default` — Blue 50. It was neutral. */}
-                  <Tag>{profile.role}</Tag>
+                  {/* The role chip is Tag `default` — Blue 50. It was neutral.
+                      Hidden when empty: a live blind record has no role, and an
+                      empty chip is a blue smudge where a fact should be. */}
+                  {profile.role && <Tag>{profile.role}</Tag>}
                   {/* `location-meta` 872:14535: a 16 glyph, a 4 gap, 13/16 Light.
                       One item only. The frame's separator beside it is
                       hidden="true" and pronouns and birthday are gone, neither
                       having a column behind it (docs/backend-gaps.md 2b). */}
-                  <LocationMeta>{profile.city}</LocationMeta>
+                  {profile.city && <LocationMeta>{profile.city}</LocationMeta>}
                 </div>
               </div>
             </div>
@@ -392,26 +408,39 @@ function SuggestionsView({ profile, done, onDecide }: { profile: Profile; done: 
               <p className={'text-[var(--text-default-heading)] ' + BODY_3A}>{profile.about}</p>
             </section>
 
-            <Divider />
+            {/* THE DATA-BACKED SECTIONS HIDE WHEN THEY ARE EMPTY.
+                Under the blind gate most of a live recommendation is absent —
+                interests, formats, endorsements and socials all have gaps
+                (docs/backend-gaps.md 2b). A labelled section with nothing under
+                it reads as a broken card, not as an honest one, so the label
+                goes with its content. The demo fills all four, so this changes
+                nothing there. */}
+            {profile.interests.length > 0 && (
+              <>
+                <Divider />
+                <section className="flex flex-col gap-[10px] p-[20px]">
+                  <SectionLabel>COMMON INTEREST</SectionLabel>
+                  <div className="flex flex-wrap gap-[8px]">
+                    {profile.interests.map((t) => <Tag key={t} tone="neutral">{t}</Tag>)}
+                  </div>
+                </section>
+              </>
+            )}
 
-            <section className="flex flex-col gap-[10px] p-[20px]">
-              <SectionLabel>COMMON INTEREST</SectionLabel>
-              <div className="flex flex-wrap gap-[8px]">
-                {profile.interests.map((t) => <Tag key={t} tone="neutral">{t}</Tag>)}
-              </div>
-            </section>
-
-            <Divider />
-
-            <section className="flex flex-col gap-[10px] px-[20px] pb-[24px] pt-[20px]">
-              <div className={'flex items-center justify-between gap-[16px] py-[2px] whitespace-nowrap ' + TITLE_6}>
-                <span className="text-[var(--text-default-placeholder)]">MEETING FORMAT</span>
-                <span className="text-[var(--text-default-subtle)]">{first}&rsquo;s preference</span>
-              </div>
-              <div className="flex flex-wrap gap-[8px]">
-                {profile.formats.map((f) => <Tag key={f}>{f}</Tag>)}
-              </div>
-            </section>
+            {profile.formats.length > 0 && (
+              <>
+                <Divider />
+                <section className="flex flex-col gap-[10px] px-[20px] pb-[24px] pt-[20px]">
+                  <div className={'flex items-center justify-between gap-[16px] py-[2px] whitespace-nowrap ' + TITLE_6}>
+                    <span className="text-[var(--text-default-placeholder)]">MEETING FORMAT</span>
+                    <span className="text-[var(--text-default-subtle)]">{first}&rsquo;s preference</span>
+                  </div>
+                  <div className="flex flex-wrap gap-[8px]">
+                    {profile.formats.map((f) => <Tag key={f}>{f}</Tag>)}
+                  </div>
+                </section>
+              </>
+            )}
           </div>
 
           <Divider vertical />
@@ -444,31 +473,44 @@ function SuggestionsView({ profile, done, onDecide }: { profile: Profile; done: 
               </div>
             </section>
 
-            <section className="flex flex-col gap-[12px] p-[20px]">
-              <SectionLabel>ENDORSED BY</SectionLabel>
-              <div className="flex h-[32px] items-end gap-[8px]">
-                <AvatarStack people={profile.endorsers} size="md" />
-                <span className="flex min-w-0 flex-1 items-center gap-[2px]">
-                  <span className={'shrink-0 text-[var(--text-default-caption)] ' + TITLE_4B}>{profile.endorseName}</span>
-                  <span className={'min-w-0 flex-1 text-[var(--text-default-placeholder)] ' + BODY_5A}>
-                    {' '}{profile.endorseRest}
+            {profile.endorsers.length > 0 && (
+              <section className="flex flex-col gap-[12px] p-[20px]">
+                <SectionLabel>ENDORSED BY</SectionLabel>
+                <div className="flex h-[32px] items-end gap-[8px]">
+                  <AvatarStack people={profile.endorsers} size="md" />
+                  <span className="flex min-w-0 flex-1 items-center gap-[2px]">
+                    <span className={'shrink-0 text-[var(--text-default-caption)] ' + TITLE_4B}>
+                      {profile.endorseName}
+                    </span>
+                    <span className={'min-w-0 flex-1 text-[var(--text-default-placeholder)] ' + BODY_5A}>
+                      {' '}{profile.endorseRest}
+                    </span>
                   </span>
-                </span>
-              </div>
-            </section>
+                </div>
+              </section>
+            )}
 
-            <Divider />
-
-            <section className="flex flex-col gap-[12px] p-[20px]">
-              <SectionLabel>SOCIALS</SectionLabel>
-              <div className="flex flex-wrap items-center gap-[12px]">
-                {/* The one place the file uses PRIMARY ink on a subtle fill.
-                    Every other Badge Button in the app is neutral. */}
-                {SOCIALS.map(({ label, glyph }) => (
-                  <BadgeButton key={label} label={label} glyph={glyph} tone="subtle" ink="primary" />
-                ))}
-              </div>
-            </section>
+            {profile.socials.length > 0 && (
+              <>
+                <Divider />
+                <section className="flex flex-col gap-[12px] p-[20px]">
+                  <SectionLabel>SOCIALS</SectionLabel>
+                  <div className="flex flex-wrap items-center gap-[12px]">
+                    {/* The one place the file uses PRIMARY ink on a subtle fill.
+                        Every other Badge Button in the app is neutral. */}
+                    {profile.socials.map((key) => (
+                      <BadgeButton
+                        key={key}
+                        label={SOCIALS[key].label}
+                        glyph={SOCIALS[key].glyph}
+                        tone="subtle"
+                        ink="primary"
+                      />
+                    ))}
+                  </div>
+                </section>
+              </>
+            )}
             <div className="flex-1" />
           </div>
         </div>
@@ -494,8 +536,8 @@ function SuggestionsView({ profile, done, onDecide }: { profile: Profile; done: 
             </div>
           </div>
           <div className="flex items-center gap-[12px]">
-            <Button tone="subtle" onClick={onDecide}>PASS</Button>
-            <Button tone="fill" onClick={onDecide}>MATCH</Button>
+            <Button tone="subtle" onClick={onPass} disabled={busy}>PASS</Button>
+            <Button tone="fill" onClick={onMatch} disabled={busy}>MATCH</Button>
           </div>
         </div>
       </div>
@@ -679,66 +721,78 @@ function AsideColumn({ isFeed }: { isFeed: boolean }) {
 
 // ---------------------------------------------------------------- shell
 
-const RAILS = [FEED_RAIL, MATCH_RAIL, COMMUNITY_RAIL] as const;
-
-export function AppShell() {
-  const [nav, setNav] = useState(0);
-  const [rail, setRail] = useState(0);
-  const [idx, setIdx] = useState(0);
-  const [done, setDone] = useState(1);
-
+/**
+ * APP SHELL — `relethe-feed`'s `app-header` + `app-grid`, and nothing else.
+ *
+ * A LAYOUT, NOT A SCREEN. It owns the header, the rail and the grid; the caller
+ * owns the state and supplies the middle column. That split is what lets the
+ * live `/connect` page and the demo preview render the same chrome from very
+ * different data, instead of the shell reaching for one fixed source.
+ *
+ * `aside` is omitted on Suggested, and the grid drops to two columns to match —
+ * 911:4246 has no right-hand column, 907:22311 does.
+ */
+export function AppShell({
+  nav,
+  rail,
+  onNav,
+  onRail,
+  aside,
+  children,
+}: {
+  /** Index into NAV: 0 FEED · 1 MATCHES · 2 COMMUNITIES. */
+  nav: number;
+  /** Index into this tab's rail. */
+  rail: number;
+  onNav: (i: number) => void;
+  onRail: (i: number) => void;
+  /** The right-hand 320 column. Omit it and the grid becomes two columns. */
+  aside?: ReactNode;
+  children: ReactNode;
+}) {
   const railItems = RAILS[nav] ?? FEED_RAIL;
-  const railLabel = railItems[rail] ?? railItems[0];
-  const isSuggestions = nav === 1 && railLabel === 'Suggested';
-  const profile = PROFILES[idx % PROFILES.length];
-
-  const decide = () => {
-    setIdx((i) => i + 1);
-    setDone((d) => Math.min(10, d + 1));
-  };
 
   return (
     <div className="rebrand-root min-h-screen bg-[var(--surface-page-beta)] text-[var(--text-default-body)]">
-      <Header nav={nav} onNav={(i) => { setNav(i); setRail(0); }} />
+      <Header nav={nav} onNav={onNav} />
 
       {/* app-grid: 1080 with 24 padding and 24 gaps. 248 + 416 + 320 is what
           those numbers leave for the three columns at full width. */}
       <div
         className={
           'mx-auto grid max-w-[1080px] items-start gap-[24px] p-[24px] pb-[80px] ' +
-          (isSuggestions
-            ? 'grid-cols-[248px_minmax(0,1fr)] max-[740px]:grid-cols-[minmax(0,1fr)]'
-            : 'grid-cols-[248px_minmax(0,1fr)_320px] max-[1000px]:grid-cols-[248px_minmax(0,1fr)] max-[740px]:grid-cols-[minmax(0,1fr)]')
+          (aside
+            ? 'grid-cols-[248px_minmax(0,1fr)_320px] max-[1000px]:grid-cols-[248px_minmax(0,1fr)] max-[740px]:grid-cols-[minmax(0,1fr)]'
+            : 'grid-cols-[248px_minmax(0,1fr)] max-[740px]:grid-cols-[minmax(0,1fr)]')
         }
       >
         <div className="max-[740px]:hidden">
-          <Rail items={railItems} active={rail} onPick={setRail} />
+          <Rail items={railItems} active={rail} onPick={onRail} />
         </div>
 
-        {isSuggestions ? (
-          <SuggestionsView profile={profile} done={done} onDecide={decide} />
-        ) : (
-          <>
-            <main className="flex min-w-0 flex-col gap-[20px]">
-              {nav === 0 && <FeedView />}
-              {nav === 1 && <MatchListView rail={railLabel} />}
-              {nav === 2 && (
-                <div className={'flex flex-col items-center gap-[12px] px-[32px] py-[64px] text-center ' + CARD}>
-                  <h2 className="rebrand-display text-[30px] leading-[110%] text-[var(--text-default-heading)]">
-                    Communities come next.
-                  </h2>
-                  <p className={'max-w-[44ch] text-[var(--text-default-caption)] ' + BODY_3A}>
-                    Rooms built around the things people keep meeting about. The rail is real; nothing to join yet.
-                  </p>
-                </div>
-              )}
-            </main>
-            <div className="max-[1000px]:hidden">
-              <AsideColumn isFeed={nav === 0} />
-            </div>
-          </>
-        )}
+        {children}
+
+        {aside && <div className="max-[1000px]:hidden">{aside}</div>}
       </div>
     </div>
   );
 }
+
+/**
+ * A card that says why the column is empty — loading, caught up, nothing yet,
+ * or a rail row with no screen behind it.
+ *
+ * It carries no `<main>` of its own so it can sit inside one, and it is one
+ * component rather than a "coming soon" and an "empty state" that would drift
+ * apart the first time either was touched.
+ */
+export function MessageView({ title, body }: { title: string; body: string }) {
+  return (
+    <div className={'flex flex-col items-center gap-[12px] px-[32px] py-[64px] text-center ' + CARD}>
+      <h2 className="rebrand-display text-[30px] leading-[110%] text-[var(--text-default-heading)]">{title}</h2>
+      <p className={'max-w-[44ch] text-[var(--text-default-caption)] ' + BODY_3A}>{body}</p>
+    </div>
+  );
+}
+
+export { FeedView, MatchListView, SuggestionsView, AsideColumn };

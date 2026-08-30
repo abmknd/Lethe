@@ -3,43 +3,60 @@ import { useNavigate } from 'react-router';
 import { listUserRecommendations, markMatchesSeen, respondToRecommendation } from './api';
 import type { Recommendation } from './types';
 import { useAuth } from './context/AuthContext';
-import {
-  ConnectMessage,
-  ConnectSurface,
-  SuggestionView,
-  type ConnectTab,
-} from '../rebrand/app/ConnectSurface';
-import type { Suggestion } from '../rebrand/app/SuggestionCard';
+import '../rebrand/rebrand.css';
+import { AppShell, MessageView, SuggestionsView } from '../rebrand/app/AppShell';
+import { MATCH_RAIL } from '../rebrand/app/appDemo';
+import type { Profile } from '../rebrand/app/appDemo';
+
+/**
+ * SUGGESTED — `relethe-feed` 911:4246, on real recommendations.
+ *
+ * This route is the **Suggested** row of the MATCHES tab, not a surface of its
+ * own. It renders the same `AppShell` as the preview, differing only in where
+ * the profile comes from. The retired CONNECT design it used to mount — its own
+ * header, its own three-up tab rail — is gone.
+ *
+ * The path is still `/connect` because that is what the app links to and
+ * renaming it is a separate change with its own redirects.
+ */
+
+const NAV_MATCHES = 1;
+const RAIL_SUGGESTED = MATCH_RAIL.indexOf('Suggested');
 
 /**
  * Map a recommendation onto the card's view model.
  *
- * WHERE THE DATA IS NOT: the reference design shows identity — name, photo,
- * socials, endorsements — above PASS / MATCH, but `candidate` is null while a
- * match is blind and the endpoint sends `blindRationale` instead. Several
- * fields the card asks for (pronouns, birthday, meeting formats, endorsements,
- * socials) have no column anywhere.
+ * WHERE THE DATA IS NOT: the design shows identity — photo, socials,
+ * endorsements, meeting formats — above PASS / MATCH, but `candidate` is null
+ * while a match is blind and the endpoint sends `blindRationale` instead.
+ * Several of those fields have no column anywhere (docs/backend-gaps.md 2b).
  *
- * So this maps what exists and leaves the rest empty rather than inventing it.
- * A card with an empty COMMON INTERESTS block is a visible, honest gap; a card
- * filled with plausible fiction is a lie that survives to production.
+ * So this maps what exists and leaves the rest empty. `SuggestionsView` hides a
+ * section whose list is empty, so the card comes out short rather than
+ * scaffolded with blanks. A card filled with plausible fiction is a lie that
+ * survives to production; a shorter card is just the truth about what we know.
  */
-function toSuggestion(rec: Recommendation): Suggestion {
+function toProfile(rec: Recommendation): Profile {
   const c = rec.candidate;
   return {
-    id: rec.id,
     // Blind: the role category is the only thing we may say about them.
     name: c?.displayName ?? rec.blindRationale?.roleCategory ?? 'A match',
+    handle: c?.handle ?? '',
+    // `candidate` carries no avatar and no role: id, displayName, handle,
+    // location, timezone, introText is the whole of it. Nothing else may be
+    // read off it, however much the design asks for.
     avatarSrc: undefined,
     role: c ? '' : 'Identity opens when you both accept',
-    location: c?.location ?? '',
-    pronouns: '',
-    birthday: '',
+    city: c?.location ?? '',
     about: c?.introText ?? rec.insightText ?? '',
-    commonInterests: (rec.blindRationale?.overlapThemes ?? []).map((t) => t.label),
-    meetingFormats: [],
-    signalBullets: rec.whyMatched ?? [],
-    endorsedBy: { people: [], sentence: '' },
+    interests: (rec.blindRationale?.overlapThemes ?? []).map((t) => t.label),
+    // `whyMatched` is a flat sentence per bullet; the design's three-part split
+    // exists to colour an emphasis we are not given, so it all reads as body.
+    bullets: (rec.whyMatched ?? []).map((line) => ({ pre: line, emph: '', post: '' })),
+    endorsers: [],
+    endorseName: '',
+    endorseRest: '',
+    formats: [],
     socials: [],
   };
 }
@@ -48,13 +65,11 @@ export default function ConnectPage() {
   const navigate = useNavigate();
   const { user, getAccessToken } = useAuth();
   const userId = user?.id ?? '';
-  const avatarSrc = user?.user_metadata?.avatar_url as string | undefined;
 
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [currentIdx, setCurrentIdx] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
-  const [tab, setTab] = useState<ConnectTab>('SUGGESTIONS');
 
   useEffect(() => {
     if (!userId) return;
@@ -112,43 +127,44 @@ export default function ConnectPage() {
     setIsAnimating(false);
   };
 
-  const changeTab = (next: ConnectTab) => {
-    setTab(next);
-    if (next === 'ALL MATCHES') navigate('/matches');
-    if (next === 'UPCOMING') navigate('/matches?filter=upcoming');
+  // The tabs and the rail are navigation now, not local state. Only the rows
+  // with a screen behind them move; the rest stay put rather than leading
+  // somewhere that does not exist yet.
+  const onNav = (i: number) => {
+    if (i === 0) navigate('/feed');
+    if (i === 2) navigate('/communities');
+  };
+  const onRail = (i: number) => {
+    const label = MATCH_RAIL[i];
+    if (label === 'Matches') navigate('/matches');
+    if (label === 'Upcoming') navigate('/matches?filter=upcoming');
   };
 
   return (
-    <ConnectSurface
-      tab={tab}
-      onTab={changeTab}
-      goalDone={Math.min(currentIdx, recommendations.length)}
-      avatarSrc={avatarSrc}
-      onNavigate={navigate}
-      onInvite={() => navigate('/profile')}
-    >
+    <AppShell nav={NAV_MATCHES} rail={RAIL_SUGGESTED} onNav={onNav} onRail={onRail}>
       {isLoading ? (
-        <ConnectMessage title="Finding this week's people." body="One moment." />
+        <MessageView title="Finding this week's people." body="One moment." />
       ) : isComplete || !rec ? (
         recommendations.length === 0 ? (
-          <ConnectMessage
+          <MessageView
             title="No suggestions yet."
             body="Your first introduction arrives once the weekly matcher has run. Nothing to do until then."
           />
         ) : (
-          <ConnectMessage
+          <MessageView
             title="You're all caught up."
             body="New suggestions arrive each Monday. We'd rather send you one worth reading than a list worth skimming."
           />
         )
       ) : (
-        <SuggestionView
-          suggestion={toSuggestion(rec)}
+        <SuggestionsView
+          profile={toProfile(rec)}
+          done={Math.min(currentIdx, recommendations.length)}
           onPass={handlePass}
           onMatch={handleMatch}
           busy={isAnimating}
         />
       )}
-    </ConnectSurface>
+    </AppShell>
   );
 }

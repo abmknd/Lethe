@@ -106,7 +106,8 @@ export function AvatarStack({
   people,
   size = 'md',
 }: {
-  people: { name: AvatarName; person: string }[];
+  /** A demo `name`, a live `src`, or neither — the initials carry it then. */
+  people: { name?: AvatarName; src?: string; person: string }[];
   size?: 'sm' | 'md';
 }) {
   const px = size === 'md' ? 32 : 20;
@@ -116,8 +117,8 @@ export function AvatarStack({
   return (
     <span className="relative inline-block shrink-0" style={{ width, height: px }}>
       {people.slice(0, 3).map((p, i) => (
-        <span key={p.name} className="absolute top-0" style={{ left: i * step, zIndex: people.length - i }}>
-          <Avatar name={p.name} person={p.person} size={size === 'md' ? 'sm' : 'xs'} />
+        <span key={p.person} className="absolute top-0" style={{ left: i * step, zIndex: people.length - i }}>
+          <Avatar name={p.name} src={p.src} person={p.person} size={size === 'md' ? 'sm' : 'xs'} />
         </span>
       ))}
     </span>

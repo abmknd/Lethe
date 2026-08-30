@@ -1,4 +1,5 @@
 import type { AvatarName } from '../../assets/avatars';
+import type { SocialKey } from './AppShell';
 
 /**
  * Demo content for the app shell preview. Nothing here ships.
@@ -36,6 +37,9 @@ export const MATCH_RAIL = ['Matches', 'Suggested', 'Upcoming', 'Endorsed', 'Invi
 export const COMMUNITY_RAIL = [
   'Communities', 'Invites', 'Open Spaces', 'Events', 'Manage', 'Start a community',
 ] as const;
+
+/** The three rails, indexed by NAV. `RAILS[nav]` is this tab's sidebar. */
+export const RAILS = [FEED_RAIL, MATCH_RAIL, COMMUNITY_RAIL] as const;
 
 const MEDIA = {
   city: 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1200',
@@ -115,14 +119,30 @@ export const FOLLOW: PersonRow[] = [
   { name: 'River Castellano', handle: '@rivercastellano', avatar: 'river-castellano', note: '10 mutuals and 1 shared community' },
 ];
 
+/**
+ * PROFILE — the Suggested card's view model, and a CONTRACT, not demo shape.
+ *
+ * Both the demo preview and the live `/connect` page build one of these, so it
+ * has to describe a real recommendation as well as a fictional one. Two
+ * consequences:
+ *
+ *   `avatar` is optional and `avatarSrc` exists beside it. The demo names a
+ *   member of Figma's `Avatar Image` set; a live record has a URL or, under the
+ *   blind gate, nothing at all.
+ *
+ *   Every list may be empty. `SuggestionsView` hides a section whose list is
+ *   empty rather than drawing a label over a gap.
+ */
 export type Profile = {
-  name: string; handle: string; avatar: AvatarName; role: string;
+  name: string; handle: string; role: string;
+  avatar?: AvatarName; avatarSrc?: string;
   city: string; about: string;
   interests: string[];
   bullets: { pre: string; emph: string; post: string }[];
-  endorsers: { name: AvatarName; person: string }[];
+  endorsers: { name?: AvatarName; src?: string; person: string }[];
   endorseName: string; endorseRest: string;
   formats: string[];
+  socials: SocialKey[];
 };
 
 /**
@@ -146,6 +166,7 @@ export const PROFILES: Profile[] = [
     ],
     endorseName: 'George Tracy', endorseRest: 'and 3 others.',
     formats: ['Video call', 'In-person'],
+    socials: ['linkedin', 'website', 'substack'],
   },
   {
     name: 'Iris Morrow', handle: '@irismorrow', avatar: 'iris-morrow', role: 'Researcher',
@@ -163,6 +184,7 @@ export const PROFILES: Profile[] = [
     ],
     endorseName: 'Maya Frost', endorseRest: 'and 1 other.',
     formats: ['Voice only', 'Video call'],
+    socials: ['linkedin', 'website', 'substack'],
   },
   {
     name: 'Marcus Jin', handle: '@marcusjin', avatar: 'marcus-jin', role: 'Engineer',
@@ -180,5 +202,6 @@ export const PROFILES: Profile[] = [
     ],
     endorseName: 'Abel Kant', endorseRest: 'and 5 others.',
     formats: ['In-person', 'Video call'],
+    socials: ['linkedin', 'website', 'substack'],
   },
 ];
