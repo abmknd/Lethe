@@ -1,9 +1,11 @@
 /**
  * plus-sign — GENERATED from Figma node 671:1966. Do not edit.
  *
+ * The `who-to-follow` Badge Button and the Matches invite bar. Placed at 16, not 18.
+ *
  * Regenerate: node scripts/import-figma-icons.mjs
  */
-export function PlusSignIcon({ size = 18, strokeWidth, className }: {
+export function PlusSignIcon({ size = 16, strokeWidth, className }: {
   size?: number;
   strokeWidth?: number;
   className?: string;
@@ -12,7 +14,7 @@ export function PlusSignIcon({ size = 18, strokeWidth, className }: {
     <svg
       width={size}
       height={size}
-      viewBox="0 0 18 18"
+      viewBox="0 0 16 16"
       fill="none"
       strokeWidth={strokeWidth}
       strokeLinecap="round"
@@ -20,7 +22,7 @@ export function PlusSignIcon({ size = 18, strokeWidth, className }: {
       className={className}
       aria-hidden
     >
-      <path d="M7.99984 2.66797V13.3346M13.3332 8.0013H2.6665" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M5.83333 0.5V11.1667M11.1667 5.83333H0.5" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   );
 }
@@ -28,4 +30,4 @@ export function PlusSignIcon({ size = 18, strokeWidth, className }: {
 /** The grid this icon is DRAWN on, which is not always 24 — Figma exports an
  *  instance at its placed size. The Icon wrapper needs it to turn a target
  *  stroke in screen pixels into the viewBox-unit attribute. */
-PlusSignIcon.grid = 18;
+PlusSignIcon.grid = 16;

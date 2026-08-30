@@ -3,10 +3,11 @@ import { Icon } from './Icon';
 import { Avatar, AvatarStack } from './Avatar';
 import { Brandmark } from '../brand';
 import {
-  BadgeButton, BadgeText, BODY_3A, BODY_4A, BODY_4B, BODY_5A, BODY_5B, BUTTON_2A, Button,
+  BadgeButton, BadgeText, BODY_3A, BODY_4A, BODY_5A, BODY_5B, BUTTON_2A, Button,
   ButtonText, Divider, NavItem, SectionLabel, Tag, TITLE_1, TITLE_3, TITLE_4B, TITLE_6,
 } from './components';
 import adamArt from '../assets/app/creation-of-adam.webp';
+import cafeArt from '../assets/app/cafe-illustration.webp';
 import {
   ApproximatelyEqualCircleIcon, Bookmark01Icon, Bookmark02Icon, BulbChargeingIcon,
   Calendar03Icon, CalendarFavorite02Icon, ChartRelationshipIcon, CheckmarkBadge02Icon,
@@ -176,25 +177,36 @@ function Rail({ items, active, onPick }: { items: readonly string[]; active: num
 
 // ---------------------------------------------------------------- feed
 //
-// No frame draws the post feed, so it is built from the parts the frames do
-// draw: the same 20 padding, the same `Divider` between rows, the same Avatar
-// and type scale as a match row.
+// `relethe-feed` 750:184 — a real frame, which the previous pass did not open.
+// Everything below is that frame rather than a guess assembled from the match
+// list, which is what was here and why the spacing, the type and the action bar
+// were all slightly off at once.
+//
+// The structure the frame names, and it matters because the 8 is between the
+// two of them rather than around any one part:
+//
+//     post-N  p-20, gap 8, border-b
+//       post-content   gap 16
+//         post-header  ·  post-caption  ·  post-media
+//       action-bar     28 tall
 
 function PostActions({ post }: { post: Post }) {
+  // Every action is p-6 around a 16 glyph — a 28 control, not 32 or 36 — and
+  // the count is Body 5B (13/16 Light) in `icons/disabled/default`.
   const act =
-    'flex items-center gap-[8px] rounded-[var(--border-radius-round)] px-[12px] py-[8px] ' +
-    'text-[var(--text-default-caption)] transition-colors hover:bg-[var(--surface-neutral-subtle)] ' + BODY_4B;
+    'flex items-center gap-[6px] rounded-[40px] p-[6px] text-[var(--icons-disabled-default)] ' +
+    'transition-colors hover:bg-[var(--surface-neutral-subtle)] ' + BODY_5B;
   const round =
-    'grid size-[32px] place-items-center rounded-[var(--border-radius-round)] ' +
-    'text-[var(--text-default-caption)] transition-colors hover:bg-[var(--surface-neutral-subtle)]';
+    'grid size-[28px] place-items-center rounded-[36px] text-[var(--icons-neutral-default)] ' +
+    'transition-colors hover:bg-[var(--surface-neutral-subtle)]';
   return (
-    <div className="mt-[12px] flex items-center justify-between gap-[16px]">
-      <div className="flex items-center gap-[4px]">
+    <div className="flex w-full items-center justify-between gap-[16px]">
+      <div className="flex items-start gap-[6px]">
         <button type="button" aria-label="Like" className={act}><Icon as={FavouriteIcon} size={16} />{post.likes}</button>
         <button type="button" aria-label="Reply" className={act}><Icon as={MessageMultiple02Icon} size={16} />{post.replies}</button>
         <button type="button" aria-label="Echo" className={act}><Icon as={ApproximatelyEqualCircleIcon} size={16} />{post.echoes}</button>
       </div>
-      <div className="flex items-center gap-[4px]">
+      <div className="flex items-start gap-[6px]">
         <button type="button" aria-label="Bookmark" className={round}><Icon as={Bookmark02Icon} size={16} /></button>
         <button type="button" aria-label="Share" className={round}><Icon as={Share05Icon} size={16} /></button>
       </div>
@@ -205,57 +217,67 @@ function PostActions({ post }: { post: Post }) {
 function FeedView() {
   return (
     <div className={'overflow-hidden ' + CARD}>
+      {/* composer-bar 750:222: px-16 py-12 around a 40 avatar — 64 tall — with
+          its own bottom rule, an 18px placeholder, and a 20 `sent` centred in a
+          24 box. */}
       <button
         type="button"
-        className="flex w-full items-center gap-[12px] p-[20px] text-left transition-colors hover:bg-[var(--surface-neutral-subtle)]"
+        className="flex w-full items-center justify-between px-[16px] py-[12px] text-left shadow-[inset_0_-1px_0_0_var(--border-neutral-default)] transition-colors hover:bg-[var(--surface-neutral-subtle)]"
       >
-        <Avatar name={ME.avatar} person={ME.name} size="lg" />
-        <span className={'min-w-0 flex-1 text-[var(--text-default-placeholder)] ' + BODY_3A}>What&rsquo;s up?</span>
-        <span className="grid size-[32px] shrink-0 place-items-center rounded-[var(--border-radius-round)] text-[var(--icons-primary-default)]">
+        <span className="flex min-w-0 items-center gap-[12px]">
+          <Avatar name={ME.avatar} person={ME.name} size="lg" />
+          <span className="truncate text-[18px] font-normal text-[var(--text-default-placeholder)]">
+            What&rsquo;s up?
+          </span>
+        </span>
+        <span className="grid size-[24px] shrink-0 place-items-center text-[var(--icons-neutral-default)]">
           <Icon as={SentIcon} size={20} />
         </span>
       </button>
-      <Divider />
 
       {POSTS.map((post, i) => (
         <article
           key={post.handle + post.time}
           className={
-            'flex flex-col p-[20px] ' +
+            'flex flex-col gap-[8px] p-[20px] ' +
             // The rule belongs to the row, as an inset ring — a Divider as a
-            // sibling would add its 1px to the row's height and push a 216
-            // frame to 217.
+            // sibling would add its 1px to the row's height and push a 212
+            // frame to 213.
             (i < POSTS.length - 1 ? 'shadow-[inset_0_-1px_0_0_var(--border-neutral-default)]' : '')
           }
         >
-          <div className="flex items-start justify-between gap-[12px]">
-            <div className="flex min-w-0 items-center gap-[12px]">
-              <Avatar name={post.avatar} person={post.name} size="lg" />
-              <div className="flex min-w-0 flex-col">
-                <div className="flex items-center gap-[6px]">
-                  <span className={'truncate text-[var(--text-default-heading)] ' + TITLE_3}>{post.name}</span>
-                  {/* A time is a caption, not a status, so it stays plain text.
-                      `Badge Text` is reserved for the thing the match rows use
-                      it for. */}
-                  <span className={'shrink-0 text-[var(--text-default-placeholder)] ' + BODY_4A}>{post.time}</span>
+          <div className="flex w-full flex-col gap-[16px]">
+            {/* post-header 750:229 */}
+            <div className="flex w-full items-start justify-between gap-[12px]">
+              <div className="flex min-w-0 items-center gap-[6px]">
+                <Avatar name={post.avatar} person={post.name} size="lg" />
+                <div className="flex min-w-0 flex-col">
+                  {/* authorship: name and time on ONE line, separated by a 4px
+                      `icons/neutral/subtle` dot. The handle goes underneath. */}
+                  <div className="flex items-center gap-[6px]">
+                    <span className={'truncate text-[var(--text-default-heading)] ' + TITLE_4B}>{post.name}</span>
+                    <span aria-hidden className="size-[4px] shrink-0 rounded-[6px] bg-[var(--icons-neutral-subtle)]" />
+                    <span className={'shrink-0 text-[var(--text-default-placeholder)] ' + BODY_4A}>{post.time}</span>
+                  </div>
+                  <span className={'truncate text-[var(--text-default-placeholder)] ' + BODY_4A}>{post.handle}</span>
                 </div>
-                <span className={'truncate text-[var(--text-default-placeholder)] ' + BODY_4A}>{post.handle}</span>
               </div>
+              <button
+                type="button"
+                aria-label="More"
+                className="flex shrink-0 items-center justify-center text-[var(--icons-neutral-default)]"
+              >
+                <Icon as={MoreHorizontalCircle01Icon} size={16} />
+              </button>
             </div>
-            <button
-              type="button"
-              aria-label="More"
-              className="grid size-[32px] shrink-0 place-items-center rounded-[var(--border-radius-round)] text-[var(--text-default-placeholder)] transition-colors hover:bg-[var(--surface-neutral-subtle)]"
-            >
-              <Icon as={MoreHorizontalCircle01Icon} size={16} />
-            </button>
+
+            {/* post-caption 762:2474 — Body 3A in `text/default/body`. */}
+            <p className={'w-full text-[var(--text-default-body)] ' + BODY_3A}>{post.body}</p>
+
+            {post.media && (
+              <img src={post.media} alt="" className="block h-[300px] w-full rounded-[12px] object-cover" />
+            )}
           </div>
-
-          <p className={'pb-[18px] pt-[14px] text-[var(--text-default-heading)] ' + BODY_3A}>{post.body}</p>
-
-          {post.media && (
-            <img src={post.media} alt="" className="mb-[4px] block h-[300px] w-full rounded-[12px] object-cover" />
-          )}
 
           <PostActions post={post} />
         </article>
@@ -299,7 +321,10 @@ function MatchListView({ rail }: { rail: string }) {
               <div className="flex min-w-0 flex-col">
                 <div className="flex items-center gap-[6px]">
                   <span className={'truncate text-[var(--text-default-heading)] ' + TITLE_3}>{m.name}</span>
-                  <BadgeText tone={m.status === 'Upcoming' ? 'primary' : 'neutral'}>{m.status}</BadgeText>
+                  {/* Upcoming is `status=default` (Blue 50 / Blue 600) in the
+                      frame; Met reads green there, so it is the success
+                      status. */}
+                  <BadgeText tone={m.status === 'Upcoming' ? 'primary' : 'success'}>{m.status}</BadgeText>
                 </div>
                 <span className={'truncate text-[var(--text-default-placeholder)] ' + BODY_4A}>{m.handle}</span>
               </div>
@@ -493,33 +518,59 @@ function SuggestionsView({ profile, done, onDecide }: { profile: Profile; done: 
 // `right-sidebar` 907:22404 — 320 wide, gap 20 between its three cards.
 
 /**
- * `card-playful-illustrated` 907:22465.
+ * `card-playful-illustrated` — TWO DIFFERENT CARDS, not one reused.
  *
- * A BLUE card. The artwork sits on top of Blue 600 in `mix-blend-lighten`,
- * which is what turns a Renaissance fresco into brand-coloured artwork rather
- * than a photograph pasted on a card. The heading is white, the body is Blue
- * 200, and the action is a white-filled outline button so the blue does not
- * read through it.
+ * The previous pass drew the Matches card in both places. They share a skeleton
+ * (a 140 image, then gap-16 / px-20 / pt-16 / pb-24 content, then an action row)
+ * and agree on nothing else:
  *
- * What was here before was a white card with the image on top and a plain
- * outline button — the same parts, none of the treatment.
+ *              feed 877:18748              matches 907:22465
+ *   surface    Blue 50                     Blue 600
+ *   artwork    cafe, plain                 fresco, `mix-blend-lighten`
+ *   heading    text/default/heading        text/neutral/heading (white)
+ *   body       text/default/subtle         text/neutral/hover (Blue 200)
+ *   action     Button `fill`               Button `outline-on-color`
  *
- * `isolate` on the card so the blend resolves against THIS card's blue and
- * stops there, rather than reaching down to the page behind it.
+ * The blue card gets `isolate` so its blend resolves against its own Blue 600
+ * and stops there, rather than reaching down to the page behind it. The light
+ * card has no blend and does not need it.
  */
-function PromoCard({ title, body, action }: { title: string; body: ReactNode; action: string }) {
+function PromoCard({
+  variant, title, body, action,
+}: {
+  variant: 'light' | 'blue';
+  title: string;
+  body: ReactNode;
+  action: string;
+}) {
+  const blue = variant === 'blue';
   return (
-    <div className="isolate flex w-full flex-col overflow-hidden rounded-[16px] border border-[var(--border-neutral-default)] bg-[var(--surface-primary-default)]">
-      <div className="relative h-[140px] w-full overflow-hidden mix-blend-lighten">
-        <img src={adamArt} alt="" className="absolute left-0 top-[-52.55%] h-[227.84%] w-full max-w-none object-cover" />
-      </div>
+    <div
+      className={
+        // The card's 1px `border/neutral/default` is an INSIDE stroke: a real
+        // border pushes 340 to 342. Inset ring, same as every other stroke here.
+        'flex w-full flex-col overflow-hidden rounded-[16px] shadow-[inset_0_0_0_1px_var(--border-neutral-default)] ' +
+        (blue ? 'isolate bg-[var(--surface-primary-default)]' : 'bg-[var(--surface-primary-subtle)]')
+      }
+    >
+      {blue ? (
+        <div className="relative h-[140px] w-full overflow-hidden mix-blend-lighten">
+          <img src={adamArt} alt="" className="absolute left-0 top-[-52.55%] h-[227.84%] w-full max-w-none object-cover" />
+        </div>
+      ) : (
+        <img src={cafeArt} alt="" className="block h-[140px] w-full object-cover" />
+      )}
       <div className="flex flex-col gap-[16px] px-[20px] pb-[24px] pt-[16px]">
         <div className="flex flex-col gap-[8px]">
-          <p className={'text-[var(--text-neutral-heading)] ' + TITLE_1}>{title}</p>
-          <p className={'text-[var(--text-neutral-hover)] ' + BODY_3A}>{body}</p>
+          <p className={(blue ? 'text-[var(--text-neutral-heading)] ' : 'text-[var(--text-default-heading)] ') + TITLE_1}>
+            {title}
+          </p>
+          <p className={(blue ? 'text-[var(--text-neutral-hover)] ' : 'text-[var(--text-default-subtle)] ') + BODY_3A}>
+            {body}
+          </p>
         </div>
         <div className="flex items-center justify-between">
-          <Button tone="outline-on-color">{action}</Button>
+          <Button tone={blue ? 'outline-on-color' : 'fill'}>{action}</Button>
         </div>
       </div>
     </div>
@@ -527,11 +578,17 @@ function PromoCard({ title, body, action }: { title: string; body: ReactNode; ac
 }
 
 /**
- * `your-faves` 936:8392, and the feed's `who-to-follow` on the same shape.
+ * `who-to-follow` 750:284 and `your-faves` 936:8392 — the same shape, and the
+ * glyph in the action is the only thing that differs: `plus-sign` to follow,
+ * `message-02` to message.
  *
- * The action is a `Badge Button` on `surface/primary/subtle` — a 32 round in
- * Blue 50 with no border, carrying a 16 glyph. Both cards were rendering a
- * white bordered control with the wrong glyph inside it.
+ * `items-start` on the row column is load-bearing. Without it the flex default
+ * `align-items: stretch` pulls the Badge Text to the full 288, and the note
+ * reads as a bar rather than a badge. Every `follow-profile` in the file sets
+ * it.
+ *
+ * The action is a `Badge Button` `subtle` with NEUTRAL ink — Blue 50 behind a
+ * `text/default` glyph, not a blue one.
  */
 function PeopleCard({
   title, people, action, actionLabel,
@@ -549,8 +606,8 @@ function PeopleCard({
       </div>
       <div className="flex flex-col pb-[12px]">
         {people.map((p) => (
-          <div key={p.handle} className="flex flex-col gap-[8px] px-[16px] py-[8px]">
-            <div className="flex items-start justify-between gap-[8px]">
+          <div key={p.handle} className="flex flex-col items-start gap-[8px] px-[16px] py-[8px]">
+            <div className="flex w-full items-start justify-between gap-[8px]">
               <div className="flex min-w-0 items-center gap-[6px]">
                 <Avatar name={p.avatar} person={p.name} size="lg" />
                 <span className="flex min-w-0 flex-col">
@@ -590,24 +647,28 @@ function AsideColumn({ isFeed }: { isFeed: boolean }) {
       {isFeed ? (
         <>
           <PromoCard
+            variant="light"
             title="Invite someone"
             action="INVITE"
-            body="Help grow the Relethe community by bringing on someone you know. Earn 3 karmas when they sign up, and 6 more when they take their first meeting."
+            body={
+              <>
+                Help grow the Relethe community by inviting someone. Earn{' '}
+                <span className="font-medium text-[var(--text-default-highlight-blue)]">3 karmas</span> when they sign
+                up, and earn 6 more when they take their first meeting.
+              </>
+            }
           />
-          {/* No frame draws `who-to-follow`, so only the glyph is a judgement:
-              the component, its fill and its size come from `your-faves`, and
-              `user-add-02` is the library's follow glyph. Reusing the faves
-              `chat` here would put a message action on a follow card. */}
           <PeopleCard
             title="Who to follow"
             people={FOLLOW}
-            action={UserAdd02Icon}
+            action={PlusSignIcon}
             actionLabel={(n) => `Follow ${n}`}
           />
         </>
       ) : (
         <>
           <PromoCard
+            variant="blue"
             title="Activate Superconnector"
             action="INVITE"
             body="Set your own standards for who reaches you, meet beyond your weekly ten, and let the engine work a wider circle on your behalf."

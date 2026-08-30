@@ -1,5 +1,7 @@
 /**
- * sent — GENERATED from Figma node 644:16954. Do not edit.
+ * sent — GENERATED from Figma node 695:56598. Do not edit.
+ *
+ * composer-send, in a 24 box.
  *
  * Regenerate: node scripts/import-figma-icons.mjs
  */
@@ -20,8 +22,8 @@ export function SentIcon({ size = 20, strokeWidth, className }: {
       className={className}
       aria-hidden
     >
-      <path d="M14.0317 2.03463C12.5796 0.470924 1.65749 4.30148 1.66651 5.70002C1.67673 7.28593 5.9319 7.77383 7.11132 8.10472C7.82056 8.3037 8.01052 8.50765 8.17406 9.2514C8.91472 12.6197 9.28658 14.295 10.1341 14.3324C11.485 14.3921 15.4487 3.56068 14.0317 2.03463Z" stroke="currentColor"/>
-      <path d="M7.6665 8.33333L9.99984 6" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M15.9564 0.960763C14.1414 -0.993874 0.488736 3.79432 0.500007 5.54249C0.512789 7.52488 5.83174 8.13475 7.30602 8.54837C8.19258 8.7971 8.43002 9.05203 8.63445 9.98172C9.56027 14.192 10.0251 16.2862 11.0845 16.333C12.7732 16.4076 17.7278 2.86833 15.9564 0.960763Z" stroke="currentColor"/>
+      <path d="M8 8.83332L10.9167 5.91666" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   );
 }

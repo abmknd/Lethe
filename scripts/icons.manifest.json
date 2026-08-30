@@ -251,15 +251,17 @@
     },
     {
       "name": "sent",
-      "nodeId": "644:16954",
+      "nodeId": "695:56598",
       "size": 20,
-      "url": "https://www.figma.com/api/mcp/asset/7b5e03ce-e692-4cd7-9398-08d95c7b31da.svg"
+      "note": "composer-send, in a 24 box.",
+      "url": "https://www.figma.com/api/mcp/asset/2fd5778b-42dd-4838-b079-ecea4f316fa4.svg"
     },
     {
       "name": "plus-sign",
       "nodeId": "671:1966",
-      "size": 18,
-      "url": "https://www.figma.com/api/mcp/asset/b107ba69-b4d9-4d1d-83b5-4ead781427d9.svg"
+      "size": 16,
+      "note": "The `who-to-follow` Badge Button and the Matches invite bar. Placed at 16, not 18.",
+      "url": "https://www.figma.com/api/mcp/asset/64272a75-ea50-4505-9f34-31536ffb5e5a.svg"
     },
     {
       "name": "bulb-chargeing",

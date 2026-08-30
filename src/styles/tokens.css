@@ -96,9 +96,11 @@
   --color-neutral-900: #100a0a;  /* icons/neutral/default, text/default/heading */
   --color-neutral-800: #282323;  /* text/default/body     */
   --color-neutral-700: #403b3b;  /* text/default/caption  */
+  --color-neutral-600: #585454;  /* icons/disabled/default */
   --color-neutral-500: #706c6c;  /* text/default/subtle   */
   --color-neutral-400: #888585;
   --color-neutral-300: #9c9c9c;  /* text/default/placeholder */
+  --color-neutral-250: #c3c1c1;  /* icons/neutral/subtle  */
   --color-neutral-200: #dbdada;  /* border/neutral/subtle */
   --color-neutral-100: #f2f2f2;  /* border/neutral/default */
   --color-neutral-50:  #fafafa;  /* surface/page/beta     */
@@ -148,7 +150,9 @@
   --border-radius-round: 240px;
 
   --icons-neutral-default:   var(--color-neutral-900);
+  --icons-neutral-subtle:    var(--color-neutral-250); /* the post separation dot */
   --icons-primary-default:   var(--color-blue-600);
+  --icons-disabled-default:  var(--color-neutral-600); /* an action-bar count */
   --icons-disabled-on-color: var(--color-neutral-300);
 
   /* ---- Semantic aliases -------------------------------------------------- */

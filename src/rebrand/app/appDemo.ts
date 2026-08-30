@@ -6,16 +6,19 @@ import type { AvatarName } from '../../assets/avatars';
  * THE POV IS ELENA VOSS. She is the signed-in user — the header avatar, the
  * composer, the "you" in every signal line.
  *
- * EVERY PERSON HERE IS A REAL MEMBER OF FIGMA'S `Avatar Image` SET. That is a
- * rule, not a preference. Four people used to be here who were not: Priya Nair,
- * Anika Sharma, Marcus Webb and Sofia Mendes, invented to fill "Who to follow"
- * and an endorsement row. They had no faces in the set, so they borrowed
- * placeholder art from the pre-rebrand dummies folder and a reviewer could not
- * tell demo content from design content. Adding a person means adding them to
- * the Figma set first.
+ * EVERY PERSON HERE IS A REAL MEMBER OF FIGMA'S `Avatar Image` SET, and where a
+ * frame names a list, the list is that frame's:
  *
- * `Your faves` is copied verbatim from the frame (936:8392) — same four people,
- * same notes, same order.
+ *     FOLLOW   `who-to-follow`  750:288
+ *     FAVES    `your-faves`     936:8392
+ *
+ * Both are verbatim — same people, same handles, same notes, same order.
+ *
+ * Marcus Webb, Priya Nair and Sofia Mendes used to be here and were invented;
+ * they had no face in the set and borrowed pre-rebrand placeholder art, so a
+ * reviewer could not tell demo content from design content. Anika Sharma was
+ * removed with them, which was wrong — she is in 750:184, as are Kai Shore, Ana
+ * Duarte and River Castellano. Reading the frame settles this; guessing does not.
  */
 
 export const ME = {
@@ -103,13 +106,13 @@ export const FAVES: PersonRow[] = [
   { name: 'Theo Lark', handle: '@theolark', avatar: 'theo-lark', note: 'Met once · you invited Theo' },
 ];
 
-/** The feed's counterpart card. No frame draws it, so it takes the same shape
- *  as `your-faves` and four people from the same cast. */
+/** `who-to-follow` 750:288, verbatim — same four people, same handles, same
+ *  notes, same order. Kai Shore's handle really does have no `@` in the frame. */
 export const FOLLOW: PersonRow[] = [
-  { name: 'Abel Kant', handle: '@abelkant', avatar: 'abel-kant', note: 'Endorsed by George Tracy' },
-  { name: 'Monty Wei', handle: '@montywei', avatar: 'monty-wei', note: '3 shared interests' },
-  { name: 'Iris Morrow', handle: '@irismorrow', avatar: 'iris-morrow', note: 'Met someone you met' },
-  { name: 'George Tracy', handle: '@georgetracy', avatar: 'george-tracy', note: '2 mutual follows' },
+  { name: 'Anika Sharma', handle: '@anikasharma', avatar: 'anika-sharma', note: 'Endorsed by George Tracy' },
+  { name: 'Kai Shore', handle: 'kaishore', avatar: 'kai-shore', note: 'Met someone you met' },
+  { name: 'Ana Duarte', handle: '@anaduarte', avatar: 'ana-duarte', note: '6 shared interests' },
+  { name: 'River Castellano', handle: '@rivercastellano', avatar: 'river-castellano', note: '10 mutuals and 1 shared community' },
 ];
 
 export type Profile = {

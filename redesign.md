@@ -129,15 +129,22 @@ more red than blue. Ink on a Relethe surface is Neutral; Black stays for the
 places that want a true grey — hairlines, scrim, the daylight band's off state.
 
 ```
-Neutral   100A0A  282323  403B3B  706C6C  888585  9C9C9C  DBDADA  F2F2F2  FAFAFA
-          900     800     700     500     400     300     200     100     50
+Neutral   100A0A  282323  403B3B  585454  706C6C  888585  9C9C9C  C3C1C1  DBDADA  F2F2F2  FAFAFA
+          900     800     700     600     500     400     300     250     200     100     50
 ```
 
-**Extension, 2026-08-30.** Three steps were added after reading the app frames
-with `get_design_context`: `706C6C`, `9C9C9C`, `DBDADA` all arrive as Figma
-variables (`text/default/subtle`, `text/default/placeholder`,
-`border/neutral/subtle`), so by the rule below they are ramp steps, not drift.
-The step numbers are inferred from position — the hexes are exact.
+**Extension, 2026-08-30.** Five steps were added after reading the app frames
+with `get_design_context`: `585454`, `706C6C`, `9C9C9C`, `C3C1C1` and `DBDADA`
+all arrive as Figma variables (`icons/disabled/default`, `text/default/subtle`,
+`text/default/placeholder`, `icons/neutral/subtle`, `border/neutral/subtle`), so
+by the rule below they are ramp steps, not drift.
+
+**The step NUMBERS are ours, the hexes are Figma's.** Figma exposes these by
+role, not by a numbered neutral scale — `search_design_system` returns no
+`Neutral` variable at all — so the numbering is inferred from luminance
+position. `250` exists because the observed ramp has one more step between 300
+and 200 than a decade scale has room for. When the two disagree, **the semantic
+name and the hex are the authority; the number is a filing label.**
 
 **And one repoint that changes pixels:** `text-default-placeholder` was on
 Neutral 400 (`#888585`). The file now resolves it to `#9C9C9C`, so it moves to
@@ -188,7 +195,9 @@ border-primary-highlight  White         the ring around an Avatar
 border-page-alpha         White         the ring that separates a badge
 
 icons-neutral-default     Neutral 900
+icons-neutral-subtle      Neutral 250   the post separation dot
 icons-primary-default     Blue 600
+icons-disabled-default    Neutral 600   an action-bar count
 icons-disabled-on-color   Neutral 300
 ```
 
@@ -787,9 +796,9 @@ re-implement them, and eleven separate mismatches followed from it.
 |---|---|---|
 | **Button** | 767:3012 | `md` px-12 py-8 → 32 tall, Button 2A; `sm` px-12 py-2 → 20 tall, Body 5C. Tones: `outline`, `outline-on-color`, `fill`, `subtle`, `neutral`. **Weight is per tone, not per size** — PASS is Medium and MATCH beside it is Regular. |
 | **ButtonText** | 893:19211 | A label-only action. "See all". |
-| **BadgeButton** | 865:5792 | 32 round, a 16 glyph, p-8. `outline` = white with a 1px `text/neutral/deep` ring; `subtle` = Blue 50, no ring. Optional 6px Blue 600 dot pinned 1.5 from the top right. |
+| **BadgeButton** | 865:5792 | 32 round, a 16 glyph, p-8. `outline` = white with a 1px `text/neutral/deep` ring; `subtle` = Blue 50, no ring. **Ink is a separate axis from fill** — the glyph's `Color` variant is `Neutral` in both right sidebars and `Primary` only in the socials row, so a `subtle` fill does NOT imply blue ink. Optional 6px Blue 600 dot pinned 1.5 from the top right. |
 | **Tag** | 863:3673 | px-12 py-8, radius 8, Body 4B in `text/default/caption` → 32 tall. `default` = Blue 50, `neutral` = Neutral 50. |
-| **BadgeText** | 863:3236 / 860:2688 | px-8 py-2, radius 6, Title 6 → 20 tall. NOT a small Tag: different padding, radius and type. |
+| **BadgeText** | 863:3236 / 860:2688 | px-8 py-2, radius 6, Title 6 → 20 tall. NOT a small Tag: different padding, radius and type. Statuses: `neutral` (Neutral 50 / caption), `default` (Blue 50 / Blue 600), `success`. **It HUGS its label** — every `follow-profile` sets `items-start` on the column that holds it, and a flex column's default `align-items: stretch` will otherwise pull it to full width. |
 | **NavItem** | 791:2951 / 792:3042 | p-14, radius 12, a 20 glyph and a 16/20 label → 48 tall, which is what makes a six-item `Sidebar` exactly 324. |
 | **SectionLabel** | — | 12/16 **Regular** in `text/default/placeholder`. Not 13/16 Medium with a 1px tracking, which is what four sections were carrying. |
 | **Divider** | — | 1px of `border/neutral/default`. |
@@ -819,6 +828,46 @@ Eleven of those eighteen were previously a different glyph, chosen by reading
 the label and picking something that fit the word — `compass` for Explore,
 `flash` for Activity, the `-01` draw wherever the file uses the `-02`. **A label
 does not name its icon.** Read the component.
+
+### 5.17 Feed post — normative
+
+`post-N` in `relethe-feed` 750:184. The 8 is between the two blocks, not around
+any one part, which is the thing that reads wrong if it is guessed:
+
+```
+post-N            p-20, gap 8, border-b
+  post-content    gap 16
+    post-header       40   author-info (gap 6) · more-options 16
+    post-caption      Body 3A in text/default/body
+    post-media        376x300, radius 12
+  action-bar        28
+```
+
+- **authorship** puts the name and the time on ONE line with a 4px
+  `icons/neutral/subtle` dot between them (gap 6), and the handle underneath.
+  The name is Title 4B, the time and handle Body 4A in `text/default/placeholder`.
+- **action-bar** items are `p-6` around a 16 glyph — a 28 control, not 32 or 36 —
+  and the count is Body 5B (13/16 **Light**) in `icons/disabled/default`. Left
+  and right groups both gap 6.
+- **composer-bar** is px-16 py-12 around a 40 avatar (64 tall) with its own
+  bottom rule, an **18px** placeholder, and a 20 `sent` centred in a 24 box.
+
+### 5.18 card-playful-illustrated — TWO cards, normative
+
+The banner is not one component reused. `feed` 877:18748 and `matches`
+907:22465 share a skeleton — a 140 image, then gap-16 / px-20 / pt-16 / pb-24
+content, then an action row — and agree on nothing else:
+
+| | feed | matches |
+|---|---|---|
+| surface | Blue 50 | Blue 600 |
+| artwork | cafe, plain | fresco, `mix-blend-lighten` |
+| heading | `text/default/heading` | `text/neutral/heading` |
+| body | `text/default/subtle` | `text/neutral/hover` |
+| action | Button `fill` | Button `outline-on-color` |
+
+Drawing the matches card in both places is what "the feed banner is wrong"
+meant. Check which frame a card belongs to before reusing one.
 
 ---
 

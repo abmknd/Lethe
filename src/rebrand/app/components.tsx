@@ -170,6 +170,7 @@ export function BadgeButton({
   label,
   glyph,
   tone = 'outline',
+  ink = 'neutral',
   dot = false,
   mirrored = false,
   onClick,
@@ -177,6 +178,16 @@ export function BadgeButton({
   label: string;
   glyph: ComponentType<{ size?: number; strokeWidth?: number; className?: string }> & { grid?: number };
   tone?: 'outline' | 'subtle';
+  /**
+   * The GLYPH's colour variant, which is independent of the fill.
+   *
+   * This was wrong: `subtle` was hard-wired to blue ink, so the follow and
+   * message buttons in both right sidebars came out blue. Figma places the
+   * `Color=Neutral` glyph there and the `Color=Primary` one only in the
+   * socials row — same fill, different ink. It is a per-instance choice, so it
+   * is a prop.
+   */
+  ink?: 'neutral' | 'primary';
   dot?: boolean;
   /** Figma mirrors a couple of glyphs in place. The flip belongs to the usage,
    *  not to the exported file, so it is applied here. */
@@ -191,10 +202,11 @@ export function BadgeButton({
       className={
         'relative grid size-[32px] shrink-0 place-items-center rounded-[var(--border-radius-round)] transition-colors ' +
         'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--border-primary-default)] ' +
+        (ink === 'primary' ? 'text-[var(--icons-primary-default)] ' : 'text-[var(--icons-neutral-default)] ') +
         (tone === 'subtle'
-          ? 'bg-[var(--surface-primary-subtle)] text-[var(--icons-primary-default)] hover:bg-[var(--color-blue-100)]'
+          ? 'bg-[var(--surface-primary-subtle)] hover:bg-[var(--color-blue-100)]'
           : 'shadow-[inset_0_0_0_1px_var(--text-neutral-deep)] bg-[var(--surface-neutral-default)] ' +
-            'text-[var(--icons-neutral-default)] hover:bg-[var(--surface-neutral-subtle)]')
+            'hover:bg-[var(--surface-neutral-subtle)]')
       }
     >
       <Icon as={glyph} size={16} className={mirrored ? '-scale-x-100' : undefined} />
@@ -240,6 +252,13 @@ export function Tag({ children, tone = 'default' }: { children: ReactNode; tone?
 // Not a Tag: different padding, different radius, different type, and it is the
 // component the list rows use for their note line and the match rows use for
 // their status.
+//
+// IT HUGS ITS LABEL. Every `follow-profile` in the file sets `items-start` on
+// the column that holds it, so the badge is only as wide as its text. This is an
+// `inline-flex`, which hugs on its own — but a flex column defaults to
+// `align-items: stretch` and will pull it to full width anyway, which is
+// exactly what happened in both right sidebars. A caller that stacks one must
+// set `items-start`.
 
 export function BadgeText({
   children,

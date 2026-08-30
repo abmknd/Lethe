@@ -11,12 +11,26 @@
  *
  * WHAT IT DOES. Figma's node export carries the icon's own geometry in the
  * right coordinates, plus every ancestor's background as fill-only rects and
- * paths. The library is drawn STROKES-ONLY, so the separation is exact:
+ * paths. The separation is a GROUP, not a paint:
  *
- *     keep every element with a stroke, drop every element without one
+ *     keep everything inside <g id="elements">, drop everything outside it
  *
- * Then the hardcoded stroke colour becomes `currentColor` so a token decides
- * it, and the width is dropped so `Icon` can set it per redesign.md 5.5.1.
+ * Every icon in this library nests its geometry under a layer named `elements`
+ * and nothing else does, so the group is an exact boundary.
+ *
+ * THIS REPLACES A STROKES-ONLY RULE THAT SILENTLY LOST GEOMETRY. The old rule
+ * was "keep stroked elements, drop unstroked ones", on the belief that the
+ * library is drawn strokes-only. It is not: several glyphs ship one or more
+ * parts as an EXPANDED OUTLINE — a filled path whose shape already encodes the
+ * stroke. `searching` is the clearest case. It has two paths, a filled
+ * magnifier and a stroked rectangle, and the old rule kept only the rectangle,
+ * so Explore rendered as a stray box. A dropped path is invisible in a diff and
+ * only shows up as an icon that looks wrong, which is exactly how it survived.
+ *
+ * Then the hardcoded colour becomes `currentColor` — on BOTH paints, since
+ * either may be carrying the glyph — and the stroke width is dropped so `Icon`
+ * can set it per redesign.md 5.5.1. A filled path ignores stroke-width, so
+ * mixed icons come out right without special-casing.
  *
  * USAGE
  *   1. Add entries to icons.manifest.json: { name, nodeId, size }
@@ -53,39 +67,37 @@ export const componentName = (name) =>
  * throws — a silent empty icon is worse than a failed build, because it ships.
  */
 export function extractGlyph(svg, name, size) {
-  const shapes = svg.match(new RegExp(`<(?:${SHAPES})\\b[^>]*/>`, 'g')) ?? [];
-
-  // Strokes-only is necessary but not sufficient: a CARD BORDER is stroked
-  // too, and the export carries every ancestor's. `location-09` came through
-  // with the profile card's rounded rectangle attached — a path running from
-  // -112 to 488 inside a 20px icon.
-  //
-  // So also require the geometry to live in the icon's own box. Generous
-  // bounds, because round caps and control points legitimately sit slightly
-  // outside it; chrome misses by hundreds of units, not fractions.
-  const inBounds = (el) => {
-    const d = /\bd="([^"]*)"/.exec(el)?.[1];
-    if (!d) return true;
-    const nums = d.match(/-?\d+(?:\.\d+)?/g)?.map(Number) ?? [];
-    if (nums.length === 0) return true;
-    return Math.min(...nums) >= -size && Math.max(...nums) <= size * 2;
-  };
-
-  const stroked = shapes.filter((el) => /stroke="(?!none)[^"]+"/.test(el) && inBounds(el));
-
-  if (stroked.length === 0) {
+  // The icon's geometry is exactly the contents of the `elements` group. What
+  // sits outside it is ancestor chrome: `location-09` once came through with the
+  // profile card's rounded rectangle attached, a path running from -112 to 488
+  // inside a 20px icon.
+  const group = /<g\b[^>]*\bid="elements"[^>]*>([\s\S]*?)<\/g>/.exec(svg)?.[1];
+  if (!group) {
     throw new Error(
-      `${name}: no stroke-bearing elements. Either the export is empty or this ` +
-        `icon is filled rather than stroked, which this importer does not handle.`,
+      `${name}: no <g id="elements"> in the export. Either the node is not an ` +
+        `icon from this library or its structure changed — check it in Figma ` +
+        `rather than loosening this.`,
     );
   }
 
-  return stroked
+  // Self-closing and paired forms both appear.
+  const shapes =
+    group.match(new RegExp(`<(?:${SHAPES})\\b[^>]*(?:/>|>[\\s\\S]*?</(?:${SHAPES})>)`, 'g')) ?? [];
+
+  if (shapes.length === 0) {
+    throw new Error(`${name}: the elements group is empty.`);
+  }
+
+  return shapes
     .map((el) =>
       el
-        // A token decides the colour, never the file.
+        // A token decides the colour, never the file. BOTH paints are rewritten:
+        // a glyph part may arrive as a stroke or as an expanded fill, and which
+        // one it is is not something a call site should have to know.
         .replace(/stroke="(?!none)[^"]*"/g, 'stroke="currentColor"')
+        .replace(/fill="(?!none)[^"]*"/g, 'fill="currentColor"')
         // Width is set by Icon from the rendered size, so drop the baked one.
+        // Harmless on a filled path, which ignores it.
         .replace(/\s*stroke-width="[^"]*"/g, '')
         // Figma layer ids are noise in a committed component.
         .replace(/\s*id="[^"]*"/g, '')
