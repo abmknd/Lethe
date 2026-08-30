@@ -16,7 +16,14 @@ import { BadgeIcon } from './BadgeIcon';
  * the `Color=Primary` one only in the socials row — same fill, different ink.
  *
  * The dot is `Badge Icon` `Size=sm` with a white ring, pinned 1.5 from the top
- * right corner.
+ * right corner — `absolute right-[1.5px] size-[6px] top-[1.5px]` on 865:6480.
+ *
+ * THE WRAPPER MUST BE `flex`. As a bare `<span>` it is inline, so it takes a
+ * line box from the button's line-height and measures 6 x 24 rather than 6 x 6.
+ * The dot then sits on the baseline 12.5 down instead of 1.5, and the offset
+ * looks like it was never applied. Same failure as the header avatar, which was
+ * `block` inside a button and measured 39 instead of 32: an inline box is sized
+ * by typography, not by its contents.
  */
 export function BadgeButton({
   label,
@@ -54,7 +61,7 @@ export function BadgeButton({
     >
       <Icon as={glyph} size={16} className={mirrored ? '-scale-x-100' : undefined} />
       {dot && (
-        <span className="absolute right-[1.5px] top-[1.5px]">
+        <span className="absolute right-[1.5px] top-[1.5px] flex">
           <BadgeIcon size="sm" ring />
         </span>
       )}

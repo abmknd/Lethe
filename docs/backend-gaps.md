@@ -90,6 +90,30 @@ database while `Preferences.meetingFormat` is `string[]` in TypeScript, and the
 design shows multiple format pills. So the column exists but cannot hold what
 the screen displays. Scalar → array is a real migration, just a small one.
 
+### 2a-ii. Right field, wrong shape — `whyMatched` has no emphasis
+
+`Recommendation.whyMatched` is `string[]`: one flat sentence per signal bullet.
+
+The design draws each bullet in **two colours** — most of the line in
+`text/default/placeholder` (#9c9c9c) with the operative phrase stepped up to
+`text/default/body` (#282323). That is a colour change, not a bold, and
+`SuggestionsView` renders it correctly from a `{pre, emph, post}` triple. The
+demo shows it working.
+
+A live bullet cannot use it. There is no marked span in a flat string, so the
+mapper puts the whole sentence in `pre` and the emphasis never appears. **The
+colour tokens are not the problem** — verified in the browser: base renders
+`rgb(156,156,156)` and emphasis `rgb(40,35,35)`, and they differ.
+
+Two ways out, both cheap, and this needs a decision:
+
+1. The matcher already knows which phrase carried the signal, since that is what
+   it scored. Return `{pre, emph, post}` and the design works as drawn.
+2. Decide flat is acceptable and drop the two-tone treatment from the design, so
+   the code stops carrying a field nothing fills.
+
+Doing neither leaves a designed emphasis that is dead on every real record.
+
 ### 2b. No column anywhere — real work
 
 | Field | Where it shows | Note |

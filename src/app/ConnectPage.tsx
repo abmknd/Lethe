@@ -39,14 +39,17 @@ const RAIL_SUGGESTED = MATCH_RAIL.indexOf('Suggested');
 function toProfile(rec: Recommendation): Profile {
   const c = rec.candidate;
   return {
-    // Blind: the role category is the only thing we may say about them.
-    name: c?.displayName ?? rec.blindRationale?.roleCategory ?? 'A match',
+    name: c?.displayName ?? 'A match',
     handle: c?.handle ?? '',
-    // `candidate` carries no avatar and no role: id, displayName, handle,
-    // location, timezone, introText is the whole of it. Nothing else may be
-    // read off it, however much the design asks for.
+    // `candidate` is EXACTLY id, displayName, handle, location, timezone,
+    // introText. It carries no avatar, so this is empty even though
+    // `users.avatar_url` exists and `AppUser.avatarUrl` reads it — the column is
+    // real, the payload just does not include it (docs/backend-gaps.md 2a).
     avatarSrc: undefined,
-    role: c ? '' : 'Identity opens when you both accept',
+    // The role chip is `blindRationale.roleCategory`, which is the field's whole
+    // purpose: what we may say about someone while their identity is closed.
+    // It is NOT a field on `candidate`; reading it off there was wrong.
+    role: rec.blindRationale?.roleCategory ?? '',
     city: c?.location ?? '',
     about: c?.introText ?? rec.insightText ?? '',
     interests: (rec.blindRationale?.overlapThemes ?? []).map((t) => t.label),

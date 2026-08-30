@@ -427,6 +427,64 @@ The rhythm is owned by `StepHeader` and `StepSection` (5.13) rather than
 re-applied per screen, so it is a property of the system and not eleven
 independent decisions that drift apart.
 
+#### Generation prompts — normative
+
+Every illustration in the product is generated from one of **two templates**.
+They are recorded here so a new plate matches the existing ones instead of being
+re-derived, and so the house style survives whoever writes the next prompt.
+
+Both are Cyber-Classical: **micro-mosaic dithered pointillism**, where the whole
+image is an ultra-dense pixelated matrix of dithered micro-dots on a flat solid
+ground. Shadow and mass come *only* from varying dot density, letting the ground
+bleed through natively — never from a second colour. Both are edge-to-edge and
+**frameless**: no outer boxes, no framing edges. The two differ only in which
+way the two brand colours run.
+
+**Cobalt-themed** — white dots on electric cobalt blue, square:
+
+> An edge-to-edge Cyber-Classical illustration in a square aspect ratio
+> featuring an exterior perspective of the Roman Pantheon and its massive
+> octastyle Corinthian portico. Scholars stand in the foreground plaza looking
+> up toward a beam of radial light and vector grids bursting from the dome's
+> top. Completely frameless and borderless composition with no outer boxes or
+> framing edges. Executed in a hyper-detailed micro-mosaic dithered pointillism
+> style, where every portico column, triangular pediment, stone dome curve, and
+> plaza cobblestone is rendered entirely through an ultra-dense pixelated matrix
+> of dithered stark white micro-dots onto a flat, solid electric cobalt blue
+> background. Deep structural shadows and architectural mass are formed solely
+> through varying dot densities, allowing the cobalt blue canvas to bleed
+> through natively to create shading. Radial polar grids and guilloche wave
+> rings radiate outward from the dome. Esoteric technology aesthetic, early
+> digital display artifact, flat graphic wallpaper, square aspect ratio.
+
+**Light-themed** — cobalt dots on stark white, 7:9 vertical:
+
+> An edge-to-edge Cyber-Classical illustration in a 7:9 vertical aspect ratio
+> with HD resolution clarity. Depicting two elderly men intently engaged in a
+> game of chess at a concrete park table, surrounded by a standing crowd of
+> curious onlookers watching the next move. Executed in a hyper-detailed
+> micro-mosaic dithered pointillism style, where every carved chess piece,
+> furrowed brow, wool coat texture, and park tree leaf is rendered entirely
+> through an ultra-dense pixelated matrix of dithered electric cobalt blue
+> micro-dots onto a flat, solid stark white background. Deep structural shadows
+> and intense mental concentration are formed solely through varying dot
+> densities, allowing the white canvas to bleed through natively. Strategic
+> decision tree vectors and game-probability grids hover over the chessboard.
+> Completely frameless and borderless composition with no outer boxes or
+> framing edges. Esoteric technology aesthetic, early digital display artifact,
+> flat graphic wallpaper, ultra-high-definition, HD fidelity, 7:9 aspect ratio.
+> `--ar 7:9`
+
+**To generate a new plate, swap only the subject clause** — the Pantheon, the
+chess game — and the clause naming what the dots resolve into (*every portico
+column…*, *every carved chess piece…*). Everything else is the style contract
+and stays verbatim. Changing the ground colour, introducing a third colour,
+adding a frame, or dropping the density-only shading rule takes the image out
+of the system.
+
+Pick **cobalt** where the art sits on or against a Blue 600 field, and **light**
+where it sits on white or Yellow 50.
+
 ---
 
 ## 4. Section-by-section application
@@ -589,13 +647,14 @@ round, post card `0` with the sections carrying their own inset.
 
 ### 5.5.1 Icon stroke — normative
 
-**Superseded, 2026-08-30. The weight is the LIBRARY's, not ours.** Figma ships
-each glyph with a `Size` of 16, 20 or 32 and a `Weight` of 1px or 2px, and that
-is what renders. The curve below — 1px at 16, 1.25px at 24 — was a house rule
-invented before the library was read: **24 is not a size this library draws**,
-and a computed weight disagreed with the drawn one on every 20px glyph in the
-sidebars. `iconStroke(size, grid, weight)` now only rescales when a call site
-asks for a size other than the glyph's own.
+**The weight is the LIBRARY's, not ours.** Figma ships each glyph with a `Size`
+of 16, 20 or 32 and a `Weight` of 1px or 2px, and that is what renders.
+
+An earlier house rule here computed a size-relative curve — 1px at 16, 1.25px at
+24 — and it was wrong twice over: **24 is not a size this library draws**, and a
+computed weight disagreed with the drawn one on every 20px glyph in the sidebars.
+It has been removed rather than kept for the record, because a superseded rule
+sitting under a live one is a rule someone will implement.
 
 **Export from the size the frame PLACES.** A glyph is redrawn per size in this
 library, not scaled: `favourite` occupies 75% of its 16px box (`inset-[12.5%_8.33%]`)
@@ -611,31 +670,23 @@ the Badge Buttons read as off-centre. The importer now offsets the viewBox by
 half the difference on each axis, which is exact because the group is centred in
 the icon box.
 
-The original reasoning is kept below for the record.
+**The rule, in full:**
 
-Two sanctioned sizes, and the weight is **size-relative**:
-
-| Rendered size | Stroke on screen |
+| | |
 |---|---|
-| **16px** | **1px** |
-| **24px** | **1.25px** |
+| Sizes the library draws | **16 · 20 · 32** |
+| Weights the library draws | **1px · 2px** |
+| What a glyph renders at | its own `Size` and `Weight`, unchanged |
+| Manifest entry | the size and weight of the node the frame PLACES |
 
-A hairline that reads correctly on a 24 glyph closes up and turns to mud on a
-16 one, so the smaller size takes proportionally *more* weight and less absolute
-weight — `1/16` is 6.25% against `1.25/24` at 5.2%.
+`stroke-width` is in viewBox units, so it is only ever rescaled when a call site
+asks for a size other than the glyph's own: `iconStroke(size, grid, weight)`
+returns `weight * grid / size`, which is just `weight` in the normal case.
 
-**The attribute is not the rendered value.** `stroke-width` is in viewBox units,
-so a 24-grid icon rendered into a 16px box has its stroke scaled by `16/24` with
-everything else. Hitting 1px on screen means *passing* 1.5, and the number goes
-DOWN as the icon gets bigger:
-
-```
-16px display   ->  strokeWidth 1.5    ->  1.0 rendered
-24px display   ->  strokeWidth 1.25   ->  1.25 rendered
-```
-
-Nobody does that arithmetic at a call site. `iconStroke(size)` in the primitives
-owns it, and `ICON_SIZE.sm` / `ICON_SIZE.md` name the two sizes.
+`grid` is required. It briefly had a default of 24, and two call sites in the
+KYC flow kept passing one argument — computing `NaN` and dropping the stroke off
+both glyphs on a green build. Caught by `npm run typecheck`, which is why that
+gate exists.
 
 This is a *stroke* width. The 1.25px card borders elsewhere in this document are
 a different property and are unchanged.
@@ -853,11 +904,21 @@ tab rail, a 600-wide profile card — `ConnectSurface`, `SuggestionCard`,
 `MatchCard` and the old `AppHeader`. Its preview route `/rebrand/connect` is
 deleted; the files carry a FROZEN header and take no further investment.
 
-They still exist because `/connect` in the LIVE app mounts them
-(`src/app/ConnectPage.tsx`). **Migrating that page to AppShell is the next real
-piece of work, and it is a product change, not a cleanup** — the two surfaces
-disagree about what the top-level navigation is. Until then the retired design
-is reachable only through the real page, never through a review route.
+**`/connect` has moved (2026-08-30).** It is not a surface of its own: it is the
+**Suggested** row of the MATCHES tab, `relethe-feed` 911:4246, and it now renders
+`AppShell` like the preview does. `src/app/ConnectPage.tsx` supplies real
+recommendations where `AppPreviewPage` supplies demo ones; nothing else differs.
+The path is still `/connect` because that is what the app links to, and renaming
+it is a separate change with its own redirects.
+
+`AppShell` is a LAYOUT, not a screen — header, rail, grid, `children`, optional
+`aside`. Omitting `aside` drops the grid to two columns, which is the real
+difference between 911:4246 (248 + 760) and 907:22311 (248 + 416 + 320).
+
+`ConnectSurface` and friends still exist only because nothing else has claimed
+them yet. **`/matches` is the remaining caller of the old design** and is the
+Matches row of the same rail; it should join this shell next, after which the
+retired files can be deleted.
 
 ### 5.15.1 A variant set is AXES, not cases — normative
 
