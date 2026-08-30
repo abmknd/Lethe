@@ -1,9 +1,11 @@
 /**
  * message-01 — GENERATED from Figma node 671:336. Do not edit.
  *
+ * app-header Badge Button 2. Figma description: chat.
+ *
  * Regenerate: node scripts/import-figma-icons.mjs
  */
-export function Message01Icon({ size = 18, strokeWidth, className }: {
+export function Message01Icon({ size = 16, strokeWidth, className }: {
   size?: number;
   strokeWidth?: number;
   className?: string;
@@ -12,7 +14,7 @@ export function Message01Icon({ size = 18, strokeWidth, className }: {
     <svg
       width={size}
       height={size}
-      viewBox="0 0 18 18"
+      viewBox="0 0 16 16"
       fill="none"
       strokeWidth={strokeWidth}
       strokeLinecap="round"
@@ -20,8 +22,8 @@ export function Message01Icon({ size = 18, strokeWidth, className }: {
       className={className}
       aria-hidden
     >
-      <path d="M5.6665 9.66602H10.3332M5.6665 6.33268H7.99984" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
-      <path d="M9.44723 13.9264C12.2359 13.741 14.4572 11.4882 14.64 8.65993C14.6758 8.10647 14.6758 7.5333 14.64 6.97983C14.4572 4.1516 12.2359 1.89877 9.44723 1.7134C8.49584 1.65016 7.50254 1.65029 6.55309 1.7134C3.76442 1.89877 1.5431 4.1516 1.36032 6.97983C1.32455 7.5333 1.32455 8.10647 1.36032 8.65993C1.42689 9.69001 1.88245 10.6438 2.41877 11.4491C2.73017 12.0129 2.52466 12.7166 2.2003 13.3312C1.96644 13.7744 1.8495 13.996 1.94339 14.1561C2.03728 14.3162 2.247 14.3213 2.66645 14.3315C3.49594 14.3517 4.05529 14.1165 4.49928 13.7891C4.7511 13.6034 4.87701 13.5106 4.96379 13.4999C5.05056 13.4892 5.22134 13.5596 5.56283 13.7002C5.86976 13.8266 6.22614 13.9046 6.55309 13.9264C7.50254 13.9895 8.49584 13.9896 9.44723 13.9264Z" stroke="currentColor" strokeLinejoin="round"/>
+      <path d="M4.83333 8.5H9.5M4.83333 5.16667H7.16667" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M8.61374 12.7604C11.4024 12.575 13.6237 10.3222 13.8065 7.49392C13.8423 6.94045 13.8423 6.36728 13.8065 5.81382C13.6237 2.98558 11.4024 0.732755 8.61374 0.547383C7.66235 0.484141 6.66904 0.48427 5.7196 0.547383C2.93092 0.732755 0.709606 2.98558 0.526827 5.81382C0.491058 6.36728 0.491058 6.94045 0.526827 7.49392C0.593397 8.52399 1.04895 9.47774 1.58527 10.2831C1.89667 10.8469 1.69116 11.5506 1.36681 12.1652C1.13294 12.6084 1.01601 12.83 1.10989 12.9901C1.20378 13.1501 1.41351 13.1552 1.83295 13.1655C2.66244 13.1856 3.22179 12.9505 3.66579 12.6231C3.9176 12.4374 4.04351 12.3445 4.13029 12.3339C4.21707 12.3232 4.38784 12.3935 4.72934 12.5342C5.03627 12.6606 5.39264 12.7386 5.7196 12.7604C6.66904 12.8235 7.66235 12.8236 8.61374 12.7604Z" stroke="currentColor" strokeLinejoin="round"/>
     </svg>
   );
 }
@@ -29,4 +31,4 @@ export function Message01Icon({ size = 18, strokeWidth, className }: {
 /** The grid this icon is DRAWN on, which is not always 24 — Figma exports an
  *  instance at its placed size. The Icon wrapper needs it to turn a target
  *  stroke in screen pixels into the viewBox-unit attribute. */
-Message01Icon.grid = 18;
+Message01Icon.grid = 16;

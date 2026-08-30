@@ -1,7 +1,7 @@
 /**
- * notification-01 — GENERATED from Figma node 724:1456. Do not edit.
+ * notification-01 — GENERATED from Figma node 671:155. Do not edit.
  *
- * Now a real HugeIcons instance — was a flattened lucide vector.
+ * app-header Badge Button 1. Figma description: alert, bell, alarm.
  *
  * Regenerate: node scripts/import-figma-icons.mjs
  */
@@ -22,9 +22,9 @@ export function Notification01Icon({ size = 16, strokeWidth, className }: {
       className={className}
       aria-hidden
     >
-      <path d="M3.43891 7.66059C3.38993 8.59126 3.44624 9.5819 2.61475 10.2055C2.22776 10.4958 2 10.9513 2 11.435C2 12.1005 2.5212 12.6666 3.2 12.6666L12.8 12.6666C13.4788 12.6666 14 12.1005 14 11.435C14 10.9513 13.7722 10.4958 13.3852 10.2055C12.5538 9.58191 12.6101 8.59126 12.5611 7.6606C12.4334 5.23474 10.4292 3.33325 8 3.33325C5.57078 3.33325 3.56659 5.23474 3.43891 7.66059Z" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
-      <path d="M7 2.08325C7 2.63554 7.44772 3.33325 8 3.33325C8.55228 3.33325 9 2.63554 9 2.08325C9 1.53097 8.55228 1.33325 8 1.33325C7.44772 1.33325 7 1.53097 7 2.08325Z" stroke="currentColor"/>
-      <path d="M10 12.6665C10 13.7711 9.10457 14.6665 8 14.6665C6.89543 14.6665 6 13.7711 6 12.6665" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M1.93891 6.82734C1.88993 7.75801 1.94624 8.74865 1.11475 9.37227C0.727758 9.66252 0.5 10.118 0.5 10.6018C0.5 11.2672 1.0212 11.8333 1.7 11.8333H11.3C11.9788 11.8333 12.5 11.2672 12.5 10.6018C12.5 10.118 12.2722 9.66252 11.8852 9.37227C11.0538 8.74865 11.1101 7.75801 11.0611 6.82734C10.9334 4.40148 8.92922 2.5 6.5 2.5C4.07078 2.5 2.06659 4.40148 1.93891 6.82734Z" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M5.5 1.25C5.5 1.80228 5.94772 2.5 6.5 2.5C7.05228 2.5 7.5 1.80228 7.5 1.25C7.5 0.697715 7.05228 0.5 6.5 0.5C5.94772 0.5 5.5 0.697715 5.5 1.25Z" stroke="currentColor"/>
+      <path d="M8.5 11.8333C8.5 12.9379 7.60457 13.8333 6.5 13.8333C5.39543 13.8333 4.5 12.9379 4.5 11.8333" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   );
 }

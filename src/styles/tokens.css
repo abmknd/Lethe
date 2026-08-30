@@ -53,6 +53,7 @@
   --color-black-100: #f2f2f2;
   --color-black-50:  #fafafa;
 
+  --color-success-800: #00920c;  /* text/success/deep */
   --color-success-700: #00c310;
   --color-success-600: #00f314;
   --color-success-500: #33f643;
@@ -92,11 +93,14 @@
    * Ink on a Relethe surface is Neutral. Black stays for the places that want
    * a true grey: hairlines, scrim, the daylight band's off state.
    */
-  --color-neutral-900: #100a0a;  /* icons/neutral/default */
+  --color-neutral-900: #100a0a;  /* icons/neutral/default, text/default/heading */
   --color-neutral-800: #282323;  /* text/default/body     */
   --color-neutral-700: #403b3b;  /* text/default/caption  */
-  --color-neutral-400: #888585;  /* text/default/placeholder */
-  --color-neutral-100: #f2f2f2;  /* border/disabled/deep  */
+  --color-neutral-500: #706c6c;  /* text/default/subtle   */
+  --color-neutral-400: #888585;
+  --color-neutral-300: #9c9c9c;  /* text/default/placeholder */
+  --color-neutral-200: #dbdada;  /* border/neutral/subtle */
+  --color-neutral-100: #f2f2f2;  /* border/neutral/default */
   --color-neutral-50:  #fafafa;  /* surface/page/beta     */
 
   /* ---- Figma semantic layer ----------------------------------------------
@@ -111,21 +115,41 @@
   --surface-neutral-subtle:  var(--color-neutral-50);
   --surface-primary-default: var(--color-blue-600);
   --surface-primary-subtle:  var(--color-blue-50);
+  --surface-success-subtle:  var(--color-success-50);
 
+  --text-default-heading:     var(--color-neutral-900);
   --text-default-body:        var(--color-neutral-800);
   --text-default-caption:     var(--color-neutral-700);
-  --text-default-placeholder: var(--color-neutral-400);
+  --text-default-subtle:      var(--color-neutral-500);
+  --text-default-placeholder: var(--color-neutral-300);
   --text-default-highlight-blue: var(--color-blue-600);
+  --text-primary-default:     var(--color-blue-600);
+  --text-neutral-heading:     var(--color-white);
+  --text-neutral-hover:       var(--color-blue-200);
+  --text-neutral-deep:        var(--color-neutral-100);
+  --text-success-deep:        var(--color-success-800);
   --text-on-color-heading:    var(--color-white);
   --text-primary-on-color:    var(--color-blue-50);
 
-  --border-disabled-deep:  var(--color-neutral-100);
+  --border-neutral-default: var(--color-neutral-100);
+  --border-neutral-subtle:  var(--color-neutral-200);
+  --border-disabled-deep:   var(--color-neutral-100);
   --border-primary-default: var(--color-blue-600);
-  --border-page-alpha:     var(--color-white);
+  --border-primary-highlight: var(--color-white);
+  --border-page-alpha:      var(--color-white);
+
+  /* Border/Width and Border/Radius, straight off the Figma variables. `round`
+     is 240 rather than 9999: a pill that tall never appears, so the two are the
+     same pixel, and 240 is the number the file actually carries. */
+  --border-width-sm: 1px;
+  --border-width-md: 1.5px;
+  --border-width-lg: 2px;
+  --border-radius-md: 8px;
+  --border-radius-round: 240px;
 
   --icons-neutral-default:   var(--color-neutral-900);
   --icons-primary-default:   var(--color-blue-600);
-  --icons-disabled-on-color: var(--color-neutral-400);
+  --icons-disabled-on-color: var(--color-neutral-300);
 
   /* ---- Semantic aliases -------------------------------------------------- */
   /* Semantic aliases. Each resolves to a ramp token; none carries its own

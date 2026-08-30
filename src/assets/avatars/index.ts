@@ -6,9 +6,11 @@
  * using Unsplash URLs. Each exports at 72 (Avatar's `xxl`) and scales down;
  * nothing in the product renders one larger.
  *
- * Nine of the 24 already existed under `src/assets/dummies` from before the
- * rebrand and are re-exported here so there is one place to look. The rest were
- * pulled from the component set.
+ * ONLY people who are in that set appear here. Four names used to be re-exported
+ * from `src/assets/dummies` — Anika Sharma, Marcus Webb, Priya Nair, Sofia
+ * Mendes — so that invented demo content had something to render. They are gone:
+ * a face in this barrel is a claim that Figma drew that person, and a
+ * placeholder borrowed from the pre-rebrand dummies made that claim falsely.
  *
  * To add one: find its node in `Avatar Image` (924:1537), export at 1x, drop the
  * PNG in this folder, add a line below.
@@ -23,11 +25,6 @@ import mayaFrost from './maya-frost.png';
 import montyWei from './monty-wei.png';
 import theoLark from './theo-lark.png';
 
-import anikaSharma from '../dummies/anika-sharma.png';
-import marcusWebb from '../dummies/marcus-webb.png';
-import priyaNair from '../dummies/priya-nair.png';
-import sofiaMendes from '../dummies/sofia-mendes.png';
-
 export const AVATARS = {
   'abel-kant': abelKant,
   'anya-kurosawa': anyaKurosawa,
@@ -38,10 +35,6 @@ export const AVATARS = {
   'maya-frost': mayaFrost,
   'monty-wei': montyWei,
   'theo-lark': theoLark,
-  'anika-sharma': anikaSharma,
-  'marcus-webb': marcusWebb,
-  'priya-nair': priyaNair,
-  'sofia-mendes': sofiaMendes,
 } as const;
 
 export type AvatarName = keyof typeof AVATARS;

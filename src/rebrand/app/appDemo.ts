@@ -4,12 +4,18 @@ import type { AvatarName } from '../../assets/avatars';
  * Demo content for the app shell preview. Nothing here ships.
  *
  * THE POV IS ELENA VOSS. She is the signed-in user — the header avatar, the
- * composer, the "you" in every signal line. That is a change: she used to be
- * the person being suggested, so the app was being viewed past her rather than
- * through her.
+ * composer, the "you" in every signal line.
  *
- * Everyone here is a real member of Figma's `Avatar Image` set, so a name and a
- * face cannot drift apart. Adding a person means adding them to that set first.
+ * EVERY PERSON HERE IS A REAL MEMBER OF FIGMA'S `Avatar Image` SET. That is a
+ * rule, not a preference. Four people used to be here who were not: Priya Nair,
+ * Anika Sharma, Marcus Webb and Sofia Mendes, invented to fill "Who to follow"
+ * and an endorsement row. They had no faces in the set, so they borrowed
+ * placeholder art from the pre-rebrand dummies folder and a reviewer could not
+ * tell demo content from design content. Adding a person means adding them to
+ * the Figma set first.
+ *
+ * `Your faves` is copied verbatim from the frame (936:8392) — same four people,
+ * same notes, same order.
  */
 
 export const ME = {
@@ -21,8 +27,12 @@ export const ME = {
 export const NAV = ['FEED', 'MATCHES', 'COMMUNITIES'] as const;
 export type NavTab = (typeof NAV)[number];
 
+/** The three `Sidebar` types, 907:22811. Labels are the file's, in its order. */
 export const FEED_RAIL = ['For you', 'Following', 'Insights', 'Explore', 'Bookmarks', 'Activity'] as const;
 export const MATCH_RAIL = ['Matches', 'Suggested', 'Upcoming', 'Endorsed', 'Invited', 'Disavowed'] as const;
+export const COMMUNITY_RAIL = [
+  'Communities', 'Invites', 'Open Spaces', 'Events', 'Manage', 'Start a community',
+] as const;
 
 const MEDIA = {
   city: 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1200',
@@ -83,18 +93,23 @@ export const MATCHES: MatchRow[] = [
   },
 ];
 
-export const FAVES: { name: string; handle: string; avatar: AvatarName; note: string }[] = [
+export type PersonRow = { name: string; handle: string; avatar: AvatarName; note: string };
+
+/** `your-faves` 936:8392, verbatim. */
+export const FAVES: PersonRow[] = [
   { name: 'Anya Kurosawa', handle: '@anyakurosawa', avatar: 'anya-kurosawa', note: 'Met 3 times · you follow each other' },
   { name: 'Marcus Jin', handle: '@marcusjin', avatar: 'marcus-jin', note: 'Met 2 times · you endorsed Marcus' },
   { name: 'Maya Frost', handle: '@mayafrost', avatar: 'maya-frost', note: 'Met 2 times · Maya endorsed you' },
   { name: 'Theo Lark', handle: '@theolark', avatar: 'theo-lark', note: 'Met once · you invited Theo' },
 ];
 
-export const FOLLOW: { name: string; handle: string; avatar: AvatarName; note: string }[] = [
-  { name: 'Priya Nair', handle: '@priyanair', avatar: 'priya-nair', note: 'Endorsed by George Tracy' },
-  { name: 'Anika Sharma', handle: '@anikasharma', avatar: 'anika-sharma', note: '3 shared interests' },
-  { name: 'Marcus Webb', handle: '@marcuswebb', avatar: 'marcus-webb', note: 'Met someone you met' },
-  { name: 'Sofia Mendes', handle: '@sofiamendes', avatar: 'sofia-mendes', note: '2 mutual follows' },
+/** The feed's counterpart card. No frame draws it, so it takes the same shape
+ *  as `your-faves` and four people from the same cast. */
+export const FOLLOW: PersonRow[] = [
+  { name: 'Abel Kant', handle: '@abelkant', avatar: 'abel-kant', note: 'Endorsed by George Tracy' },
+  { name: 'Monty Wei', handle: '@montywei', avatar: 'monty-wei', note: '3 shared interests' },
+  { name: 'Iris Morrow', handle: '@irismorrow', avatar: 'iris-morrow', note: 'Met someone you met' },
+  { name: 'George Tracy', handle: '@georgetracy', avatar: 'george-tracy', note: '2 mutual follows' },
 ];
 
 export type Profile = {
@@ -102,7 +117,8 @@ export type Profile = {
   city: string; about: string;
   interests: string[];
   bullets: { pre: string; emph: string; post: string }[];
-  endorsers: AvatarName[]; endorseName: string; endorseRest: string;
+  endorsers: { name: AvatarName; person: string }[];
+  endorseName: string; endorseRest: string;
   formats: string[];
 };
 
@@ -120,7 +136,11 @@ export const PROFILES: Profile[] = [
       { pre: "You're both active in the ", emph: 'Effective Altruism community', post: '. He has attended the same chapter events.' },
       { pre: 'He left agency work to go independent ', emph: 'within the same six-month window', post: ' as you.' },
     ],
-    endorsers: ['george-tracy', 'anya-kurosawa', 'abel-kant'],
+    endorsers: [
+      { name: 'george-tracy', person: 'George Tracy' },
+      { name: 'anya-kurosawa', person: 'Anya Kurosawa' },
+      { name: 'abel-kant', person: 'Abel Kant' },
+    ],
     endorseName: 'George Tracy', endorseRest: 'and 3 others.',
     formats: ['Video call', 'In-person'],
   },
@@ -133,8 +153,12 @@ export const PROFILES: Profile[] = [
       { pre: 'You have written about the same idea a week apart: ', emph: 'what silence does to a conversation', post: '.' },
       { pre: 'Three people follow you both, and ', emph: 'two are in your Monday cohort', post: '.' },
     ],
-    endorsers: ['maya-frost', 'theo-lark', 'marcus-jin'],
-    endorseName: 'Priya Nair', endorseRest: 'and 1 other.',
+    endorsers: [
+      { name: 'maya-frost', person: 'Maya Frost' },
+      { name: 'theo-lark', person: 'Theo Lark' },
+      { name: 'marcus-jin', person: 'Marcus Jin' },
+    ],
+    endorseName: 'Maya Frost', endorseRest: 'and 1 other.',
     formats: ['Voice only', 'Video call'],
   },
   {
@@ -146,8 +170,12 @@ export const PROFILES: Profile[] = [
       { pre: 'You both post in the hour before the city wakes: ', emph: 'his 5am is your 7am', post: '.' },
       { pre: 'He is the only person this week whose ', emph: 'evenings line up with your Thursday', post: '.' },
     ],
-    endorsers: ['anika-sharma', 'marcus-webb', 'sofia-mendes'],
-    endorseName: 'Ana Duarte', endorseRest: 'and 5 others.',
+    endorsers: [
+      { name: 'abel-kant', person: 'Abel Kant' },
+      { name: 'monty-wei', person: 'Monty Wei' },
+      { name: 'iris-morrow', person: 'Iris Morrow' },
+    ],
+    endorseName: 'Abel Kant', endorseRest: 'and 5 others.',
     formats: ['In-person', 'Video call'],
   },
 ];

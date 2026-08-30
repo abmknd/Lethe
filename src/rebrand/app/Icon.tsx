@@ -23,6 +23,7 @@ export function Icon({
   size = ICON_SIZE.sm,
   className,
   label,
+  strokeWidth,
 }: {
   as?: ComponentType<{ size?: number; strokeWidth?: number; className?: string }> & { grid?: number };
   size?: number;
@@ -30,6 +31,11 @@ export function Icon({
   /** Only when the icon is the sole carrier of meaning. Otherwise it stays
    *  hidden from assistive tech, which the generated components default to. */
   label?: string;
+  /** RENDERED pixels, for the rare glyph whose Figma variant states its own
+   *  weight. `bulb-chargeing` in `signal-header` is drawn at 32 / Weight=2px,
+   *  which the 1-at-16 / 1.25-at-24 curve does not reach. One override beats
+   *  bending the curve for every other icon. */
+  strokeWidth?: number;
 }) {
   // A missing glyph renders as empty space rather than taking the page down.
   // This caught a real one: renaming a rail item to "Matches" left RAIL_ICON
@@ -44,7 +50,14 @@ export function Icon({
       role={label ? 'img' : undefined}
       aria-label={label}
     >
-      <Glyph size={size} strokeWidth={iconStroke(size, Glyph.grid ?? size)} />
+      <Glyph
+        size={size}
+        strokeWidth={
+          strokeWidth === undefined
+            ? iconStroke(size, Glyph.grid ?? size)
+            : (strokeWidth * (Glyph.grid ?? size)) / size
+        }
+      />
     </span>
   );
 }

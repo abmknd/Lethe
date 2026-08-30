@@ -1,172 +1,127 @@
 import { useState, type ReactNode } from 'react';
 import { Icon } from './Icon';
-import { Avatar, AvatarStack, BadgeButton } from './Avatar';
+import { Avatar, AvatarStack } from './Avatar';
+import { Brandmark } from '../brand';
+import {
+  BadgeButton, BadgeText, BODY_3A, BODY_4A, BODY_4B, BODY_5A, BODY_5B, BUTTON_2A, Button,
+  ButtonText, Divider, NavItem, SectionLabel, Tag, TITLE_1, TITLE_3, TITLE_4B, TITLE_6,
+} from './components';
 import adamArt from '../assets/app/creation-of-adam.webp';
 import {
-  Analytics01Icon, ApproximatelyEqualCircleIcon, Bookmark01Icon, Bookmark02Icon,
-  BulbChargeingIcon, Calendar01Icon, CheckmarkBadge01Icon, CompassIcon,
-  DashboardSquare01Icon, FavouriteIcon, FlashIcon, GlobalIcon, Home01Icon,
-  Linkedin02Icon, Mail01Icon, MessageMultiple02Icon, MoreHorizontalCircle01Icon,
-  Notification01Icon, PlusSignIcon, SearchIcon, SentIcon, Share05Icon,
-  SparklesIcon, SubstackIcon, UserAdd01Icon, UserMultipleIcon, UserRemove01Icon,
+  ApproximatelyEqualCircleIcon, Bookmark01Icon, Bookmark02Icon, BulbChargeingIcon,
+  Calendar03Icon, CalendarFavorite02Icon, ChartRelationshipIcon, CheckmarkBadge02Icon,
+  Clock03Icon, FavouriteIcon, GlobalIcon, Home01Icon, Linkedin02Icon, MailOpenIcon,
+  Message01Icon, Message02Icon, MessageMultiple02Icon, MoreHorizontalCircle01Icon,
+  Notification01Icon, PlusSignCircleIcon, PlusSignIcon, PuzzleIcon, SearchIcon,
+  SearchingIcon, SentIcon, Setting03Icon, Share05Icon, SubstackIcon, UserAdd02Icon,
+  UserCheck02Icon, UserGroupIcon, UserMultipleIcon, UserRemove02Icon, VolleyballIcon,
   Location09Icon,
 } from '../../assets/system_icons';
-import type { AvatarName } from '../../assets/avatars';
 import {
-  FAVES, FEED_RAIL, FOLLOW, MATCHES, MATCH_RAIL, ME, NAV, POSTS, PROFILES,
-  type NavTab, type Post, type Profile,
+  COMMUNITY_RAIL, FAVES, FEED_RAIL, FOLLOW, MATCHES, MATCH_RAIL, ME, NAV, POSTS, PROFILES,
+  type PersonRow, type Post, type Profile,
 } from './appDemo';
 
 /**
- * THE APP SHELL — implemented from `Relethe App.dc.html`.
+ * THE APP SHELL — `relethe-feed` 907:22311 (Matches) and 911:4246 (Suggested).
  *
- * A header, a three-column grid, and four views that swap inside it. The shell
- * itself never moves: the rail and the right-hand column are sticky at 88, so
- * only the middle scrolls.
+ * A header, a three-column grid, and the views that swap inside it.
  *
- * ── Colour, and the three values that were not on the ramp ──────────────────
+ * ── How this was built, and how the last attempt was not ────────────────────
  *
- * The source is written in raw hex. Everything resolves to a token here, and
- * three needed snapping (redesign.md 2.x — a hex not in a ramp is drift):
+ * Every number, token and glyph below comes from `get_design_context` on a
+ * named node, which returns the file's real CSS and its exported assets. The
+ * previous pass used `get_metadata` — boxes and positions only — and inferred
+ * the rest. The result measured correctly and looked wrong in about a dozen
+ * places at once, because geometry does not carry which token a fill is, which
+ * of two `chat` glyphs a control uses, or that the emphasis in a signal bullet
+ * is a colour change rather than a bold.
  *
- *     #F7F7F7  ->  Neutral 50    the muted pill fill, 3 steps off #FAFAFA
- *     #ECFDF3  ->  Success 100   the "Met" status pill
- *     #027A48  ->  Success 700   its text
+ * Components live in ./components.tsx, one per Figma component, with the node
+ * id on each. Nothing here re-implements one inline.
  *
- * The source also writes body text as pure #000000. We adopted Figma's warm
- * Neutral ramp, where body text is #282323, so the token wins over the literal.
- * That decision is already recorded and this file follows it rather than
- * reopening it.
+ * ── The corrections, so they are not quietly re-made ────────────────────────
  *
- * ── Icons ───────────────────────────────────────────────────────────────────
- *
- * The source draws its icons as inline paths. Those are sketches, not the
- * library — so every one here is resolved to its real name in the Figma icon
- * library and exported. `Activity` is the single substitution: the library has
- * no pulse or heart-rate glyph, so it takes `flash`. Flagged rather than fudged.
+ *   logo            the exported `brandmark_blue`, not seven circles I drew
+ *   header controls `Badge Button`: white, 1px `text/neutral/deep`, 16px icon
+ *   rail icons      eleven of eighteen were the wrong glyph. Explore is
+ *                   `searching`, not `compass`; Activity is `clock-03`, not
+ *                   `flash`; Matches is `puzzle`; the user-* and calendar and
+ *                   checkmark-badge items are all the `-02` draw, not `-01`
+ *   third rail      `Sidebar` has a `communities` type. It was never built
+ *   banner          `card-playful-illustrated` is a BLUE card with the artwork
+ *                   in `mix-blend-lighten`, white heading, Blue 200 body — not
+ *                   a white card with a photo pasted on top
+ *   tags            the role chip and the meeting formats are `default`
+ *                   (Blue 50); only the interests are `neutral`
+ *   list actions    follow / message are `Badge Button` `subtle`, 32 round on
+ *                   Blue 50 — not a bordered white one
+ *   section labels  12/16 Regular placeholder, not 13/16 Medium with tracking
+ *   scrollbar       suppressed on the surface, per the source stylesheet
  */
-
-// ---------------------------------------------------------------- primitives
 
 const CARD = 'rounded-[16px] bg-[var(--surface-neutral-default)]';
-// 13/16, not 13/100%. Every `section-label` frame in the file is 16 tall, and
-// a 100% leading made it 13 — which is why four separate sections each came out
-// exactly 3px short of the frame.
-const LABEL = 'text-[13px] font-medium uppercase leading-[16px] tracking-[1px] text-[var(--text-default-caption)]';
-const HAIRLINE = 'bg-[var(--border-disabled-deep)]';
-
-/**
- * TAG — the library's own component, reduced to the axes this screen uses.
- *
- * Figma ships 84 variants across Status (default/hover/focus/disabled/success/
- * error/warning) x Size (sm 24 / md 32) x State x Type. Only `Size=md,
- * Status=default` appears on Connect, in two tones, so that is what exists here.
- * The rest are drawn but unused — building all 84 before a screen asks for one
- * is how a component library fills up with code nothing imports.
- */
-function Tag({ children, tone = 'neutral', size = 'md' }: { children: ReactNode; tone?: 'neutral' | 'blue'; size?: 'sm' | 'md' }) {
-  return (
-    <span
-      className={
-        'inline-flex shrink-0 items-center whitespace-nowrap rounded-[8px] px-[12px] text-[14px] leading-[20px] ' +
-        (size === 'md' ? 'h-[32px] ' : 'h-[24px] ') +
-        (tone === 'blue'
-          ? 'bg-[var(--surface-primary-subtle)] text-[var(--text-default-body)]'
-          : 'bg-[var(--surface-neutral-subtle)] text-[var(--text-default-body)]')
-      }
-    >
-      {children}
-    </span>
-  );
-}
-
-function Dot() {
-  return <span aria-hidden className="size-[3px] shrink-0 rounded-full bg-[var(--icons-disabled-on-color)]" />;
-}
-
-function PillButton({
-  children, tone = 'outline', onClick,
-}: { children: ReactNode; tone?: 'outline' | 'neutral' | 'primary' | 'subtle'; onClick?: () => void }) {
-  const skin = {
-    outline: 'border border-[var(--border-primary-default)] text-[var(--text-default-highlight-blue)] hover:bg-[var(--surface-primary-subtle)]',
-    neutral: 'border border-[var(--color-black-200)] bg-[var(--surface-neutral-default)] text-[var(--text-default-body)] hover:bg-[var(--surface-page-beta)]',
-    primary: 'bg-[var(--surface-primary-default)] text-[var(--text-on-color-heading)]',
-    subtle: 'bg-[var(--surface-primary-subtle)] text-[var(--text-default-body)]',
-  }[tone];
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={
-        'shrink-0 rounded-[40px] text-[13px] font-medium leading-[120%] tracking-[1px] transition-colors ' +
-        'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--border-primary-default)] ' +
-        skin
-      }
-    >
-      {children}
-    </button>
-  );
-}
 
 // ---------------------------------------------------------------- header
+//
+// `app-header` 911:4247. 64 tall, `border/neutral/default` underneath, px-32,
+// and both containers are flex-1 so the tab bar sits left and the controls sit
+// hard right regardless of what either contains.
 
-function HeaderIconButton({ label, glyph, badge }: { label: string; glyph: typeof Mail01Icon; badge?: boolean }) {
+function TabBar({ active, onPick }: { active: number; onPick: (i: number) => void }) {
   return (
-    <button
-      type="button"
-      aria-label={label}
-      className="relative grid size-[32px] place-items-center rounded-[32px] border border-[var(--color-black-200)] bg-[var(--surface-neutral-default)] text-[var(--icons-neutral-default)] transition-colors hover:bg-[var(--surface-page-beta)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--border-primary-default)]"
-    >
-      <Icon as={glyph} size={18} />
-      {badge && (
-        <span className="absolute right-[10px] top-[9px] size-[7px] rounded-full border-[1.5px] border-[var(--surface-neutral-default)] bg-[var(--surface-primary-default)]" />
-      )}
-    </button>
-  );
-}
-
-/** The logomark: seven circles, the brand's own drawing rather than an icon. */
-function Logomark() {
-  return (
-    <span className="grid size-[34px] shrink-0 place-items-center">
-      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--surface-primary-default)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-label="Relethe" role="img">
-        <circle cx="12" cy="6.8" r="4.2" /><circle cx="16.5" cy="9.4" r="4.2" />
-        <circle cx="16.5" cy="14.6" r="4.2" /><circle cx="12" cy="17.2" r="4.2" />
-        <circle cx="7.5" cy="14.6" r="4.2" /><circle cx="7.5" cy="9.4" r="4.2" />
-        <circle cx="12" cy="12" r="2.2" />
-      </svg>
-    </span>
+    <nav className="flex items-center gap-[2px]">
+      {NAV.map((label, i) => (
+        <button
+          key={label}
+          type="button"
+          onClick={() => onPick(i)}
+          aria-current={i === active ? 'page' : undefined}
+          className={
+            // No pill behind the selected tab: the file marks it with weight and
+            // ink only. px-12 py-8 still, so the hit area is the full 32.
+            'rounded-[var(--border-radius-round)] px-[12px] py-[8px] uppercase leading-[16px] ' +
+            'text-[14px] transition-colors ' +
+            (i === active
+              ? 'font-medium tracking-[0px] text-[var(--text-default-heading)]'
+              : 'font-normal text-[var(--text-default-placeholder)] hover:text-[var(--text-default-caption)]')
+          }
+        >
+          {label}
+        </button>
+      ))}
+    </nav>
   );
 }
 
 function Header({ nav, onNav }: { nav: number; onNav: (i: number) => void }) {
   return (
-    <header className="sticky top-0 z-40 flex h-[64px] items-center justify-between gap-[24px] border-b border-[var(--border-disabled-deep)] bg-[var(--surface-neutral-default)] px-[32px]">
-      <div className="flex min-w-0 items-center gap-[24px]">
-        <Logomark />
-        <nav className="flex items-center gap-[4px]">
-          {NAV.map((label, i) => (
-            <button
-              key={label}
-              type="button"
-              onClick={() => onNav(i)}
-              aria-current={i === nav}
-              className={
-                'rounded-[40px] px-[14px] py-[9px] text-[13px] font-medium leading-[120%] tracking-[1px] transition-colors ' +
-                (i === nav ? 'text-[var(--text-default-body)]' : 'text-[var(--text-default-placeholder)] hover:text-[var(--text-default-caption)]')
-              }
-            >
-              {label}
-            </button>
-          ))}
-        </nav>
+    <header className="sticky top-0 z-40 flex h-[64px] items-center justify-between border-b border-[var(--border-neutral-default)] bg-[var(--surface-neutral-default)] px-[32px]">
+      <div className="flex min-w-0 flex-1 items-center">
+        {/* No gap: the frame butts the tab bar straight onto the 32 logo and
+            lets the first toggle's own px-12 do the separating. */}
+        <Brandmark size={32} />
+        <div className="min-w-0 flex-1 max-[560px]:hidden">
+          <TabBar active={nav} onPick={onNav} />
+        </div>
       </div>
-      <div className="flex shrink-0 items-center gap-[14px]">
-        <PillButton tone="outline"><span className="grid h-[32px] w-[70px] place-items-center">INVITE</span></PillButton>
-        <HeaderIconButton label="Notifications" glyph={Notification01Icon} badge />
-        <HeaderIconButton label="Messages" glyph={Mail01Icon} />
-        <button type="button" aria-label="Your profile" className="block shrink-0 rounded-full">
-          <Avatar name={ME.avatar} size="sm" alt="Elena Voss" />
+      <div className="flex flex-1 shrink-0 items-center justify-end gap-[14px]">
+        <span className="max-[560px]:hidden">
+          <Button tone="outline">INVITE</Button>
+        </span>
+        {/* Bell first, chat second, and the dot is on the chat — which is the
+            order and the placement the frame draws, not the reverse. */}
+        <BadgeButton label="Notifications" glyph={Notification01Icon} />
+        <BadgeButton label="Messages" glyph={Message01Icon} dot />
+        <button
+          type="button"
+          aria-label="Your profile"
+          // `flex`, not `block`: an inline-block Avatar inside a block button
+          // sits on a line box, and the baseline descender made a 32 control
+          // measure 39.
+          className="flex shrink-0 rounded-[var(--border-radius-round)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--border-primary-default)]"
+        >
+          <Avatar name={ME.avatar} person={ME.name} size="sm" />
         </button>
       </div>
     </header>
@@ -174,56 +129,74 @@ function Header({ nav, onNav }: { nav: number; onNav: (i: number) => void }) {
 }
 
 // ---------------------------------------------------------------- rail
+//
+// `Sidebar` 907:22811 — three types, six items each, and EVERY glyph is the one
+// the file places. This map is the whole correction: read it against the old
+// one and eleven entries changed.
 
 const RAIL_ICON: Record<string, typeof Home01Icon> = {
-  'For you': Home01Icon, Following: UserMultipleIcon, Insights: Analytics01Icon,
-  Explore: CompassIcon, Bookmarks: Bookmark01Icon,
-  // The library has no pulse or heart-rate glyph. `flash` is the substitution,
-  // recorded here rather than silently drawn.
-  Activity: FlashIcon,
-  Matches: DashboardSquare01Icon, Suggested: SparklesIcon, Upcoming: Calendar01Icon,
-  Endorsed: CheckmarkBadge01Icon, Invited: UserAdd01Icon, Disavowed: UserRemove01Icon,
+  // Type=feed, 795:3285
+  'For you': Home01Icon,
+  Following: UserMultipleIcon,
+  Insights: ChartRelationshipIcon,
+  Explore: SearchingIcon,
+  Bookmarks: Bookmark01Icon,
+  Activity: Clock03Icon,
+  // Type=matches, 907:22812
+  Matches: PuzzleIcon,
+  Suggested: UserCheck02Icon,
+  Upcoming: Calendar03Icon,
+  Endorsed: CheckmarkBadge02Icon,
+  Invited: UserAdd02Icon,
+  Disavowed: UserRemove02Icon,
+  // Type=communities, 908:22878
+  Communities: UserGroupIcon,
+  Invites: MailOpenIcon,
+  'Open Spaces': VolleyballIcon,
+  Events: CalendarFavorite02Icon,
+  Manage: Setting03Icon,
+  'Start a community': PlusSignCircleIcon,
 };
 
 function Rail({ items, active, onPick }: { items: readonly string[]; active: number; onPick: (i: number) => void }) {
   return (
-    <aside className={'sticky top-[88px] flex flex-col gap-[2px] p-[8px] ' + CARD}>
+    <aside className={'sticky top-[88px] flex w-[248px] flex-col gap-[4px] p-[8px] ' + CARD}>
       {items.map((label, i) => (
-        <button
+        <NavItem
           key={label}
-          type="button"
+          label={label}
+          glyph={RAIL_ICON[label]}
+          selected={i === active}
           onClick={() => onPick(i)}
-          aria-current={i === active}
-          className={
-            'flex w-full items-center gap-[12px] rounded-[12px] px-[14px] py-[13px] text-left text-[16px] leading-[100%] transition-colors ' +
-            (i === active
-              ? 'bg-[var(--surface-primary-subtle)] font-medium text-[var(--text-default-highlight-blue)]'
-              : 'text-[var(--text-default-body)] hover:bg-[var(--surface-neutral-subtle)]')
-          }
-        >
-          <Icon as={RAIL_ICON[label]} size={20} />
-          {label}
-        </button>
+        />
       ))}
     </aside>
   );
 }
 
 // ---------------------------------------------------------------- feed
+//
+// No frame draws the post feed, so it is built from the parts the frames do
+// draw: the same 20 padding, the same `Divider` between rows, the same Avatar
+// and type scale as a match row.
 
 function PostActions({ post }: { post: Post }) {
-  const act = 'flex items-center gap-[8px] rounded-[40px] px-[12px] py-[8px] text-[14px] leading-[100%] text-[var(--text-default-caption)] transition-colors hover:bg-[var(--surface-neutral-subtle)]';
-  const round = 'grid size-[36px] place-items-center rounded-[36px] text-[var(--text-default-caption)] transition-colors hover:bg-[var(--surface-neutral-subtle)]';
+  const act =
+    'flex items-center gap-[8px] rounded-[var(--border-radius-round)] px-[12px] py-[8px] ' +
+    'text-[var(--text-default-caption)] transition-colors hover:bg-[var(--surface-neutral-subtle)] ' + BODY_4B;
+  const round =
+    'grid size-[32px] place-items-center rounded-[var(--border-radius-round)] ' +
+    'text-[var(--text-default-caption)] transition-colors hover:bg-[var(--surface-neutral-subtle)]';
   return (
-    <div className="mt-[8px] flex items-center justify-between gap-[16px] px-[16px] pb-[12px] pt-[8px]">
+    <div className="mt-[12px] flex items-center justify-between gap-[16px]">
       <div className="flex items-center gap-[4px]">
-        <button type="button" aria-label="Like" className={act}><Icon as={FavouriteIcon} size={18} />{post.likes}</button>
-        <button type="button" aria-label="Reply" className={act}><Icon as={MessageMultiple02Icon} size={18} />{post.replies}</button>
-        <button type="button" aria-label="Echo" className={act}><Icon as={ApproximatelyEqualCircleIcon} size={18} />{post.echoes}</button>
+        <button type="button" aria-label="Like" className={act}><Icon as={FavouriteIcon} size={16} />{post.likes}</button>
+        <button type="button" aria-label="Reply" className={act}><Icon as={MessageMultiple02Icon} size={16} />{post.replies}</button>
+        <button type="button" aria-label="Echo" className={act}><Icon as={ApproximatelyEqualCircleIcon} size={16} />{post.echoes}</button>
       </div>
       <div className="flex items-center gap-[4px]">
-        <button type="button" aria-label="Bookmark" className={round}><Icon as={Bookmark02Icon} size={18} /></button>
-        <button type="button" aria-label="Share" className={round}><Icon as={Share05Icon} size={18} /></button>
+        <button type="button" aria-label="Bookmark" className={round}><Icon as={Bookmark02Icon} size={16} /></button>
+        <button type="button" aria-label="Share" className={round}><Icon as={Share05Icon} size={16} /></button>
       </div>
     </div>
   );
@@ -231,47 +204,57 @@ function PostActions({ post }: { post: Post }) {
 
 function FeedView() {
   return (
-    <div className={'sticky top-[88px] max-h-[calc(100vh-112px)] overflow-y-auto ' + CARD}>
+    <div className={'overflow-hidden ' + CARD}>
       <button
         type="button"
-        className="sticky top-0 z-20 flex w-full items-center gap-[14px] rounded-t-[16px] border-b border-[var(--border-disabled-deep)] bg-[var(--surface-neutral-default)] px-[18px] py-[16px] text-left text-[var(--text-default-body)] transition-colors hover:bg-[var(--surface-primary-subtle)] hover:text-[var(--text-default-highlight-blue)]"
+        className="flex w-full items-center gap-[12px] p-[20px] text-left transition-colors hover:bg-[var(--surface-neutral-subtle)]"
       >
-        <Avatar name={ME.avatar} size="lg" />
-        <span className="min-w-0 flex-1 text-[18px] leading-[22px] text-[var(--text-default-placeholder)]">What's up?</span>
-        <span className="grid size-[40px] shrink-0 place-items-center rounded-[40px]"><Icon as={SentIcon} size={20} /></span>
+        <Avatar name={ME.avatar} person={ME.name} size="lg" />
+        <span className={'min-w-0 flex-1 text-[var(--text-default-placeholder)] ' + BODY_3A}>What&rsquo;s up?</span>
+        <span className="grid size-[32px] shrink-0 place-items-center rounded-[var(--border-radius-round)] text-[var(--icons-primary-default)]">
+          <Icon as={SentIcon} size={20} />
+        </span>
       </button>
+      <Divider />
 
       {POSTS.map((post, i) => (
         <article
           key={post.handle + post.time}
           className={
-            'flex flex-col ' +
-            (i ? 'border-t border-[var(--border-disabled-deep)] ' : '') +
-            (i === POSTS.length - 1 ? 'rounded-b-[16px]' : '')
+            'flex flex-col p-[20px] ' +
+            // The rule belongs to the row, as an inset ring — a Divider as a
+            // sibling would add its 1px to the row's height and push a 216
+            // frame to 217.
+            (i < POSTS.length - 1 ? 'shadow-[inset_0_-1px_0_0_var(--border-neutral-default)]' : '')
           }
         >
-          <div className="flex items-start gap-[14px] px-[22px] pt-[20px]">
-            <Avatar name={post.avatar} size="lg" />
-            <div className="flex min-w-0 flex-1 flex-col gap-[8px]">
-              <div className="flex flex-wrap items-center gap-[8px]">
-                <span className="text-[16px] font-medium leading-[100%] text-[var(--text-default-body)]">{post.name}</span>
-                <Dot />
-                <span className="text-[14px] leading-[100%] text-[var(--text-default-placeholder)]">{post.time}</span>
+          <div className="flex items-start justify-between gap-[12px]">
+            <div className="flex min-w-0 items-center gap-[12px]">
+              <Avatar name={post.avatar} person={post.name} size="lg" />
+              <div className="flex min-w-0 flex-col">
+                <div className="flex items-center gap-[6px]">
+                  <span className={'truncate text-[var(--text-default-heading)] ' + TITLE_3}>{post.name}</span>
+                  {/* A time is a caption, not a status, so it stays plain text.
+                      `Badge Text` is reserved for the thing the match rows use
+                      it for. */}
+                  <span className={'shrink-0 text-[var(--text-default-placeholder)] ' + BODY_4A}>{post.time}</span>
+                </div>
+                <span className={'truncate text-[var(--text-default-placeholder)] ' + BODY_4A}>{post.handle}</span>
               </div>
-              <span className="text-[14px] leading-[100%] text-[var(--text-default-placeholder)]">{post.handle}</span>
             </div>
-            <button type="button" aria-label="More" className="grid size-[32px] shrink-0 place-items-center rounded-[32px] text-[var(--text-default-placeholder)] transition-colors hover:bg-[var(--surface-neutral-subtle)]">
-              <Icon as={MoreHorizontalCircle01Icon} size={18} />
+            <button
+              type="button"
+              aria-label="More"
+              className="grid size-[32px] shrink-0 place-items-center rounded-[var(--border-radius-round)] text-[var(--text-default-placeholder)] transition-colors hover:bg-[var(--surface-neutral-subtle)]"
+            >
+              <Icon as={MoreHorizontalCircle01Icon} size={16} />
             </button>
           </div>
 
-          <p className="mx-[22px] mt-[14px] text-[16px] leading-[150%] text-[var(--text-default-body)]">{post.body}</p>
+          <p className={'pb-[18px] pt-[14px] text-[var(--text-default-heading)] ' + BODY_3A}>{post.body}</p>
 
           {post.media && (
-            <div
-              className="mx-[22px] mt-[16px] h-[300px] rounded-[12px] bg-[var(--border-disabled-deep)] bg-cover bg-center"
-              style={{ backgroundImage: `url(${post.media})` }}
-            />
+            <img src={post.media} alt="" className="mb-[4px] block h-[300px] w-full rounded-[12px] object-cover" />
           )}
 
           <PostActions post={post} />
@@ -282,60 +265,58 @@ function FeedView() {
 }
 
 // ---------------------------------------------------------------- matches
+//
+// `main-content` 908:23113. invite-top-bar, then one `post-N` per row: p-20,
+// a `Divider` beneath, and a signal banner that is TEXT ONLY — the bulb I had
+// in there is not in the frame.
 
 function MatchListView({ rail }: { rail: string }) {
   const list = rail === 'Upcoming' ? MATCHES.filter((m) => m.status === 'Upcoming') : MATCHES;
   return (
-    <div className={'sticky top-[88px] max-h-[calc(100vh-112px)] overflow-y-auto ' + CARD}>
+    <div className={'overflow-hidden ' + CARD}>
       <button
         type="button"
-        className="sticky top-0 z-20 flex w-full items-center justify-between gap-[16px] rounded-t-[16px] border-b border-[var(--border-disabled-deep)] bg-[var(--surface-neutral-default)] px-[22px] py-[20px] text-left text-[var(--text-default-body)] transition-colors hover:bg-[var(--surface-primary-subtle)] hover:text-[var(--text-default-highlight-blue)]"
+        className="flex w-full items-center justify-between gap-[16px] px-[22px] py-[16px] text-left transition-colors hover:bg-[var(--surface-neutral-subtle)]"
       >
-        <span className="text-[18px] leading-[22px]">Invite someone</span>
-        <span className="grid size-[28px] place-items-center rounded-[28px]"><Icon as={PlusSignIcon} size={18} /></span>
+        <span className={'text-[var(--text-default-heading)] ' + TITLE_3}>Invite someone</span>
+        <Icon as={PlusSignIcon} size={16} className="text-[var(--icons-neutral-default)]" />
       </button>
+      <Divider />
 
       {list.map((m, i) => (
         <article
           key={m.handle}
           className={
-            'flex flex-col pb-[22px] ' +
-            (i ? 'border-t border-[var(--border-disabled-deep)] ' : '') +
-            (i === list.length - 1 ? 'rounded-b-[16px]' : '')
+            // `post-N` 908:23117 carries its own border-b. As an inset ring so
+            // the row stays 216 rather than 217.
+            'flex flex-col p-[20px] ' +
+            (i < list.length - 1 ? 'shadow-[inset_0_-1px_0_0_var(--border-neutral-default)]' : '')
           }
         >
-          <div className="flex items-start gap-[14px] px-[22px] pt-[20px]">
-            <Avatar name={m.avatar} size="lg" />
-            <div className="flex min-w-0 flex-1 flex-col gap-[8px]">
-              <span className="text-[16px] font-medium leading-[100%] text-[var(--text-default-body)]">{m.name}</span>
-              <div className="flex flex-wrap items-center gap-[10px]">
-                <span className="text-[14px] leading-[100%] text-[var(--text-default-placeholder)]">{m.handle}</span>
-                <span
-                  className={
-                    'shrink-0 rounded-[6px] px-[8px] text-[12px] leading-[16px] ' +
-                    (m.status === 'Upcoming'
-                      ? 'bg-[var(--surface-primary-subtle)] text-[var(--text-default-highlight-blue)]'
-                      : 'bg-[var(--color-success-100)] text-[var(--color-success-700)]')
-                  }
-                >
-                  {m.status}
-                </span>
+          <div className="flex items-start justify-between gap-[12px]">
+            <div className="flex min-w-0 items-center gap-[12px]">
+              <Avatar name={m.avatar} person={m.name} size="lg" />
+              <div className="flex min-w-0 flex-col">
+                <div className="flex items-center gap-[6px]">
+                  <span className={'truncate text-[var(--text-default-heading)] ' + TITLE_3}>{m.name}</span>
+                  <BadgeText tone={m.status === 'Upcoming' ? 'primary' : 'neutral'}>{m.status}</BadgeText>
+                </div>
+                <span className={'truncate text-[var(--text-default-placeholder)] ' + BODY_4A}>{m.handle}</span>
               </div>
             </div>
-            <PillButton tone="neutral"><span className="block px-[14px] py-[9px] text-[12px] leading-[100%]">MESSAGE</span></PillButton>
+            <Button tone="neutral" size="sm">message</Button>
           </div>
 
-          <p className="mx-[22px] mt-[14px] text-[16px] leading-[150%] text-[var(--text-default-body)]">{m.about}</p>
+          <p className={'pb-[18px] pt-[14px] text-[var(--text-default-heading)] ' + BODY_3A}>{m.about}</p>
 
-          <div className="mx-[22px] mt-[18px] flex items-start gap-[10px] rounded-[12px] bg-[var(--surface-primary-subtle)] px-[14px] py-[12px]">
-            <span className="mt-[2px] text-[var(--text-default-highlight-blue)]"><Icon as={BulbChargeingIcon} size={16} /></span>
-            {/* The frame renders the date as a link inside the sentence, which
-                is why `signal` is split rather than one string. */}
-            <span className="text-[15px] leading-[140%] text-[var(--text-default-body)]">
+          <div className="flex items-center rounded-[12px] bg-[var(--surface-primary-subtle)] px-[14px] py-[12px]">
+            {/* The date reads as a link inside the sentence, which is why
+                `signal` is three pieces rather than one string. */}
+            <p className={'flex-1 text-[var(--text-default-heading)] ' + BODY_4A}>
               {m.signal.pre}
               <span className="text-[var(--text-default-highlight-blue)]">{m.signal.link}</span>
               {m.signal.post}
-            </span>
+            </p>
           </div>
         </article>
       ))}
@@ -344,141 +325,132 @@ function MatchListView({ rail }: { rail: string }) {
 }
 
 // ---------------------------------------------------------------- suggestions
+//
+// `profile-detail-card` 918:6192. 760 wide: left 459, a vertical Divider, right
+// 300. Padding is 20 everywhere except the two sections that close a column,
+// which take 24 at the bottom.
+
+const SOCIALS = [
+  { label: 'LinkedIn', glyph: Linkedin02Icon },
+  { label: 'Personal website', glyph: GlobalIcon },
+  { label: 'Substack', glyph: SubstackIcon },
+] as const;
 
 function SuggestionsView({ profile, done, onDecide }: { profile: Profile; done: number; onDecide: () => void }) {
   const first = profile.name.split(' ')[0];
   return (
     <div className="flex min-w-0 flex-col gap-[20px]">
-      {/* prompt-banner: 40 tall, heading 24. */}
+      {/* prompt-banner: 40 tall, the heading 24 of it. */}
       <div className="flex h-[40px] items-center justify-center text-center">
-        <h1 className="text-[20px] font-medium leading-[24px] text-[var(--text-default-body)]">
-          Would you like to meet <span className="text-[var(--text-default-highlight-blue)]">{profile.name}?</span>
+        <h1 className={'text-[var(--text-default-heading)] ' + TITLE_1}>
+          Would you like to meet{' '}
+          <span className="text-[var(--text-default-highlight-blue)]">{profile.name}?</span>
         </h1>
       </div>
 
-      {/* profile-detail-card: 760 wide. profile-columns 527, bottom-bar 74. */}
       <div className={'flex flex-col overflow-hidden ' + CARD}>
         <div className="flex items-stretch max-[1000px]:flex-col">
-          {/* left-profile-info — 459 of the 760, padding 20 throughout */}
+          {/* left-profile-info 918:6194 */}
           <div className="flex min-w-0 flex-[1_1_459px] flex-col">
-            {/* top-info-block: 136 = 20 + 96 + 20 */}
             <div className="flex items-start gap-[16px] p-[20px]">
-              <Avatar name={profile.avatar} size="xxl" />
-              <div className="flex min-w-0 flex-1 flex-col">
-                <h2 className="mt-[4px] text-[20px] font-medium leading-[20px] text-[var(--text-default-body)]">
+              <Avatar name={profile.avatar} person={profile.name} size="xxl" />
+              <div className="flex min-w-0 flex-1 flex-col gap-[12px] pt-[4px]">
+                <h2 className="text-[20px] font-medium leading-[20px] text-[var(--text-default-heading)]">
                   {profile.name}
                 </h2>
-                <div className="mt-[12px] flex flex-col gap-[12px]">
-                  <span className="self-start"><Tag>{profile.role}</Tag></span>
-                  {/*
-                    ONE meta item now. The frame's meta-details-row is 131x16 and
-                    holds only `location-meta`; pronouns and birthday are gone and
-                    the separator beside them is hidden="true". Removed rather
-                    than kept as a nicety — neither has a column behind it, so
-                    keeping them means inventing data (docs/backend-gaps.md 2b).
-                  */}
-                  <span className="flex h-[16px] items-center gap-[8px] whitespace-nowrap text-[14px] leading-[16px] text-[var(--text-default-caption)]">
-                    <span className="text-[var(--text-default-placeholder)]"><Icon as={Location09Icon} size={16} /></span>
+                <div className="flex flex-col items-start gap-[12px]">
+                  {/* The role chip is Tag `default` — Blue 50. It was neutral. */}
+                  <Tag>{profile.role}</Tag>
+                  {/* `location-meta` 872:14535: a 16 glyph, a 4 gap, 13/16 Light.
+                      One item only. The frame's separator beside it is
+                      hidden="true" and pronouns and birthday are gone, neither
+                      having a column behind it (docs/backend-gaps.md 2b). */}
+                  <span className={'flex items-center gap-[4px] whitespace-nowrap text-[var(--text-default-placeholder)] ' + BODY_5B}>
+                    <Icon as={Location09Icon} size={16} />
                     {profile.city}
                   </span>
                 </div>
               </div>
             </div>
 
-            <div className={'h-px ' + HAIRLINE} />
+            <Divider />
 
-            {/* about-section: 144 = 20 + 16 + 8 + 80 + 20 */}
-            <section className="flex flex-col p-[20px]">
-              <span className={LABEL}>ABOUT</span>
-              <p className="mt-[8px] text-[16px] leading-[20px] text-[var(--text-default-body)]">{profile.about}</p>
+            <section className="flex flex-col gap-[8px] p-[20px]">
+              <SectionLabel>ABOUT</SectionLabel>
+              <p className={'text-[var(--text-default-heading)] ' + BODY_3A}>{profile.about}</p>
             </section>
 
-            <div className={'h-px ' + HAIRLINE} />
+            <Divider />
 
-            {/* interest-section: 138 = 20 + 16 + 10 + 72 + 20 */}
-            <section className="flex flex-col p-[20px]">
-              <span className={LABEL}>COMMON INTEREST</span>
-              <div className="mt-[10px] flex flex-wrap gap-[8px]">
-                {profile.interests.map((t) => <Tag key={t}>{t}</Tag>)}
+            <section className="flex flex-col gap-[10px] p-[20px]">
+              <SectionLabel>COMMON INTEREST</SectionLabel>
+              <div className="flex flex-wrap gap-[8px]">
+                {profile.interests.map((t) => <Tag key={t} tone="neutral">{t}</Tag>)}
               </div>
             </section>
 
-            <div className={'h-px ' + HAIRLINE} />
+            <Divider />
 
-            {/* meeting-format-section: 106 = 20 + 20 + 10 + 32 + 24 */}
-            <section className="flex flex-col px-[20px] pb-[24px] pt-[20px]">
-              <div className="flex h-[20px] items-center justify-between gap-[16px]">
-                <span className={LABEL}>MEETING FORMAT</span>
-                <span className="whitespace-nowrap text-[13px] leading-[16px] text-[var(--text-default-placeholder)]">
-                  {first}&rsquo;s preference
-                </span>
+            <section className="flex flex-col gap-[10px] px-[20px] pb-[24px] pt-[20px]">
+              <div className={'flex items-center justify-between gap-[16px] py-[2px] whitespace-nowrap ' + TITLE_6}>
+                <span className="text-[var(--text-default-placeholder)]">MEETING FORMAT</span>
+                <span className="text-[var(--text-default-subtle)]">{first}&rsquo;s preference</span>
               </div>
-              <div className="mt-[10px] flex flex-wrap gap-[8px]">
-                {profile.formats.map((f) => <Tag key={f} tone="blue">{f}</Tag>)}
+              <div className="flex flex-wrap gap-[8px]">
+                {profile.formats.map((f) => <Tag key={f}>{f}</Tag>)}
               </div>
             </section>
           </div>
 
-          <div className={'w-px shrink-0 max-[1000px]:h-px max-[1000px]:w-auto ' + HAIRLINE} />
+          <Divider vertical />
 
-          {/* right-profile-sidebar — 300 wide, 20 padding */}
+          {/* right-profile-sidebar 918:6255 — 300 wide */}
           <div className="flex w-[300px] shrink-0 flex-col max-[1000px]:w-auto">
-            {/* signal-section: 220 = 20 + 36 + 14 + 130 + 20 */}
-            <section className="flex flex-col bg-[var(--surface-primary-subtle)] p-[20px]">
-              <div className="flex h-[36px] items-start gap-[6px]">
-                <Icon as={BulbChargeingIcon} size={32} className="text-[var(--text-default-highlight-blue)]" />
+            <section className="flex flex-col gap-[14px] bg-[var(--surface-primary-subtle)] p-[20px]">
+              <div className="flex items-start gap-[6px]">
+                {/* Figma places the 32px variant, drawn at Weight=2px. */}
+                <Icon as={BulbChargeingIcon} size={32} strokeWidth={2} className="text-[var(--icons-primary-default)]" />
                 <span className="flex flex-col gap-[4px]">
-                  <span className="text-[14px] font-medium leading-[16px] tracking-[1px] text-[var(--text-default-highlight-blue)]">
-                    SIGNAL
-                  </span>
-                  <span className="text-[14px] leading-[16px] text-[var(--text-default-placeholder)]">
+                  <span className={'text-[var(--text-default-highlight-blue)] ' + BUTTON_2A}>SIGNAL</span>
+                  <span className={'text-[var(--text-default-placeholder)] ' + BODY_5B}>
                     What you and {first} have in common
                   </span>
                 </span>
               </div>
-              <div className="mt-[14px] flex flex-col gap-[10px]">
+              <div className="flex flex-col gap-[10px]">
                 {profile.bullets.map((b) => (
                   <div key={b.emph} className="flex items-start gap-[10px]">
                     <span className="mt-[7px] size-[5px] shrink-0 rounded-full bg-[var(--text-default-body)]" />
-                    <p className="text-[14px] leading-[20px] text-[var(--text-default-body)]">
-                      {b.pre}<span className="font-semibold">{b.emph}</span>{b.post}
+                    {/* The emphasis is a COLOUR step, placeholder up to body —
+                        not a bold. It was rendering semibold. */}
+                    <p className={'text-[var(--text-default-placeholder)] ' + BODY_4A}>
+                      {b.pre}<span className="text-[var(--text-default-body)]">{b.emph}</span>{b.post}
                     </p>
                   </div>
                 ))}
               </div>
             </section>
 
-            {/* endorsed-section: 100 = 20 + 16 + 12 + 32 + 20 */}
-            <section className="flex flex-col p-[20px]">
-              <span className={LABEL}>ENDORSED BY</span>
-              <div className="mt-[12px] flex h-[32px] items-center gap-[8px]">
+            <section className="flex flex-col gap-[12px] p-[20px]">
+              <SectionLabel>ENDORSED BY</SectionLabel>
+              <div className="flex h-[32px] items-end gap-[8px]">
                 <AvatarStack people={profile.endorsers} size="md" />
-                <span className="text-[15px] leading-[20px] text-[var(--text-default-body)]">
-                  {profile.endorseName}
-                  <span className="text-[var(--text-default-placeholder)]"> {profile.endorseRest}</span>
+                <span className="flex min-w-0 flex-1 items-center gap-[2px]">
+                  <span className={'shrink-0 text-[var(--text-default-caption)] ' + TITLE_4B}>{profile.endorseName}</span>
+                  <span className={'min-w-0 flex-1 text-[var(--text-default-placeholder)] ' + BODY_5A}>
+                    {' '}{profile.endorseRest}
+                  </span>
                 </span>
               </div>
             </section>
 
-            <div className={'h-px ' + HAIRLINE} />
+            <Divider />
 
-            {/* socials-section: 100. Three 32x32 badge buttons at a 44 pitch. */}
-            <section className="flex flex-col p-[20px]">
-              <span className={LABEL}>SOCIALS</span>
-              <div className="mt-[12px] flex h-[32px] gap-[12px]">
-                {[
-                  { label: 'LinkedIn', glyph: Linkedin02Icon },
-                  { label: 'Personal website', glyph: GlobalIcon },
-                  { label: 'Substack', glyph: SubstackIcon },
-                ].map(({ label, glyph }) => (
-                  <button
-                    key={label}
-                    type="button"
-                    aria-label={label}
-                    className="grid size-[32px] shrink-0 place-items-center rounded-[8px] bg-[var(--surface-primary-subtle)] text-[var(--text-default-highlight-blue)]"
-                  >
-                    <Icon as={glyph} size={16} />
-                  </button>
+            <section className="flex flex-col gap-[12px] p-[20px]">
+              <SectionLabel>SOCIALS</SectionLabel>
+              <div className="flex flex-wrap items-center gap-[12px]">
+                {SOCIALS.map(({ label, glyph }) => (
+                  <BadgeButton key={label} label={label} glyph={glyph} tone="subtle" />
                 ))}
               </div>
             </section>
@@ -486,11 +458,12 @@ function SuggestionsView({ profile, done, onDecide }: { profile: Profile; done: 
           </div>
         </div>
 
-        <div className={'h-px ' + HAIRLINE} />
-        {/* bottom-bar: 74 tall, goal left at 24, actions right. */}
-        <div className="flex h-[74px] items-center justify-between px-[24px]">
+        {/* bottom-bar 918:6317: 74 tall including its own top rule, which is a
+            `border-t` on the bar rather than a separate Divider — as an inset
+            ring so the 1px does not push the bar to 75. */}
+        <div className="flex items-center justify-between px-[24px] pb-[24px] pt-[18px] shadow-[inset_0_1px_0_0_var(--border-neutral-default)]">
           <div className="flex items-center gap-[12px]">
-            <span className="text-[12px] font-medium uppercase leading-[14px] tracking-[1px] text-[var(--text-default-caption)]">
+            <span className="text-[13px] font-medium uppercase tracking-[1px] text-[var(--text-default-subtle)]">
               DAILY GOAL
             </span>
             <div className="flex items-center gap-[5px]">
@@ -499,19 +472,15 @@ function SuggestionsView({ profile, done, onDecide }: { profile: Profile; done: 
                   key={i}
                   className={
                     'size-[8px] rounded-full ' +
-                    (i < done ? 'bg-[var(--surface-primary-default)]' : 'bg-[var(--color-black-200)]')
+                    (i < done ? 'bg-[var(--surface-primary-default)]' : 'bg-[var(--border-neutral-subtle)]')
                   }
                 />
               ))}
             </div>
           </div>
           <div className="flex items-center gap-[12px]">
-            <PillButton tone="subtle" onClick={onDecide}>
-              <span className="grid h-[32px] w-[62px] place-items-center">PASS</span>
-            </PillButton>
-            <PillButton tone="primary" onClick={onDecide}>
-              <span className="grid h-[32px] w-[73px] place-items-center">MATCH</span>
-            </PillButton>
+            <Button tone="subtle" onClick={onDecide}>PASS</Button>
+            <Button tone="fill" onClick={onDecide}>MATCH</Button>
           </div>
         </div>
       </div>
@@ -520,53 +489,80 @@ function SuggestionsView({ profile, done, onDecide }: { profile: Profile; done: 
 }
 
 // ---------------------------------------------------------------- aside
+//
+// `right-sidebar` 907:22404 — 320 wide, gap 20 between its three cards.
 
-function PeopleCard({
-  title, people, action,
-}: { title: string; people: { name: string; handle: string; avatar: AvatarName; note: string }[]; action: ReactNode }) {
+/**
+ * `card-playful-illustrated` 907:22465.
+ *
+ * A BLUE card. The artwork sits on top of Blue 600 in `mix-blend-lighten`,
+ * which is what turns a Renaissance fresco into brand-coloured artwork rather
+ * than a photograph pasted on a card. The heading is white, the body is Blue
+ * 200, and the action is a white-filled outline button so the blue does not
+ * read through it.
+ *
+ * What was here before was a white card with the image on top and a plain
+ * outline button — the same parts, none of the treatment.
+ *
+ * `isolate` on the card so the blend resolves against THIS card's blue and
+ * stops there, rather than reaching down to the page behind it.
+ */
+function PromoCard({ title, body, action }: { title: string; body: ReactNode; action: string }) {
   return (
-    <div className={'flex flex-col ' + CARD}>
-      {/* header-row 320x64 */}
-      <div className="flex h-[64px] items-center justify-between px-[16px]">
-        <span className="text-[18px] font-medium leading-[24px] text-[var(--text-default-body)]">{title}</span>
-        <a href="#see-all" className="text-[14px] leading-[16px] text-[var(--text-default-highlight-blue)]">See all</a>
+    <div className="isolate flex w-full flex-col overflow-hidden rounded-[16px] border border-[var(--border-neutral-default)] bg-[var(--surface-primary-default)]">
+      <div className="relative h-[140px] w-full overflow-hidden mix-blend-lighten">
+        <img src={adamArt} alt="" className="absolute left-0 top-[-52.55%] h-[227.84%] w-full max-w-none object-cover" />
       </div>
-      {/* each follow-profile is 84: a 40 info row at y=8, then the note at y=56 */}
-      {people.map((p) => (
-        <div key={p.handle} className="flex h-[84px] flex-col px-[16px] pt-[8px]">
-          <div className="flex h-[40px] items-center gap-[6px]">
-            <Avatar name={p.avatar} size="lg" />
-            <span className="flex min-w-0 flex-1 flex-col">
-              <span className="truncate text-[14px] font-medium leading-[20px] text-[var(--text-default-body)]">{p.name}</span>
-              <span className="truncate text-[14px] leading-[20px] text-[var(--text-default-placeholder)]">{p.handle}</span>
-            </span>
-            <BadgeButton label={p.name} style="fill">{action}</BadgeButton>
-          </div>
-          <span className="mt-[8px] text-[13px] leading-[20px] text-[var(--text-default-placeholder)]">{p.note}</span>
+      <div className="flex flex-col gap-[16px] px-[20px] pb-[24px] pt-[16px]">
+        <div className="flex flex-col gap-[8px]">
+          <p className={'text-[var(--text-neutral-heading)] ' + TITLE_1}>{title}</p>
+          <p className={'text-[var(--text-neutral-hover)] ' + BODY_3A}>{body}</p>
         </div>
-      ))}
+        <div className="flex items-center justify-between">
+          <Button tone="outline-on-color">{action}</Button>
+        </div>
+      </div>
     </div>
   );
 }
 
 /**
- * `card-playful-illustrated`, 320x340. The artwork is the top 140 and the
- * content the remaining 200 — it is NOT a tinted panel with text laid over it,
- * which is what I had. The image does the colour work, so the copy below sits
- * on white and the action is the plain outline button.
+ * `your-faves` 936:8392, and the feed's `who-to-follow` on the same shape.
+ *
+ * The action is a `Badge Button` on `surface/primary/subtle` — a 32 round in
+ * Blue 50 with no border, carrying a 16 glyph. Both cards were rendering a
+ * white bordered control with the wrong glyph inside it.
  */
-function PromoCard({ title, body, action }: { title: string; body: ReactNode; action: string }) {
+function PeopleCard({
+  title, people, action, actionLabel,
+}: {
+  title: string;
+  people: PersonRow[];
+  action: typeof Message02Icon;
+  actionLabel: (name: string) => string;
+}) {
   return (
-    <div className={'overflow-hidden ' + CARD}>
-      <img src={adamArt} alt="" className="block h-[140px] w-full object-cover" />
-      <div className="flex flex-col px-[20px] pb-[24px] pt-[16px]">
-        <span className="text-[18px] font-medium leading-[24px] text-[var(--text-default-body)]">{title}</span>
-        <p className="mt-[8px] text-[14px] leading-[20px] text-[var(--text-default-caption)]">{body}</p>
-        <span className="mt-[16px] self-start">
-          <PillButton tone="outline">
-            <span className="grid h-[32px] w-[70px] place-items-center">{action}</span>
-          </PillButton>
-        </span>
+    <div className={'flex w-full flex-col ' + CARD}>
+      <div className="flex items-center justify-between px-[16px] py-[20px]">
+        <span className={'text-[var(--text-default-heading)] ' + TITLE_1}>{title}</span>
+        <ButtonText>See all</ButtonText>
+      </div>
+      <div className="flex flex-col pb-[12px]">
+        {people.map((p) => (
+          <div key={p.handle} className="flex flex-col gap-[8px] px-[16px] py-[8px]">
+            <div className="flex items-start justify-between gap-[8px]">
+              <div className="flex min-w-0 items-center gap-[6px]">
+                <Avatar name={p.avatar} person={p.name} size="lg" />
+                <span className="flex min-w-0 flex-col">
+                  <span className={'truncate text-[var(--text-default-heading)] ' + TITLE_4B}>{p.name}</span>
+                  <span className={'truncate text-[var(--text-default-placeholder)] ' + BODY_4A}>{p.handle}</span>
+                </span>
+              </div>
+              <BadgeButton label={actionLabel(p.name)} glyph={action} tone="subtle" />
+            </div>
+            <BadgeText>{p.note}</BadgeText>
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -574,16 +570,20 @@ function PromoCard({ title, body, action }: { title: string; body: ReactNode; ac
 
 function AsideColumn({ isFeed }: { isFeed: boolean }) {
   return (
-    <aside className="sticky top-[88px] flex flex-col gap-[16px]">
-      {/* search-bar: 320x44, a pill — not a 16-radius card. */}
-      <div className="flex h-[44px] items-center gap-[6px] rounded-full bg-[var(--surface-neutral-default)] pl-[12px] pr-[16px]">
-        <span className="grid size-[24px] shrink-0 place-items-center text-[var(--text-default-placeholder)]">
-          <Icon as={SearchIcon} size={16} />
+    <aside className="sticky top-[88px] flex w-[320px] flex-col gap-[20px] max-[1000px]:w-auto">
+      {/* search-bar 907:22405: a 44 pill, px-12 py-10, and the glyph is MIRRORED
+          in the file — the handle points the other way. */}
+      <div className={'flex items-center gap-[6px] rounded-[40px] px-[12px] py-[10px] ' + CARD}>
+        <span className="grid size-[24px] shrink-0 place-items-center rounded-[36px] p-[4px] text-[var(--icons-neutral-default)]">
+          <Icon as={SearchIcon} size={16} className="-scale-x-100" />
         </span>
         <input
           placeholder="Search"
           aria-label="Search"
-          className="min-w-0 flex-1 bg-transparent text-[16px] leading-[20px] text-[var(--text-default-body)] outline-none placeholder:text-[var(--text-default-placeholder)]"
+          className={
+            'min-w-0 flex-1 bg-transparent text-[var(--text-default-body)] outline-none ' +
+            'placeholder:text-[var(--text-default-placeholder)] ' + BODY_3A
+          }
         />
       </div>
 
@@ -594,16 +594,30 @@ function AsideColumn({ isFeed }: { isFeed: boolean }) {
             action="INVITE"
             body="Help grow the Relethe community by bringing on someone you know. Earn 3 karmas when they sign up, and 6 more when they take their first meeting."
           />
-          <PeopleCard title="Who to follow" action={<Icon as={UserAdd01Icon} size={16} />} people={FOLLOW} />
+          {/* No frame draws `who-to-follow`, so only the glyph is a judgement:
+              the component, its fill and its size come from `your-faves`, and
+              `user-add-02` is the library's follow glyph. Reusing the faves
+              `chat` here would put a message action on a follow card. */}
+          <PeopleCard
+            title="Who to follow"
+            people={FOLLOW}
+            action={UserAdd02Icon}
+            actionLabel={(n) => `Follow ${n}`}
+          />
         </>
       ) : (
         <>
           <PromoCard
-            title="Activate superconnector"
-            action="ACTIVATE"
+            title="Activate Superconnector"
+            action="INVITE"
             body="Set your own standards for who reaches you, meet beyond your weekly ten, and let the engine work a wider circle on your behalf."
           />
-          <PeopleCard title="Your faves" action={<Icon as={MessageMultiple02Icon} size={16} />} people={FAVES} />
+          <PeopleCard
+            title="Your faves"
+            people={FAVES}
+            action={Message02Icon}
+            actionLabel={(n) => `Message ${n}`}
+          />
         </>
       )}
     </aside>
@@ -612,13 +626,15 @@ function AsideColumn({ isFeed }: { isFeed: boolean }) {
 
 // ---------------------------------------------------------------- shell
 
+const RAILS = [FEED_RAIL, MATCH_RAIL, COMMUNITY_RAIL] as const;
+
 export function AppShell() {
   const [nav, setNav] = useState(0);
   const [rail, setRail] = useState(0);
   const [idx, setIdx] = useState(0);
   const [done, setDone] = useState(1);
 
-  const railItems = nav === 1 ? MATCH_RAIL : FEED_RAIL;
+  const railItems = RAILS[nav] ?? FEED_RAIL;
   const railLabel = railItems[rail] ?? railItems[0];
   const isSuggestions = nav === 1 && railLabel === 'Suggested';
   const profile = PROFILES[idx % PROFILES.length];
@@ -632,6 +648,8 @@ export function AppShell() {
     <div className="rebrand-root min-h-screen bg-[var(--surface-page-beta)] text-[var(--text-default-body)]">
       <Header nav={nav} onNav={(i) => { setNav(i); setRail(0); }} />
 
+      {/* app-grid: 1080 with 24 padding and 24 gaps. 248 + 416 + 320 is what
+          those numbers leave for the three columns at full width. */}
       <div
         className={
           'mx-auto grid max-w-[1080px] items-start gap-[24px] p-[24px] pb-[80px] ' +
@@ -648,14 +666,16 @@ export function AppShell() {
           <SuggestionsView profile={profile} done={done} onDecide={decide} />
         ) : (
           <>
-            <main className="flex min-w-0 flex-col gap-[16px]">
+            <main className="flex min-w-0 flex-col gap-[20px]">
               {nav === 0 && <FeedView />}
               {nav === 1 && <MatchListView rail={railLabel} />}
               {nav === 2 && (
                 <div className={'flex flex-col items-center gap-[12px] px-[32px] py-[64px] text-center ' + CARD}>
-                  <h2 className="rebrand-display text-[30px] leading-[110%] text-[var(--text-default-body)]">Communities come next.</h2>
-                  <p className="max-w-[44ch] text-[16px] leading-[145%] text-[var(--text-default-caption)]">
-                    Rooms built around the things people keep meeting about. Nothing to join yet.
+                  <h2 className="rebrand-display text-[30px] leading-[110%] text-[var(--text-default-heading)]">
+                    Communities come next.
+                  </h2>
+                  <p className={'max-w-[44ch] text-[var(--text-default-caption)] ' + BODY_3A}>
+                    Rooms built around the things people keep meeting about. The rail is real; nothing to join yet.
                   </p>
                 </div>
               )}

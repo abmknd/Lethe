@@ -129,9 +129,20 @@ more red than blue. Ink on a Relethe surface is Neutral; Black stays for the
 places that want a true grey — hairlines, scrim, the daylight band's off state.
 
 ```
-Neutral   100A0A  282323  403B3B  888585  F2F2F2  FAFAFA
-          900     800     700     400     100     50
+Neutral   100A0A  282323  403B3B  706C6C  888585  9C9C9C  DBDADA  F2F2F2  FAFAFA
+          900     800     700     500     400     300     200     100     50
 ```
+
+**Extension, 2026-08-30.** Three steps were added after reading the app frames
+with `get_design_context`: `706C6C`, `9C9C9C`, `DBDADA` all arrive as Figma
+variables (`text/default/subtle`, `text/default/placeholder`,
+`border/neutral/subtle`), so by the rule below they are ramp steps, not drift.
+The step numbers are inferred from position — the hexes are exact.
+
+**And one repoint that changes pixels:** `text-default-placeholder` was on
+Neutral 400 (`#888585`). The file now resolves it to `#9C9C9C`, so it moves to
+Neutral 300. Every label, handle, meta line and input placeholder on a rebrand
+surface lightens by one step.
 
 This retracts an earlier mistake worth naming: `#403b3b` and `#888585` arrived
 from a frame, were not in the Black ramp, and got snapped to Black 600 and
@@ -151,21 +162,56 @@ surface-neutral-subtle    Neutral 50    tags, inset rows
 surface-primary-subtle    Blue 50       primary-tinted fills
 surface-primary-default   Blue 600
 
+surface-success-subtle    Success 50
+
+text-default-heading      Neutral 900   a name, a card title, body copy in a
+                                        card — heavier than `body`
 text-default-body         Neutral 800   body copy
 text-default-caption      Neutral 700   tag and secondary text
-text-default-placeholder  Neutral 400   labels, meta, hints
+text-default-subtle       Neutral 500   avatar initials, DAILY GOAL, the right
+                                        half of a two-part label row
+text-default-placeholder  Neutral 300   labels, meta, hints
 text-default-highlight-blue  Blue 600
+text-primary-default      Blue 600      a Button label, a Button Text link
+text-neutral-heading      White         a heading ON Blue 600
+text-neutral-hover        Blue 200      body copy ON Blue 600
+text-neutral-deep         Neutral 100   the Badge Button hairline
+text-success-deep         Success 800
 text-primary-on-color     Blue 50       label ON Blue 600 — not White
 text-on-color-heading     White
 
-border-disabled-deep      Neutral 100   every divider and card edge
+border-neutral-default    Neutral 100   every divider and card edge
+border-neutral-subtle     Neutral 200   the quiet outline on a list-row Button
+border-disabled-deep      Neutral 100
 border-primary-default    Blue 600
+border-primary-highlight  White         the ring around an Avatar
 border-page-alpha         White         the ring that separates a badge
 
 icons-neutral-default     Neutral 900
 icons-primary-default     Blue 600
-icons-disabled-on-color   Neutral 400
+icons-disabled-on-color   Neutral 300
 ```
+
+Figma also carries its border scale as variables, and the code takes them
+verbatim rather than re-deriving them:
+
+```
+border-width-sm     1px      Avatar at 32 and under, the list-row Button
+border-width-md     1.5px    every 32-tall outline Button
+border-width-lg     2px      Avatar at 40 and over
+border-radius-md    8px      Tag
+border-radius-round 240px    every pill and every round control
+```
+
+`round` is 240 rather than 9999 because 240 is the number in the file, and no
+control is tall enough for the two to differ.
+
+**Figma strokes are INSIDE the shape; CSS borders are not.** A `Button` is 32
+tall in the file with 8px padding and a 1.5px stroke: 8 + 16 + 8 = 32, stroke
+included. Declaring that as `border` renders 35. Where a component's box size is
+specified, the stroke is drawn as an inset `box-shadow`, which paints inside the
+box and costs no layout. Where the box has an explicit width and height, a
+`border` is fine — `box-sizing: border-box` already absorbs it.
 
 Defined in [src/styles/tokens.css](src/styles/tokens.css). Each resolves to a
 ramp step; none carries its own hex.
@@ -730,6 +776,50 @@ a sequence. The product's progress read-out is the **SegmentedBar** ([5.8](#58-p
 which is deliberately non-interactive and `aria-hidden`, because the step is
 already announced in the copy.
 
+### 5.15 App-surface components — normative
+
+`src/rebrand/app/components.tsx` holds one component per Figma component, with
+the node id on each. **A screen imports from here; it never re-implements one
+inline.** That rule exists because the first pass at the app shell did
+re-implement them, and eleven separate mismatches followed from it.
+
+| Component | Figma | What it is |
+|---|---|---|
+| **Button** | 767:3012 | `md` px-12 py-8 → 32 tall, Button 2A; `sm` px-12 py-2 → 20 tall, Body 5C. Tones: `outline`, `outline-on-color`, `fill`, `subtle`, `neutral`. **Weight is per tone, not per size** — PASS is Medium and MATCH beside it is Regular. |
+| **ButtonText** | 893:19211 | A label-only action. "See all". |
+| **BadgeButton** | 865:5792 | 32 round, a 16 glyph, p-8. `outline` = white with a 1px `text/neutral/deep` ring; `subtle` = Blue 50, no ring. Optional 6px Blue 600 dot pinned 1.5 from the top right. |
+| **Tag** | 863:3673 | px-12 py-8, radius 8, Body 4B in `text/default/caption` → 32 tall. `default` = Blue 50, `neutral` = Neutral 50. |
+| **BadgeText** | 863:3236 / 860:2688 | px-8 py-2, radius 6, Title 6 → 20 tall. NOT a small Tag: different padding, radius and type. |
+| **NavItem** | 791:2951 / 792:3042 | p-14, radius 12, a 20 glyph and a 16/20 label → 48 tall, which is what makes a six-item `Sidebar` exactly 324. |
+| **SectionLabel** | — | 12/16 **Regular** in `text/default/placeholder`. Not 13/16 Medium with a 1px tracking, which is what four sections were carrying. |
+| **Divider** | — | 1px of `border/neutral/default`. |
+| **Avatar / AvatarStack** | 903:19925 / 935:4357 | Sizes xxs 16 · xs 20 · sm 32 · lg 40 · xl 64 · xxl 72 — **there is no md**. A white `border/primary/highlight` ring on every avatar: 1px at 32 and under, 2px at 40 and over. Initials sit under the image. |
+| **Brandmark** | 708:137 | The exported `brandmark_blue`, inset 5% of its box. `src/assets/logos` holds eight marks; nothing draws one. |
+
+**Tag against BadgeText** is the distinction that gets confused. A Tag is a
+32-tall attribute of a person — a role, an interest, a meeting format. A Badge
+Text is a 20-tall annotation on a row — a status beside a name, a note under a
+handle. Reach for the one whose height the row already implies.
+
+### 5.16 Sidebar — normative
+
+`Sidebar` (907:22811) has **three types**, six items each, and each item's glyph
+is fixed by the file. It is recorded here because it was got wrong once:
+
+```
+feed          For you home-01 · Following user-multiple · Insights chart-relationship
+              Explore searching · Bookmarks bookmark-01 · Activity clock-03
+matches       Matches puzzle · Suggested user-check-02 · Upcoming calendar-03
+              Endorsed checkmark-badge-02 · Invited user-add-02 · Disavowed user-remove-02
+communities   Communities user-group · Invites mail-open · Open Spaces volleyball
+              Events calendar-favorite-02 · Manage setting-03 · Start a community plus-sign-circle
+```
+
+Eleven of those eighteen were previously a different glyph, chosen by reading
+the label and picking something that fit the word — `compass` for Explore,
+`flash` for Activity, the `-01` draw wherever the file uses the `-02`. **A label
+does not name its icon.** Read the component.
+
 ---
 
 ## 5.11 Match card, and the surface convention
@@ -834,9 +924,21 @@ Consequences, all of which follow from the one decision:
 
 ### Chrome: scroll and type
 
-- Scroll tracks get a **reserved gutter** (`scrollbar-gutter: stable`, 8px thumb
-  inset 2px, Black 100 on light / Blue 500 on blue). A track never overlays
-  content, so a row does not reflow the moment a list gets one item longer.
+- **No platform scrollbar on a rebrand surface.** `Relethe App.dc.html`
+  suppresses it globally and none of the app frames draw one, so a default grey
+  bar down the feed column reads as a foreign object. `.rebrand-root` and
+  everything inside it hide it; so do `html` and `body` on a page that mounts a
+  rebrand surface, matched with `:root:has(.rebrand-root)` so an app page that
+  does not keeps its own. **Both `html` and `body` have to be named** — the
+  legacy stylesheet puts `overflow-y: auto` on `body`, and hiding it on `html`
+  alone still left a live bar and a 15px gutter. Scrolling is untouched; only
+  the chrome is gone.
+- **Correction, 2026-08-30.** The rule below is now the opt-IN, not the default.
+  It applies where a scroll region genuinely needs to advertise itself.
+- Where a track is drawn, it gets a **reserved gutter**
+  (`scrollbar-gutter: stable`, 8px thumb inset 2px, Black 100 on light / Blue
+  500 on blue) via `.rebrand-scroll`. A track never overlays content, so a row
+  does not reflow the moment a list gets one item longer.
 - A card's header and footer are **fixed**; only the body scrolls. Progress and
   the primary action never move between steps.
 - **No emoji in the type system, with no exceptions.** The objectives list loses

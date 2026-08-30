@@ -1,5 +1,7 @@
 import { Avatar } from '../primitives';
-import { Mail01Icon, Notification01Icon } from '../../assets/system_icons';
+// `mail-01` is gone: the header's second control is `chat` (671:336) in Figma,
+// not an envelope. The icon set now carries the glyph the file actually places.
+import { Message01Icon, Notification01Icon } from '../../assets/system_icons';
 import { Icon } from './Icon';
 import logomark from '../../assets/logos/logomark_blue.svg';
 
@@ -116,7 +118,7 @@ export function AppHeader({
           <Icon as={Notification01Icon} />
         </HeaderIconButton>
         <HeaderIconButton label="Messages" onClick={() => onNavigate?.('/messages')}>
-          <Icon as={Mail01Icon} />
+          <Icon as={Message01Icon} />
         </HeaderIconButton>
         <button
           type="button"
