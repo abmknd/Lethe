@@ -809,7 +809,28 @@ export function AppShell({
 
         {children}
 
-        {aside && <div className="sticky top-[88px] max-[1000px]:hidden">{aside}</div>}
+        {aside && (
+          /* THE CAP IS WHAT STOPS THE JUMP AT THE END OF THE PAGE.
+             A sticky element is clamped by the bottom of its containing block,
+             so once the grid row ends — which is exactly when the middle column
+             stops scrolling — a panel taller than the available headroom gets
+             pushed upward. Capping it to that headroom means it is never taller
+             than the space it sticks in, so there is nothing left to push.
+             THE 168 IS ARITHMETIC, not a round number. At full scroll the row
+             bottom sits `pb-[80px]` above the viewport bottom, and the panel
+             starts 88 below the top, so it fits without being pushed only
+             while its height stays under `100vh - 88 - 80`. Capping at
+             `100vh - 112` looks reasonable and still leaves a 56px shove.
+             If the container's bottom padding changes, this changes with it.
+
+             On a tall viewport the panel fits and this is a no-op; it only
+             engages on the short ones where the shift actually happened.
+             `rebrand-scroll` gives it the thin 8px bar rather than the
+             suppressed one, so the overflow stays discoverable. */
+          <div className="sticky top-[88px] max-h-[calc(100vh-168px)] overflow-y-auto max-[1000px]:hidden rebrand-scroll">
+            {aside}
+          </div>
+        )}
       </div>
     </div>
   );
