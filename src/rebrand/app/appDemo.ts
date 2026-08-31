@@ -106,19 +106,19 @@ export const MATCHES: MatchRow[] = [
 
 export type PersonRow = { name: string; handle: string; avatar: AvatarName; note: string };
 
-/** `your-faves` 936:8392, verbatim. */
+/** `your-faves` 936:8392. THREE of the frame's four: Theo Lark is dropped by
+ *  product decision, so this is no longer verbatim. */
 export const FAVES: PersonRow[] = [
   { name: 'Anya Kurosawa', handle: '@anyakurosawa', avatar: 'anya-kurosawa', note: 'Met 3 times · you follow each other' },
   { name: 'Marcus Jin', handle: '@marcusjin', avatar: 'marcus-jin', note: 'Met 2 times · you endorsed Marcus' },
   { name: 'Maya Frost', handle: '@mayafrost', avatar: 'maya-frost', note: 'Met 2 times · Maya endorsed you' },
-  { name: 'Theo Lark', handle: '@theolark', avatar: 'theo-lark', note: 'Met once · you invited Theo' },
 ];
 
-/** `who-to-follow` 750:288, verbatim — same four people, same handles, same
- *  notes, same order. Kai Shore's handle really does have no `@` in the frame. */
+/** `who-to-follow` 750:288. THREE of the frame's four: Kai Shore is dropped by
+ *  product decision, so this is no longer verbatim. (His handle was the one
+ *  with no `@` in the frame — that oddity leaves with him.) */
 export const FOLLOW: PersonRow[] = [
   { name: 'Anika Sharma', handle: '@anikasharma', avatar: 'anika-sharma', note: 'Endorsed by George Tracy' },
-  { name: 'Kai Shore', handle: 'kaishore', avatar: 'kai-shore', note: 'Met someone you met' },
   { name: 'Ana Duarte', handle: '@anaduarte', avatar: 'ana-duarte', note: '6 shared interests' },
   { name: 'River Castellano', handle: '@rivercastellano', avatar: 'river-castellano', note: '10 mutuals and 1 shared community' },
 ];

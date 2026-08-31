@@ -151,7 +151,7 @@ const RAIL_ICON: Record<string, typeof Home01Icon> = {
 
 function Rail({ items, active, onPick }: { items: readonly string[]; active: number; onPick: (i: number) => void }) {
   return (
-    <div className="sticky top-[88px]">
+    <div>
       <Sidebar>
         {items.map((label, i) => (
           <NavItem
@@ -690,7 +690,7 @@ function PeopleCard({
 
 function AsideColumn({ isFeed }: { isFeed: boolean }) {
   return (
-    <aside className="sticky top-[88px] flex w-[320px] flex-col gap-[20px] max-[1000px]:w-auto">
+    <aside className="flex w-[320px] flex-col gap-[20px] max-[1000px]:w-auto">
       {/* search-bar 907:22405: a 44 pill, px-12 py-10, and the glyph is MIRRORED
           in the file — the handle points the other way. */}
       <div className={'flex items-center gap-[6px] rounded-[40px] px-[12px] py-[10px] ' + CARD}>
@@ -797,13 +797,19 @@ export function AppShell({
             : 'grid-cols-[248px_minmax(0,1fr)] max-[740px]:grid-cols-[minmax(0,1fr)]')
         }
       >
-        <div className="max-[740px]:hidden">
+        {/* STICKY GOES ON THE GRID ITEM. The grid is `items-start`, so a child
+            shrinks to its content — a `sticky` element nested inside it has a
+            containing block exactly its own height and therefore nowhere to
+            travel, which is why neither column actually stuck before. A grid
+            item's containing block is its GRID AREA, which spans the full row,
+            so the sticky has the whole column to move through. */}
+        <div className="sticky top-[88px] max-[740px]:hidden">
           <Rail items={railItems} active={rail} onPick={onRail} />
         </div>
 
         {children}
 
-        {aside && <div className="max-[1000px]:hidden">{aside}</div>}
+        {aside && <div className="sticky top-[88px] max-[1000px]:hidden">{aside}</div>}
       </div>
     </div>
   );
