@@ -656,6 +656,16 @@ computed weight disagreed with the drawn one on every 20px glyph in the sidebars
 It has been removed rather than kept for the record, because a superseded rule
 sitting under a live one is a rule someone will implement.
 
+**"Would you like to meet?" came back as a COMPONENT — `Suggested-Profile`
+972:13736 (frame 972:13311).** Not as the old banner heading, which stays
+hidden. It is the 88 avatar plus a `Suggestion Bubble` (`Status=default,
+Type=long`, 142x20) pinned at `right:76` so its right edge lands at x=12 and its
+tail points back into the avatar. THE NAME IS NOT IN IT — the bubble asks the
+question, the h2 directly below answers who. Two layers, both drawn in the
+default state: the filled shape (`surface/neutral/subtle`, tail in the path) and
+a dashed outline that ships as a 1.7KB raster because its vector carries an
+effect. `Type=compact` exists and is not built; no frame places it.
+
 **The Suggested card was REDESIGNED — 956:12189 replaces 911:4246.** Not a
 revision; almost nothing of the old card survives. The heading "Would you like
 to meet X?" is gone (the node is still there, `hidden="true"`). A new 130-tall

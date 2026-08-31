@@ -3,7 +3,8 @@ import { Brandmark } from '../brand';
 import {
   Avatar, AvatarStack, BadgeButton, BadgeText, BODY_3A, BODY_4A, BODY_5A, BODY_5B,
   Button, ButtonText, Divider, Icon, NavItem,
-  SectionLabel, Sidebar, TabBar as TabBarRow, Tag, TITLE_1, TITLE_3, TITLE_4B, TITLE_6,
+  SectionLabel, Sidebar, SuggestedProfile, TabBar as TabBarRow, Tag, TITLE_1, TITLE_3,
+  TITLE_4B, TITLE_6,
   ToggleButton,
 } from '../ds';
 import adamArt from '../assets/app/creation-of-adam.webp';
@@ -416,8 +417,12 @@ function SuggestionsView({
           {/* The avatar straddles the banner edge. 336 of 760 is dead centre
               for an 88, so this is a centred element in the file rather than a
               nudged one — translate, not a magic left. */}
+          {/* `Suggested-Profile` 972:13736 — the 88 avatar AND the bubble that
+              carries "Would you like to meet?". The question came back in the
+              redesign as this component rather than as the old banner heading,
+              and it no longer repeats the name, which is the h2 right below. */}
           <div className="absolute left-1/2 top-[-57px] flex -translate-x-1/2">
-            <Avatar name={profile.avatar} src={profile.avatarSrc} person={profile.name} size="xxxl" />
+            <SuggestedProfile name={profile.name} avatar={profile.avatar} src={profile.avatarSrc} />
           </div>
 
           <div className="flex w-full flex-col items-center gap-[12px] pt-[4px]">
