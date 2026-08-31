@@ -304,9 +304,12 @@ down the 32 legacy errors here, then `tsconfig.check.json` collapses into
   is correct but ugly.
 
 **In your court**
-- **The blind Suggested card.** Settled that the bubble always shows (a profile
-  implies a subject), but with `candidate` null there is still no photo and no
-  role behind an 88 avatar. Worth seeing against real data.
+- ~~The blind Suggested card.~~ CLOSED. `candidate` is null while blind (the
+  type says so) and Suggested fetches exactly those rows, but the card is not
+  empty: the role chip is `blindRationale.roleCategory`, About is `insightText`,
+  SIGNAL is `overlapThemes`. The avatar falls back to initials, which is the
+  Avatar component's designed behaviour and literally what Figma's placeholder
+  draws. A blind card missing a face and a surname is the FEATURE, not a gap.
 - **`whyMatched` emphasis.** The design colours part of each signal bullet;
   `blindRationale.overlapThemes` now carries `{pre, emph, post}` so it renders,
   but any new bullet source needs the same split.

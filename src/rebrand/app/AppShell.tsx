@@ -214,7 +214,7 @@ function FeedView() {
           24 box. */}
       <button
         type="button"
-        className="flex w-full items-center justify-between px-[16px] py-[12px] text-left shadow-[inset_0_-1px_0_0_var(--border-neutral-default)] transition-colors hover:bg-[var(--surface-neutral-subtle)]"
+        className="flex w-full items-center justify-between px-[16px] py-[12px] text-left shadow-[inset_0_-1px_0_0_var(--border-neutral-default)] transition-colors hover:bg-[var(--surface-primary-subtle)]"
       >
         <span className="flex min-w-0 items-center gap-[12px]">
           <Avatar name={ME.avatar} person={ME.name} size="lg" />
@@ -290,7 +290,7 @@ function MatchListView({ rail }: { rail: string }) {
     <div className={'overflow-hidden ' + CARD}>
       <button
         type="button"
-        className="flex w-full items-center justify-between gap-[16px] px-[22px] py-[16px] text-left transition-colors hover:bg-[var(--surface-neutral-subtle)]"
+        className="flex w-full items-center justify-between gap-[16px] px-[22px] py-[16px] text-left transition-colors hover:bg-[var(--surface-primary-subtle)]"
       >
         <span className={'text-[var(--text-default-heading)] ' + TITLE_3}>Invite someone</span>
         <Icon as={PlusSignIcon} size={16} className="text-[var(--icons-neutral-default)]" />
