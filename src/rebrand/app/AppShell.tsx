@@ -2,14 +2,15 @@ import type { ReactNode } from 'react';
 import { Brandmark } from '../brand';
 import {
   Avatar, AvatarStack, BadgeButton, BadgeText, BODY_3A, BODY_4A, BODY_5A, BODY_5B,
-  BUTTON_2A, Button, ButtonText, Divider, Icon, LocationMeta, NavItem,
+  Button, ButtonText, Divider, Icon, NavItem,
   SectionLabel, Sidebar, TabBar as TabBarRow, Tag, TITLE_1, TITLE_3, TITLE_4B, TITLE_6,
   ToggleButton,
 } from '../ds';
 import adamArt from '../assets/app/creation-of-adam.webp';
 import cafeArt from '../assets/app/cafe-illustration.webp';
+import studioArt from '../assets/app/architectural-studio.webp';
 import {
-  ApproximatelyEqualCircleIcon, Bookmark01Icon, Bookmark02Icon, BulbChargeingIcon,
+  ApproximatelyEqualCircleIcon, Bookmark01Icon, Bookmark02Icon,
   Calendar03Icon, CalendarFavorite02Icon, ChartRelationshipIcon, CheckmarkBadge02Icon,
   Clock03Icon, FavouriteIcon, GlobalIcon, Home01Icon, Linkedin02Icon, MailOpenIcon,
   Message01Icon, Message02Icon, MessageMultiple02Icon, MoreHorizontalCircle01Icon,
@@ -338,12 +339,31 @@ function MatchListView({ rail }: { rail: string }) {
     </div>
   );
 }
-
 // ---------------------------------------------------------------- suggestions
 //
-// `profile-detail-card` 918:6192. 760 wide: left 459, a vertical Divider, right
-// 300. Padding is 20 everywhere except the two sections that close a column,
-// which take 24 at the bottom.
+// `relethe-feed` 956:12189 — A COMPLETE REDESIGN of the Suggested card, not a
+// revision of 911:4246. What changed, since almost none of the old card
+// survived:
+//
+//   heading     "Would you like to meet X?" is GONE. The frame still carries
+//               the text node, set hidden="true"
+//   banner      NEW. A 130-tall `prompt-banner` on `surface/neutral/default-
+//               hover` showing a band of a 760 square artwork
+//   avatar      88, centred, and lifted -57 so it straddles the banner edge.
+//               It was 72 and sat top-left
+//   identity    name and role are CENTRED under the avatar. They were a
+//               left-aligned column beside it
+//   about       centred, full width, px-32, and promoted ABOVE the columns.
+//               It used to be the first section of the left column
+//   signal      moved OUT of the right column to a full-width 760 band below
+//               both columns, its header hidden — no bulb, no SIGNAL label,
+//               just the bullets. Body went 14/20 to 16/20
+//   location    dropped from the card entirely
+//   columns     left is now interests + formats only; right is endorsed +
+//               socials only
+//
+// The whole thing is one 16-radius card: `main-content` 956:12203 owns the
+// background and the clip, so the banner needs no radius of its own.
 
 /** Keyed, so a profile names which socials it has rather than the view always
  *  drawing all three. A live record under the blind gate has none. */
@@ -354,6 +374,24 @@ const SOCIALS = {
 } as const;
 
 export type SocialKey = keyof typeof SOCIALS;
+
+/**
+ * `prompt-banner` 956:12204.
+ *
+ * Figma lays a 760x760 artwork at `bottom:-358.5` inside a 130-tall window, so
+ * only the band at y 271.5..401.5 is ever seen. THE ASSET IS PRE-CROPPED TO
+ * THAT BAND — it is dithered micro-dot artwork, which is the worst case for
+ * lossy compression, and the full square would not go below 470KB where the
+ * band lands at 191. If the offset moves in Figma, re-crop: the band is
+ * `y = 271.5/760` to `401.5/760` of the square.
+ */
+function PromptBanner() {
+  return (
+    <div className="h-[130px] w-full shrink-0 overflow-hidden border border-[var(--border-neutral-default)] bg-[var(--surface-neutral-default-hover)]">
+      <img src={studioArt} alt="" className="size-full object-cover" />
+    </div>
+  );
+}
 
 function SuggestionsView({
   profile, done, onPass, onMatch, busy = false,
@@ -368,111 +406,74 @@ function SuggestionsView({
 }) {
   const first = profile.name.split(' ')[0];
   return (
-    <div className="flex min-w-0 flex-col gap-[20px]">
-      {/* prompt-banner: 40 tall, the heading 24 of it. */}
-      <div className="flex h-[40px] items-center justify-center text-center">
-        <h1 className={'text-[var(--text-default-heading)] ' + TITLE_1}>
-          Would you like to meet{' '}
-          <span className="text-[var(--text-default-highlight-blue)]">{profile.name}?</span>
-        </h1>
-      </div>
-
+    <div className="flex min-w-0 flex-col">
+      {/* main-content 956:12203 — one card, and it owns the clip. */}
       <div className={'flex flex-col overflow-hidden ' + CARD}>
-        <div className="flex items-stretch max-[1000px]:flex-col">
-          {/* left-profile-info 918:6194 */}
-          <div className="flex min-w-0 flex-[1_1_459px] flex-col">
-            <div className="flex items-start gap-[16px] p-[20px]">
-              <Avatar name={profile.avatar} person={profile.name} size="xxl" />
-              <div className="flex min-w-0 flex-1 flex-col gap-[12px] pt-[4px]">
-                <h2 className="text-[20px] font-medium leading-[20px] text-[var(--text-default-heading)]">
-                  {profile.name}
-                </h2>
-                <div className="flex flex-col items-start gap-[12px]">
-                  {/* The role chip is Tag `default` — Blue 50. It was neutral.
-                      Hidden when empty: a live blind record has no role, and an
-                      empty chip is a blue smudge where a fact should be. */}
-                  {profile.role && <Tag>{profile.role}</Tag>}
-                  {/* `location-meta` 872:14535: a 16 glyph, a 4 gap, 13/16 Light.
-                      One item only. The frame's separator beside it is
-                      hidden="true" and pronouns and birthday are gone, neither
-                      having a column behind it (docs/backend-gaps.md 2b). */}
-                  {profile.city && <LocationMeta>{profile.city}</LocationMeta>}
-                </div>
+        <PromptBanner />
+
+        {/* top-info-block 956:12619 */}
+        <div className="relative flex w-full flex-col items-center px-[20px] pb-[20px] pt-[40px]">
+          {/* The avatar straddles the banner edge. 336 of 760 is dead centre
+              for an 88, so this is a centred element in the file rather than a
+              nudged one — translate, not a magic left. */}
+          <div className="absolute left-1/2 top-[-57px] flex -translate-x-1/2">
+            <Avatar name={profile.avatar} src={profile.avatarSrc} person={profile.name} size="xxxl" />
+          </div>
+
+          <div className="flex w-full flex-col items-center gap-[12px] pt-[4px]">
+            <p className="text-center text-[20px] font-medium leading-[20px] text-[var(--text-default-heading)]">
+              {profile.name}
+            </p>
+            {profile.role && (
+              <div className="flex w-full items-center justify-center">
+                <Tag>{profile.role}</Tag>
               </div>
+            )}
+          </div>
+
+          {profile.about && (
+            <div className="flex w-full flex-col px-[32px] pt-[20px]">
+              <p className={'w-full text-center text-[var(--text-default-heading)] ' + BODY_3A}>
+                {profile.about}
+              </p>
             </div>
+          )}
+        </div>
 
-            <Divider />
+        {/* profile-detail-card 956:12207 */}
+        <Divider />
 
-            <section className="flex flex-col gap-[8px] p-[20px]">
-              <SectionLabel>ABOUT</SectionLabel>
-              <p className={'text-[var(--text-default-heading)] ' + BODY_3A}>{profile.about}</p>
-            </section>
-
-            {/* THE DATA-BACKED SECTIONS HIDE WHEN THEY ARE EMPTY.
-                Under the blind gate most of a live recommendation is absent —
-                interests, formats, endorsements and socials all have gaps
-                (docs/backend-gaps.md 2b). A labelled section with nothing under
-                it reads as a broken card, not as an honest one, so the label
-                goes with its content. The demo fills all four, so this changes
-                nothing there. */}
+        <div className="flex items-stretch max-[1000px]:flex-col">
+          {/* left-profile-info 956:12209 */}
+          <div className="flex min-w-0 flex-[1_1_459px] flex-col">
             {profile.interests.length > 0 && (
-              <>
-                <Divider />
-                <section className="flex flex-col gap-[10px] p-[20px]">
-                  <SectionLabel>COMMON INTEREST</SectionLabel>
-                  <div className="flex flex-wrap gap-[8px]">
-                    {profile.interests.map((t) => <Tag key={t} tone="neutral">{t}</Tag>)}
-                  </div>
-                </section>
-              </>
+              <section className="flex flex-col gap-[10px] p-[20px]">
+                <SectionLabel>COMMON INTEREST</SectionLabel>
+                <div className="flex flex-wrap gap-[8px]">
+                  {profile.interests.map((t) => <Tag key={t} tone="neutral">{t}</Tag>)}
+                </div>
+              </section>
             )}
 
+            {profile.interests.length > 0 && profile.formats.length > 0 && <Divider />}
+
             {profile.formats.length > 0 && (
-              <>
-                <Divider />
-                <section className="flex flex-col gap-[10px] px-[20px] pb-[24px] pt-[20px]">
-                  <div className={'flex items-center justify-between gap-[16px] py-[2px] whitespace-nowrap ' + TITLE_6}>
-                    <span className="text-[var(--text-default-placeholder)]">MEETING FORMAT</span>
-                    <span className="text-[var(--text-default-subtle)]">{first}&rsquo;s preference</span>
-                  </div>
-                  <div className="flex flex-wrap gap-[8px]">
-                    {profile.formats.map((f) => <Tag key={f}>{f}</Tag>)}
-                  </div>
-                </section>
-              </>
+              <section className="flex flex-col gap-[10px] px-[20px] pb-[24px] pt-[20px]">
+                <div className={'flex items-center justify-between gap-[16px] whitespace-nowrap py-[2px] ' + TITLE_6}>
+                  <span className="text-[var(--text-default-placeholder)]">MEETING FORMAT</span>
+                  <span className="text-[var(--text-default-subtle)]">{first}&rsquo;s preference</span>
+                </div>
+                <div className="flex flex-wrap gap-[8px]">
+                  {profile.formats.map((f) => <Tag key={f}>{f}</Tag>)}
+                </div>
+              </section>
             )}
           </div>
 
           <Divider vertical />
 
-          {/* right-profile-sidebar 918:6255 — 300 wide */}
+          {/* right-profile-sidebar 956:12248 — 300 wide */}
           <div className="flex w-[300px] shrink-0 flex-col max-[1000px]:w-auto">
-            <section className="flex flex-col gap-[14px] bg-[var(--surface-primary-subtle)] p-[20px]">
-              <div className="flex items-start gap-[6px]">
-                {/* Figma places the 32px variant. Its Weight=2px travels with
-                    the glyph, so there is nothing to say here. */}
-                <Icon as={BulbChargeingIcon} size={32} className="text-[var(--icons-primary-default)]" />
-                <span className="flex flex-col gap-[4px]">
-                  <span className={'text-[var(--text-default-highlight-blue)] ' + BUTTON_2A}>SIGNAL</span>
-                  <span className={'text-[var(--text-default-placeholder)] ' + BODY_5B}>
-                    What you and {first} have in common
-                  </span>
-                </span>
-              </div>
-              <div className="flex flex-col gap-[10px]">
-                {profile.bullets.map((b) => (
-                  <div key={b.emph} className="flex items-start gap-[10px]">
-                    <span className="mt-[7px] size-[5px] shrink-0 rounded-full bg-[var(--text-default-body)]" />
-                    {/* The emphasis is a COLOUR step, placeholder up to body —
-                        not a bold. It was rendering semibold. */}
-                    <p className={'text-[var(--text-default-placeholder)] ' + BODY_4A}>
-                      {b.pre}<span className="text-[var(--text-default-body)]">{b.emph}</span>{b.post}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </section>
-
             {profile.endorsers.length > 0 && (
               <section className="flex flex-col gap-[12px] p-[20px]">
                 <SectionLabel>ENDORSED BY</SectionLabel>
@@ -490,34 +491,56 @@ function SuggestionsView({
               </section>
             )}
 
+            {profile.endorsers.length > 0 && profile.socials.length > 0 && <Divider />}
+
             {profile.socials.length > 0 && (
-              <>
-                <Divider />
-                <section className="flex flex-col gap-[12px] p-[20px]">
-                  <SectionLabel>SOCIALS</SectionLabel>
-                  <div className="flex flex-wrap items-center gap-[12px]">
-                    {/* The one place the file uses PRIMARY ink on a subtle fill.
-                        Every other Badge Button in the app is neutral. */}
-                    {profile.socials.map((key) => (
-                      <BadgeButton
-                        key={key}
-                        label={SOCIALS[key].label}
-                        glyph={SOCIALS[key].glyph}
-                        tone="subtle"
-                        ink="primary"
-                      />
-                    ))}
-                  </div>
-                </section>
-              </>
+              <section className="flex flex-col gap-[12px] p-[20px]">
+                <SectionLabel>SOCIALS</SectionLabel>
+                <div className="flex flex-wrap items-center gap-[12px]">
+                  {/* The one place the file uses PRIMARY ink on a subtle fill.
+                      Every other Badge Button in the app is neutral. */}
+                  {profile.socials.map((key) => (
+                    <BadgeButton
+                      key={key}
+                      label={SOCIALS[key].label}
+                      glyph={SOCIALS[key].glyph}
+                      tone="subtle"
+                      ink="primary"
+                    />
+                  ))}
+                </div>
+              </section>
             )}
             <div className="flex-1" />
           </div>
         </div>
 
-        {/* bottom-bar 918:6317: 74 tall including its own top rule, which is a
-            `border-t` on the bar rather than a separate Divider — as an inset
-            ring so the 1px does not push the bar to 75. */}
+        {/* signal-section 967:12761 — FULL WIDTH now, below both columns, and
+            its header is hidden in the frame: no bulb, no SIGNAL label. The
+            bullets carry it alone, at 16/20 rather than the old 14/20. */}
+        {profile.bullets.length > 0 && (
+          <section className="flex flex-col gap-[14px] bg-[var(--surface-primary-subtle)] p-[20px]">
+            <div className="flex flex-col gap-[10px]">
+              {profile.bullets.map((b, i) => (
+                <div key={i} className="flex items-start gap-[10px]">
+                  <span className="flex shrink-0 items-start pt-[7px]">
+                    <span className="size-[5px] rounded-full bg-[var(--text-default-body)]" />
+                  </span>
+                  {/* The emphasis is a COLOUR step, placeholder up to heading —
+                      not a bold. */}
+                  <p className={'min-w-0 flex-1 text-[var(--text-default-placeholder)] ' + BODY_3A}>
+                    {b.pre}
+                    <span className="text-[var(--text-default-heading)]">{b.emph}</span>
+                    {b.post}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* bottom-bar 956:12286 — its top rule is a border on the bar, as an
+            inset ring so the 1px does not push 74 to 75. */}
         <div className="flex items-center justify-between px-[24px] pb-[24px] pt-[18px] shadow-[inset_0_1px_0_0_var(--border-neutral-default)]">
           <div className="flex items-center gap-[12px]">
             <span className="text-[13px] font-medium uppercase tracking-[1px] text-[var(--text-default-subtle)]">

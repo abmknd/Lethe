@@ -656,6 +656,18 @@ computed weight disagreed with the drawn one on every 20px glyph in the sidebars
 It has been removed rather than kept for the record, because a superseded rule
 sitting under a live one is a rule someone will implement.
 
+**The Suggested card was REDESIGNED — 956:12189 replaces 911:4246.** Not a
+revision; almost nothing of the old card survives. The heading "Would you like
+to meet X?" is gone (the node is still there, `hidden="true"`). A new 130-tall
+`prompt-banner` carries a band of artwork. The avatar is 88 (`Size=xxxl`, a new
+Avatar variant), centred, lifted -57 so it straddles the banner edge. Name and
+role are centred beneath it; About is centred, full width, above the columns.
+SIGNAL moved out of the right column into a full-width band below both columns
+with its header hidden — no bulb, no label, bullets only, 16/20 rather than
+14/20. `location-meta` is dropped from the card. Left column is now interests +
+formats; right is endorsed + socials. Verified at 760x728 with a 130 banner, an
+88 avatar and 459/1/300 columns.
+
 **`Nav Item` has a `Size` axis, and the app is on `md`.** 792:3012 ships md (40
 tall) and lg (48). Every rail in the product places md: p-12, a 16 glyph, P4
 14/16 type, Title 4C when selected. A six-item `Sidebar` is 276, not 324. This

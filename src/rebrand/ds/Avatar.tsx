@@ -6,7 +6,8 @@ import { AVATARS, type AvatarName } from '../../assets/avatars';
  * The file ships 144 variants over Status x Style x Type x Size. Three of those
  * axes matter in code and one does not:
  *
- *   Size    xxs 16 · xs 20 · sm 32 · lg 40 · xl 64 · xxl 72   (there is no md)
+ *   Size    xxs 16 · xs 20 · sm 32 · lg 40 · xl 64 · xxl 72 · xxxl 88
+ *           (there is no md)
  *   Type    image | icon | initials
  *   Style   fill | outline
  *   Status  default/hover/focus/disabled — CSS states, not props
@@ -38,6 +39,8 @@ export const AVATAR_SIZE = {
   lg: 40,
   xl: 64,
   xxl: 72,
+  /** Added with the Suggested redesign 956:12189 — Figma `Size=xxxl`. */
+  xxxl: 88,
 } as const;
 
 export type AvatarSize = keyof typeof AVATAR_SIZE;
