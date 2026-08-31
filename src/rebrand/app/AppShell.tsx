@@ -730,14 +730,6 @@ function AsideColumn({ isFeed }: { isFeed: boolean }) {
         </>
       ) : (
         <>
-          {/* `your-faves` FIRST, superconnector last. The people are the reason
-              to look at this column; the promo is the thing you scroll past. */}
-          <PeopleCard
-            title="Your faves"
-            people={FAVES}
-            action={Message02Icon}
-            actionLabel={(n) => `Message ${n}`}
-          />
           <PromoCard
             variant="blue"
             title="Activate Superconnector"
@@ -745,6 +737,12 @@ function AsideColumn({ isFeed }: { isFeed: boolean }) {
                the label is ACTIVATE. Confirmed rather than assumed. */
             action="ACTIVATE"
             body="Set your own standards for who reaches you, meet beyond your weekly ten, and let the engine work a wider circle on your behalf."
+          />
+          <PeopleCard
+            title="Your faves"
+            people={FAVES}
+            action={Message02Icon}
+            actionLabel={(n) => `Message ${n}`}
           />
         </>
       )}

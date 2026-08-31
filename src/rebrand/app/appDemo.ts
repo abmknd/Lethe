@@ -28,7 +28,11 @@ export const ME = {
   avatar: 'elena-voss' as AvatarName,
 };
 
-export const NAV = ['FEED', 'MATCHES', 'COMMUNITIES'] as const;
+/** The `Tab Bar` labels as PLACED (972:13317), not as the component draws
+ *  them — the component itself carries FIRST/SECOND/THIRD placeholders.
+ *  The first tab was FEED and is now FOR YOU. Nothing keys on these
+ *  strings; the rails are indexed by position. */
+export const NAV = ['FOR YOU', 'MATCHES', 'COMMUNITIES'] as const;
 export type NavTab = (typeof NAV)[number];
 
 /** The three `Sidebar` types, 907:22811. Labels are the file's, in its order. */

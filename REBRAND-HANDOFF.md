@@ -8,6 +8,53 @@ that govern it, and the things that were learned the hard way.
 
 ---
 
+## 0. Starting a new chat — paste this
+
+Everything below is deliberately self-contained. Paste it as the first message
+of a new session; it names every file worth reading and the order to read them.
+
+```text
+We are mid-way through Phase 4 of the Relethe blue/yellow rebrand, on branch
+`front-end-demo-updates`. Read these before touching anything, in this order:
+
+  1. REBRAND-HANDOFF.md   — state, rules, traps, sunset plan. START HERE.
+  2. redesign.md          — the design system. Normative. Supersedes design.md,
+                            which is STALE and must not be followed.
+  3. REBRAND-PLAN.md      — the phases and what each one owns.
+  4. docs/backend-gaps.md — which profile fields actually have a column, and
+                            which the design asks for but the API cannot supply.
+
+The surface we are building is `src/rebrand/app/AppShell.tsx` (FEED tab is now
+"FOR YOU" / MATCHES / COMMUNITIES), previewed at `/rebrand/app`. Its design
+system is `src/rebrand/ds/` — one file per Figma component, node id on each.
+Icons are generated: `scripts/icons.manifest.json` plus
+`node scripts/import-figma-icons.mjs`. Never hand-write a glyph.
+
+The CONNECT design is RETIRED. `ConnectSurface`, `SuggestionCard`, `MatchCard`
+and the old `AppHeader` carry a FROZEN header — do not extend them. `/connect`
+is already migrated onto AppShell as MATCHES/Suggested and is the template for
+migrating the remaining pages.
+
+Figma file key `d4i3aGDu0mH8BRe5zxmMmA`. Two rules that cost real time:
+  - ALWAYS call `get_design_context` on a named node. `get_metadata` gives
+    boxes only and will produce something that measures right and looks wrong.
+  - NEVER read a placed icon through an `I<frame>;<component>;<slot>` path. It
+    returns the COMPONENT DEFAULT, not the override. Read the top-level node.
+
+`npm run check:frontend` (typecheck -> lint -> build) must pass before any
+commit. `vite build` alone is not a typecheck and has shipped runtime errors.
+
+Conventions: work on `front-end-demo-updates`; "deploy"/"commit" means commit,
+push, and open a PR to main — never push to main. Draft PR review text only,
+never submit to GitHub unless asked. No em-dashes in output. Log every change
+in the "Relethe Changelog" Notion doc the same session it lands. Split flags
+into "In my court" and "In your court".
+
+Tell me you have read these and what you understand the next step to be.
+```
+
+---
+
 ## 1. Where we are
 
 | Phase | State |
