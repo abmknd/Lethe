@@ -1,11 +1,11 @@
 /**
- * plus-sign-circle — GENERATED from Figma node 695:34482. Do not edit.
+ * plus-sign-circle — GENERATED from Figma node 671:1859. Do not edit.
  *
  * Sidebar communities / Start a community.
  *
  * Regenerate: node scripts/import-figma-icons.mjs
  */
-export function PlusSignCircleIcon({ size = 20, strokeWidth, className }: {
+export function PlusSignCircleIcon({ size = 16, strokeWidth, className }: {
   size?: number;
   strokeWidth?: number;
   className?: string;
@@ -14,7 +14,7 @@ export function PlusSignCircleIcon({ size = 20, strokeWidth, className }: {
     <svg
       width={size}
       height={size}
-      viewBox="-1.1667 -1.1667 20 20"
+      viewBox="-0.8334 -0.8334 16 16"
       fill="none"
       strokeWidth={strokeWidth}
       strokeLinecap="round"
@@ -22,8 +22,8 @@ export function PlusSignCircleIcon({ size = 20, strokeWidth, className }: {
       className={className}
       aria-hidden
     >
-      <path d="M8.83333 5.5V12.1667M12.1667 8.83333H5.5" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
-      <circle cx="8.83333" cy="8.83333" r="8.33333" stroke="currentColor"/>
+      <path d="M7.16667 4.5V9.83333M9.83333 7.16667H4.5" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
+      <circle cx="7.16667" cy="7.16667" r="6.66667" stroke="currentColor"/>
     </svg>
   );
 }
@@ -31,7 +31,7 @@ export function PlusSignCircleIcon({ size = 20, strokeWidth, className }: {
 /** The size this icon is DRAWN at in Figma — 16, 20 or 32. One viewBox unit is
  *  one pixel at this size, so Icon only has to rescale when a caller asks for
  *  something else. */
-PlusSignCircleIcon.grid = 20;
+PlusSignCircleIcon.grid = 16;
 
 /** Figma's Weight variant, in pixels. The library ships 1px and 2px; this is
  *  the drawn weight, not a target we compute. */

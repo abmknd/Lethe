@@ -1,11 +1,11 @@
 /**
- * home-01 — GENERATED from Figma node 694:6878. Do not edit.
+ * home-01 — GENERATED from Figma node 795:3099. Do not edit.
  *
  * Sidebar feed / For you. Figma description: house.
  *
  * Regenerate: node scripts/import-figma-icons.mjs
  */
-export function Home01Icon({ size = 20, strokeWidth, className }: {
+export function Home01Icon({ size = 16, strokeWidth, className }: {
   size?: number;
   strokeWidth?: number;
   className?: string;
@@ -14,7 +14,7 @@ export function Home01Icon({ size = 20, strokeWidth, className }: {
     <svg
       width={size}
       height={size}
-      viewBox="-1.1667 -1.1667 20 20"
+      viewBox="-0.8334 -0.8334 16 16"
       fill="none"
       strokeWidth={strokeWidth}
       strokeLinecap="round"
@@ -22,8 +22,8 @@ export function Home01Icon({ size = 20, strokeWidth, className }: {
       className={className}
       aria-hidden
     >
-      <path d="M6.33277 17.1667L6.12391 14.2426C6.01162 12.6705 7.2567 11.3333 8.83277 11.3333C10.4088 11.3333 11.6539 12.6705 11.5416 14.2426L11.3328 17.1667" stroke="currentColor"/>
-      <path d="M0.792828 9.84454C0.498645 7.9302 0.351553 6.97303 0.713473 6.12448C1.07539 5.27593 1.87836 4.69536 3.48428 3.53422L4.68416 2.66667C6.68191 1.22222 7.68079 0.5 8.83333 0.5C9.98588 0.5 10.9848 1.22222 12.9825 2.66667L14.1824 3.53422C15.7883 4.69536 16.5913 5.27593 16.9532 6.12448C17.3151 6.97303 17.168 7.9302 16.8738 9.84454L16.623 11.477C16.2059 14.1908 15.9974 15.5477 15.0242 16.3572C14.0509 17.1667 12.6281 17.1667 9.78235 17.1667H7.88432C5.03861 17.1667 3.61576 17.1667 2.6425 16.3572C1.66924 15.5477 1.46073 14.1908 1.04369 11.477L0.792828 9.84454Z" stroke="currentColor" strokeLinejoin="round"/>
+      <path d="M5.16622 13.8333L4.99913 11.4941C4.90929 10.2364 5.90536 9.16667 7.16622 9.16667C8.42707 9.16667 9.42314 10.2364 9.33331 11.4941L9.16622 13.8333" stroke="currentColor"/>
+      <path d="M0.734263 7.97564C0.498917 6.44416 0.381243 5.67842 0.670779 4.99958C0.960315 4.32074 1.60269 3.85629 2.88743 2.92737L3.84733 2.23333C5.44553 1.07778 6.24463 0.5 7.16667 0.5C8.08871 0.5 8.88781 1.07778 10.486 2.23333L11.4459 2.92737C12.7307 3.85629 13.373 4.32074 13.6626 4.99958C13.9521 5.67842 13.8344 6.44416 13.5991 7.97563L13.3984 9.28159C13.0648 11.4526 12.8979 12.5381 12.1193 13.1857C11.3407 13.8333 10.2024 13.8333 7.92588 13.8333H6.40746C4.13089 13.8333 2.99261 13.8333 2.214 13.1857C1.4354 12.5381 1.26858 11.4526 0.934954 9.28159L0.734263 7.97564Z" stroke="currentColor" strokeLinejoin="round"/>
     </svg>
   );
 }
@@ -31,7 +31,7 @@ export function Home01Icon({ size = 20, strokeWidth, className }: {
 /** The size this icon is DRAWN at in Figma — 16, 20 or 32. One viewBox unit is
  *  one pixel at this size, so Icon only has to rescale when a caller asks for
  *  something else. */
-Home01Icon.grid = 20;
+Home01Icon.grid = 16;
 
 /** Figma's Weight variant, in pixels. The library ships 1px and 2px; this is
  *  the drawn weight, not a target we compute. */

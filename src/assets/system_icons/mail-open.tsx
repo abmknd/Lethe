@@ -1,11 +1,11 @@
 /**
- * mail-open — GENERATED from Figma node 695:60666. Do not edit.
+ * mail-open — GENERATED from Figma node 671:363. Do not edit.
  *
  * Sidebar communities / Invites.
  *
  * Regenerate: node scripts/import-figma-icons.mjs
  */
-export function MailOpenIcon({ size = 20, strokeWidth, className }: {
+export function MailOpenIcon({ size = 16, strokeWidth, className }: {
   size?: number;
   strokeWidth?: number;
   className?: string;
@@ -14,7 +14,7 @@ export function MailOpenIcon({ size = 20, strokeWidth, className }: {
     <svg
       width={size}
       height={size}
-      viewBox="-1.168 -1.1667 20 20"
+      viewBox="-0.8343 -0.8334 16 16"
       fill="none"
       strokeWidth={strokeWidth}
       strokeLinecap="round"
@@ -22,10 +22,10 @@ export function MailOpenIcon({ size = 20, strokeWidth, className }: {
       className={className}
       aria-hidden
     >
-      <path d="M2.99869 4.66667L1.98302 5.34378C1.25492 5.82918 0.890875 6.07188 0.693585 6.44201C0.496296 6.81214 0.497757 7.24714 0.50068 8.11714C0.504199 9.16461 0.513938 10.2319 0.540893 11.3118C0.604847 13.8739 0.636823 15.155 1.57882 16.097C2.52082 17.0391 3.81921 17.0715 6.41597 17.1364C8.03146 17.1768 9.63261 17.1768 11.2481 17.1364C13.8449 17.0715 15.1433 17.0391 16.0853 16.097C17.0273 15.155 17.0592 13.8739 17.1232 11.3118C17.1501 10.2319 17.1599 9.16461 17.1634 8.11713C17.1663 7.24714 17.1677 6.81214 16.9705 6.44201C16.7732 6.07188 16.4091 5.82918 15.681 5.34378L14.6654 4.66667" stroke="currentColor" strokeLinejoin="round"/>
-      <path d="M0.498402 7.16667L6.25925 10.6232C7.5126 11.3752 8.13928 11.7512 8.83173 11.7512C9.52419 11.7512 10.1509 11.3752 11.4042 10.6232L17.1651 7.16667" stroke="currentColor" strokeLinejoin="round"/>
-      <path d="M2.9984 8.83333V3.83333C2.9984 2.26199 2.9984 1.47631 3.48656 0.988156C3.97471 0.500001 4.76039 0.500001 6.33174 0.500001H11.3317C12.9031 0.500001 13.6888 0.500001 14.1769 0.988156C14.6651 1.47631 14.6651 2.26199 14.6651 3.83333V8.83333" stroke="currentColor"/>
-      <path d="M7.16507 7.16667H10.4984M7.16507 3.83333H10.4984" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M2.49896 3.83333L1.68642 4.37502C1.10395 4.76334 0.812706 4.9575 0.654874 5.25361C0.497043 5.54971 0.498212 5.89771 0.50055 6.59371C0.503365 7.43169 0.511157 8.2855 0.532721 9.14942C0.583883 11.1992 0.609465 12.224 1.36306 12.9776C2.11666 13.7313 3.15537 13.7572 5.23278 13.8091C6.52518 13.8414 7.8061 13.8414 9.09849 13.8091C11.1759 13.7572 12.2146 13.7313 12.9682 12.9776C13.7218 12.224 13.7474 11.1991 13.7985 9.14942C13.8201 8.2855 13.8279 7.43168 13.8307 6.59371C13.833 5.89771 13.8342 5.54971 13.6764 5.25361C13.5185 4.9575 13.2273 4.76334 12.6448 4.37502L11.8323 3.83333" stroke="currentColor" strokeLinejoin="round"/>
+      <path d="M0.498727 5.83333L5.10741 8.59854C6.11009 9.20015 6.61143 9.50095 7.16539 9.50095C7.71936 9.50095 8.2207 9.20015 9.22338 8.59854L13.8321 5.83333" stroke="currentColor" strokeLinejoin="round"/>
+      <path d="M2.49873 7.16667V3.16667C2.49873 1.90959 2.49873 1.28105 2.88925 0.890526C3.27978 0.500002 3.90832 0.500002 5.16539 0.500002H9.16539C10.4225 0.500002 11.051 0.500002 11.4415 0.890526C11.8321 1.28105 11.8321 1.90959 11.8321 3.16667V7.16667" stroke="currentColor"/>
+      <path d="M5.83206 5.83333H8.49873M5.83206 3.16667H8.49873" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   );
 }
@@ -33,7 +33,7 @@ export function MailOpenIcon({ size = 20, strokeWidth, className }: {
 /** The size this icon is DRAWN at in Figma — 16, 20 or 32. One viewBox unit is
  *  one pixel at this size, so Icon only has to rescale when a caller asks for
  *  something else. */
-MailOpenIcon.grid = 20;
+MailOpenIcon.grid = 16;
 
 /** Figma's Weight variant, in pixels. The library ships 1px and 2px; this is
  *  the drawn weight, not a target we compute. */

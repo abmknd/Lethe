@@ -1,11 +1,11 @@
 /**
- * calendar-03 — GENERATED from Figma node 694:22634. Do not edit.
+ * calendar-03 — GENERATED from Figma node 671:533. Do not edit.
  *
  * Sidebar matches / Upcoming. Figma description: schedule. Replaces calendar-01.
  *
  * Regenerate: node scripts/import-figma-icons.mjs
  */
-export function Calendar03Icon({ size = 20, strokeWidth, className }: {
+export function Calendar03Icon({ size = 16, strokeWidth, className }: {
   size?: number;
   strokeWidth?: number;
   className?: string;
@@ -14,7 +14,7 @@ export function Calendar03Icon({ size = 20, strokeWidth, className }: {
     <svg
       width={size}
       height={size}
-      viewBox="-3.1666 -2.8334 20 20"
+      viewBox="-1.1666 -0.8334 16 16"
       fill="none"
       strokeWidth={strokeWidth}
       strokeLinecap="round"
@@ -34,7 +34,7 @@ export function Calendar03Icon({ size = 20, strokeWidth, className }: {
 /** The size this icon is DRAWN at in Figma — 16, 20 or 32. One viewBox unit is
  *  one pixel at this size, so Icon only has to rescale when a caller asks for
  *  something else. */
-Calendar03Icon.grid = 20;
+Calendar03Icon.grid = 16;
 
 /** Figma's Weight variant, in pixels. The library ships 1px and 2px; this is
  *  the drawn weight, not a target we compute. */

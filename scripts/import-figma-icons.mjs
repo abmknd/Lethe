@@ -135,6 +135,22 @@ export function extractGlyph(svg, name, size) {
     throw new Error(`${name}: the export has no numeric width/height to centre against.`);
   }
 
+  // A GUARD ON `size`, because getting it wrong crops silently.
+  //
+  // The viewBox is `size` units wide with the artwork centred in it. If the
+  // export is WIDER than `size` — a 20px draw recorded as 16 — the extra falls
+  // outside the viewBox and the glyph loses a slice off each edge, which looks
+  // like a slightly-off icon rather than an error. The overhang is the stroke,
+  // so a little over is expected; a whole grid step is not.
+  const slack = 1.5;
+  if (w > size + slack || h > size + slack) {
+    throw new Error(
+      `${name}: export is ${w}x${h} but the manifest says size ${size}. ` +
+      `That is a different grid, and centring it would crop the glyph. ` +
+      `Fix the size, or point the entry at the ${size}px variant.`,
+    );
+  }
+
   return { glyph, viewBox: centredViewBox(w, h, size) };
 }
 

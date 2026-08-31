@@ -1,11 +1,11 @@
 /**
- * volleyball — GENERATED from Figma node 695:11982. Do not edit.
+ * volleyball — GENERATED from Figma node 671:1020. Do not edit.
  *
  * Sidebar communities / Open Spaces.
  *
  * Regenerate: node scripts/import-figma-icons.mjs
  */
-export function VolleyballIcon({ size = 20, strokeWidth, className }: {
+export function VolleyballIcon({ size = 16, strokeWidth, className }: {
   size?: number;
   strokeWidth?: number;
   className?: string;
@@ -14,7 +14,7 @@ export function VolleyballIcon({ size = 20, strokeWidth, className }: {
     <svg
       width={size}
       height={size}
-      viewBox="-1.1667 -1.1667 20 20"
+      viewBox="-0.8334 -0.8334 16 16"
       fill="none"
       strokeWidth={strokeWidth}
       strokeLinecap="round"
@@ -22,11 +22,11 @@ export function VolleyballIcon({ size = 20, strokeWidth, className }: {
       className={className}
       aria-hidden
     >
-      <path d="M17.1667 8.83333C17.1667 13.4357 13.4357 17.1667 8.83333 17.1667C4.23096 17.1667 0.5 13.4357 0.5 8.83333C0.5 4.23096 4.23096 0.5 8.83333 0.5C13.4357 0.5 17.1667 4.23096 17.1667 8.83333Z" stroke="currentColor"/>
-      <path d="M5.60039 1.33333C5.22882 2.68254 5.30313 5.9881 8.57292 8.41667M8.57292 8.41667C12.6913 7.30836 15.6042 7.70833 17.1667 9.12481M8.57292 8.41667C9.04373 12.3234 6.22917 14.7917 4.66667 15.5" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
-      <path d="M6.33333 5.5C8.07246 3.92806 12.4384 3.10683 15.9167 4.6786" stroke="currentColor" strokeLinejoin="round"/>
-      <path d="M12.9071 8C13.3981 10.4122 11.9287 14.8236 8.83333 17.1667" stroke="currentColor" strokeLinejoin="round"/>
-      <path d="M7.16667 13C4.97881 11.9497 2.29864 7.96623 2.16667 3.83333" stroke="currentColor" strokeLinejoin="round"/>
+      <path d="M13.8333 7.16667C13.8333 10.8486 10.8486 13.8333 7.16667 13.8333C3.48477 13.8333 0.5 10.8486 0.5 7.16667C0.5 3.48477 3.48477 0.5 7.16667 0.5C10.8486 0.5 13.8333 3.48477 13.8333 7.16667Z" stroke="currentColor"/>
+      <path d="M4.58031 1.16667C4.28306 2.24603 4.34251 4.89048 6.95833 6.83333M6.95833 6.83333C10.253 5.94669 12.5833 6.26667 13.8333 7.39985M6.95833 6.83333C7.33498 9.95872 5.08333 11.9333 3.83333 12.5" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M5.16667 4.5C6.55797 3.24245 10.0507 2.58546 12.8333 3.84288" stroke="currentColor" strokeLinejoin="round"/>
+      <path d="M10.4257 6.5C10.8185 8.4298 9.64295 11.9589 7.16667 13.8333" stroke="currentColor" strokeLinejoin="round"/>
+      <path d="M5.83333 10.5C4.08305 9.65976 1.93891 6.47298 1.83333 3.16667" stroke="currentColor" strokeLinejoin="round"/>
     </svg>
   );
 }
@@ -34,7 +34,7 @@ export function VolleyballIcon({ size = 20, strokeWidth, className }: {
 /** The size this icon is DRAWN at in Figma — 16, 20 or 32. One viewBox unit is
  *  one pixel at this size, so Icon only has to rescale when a caller asks for
  *  something else. */
-VolleyballIcon.grid = 20;
+VolleyballIcon.grid = 16;
 
 /** Figma's Weight variant, in pixels. The library ships 1px and 2px; this is
  *  the drawn weight, not a target we compute. */

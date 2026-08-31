@@ -1,7 +1,7 @@
 {
   "$comment": [
     "Every icon the product uses, and where it comes from in Figma.",
-    "`url` is a Figma asset URL and EXPIRES IN ABOUT SEVEN DAYS — it is a fetch",
+    "`url` is a Figma asset URL and EXPIRES IN ABOUT SEVEN DAYS \u2014 it is a fetch",
     "token, not a permanent address. Refresh it with download_assets(nodeId,",
     "defaultFormat:'svg') before re-running the importer. The committed .tsx",
     "files are the durable artefact; this file records provenance.",
@@ -12,7 +12,7 @@
     "Primary) are the same paths and the importer rewrites stroke to",
     "currentColor, so only one of the pair is ever listed.",
     "",
-    "`size` is Figma's Size variant (16, 20 or 32 — this library has no 24) and",
+    "`size` is Figma's Size variant (16, 20 or 32 \u2014 this library has no 24) and",
     "`weight` is its Weight variant in pixels (1 or 2, default 1). Both are the",
     "DRAWN values, not targets: the icon renders at the weight Figma gives it."
   ],
@@ -22,14 +22,14 @@
       "name": "flash",
       "nodeId": "671:1438",
       "size": 16,
-      "note": "The Compact Item demo glyph. Back after being deleted with the wrong batch — `flash` is a real library icon, it was simply never the Activity rail glyph.",
+      "note": "The Compact Item demo glyph. Back after being deleted with the wrong batch \u2014 `flash` is a real library icon, it was simply never the Activity rail glyph.",
       "url": "https://www.figma.com/api/mcp/asset/611ecb99-527d-476b-9e16-33b6dd5d8755.svg"
     },
     {
       "name": "bulb",
       "nodeId": "712:313",
       "size": 16,
-      "note": "SIGNAL. Figma description: lamp, idea.",
+      "note": "STALE URL \u2014 refresh with download_assets before the next run. The committed bulb.tsx is unaffected; only provenance is stale. Currently unused: the SIGNAL header that carried it was removed in the 956:12189 redesign.",
       "url": "https://www.figma.com/api/mcp/asset/9cad0070-14ec-4f2a-9089-ddd47d915270.svg"
     },
     {
@@ -57,7 +57,7 @@
       "name": "substack",
       "nodeId": "707:3",
       "size": 16,
-      "note": "socials-section Badge Button. HugeIcons pro — absent from the free package. Exactly why these are local.",
+      "note": "socials-section Badge Button. HugeIcons pro \u2014 absent from the free package. Exactly why these are local.",
       "url": "https://www.figma.com/api/mcp/asset/611bcf0a-3c8c-45ba-968d-43fbf976b7e8.svg"
     },
     {
@@ -99,7 +99,7 @@
       "name": "message-02",
       "nodeId": "671:331",
       "size": 16,
-      "note": "The `Your faves` Badge Button. A SECOND chat glyph — Figma describes 671:331 and 671:336 both as `chat` and the two are drawn differently, so they are kept apart. The suffix is ours; the node id is the fact.",
+      "note": "The `Your faves` Badge Button. A SECOND chat glyph \u2014 Figma describes 671:331 and 671:336 both as `chat` and the two are drawn differently, so they are kept apart. The suffix is ours; the node id is the fact.",
       "url": "https://www.figma.com/api/mcp/asset/393635f9-cd7e-4484-be0c-1d20a49f1a0c.svg"
     },
     {
@@ -120,7 +120,7 @@
       "name": "mail-01",
       "nodeId": "771:5079",
       "size": 16,
-      "note": "The Placeholder component's default leading glyph. Back after being deleted with the wrong `-01` batch — Placeholder genuinely places an envelope; only the app header did not.",
+      "note": "The Placeholder component's default leading glyph. Back after being deleted with the wrong `-01` batch \u2014 Placeholder genuinely places an envelope; only the app header did not.",
       "url": "https://www.figma.com/api/mcp/asset/511a467d-676a-49f0-87e8-1ea87aeaa91d.svg"
     },
     {
@@ -139,129 +139,129 @@
     },
     {
       "name": "home-01",
-      "nodeId": "694:6878",
-      "size": 20,
+      "nodeId": "795:3099",
+      "size": 16,
       "note": "Sidebar feed / For you. Figma description: house.",
-      "url": "https://www.figma.com/api/mcp/asset/8e14051c-3ca8-485f-9d44-7d8093f27b39.svg"
+      "url": "https://www.figma.com/api/mcp/asset/3d3e49b4-1737-4c9a-9c73-3ca8c01487de.svg"
     },
     {
       "name": "user-multiple",
-      "nodeId": "694:101426",
-      "size": 20,
+      "nodeId": "671:2342",
+      "size": 16,
       "note": "Sidebar feed / Following.",
-      "url": "https://www.figma.com/api/mcp/asset/6537ce5a-a318-4bab-9c94-a9bfa5d8f77f.svg"
+      "url": "https://www.figma.com/api/mcp/asset/e88f31da-4cc3-4416-847d-a1a893d41625.svg"
     },
     {
       "name": "chart-relationship",
-      "nodeId": "695:81342",
-      "size": 20,
+      "nodeId": "644:15553",
+      "size": 16,
       "note": "Sidebar feed / Insights. Replaces analytics-01, which was a guess.",
-      "url": "https://www.figma.com/api/mcp/asset/a8446987-a73b-4ce3-9e33-befb5b788bc6.svg"
+      "url": "https://www.figma.com/api/mcp/asset/075be3fd-d3ed-4cca-8311-365f4b4d02be.svg"
     },
     {
       "name": "searching",
-      "nodeId": "694:39590",
-      "size": 20,
+      "nodeId": "671:2132",
+      "size": 16,
       "note": "Sidebar feed / Explore. Replaces compass, which was a guess.",
-      "url": "https://www.figma.com/api/mcp/asset/82adc303-e18f-41b4-ad32-70c7f5b1d251.svg"
+      "url": "https://www.figma.com/api/mcp/asset/4316b694-ec21-46a7-9b8f-2be058631599.svg"
     },
     {
       "name": "bookmark-01",
-      "nodeId": "694:10058",
-      "size": 20,
+      "nodeId": "671:228",
+      "size": 16,
       "note": "Sidebar feed / Bookmarks. Figma description: save, favorite.",
-      "url": "https://www.figma.com/api/mcp/asset/a6a0c0cd-827a-43dc-859e-50b12aa28712.svg"
+      "url": "https://www.figma.com/api/mcp/asset/e65fe268-1766-49fd-b6c9-d1db03553167.svg"
     },
     {
       "name": "clock-03",
-      "nodeId": "694:20702",
-      "size": 20,
+      "nodeId": "671:505",
+      "size": 16,
       "note": "Sidebar feed / Activity. Replaces flash, which was a substitution I made because I could not find a pulse glyph. The file never wanted one.",
-      "url": "https://www.figma.com/api/mcp/asset/9e67b1ac-3f6f-46b6-a724-78464fdd3a21.svg"
+      "url": "https://www.figma.com/api/mcp/asset/46e488d5-7686-41c4-8ca5-d8ea39eac882.svg"
     },
     {
       "name": "puzzle",
-      "nodeId": "695:13662",
-      "size": 20,
+      "nodeId": "667:16915",
+      "size": 16,
       "note": "Sidebar matches / Matches. Replaces dashboard-square-01.",
-      "url": "https://www.figma.com/api/mcp/asset/c6c29b89-a7a3-410f-9556-6b7b46b1dbdf.svg"
+      "url": "https://www.figma.com/api/mcp/asset/3140c6a9-bfa6-49c6-99ab-be0461c9636c.svg"
     },
     {
       "name": "user-check-02",
-      "nodeId": "694:99530",
-      "size": 20,
+      "nodeId": "671:2311",
+      "size": 16,
       "note": "Sidebar matches / Suggested. Replaces sparkles.",
-      "url": "https://www.figma.com/api/mcp/asset/cbf8cf3b-5f17-4e25-b005-f120989c1de8.svg"
+      "url": "https://www.figma.com/api/mcp/asset/35d52b1b-2448-4c71-ad77-deca48d59ccb.svg"
     },
     {
       "name": "calendar-03",
-      "nodeId": "694:22634",
-      "size": 20,
+      "nodeId": "671:533",
+      "size": 16,
       "note": "Sidebar matches / Upcoming. Figma description: schedule. Replaces calendar-01.",
-      "url": "https://www.figma.com/api/mcp/asset/adcfac57-e4b5-43f2-b8c2-391269438a13.svg"
+      "url": "https://www.figma.com/api/mcp/asset/814d0425-4595-4287-aa18-f43bcb3f1753.svg"
     },
     {
       "name": "checkmark-badge-02",
-      "nodeId": "694:10778",
-      "size": 20,
+      "nodeId": "671:463",
+      "size": 16,
       "note": "Sidebar matches / Endorsed. Figma description: accept, tick, done. Replaces checkmark-badge-01.",
-      "url": "https://www.figma.com/api/mcp/asset/2e303f32-ff32-4df2-ae98-abd38adc430d.svg"
+      "url": "https://www.figma.com/api/mcp/asset/14c1ac4d-49b0-436b-aaa9-e9c5e546606d.svg"
     },
     {
       "name": "user-add-02",
-      "nodeId": "694:99842",
-      "size": 20,
+      "nodeId": "671:2316",
+      "size": 16,
       "note": "Sidebar matches / Invited. Replaces user-add-01.",
-      "url": "https://www.figma.com/api/mcp/asset/1f65ab72-e025-4b47-b9c3-19179336e5e0.svg"
+      "url": "https://www.figma.com/api/mcp/asset/c42e9221-70d4-4ddb-b686-c40cb6c7f43b.svg"
     },
     {
       "name": "user-remove-02",
-      "nodeId": "694:99722",
-      "size": 20,
+      "nodeId": "671:2314",
+      "size": 16,
       "note": "Sidebar matches / Disavowed. Replaces user-remove-01.",
-      "url": "https://www.figma.com/api/mcp/asset/d272f6f9-6699-4e38-836a-7c141fa5dcb5.svg"
+      "url": "https://www.figma.com/api/mcp/asset/c4c6a110-d11c-4127-a59a-fe3f8352a473.svg"
     },
     {
       "name": "user-group",
-      "nodeId": "694:101354",
+      "nodeId": "908:22879",
       "size": 20,
-      "note": "Sidebar communities / Communities.",
-      "url": "https://www.figma.com/api/mcp/asset/9c2e24e6-b918-48cc-bf77-0f3997cb1e65.svg"
+      "note": "Communities' selected row. The file places the 20px draw in a 16 box, which the size guard caught: its export is 19.33x14.33. Recorded at its REAL grid so the viewBox is not cropped; Icon scales the stroke so it still renders 1px at 16.",
+      "url": "https://www.figma.com/api/mcp/asset/6c9a5a13-41a5-40f3-8d56-dd28cc89e0a4.svg"
     },
     {
       "name": "mail-open",
-      "nodeId": "695:60666",
-      "size": 20,
+      "nodeId": "671:363",
+      "size": 16,
       "note": "Sidebar communities / Invites.",
-      "url": "https://www.figma.com/api/mcp/asset/5d1b3421-06eb-4ba3-875f-91235a8a6b6d.svg"
+      "url": "https://www.figma.com/api/mcp/asset/cbea71d9-60bd-4081-bc7b-136d928f38c9.svg"
     },
     {
       "name": "volleyball",
-      "nodeId": "695:11982",
-      "size": 20,
+      "nodeId": "671:1020",
+      "size": 16,
       "note": "Sidebar communities / Open Spaces.",
-      "url": "https://www.figma.com/api/mcp/asset/d960a01b-5f87-4952-92da-334f117a16f7.svg"
+      "url": "https://www.figma.com/api/mcp/asset/7cf97cad-4893-44eb-84fb-3a69987f84ef.svg"
     },
     {
       "name": "calendar-favorite-02",
-      "nodeId": "694:21998",
-      "size": 20,
+      "nodeId": "671:524",
+      "size": 16,
       "note": "Sidebar communities / Events. Figma description: schedule.",
-      "url": "https://www.figma.com/api/mcp/asset/206887fa-4a94-4541-b8f2-97af1c3b092b.svg"
+      "url": "https://www.figma.com/api/mcp/asset/1bcafdb7-6b9c-4376-b4b5-875e3c35a45c.svg"
     },
     {
       "name": "setting-03",
-      "nodeId": "694:42458",
-      "size": 20,
+      "nodeId": "671:2229",
+      "size": 16,
       "note": "Sidebar communities / Manage. Figma description: gear, tools, configuration.",
-      "url": "https://www.figma.com/api/mcp/asset/cca3d8ec-7ef3-429c-86ac-3888c8630dea.svg"
+      "url": "https://www.figma.com/api/mcp/asset/14c212ab-8b82-4627-90e1-b6e232eeb7b6.svg"
     },
     {
       "name": "plus-sign-circle",
-      "nodeId": "695:34482",
-      "size": 20,
+      "nodeId": "671:1859",
+      "size": 16,
       "note": "Sidebar communities / Start a community.",
-      "url": "https://www.figma.com/api/mcp/asset/973e40b9-9d7f-4267-8912-b05556be7e32.svg"
+      "url": "https://www.figma.com/api/mcp/asset/238f077c-4a85-4a59-b1d3-6468baf9725b.svg"
     },
     {
       "name": "more-horizontal",
@@ -307,7 +307,7 @@
       "nodeId": "694:112976",
       "size": 32,
       "weight": 2,
-      "note": "`signal-header` places the 32px variant, which Figma draws at Weight=2px — the only icon in the app on the 32 grid, and the only one not on the 1px weight. Figma description: lamp.",
+      "note": "`signal-header` places the 32px variant, which Figma draws at Weight=2px \u2014 the only icon in the app on the 32 grid, and the only one not on the 1px weight. Figma description: lamp.",
       "url": "https://www.figma.com/api/mcp/asset/8db15eee-f9a4-4deb-8157-8b9ca29d89cb.svg"
     },
     {

@@ -656,6 +656,22 @@ computed weight disagreed with the drawn one on every 20px glyph in the sidebars
 It has been removed rather than kept for the record, because a superseded rule
 sitting under a live one is a rule someone will implement.
 
+**Do NOT read an instance path for a placed icon.** `get_design_context` on
+`I<frame>;<component>;<slot>` returns the COMPONENT'S DEFAULT for that slot, not
+the frame's override — both sidebars' selected rows come back as `home-03`
+because that is what `Nav Item`'s icon slot defaults to. Reading those paths is
+what produced a phantom "the sidebar mixes 16px and 20px glyphs" report. Read
+the TOP-LEVEL node (the Sidebar itself); its ternary's false branch is the 16px
+variant, and that reflects what is actually placed.
+
+**The rail is on 16px exports.** md nav rows place 16px icons, so the manifest
+entries are 16px nodes. The importer now GUARDS this: if an export is more than
+1.5 units wider or taller than its recorded `size`, it throws instead of
+centring — a 20px draw in a 16 viewBox loses a slice off every edge and reads as
+a slightly-wrong icon rather than an error. It caught `user-group` on the first
+run at 19.33x14.33; that one is recorded at its real grid of 20 and still
+renders 1px at 16 because `Icon` scales the stroke.
+
 **`Button Text` hover is a WEIGHT step, not an underline.** `Status=hover`
 keeps the size, the leading and the ink and moves Body 4B to Title 4C — both
 14/16, Regular to Medium. "See all" measures 42 in both states, so the step

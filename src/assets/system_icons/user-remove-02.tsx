@@ -1,11 +1,11 @@
 /**
- * user-remove-02 — GENERATED from Figma node 694:99722. Do not edit.
+ * user-remove-02 — GENERATED from Figma node 671:2314. Do not edit.
  *
  * Sidebar matches / Disavowed. Replaces user-remove-01.
  *
  * Regenerate: node scripts/import-figma-icons.mjs
  */
-export function UserRemove02Icon({ size = 20, strokeWidth, className }: {
+export function UserRemove02Icon({ size = 16, strokeWidth, className }: {
   size?: number;
   strokeWidth?: number;
   className?: string;
@@ -14,7 +14,7 @@ export function UserRemove02Icon({ size = 20, strokeWidth, className }: {
     <svg
       width={size}
       height={size}
-      viewBox="-1.1666 -2 20 20"
+      viewBox="-0.8332 -1.5 16 16"
       fill="none"
       strokeWidth={strokeWidth}
       strokeLinecap="round"
@@ -22,9 +22,9 @@ export function UserRemove02Icon({ size = 20, strokeWidth, className }: {
       className={className}
       aria-hidden
     >
-      <path d="M3.15018 10.747C2.1022 11.3612 -0.645529 12.6155 1.02802 14.185C1.84554 14.9517 2.75605 15.5 3.90077 15.5H10.4328C11.5775 15.5 12.488 14.9517 13.3056 14.185C14.9791 12.6155 12.2314 11.3612 11.1834 10.747C8.72591 9.30656 5.60767 9.30656 3.15018 10.747Z" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
-      <path d="M10.5001 3.83333C10.5001 5.67428 9.00774 7.16667 7.16679 7.16667C5.32584 7.16667 3.83346 5.67428 3.83346 3.83333C3.83346 1.99238 5.32584 0.5 7.16679 0.5C9.00774 0.5 10.5001 1.99238 10.5001 3.83333Z" stroke="currentColor"/>
-      <path d="M17.1668 1.75L15.0835 3.83333M15.0835 3.83333L13.0001 5.91667M15.0835 3.83333L17.1668 5.91667M15.0835 3.83333L13.0001 1.75" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M2.62017 8.69759C1.78179 9.189 -0.416397 10.1924 0.922446 11.448C1.57646 12.0613 2.30486 12.5 3.22064 12.5H8.44628C9.36206 12.5 10.0905 12.0613 10.7445 11.448C12.0833 10.1924 9.88513 9.189 9.04675 8.69759C7.08076 7.54525 4.58616 7.54525 2.62017 8.69759Z" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M8.50013 3.16667C8.50013 4.63943 7.30622 5.83333 5.83346 5.83333C4.3607 5.83333 3.16679 4.63943 3.16679 3.16667C3.16679 1.69391 4.3607 0.5 5.83346 0.5C7.30622 0.5 8.50013 1.69391 8.50013 3.16667Z" stroke="currentColor"/>
+      <path d="M13.8335 1.5L12.1668 3.16667M12.1668 3.16667L10.5001 4.83333M12.1668 3.16667L13.8335 4.83333M12.1668 3.16667L10.5001 1.5" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   );
 }
@@ -32,7 +32,7 @@ export function UserRemove02Icon({ size = 20, strokeWidth, className }: {
 /** The size this icon is DRAWN at in Figma — 16, 20 or 32. One viewBox unit is
  *  one pixel at this size, so Icon only has to rescale when a caller asks for
  *  something else. */
-UserRemove02Icon.grid = 20;
+UserRemove02Icon.grid = 16;
 
 /** Figma's Weight variant, in pixels. The library ships 1px and 2px; this is
  *  the drawn weight, not a target we compute. */

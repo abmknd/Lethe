@@ -1,7 +1,7 @@
 /**
- * user-group — GENERATED from Figma node 694:101354. Do not edit.
+ * user-group — GENERATED from Figma node 908:22879. Do not edit.
  *
- * Sidebar communities / Communities.
+ * Communities' selected row. The file places the 20px draw in a 16 box, which the size guard caught: its export is 19.33x14.33. Recorded at its REAL grid so the viewBox is not cropped; Icon scales the stroke so it still renders 1px at 16.
  *
  * Regenerate: node scripts/import-figma-icons.mjs
  */

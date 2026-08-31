@@ -1,11 +1,11 @@
 /**
- * bookmark-01 — GENERATED from Figma node 694:10058. Do not edit.
+ * bookmark-01 — GENERATED from Figma node 671:228. Do not edit.
  *
  * Sidebar feed / Bookmarks. Figma description: save, favorite.
  *
  * Regenerate: node scripts/import-figma-icons.mjs
  */
-export function Bookmark01Icon({ size = 20, strokeWidth, className }: {
+export function Bookmark01Icon({ size = 16, strokeWidth, className }: {
   size?: number;
   strokeWidth?: number;
   className?: string;
@@ -14,7 +14,7 @@ export function Bookmark01Icon({ size = 20, strokeWidth, className }: {
     <svg
       width={size}
       height={size}
-      viewBox="-2.8334 -1.1667 20 20"
+      viewBox="-2.1666 -0.8334 16 16"
       fill="none"
       strokeWidth={strokeWidth}
       strokeLinecap="round"
@@ -22,8 +22,8 @@ export function Bookmark01Icon({ size = 20, strokeWidth, className }: {
       className={className}
       aria-hidden
     >
-      <path d="M0.500001 13.8174V6.92294C0.500001 3.89514 0.500001 2.38124 1.47631 1.44062C2.45262 0.5 4.02397 0.5 7.16667 0.5C10.3094 0.5 11.8807 0.5 12.857 1.44062C13.8333 2.38124 13.8333 3.89514 13.8333 6.92294V13.8174C13.8333 15.7389 13.8333 16.6997 13.1893 17.0436C11.9421 17.7095 9.60267 15.4877 8.49166 14.8187C7.84733 14.4307 7.52516 14.2367 7.16667 14.2367C6.80817 14.2367 6.48601 14.4307 5.84167 14.8187C4.73067 15.4877 2.39123 17.7095 1.14404 17.0436C0.500001 16.6997 0.500001 15.7389 0.500001 13.8174Z" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
-      <path d="M0.500001 4.66667H13.8333" stroke="currentColor"/>
+      <path d="M0.500002 11.1539V5.63835C0.500002 3.21611 0.500002 2.00499 1.28105 1.25249C2.0621 0.5 3.31918 0.5 5.83334 0.5C8.34749 0.5 9.60457 0.5 10.3856 1.25249C11.1667 2.00499 11.1667 3.21611 11.1667 5.63835V11.1539C11.1667 12.6911 11.1667 13.4597 10.6514 13.7348C9.65369 14.2676 7.78214 12.4901 6.89333 11.9549C6.37787 11.6446 6.12013 11.4894 5.83334 11.4894C5.54654 11.4894 5.28881 11.6446 4.77334 11.9549C3.88453 12.4901 2.01298 14.2676 1.01523 13.7348C0.500002 13.4597 0.500002 12.6911 0.500002 11.1539Z" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M0.500002 3.83333H11.1667" stroke="currentColor"/>
     </svg>
   );
 }
@@ -31,7 +31,7 @@ export function Bookmark01Icon({ size = 20, strokeWidth, className }: {
 /** The size this icon is DRAWN at in Figma — 16, 20 or 32. One viewBox unit is
  *  one pixel at this size, so Icon only has to rescale when a caller asks for
  *  something else. */
-Bookmark01Icon.grid = 20;
+Bookmark01Icon.grid = 16;
 
 /** Figma's Weight variant, in pixels. The library ships 1px and 2px; this is
  *  the drawn weight, not a target we compute. */
