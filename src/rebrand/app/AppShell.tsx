@@ -321,7 +321,9 @@ function MatchListView({ rail }: { rail: string }) {
                 <span className={'truncate text-[var(--text-default-placeholder)] ' + BODY_4A}>{m.handle}</span>
               </div>
             </div>
-            <Button tone="neutral" size="sm">message</Button>
+            {/* The same control `your-faves` uses: `Badge Button` `outline`
+                with `message-02`. It was a text pill reading "message". */}
+            <BadgeButton label={`Message ${m.name}`} glyph={Message02Icon} tone="outline" />
           </div>
 
           <p className={'pb-[18px] pt-[14px] text-[var(--text-default-heading)] ' + BODY_3A}>{m.about}</p>
@@ -728,6 +730,14 @@ function AsideColumn({ isFeed }: { isFeed: boolean }) {
         </>
       ) : (
         <>
+          {/* `your-faves` FIRST, superconnector last. The people are the reason
+              to look at this column; the promo is the thing you scroll past. */}
+          <PeopleCard
+            title="Your faves"
+            people={FAVES}
+            action={Message02Icon}
+            actionLabel={(n) => `Message ${n}`}
+          />
           <PromoCard
             variant="blue"
             title="Activate Superconnector"
@@ -735,12 +745,6 @@ function AsideColumn({ isFeed }: { isFeed: boolean }) {
                the label is ACTIVATE. Confirmed rather than assumed. */
             action="ACTIVATE"
             body="Set your own standards for who reaches you, meet beyond your weekly ten, and let the engine work a wider circle on your behalf."
-          />
-          <PeopleCard
-            title="Your faves"
-            people={FAVES}
-            action={Message02Icon}
-            actionLabel={(n) => `Message ${n}`}
           />
         </>
       )}
