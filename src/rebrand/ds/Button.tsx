@@ -122,7 +122,10 @@ export function ButtonText({
       type="button"
       onClick={onClick}
       className={
-        'inline-flex shrink-0 items-center gap-[4px] whitespace-nowrap hover:underline ' +
+        // NOT an underline on hover. `Status=hover` keeps the size, the leading
+        // and the ink and steps the WEIGHT up one — Body 4B to Title 4C, both
+        // 14/16, Regular to Medium. Same token pair, one notch heavier.
+        'inline-flex shrink-0 items-center gap-[4px] whitespace-nowrap no-underline hover:font-medium ' +
         'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ' +
         'focus-visible:outline-[var(--border-primary-default)] ' + BODY_4B + ' ' + BUTTON_TEXT_COLOR[color]
       }

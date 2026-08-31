@@ -18,10 +18,13 @@ import focusRing from '../assets/app/suggestion-bubble-focus.png';
  *                      tail built into the path
  *   long-focus-layer   a dashed outline of the same shape
  *
- * The dashed ring is not a focus state despite the layer name. Figma's own
- * codegen for the instance placed in 972:13311 renders both, and the placed
- * variant is `Status=default`. It ships as a raster because the vector carries
- * an effect; at 1.7KB that is cheaper than arguing with it.
+ * THE LAYER NAME IS A MISNOMER — confirmed, not inferred. `long-focus-layer`
+ * is not a focus state; the dashed ring is part of the default bubble and
+ * stays. Figma's own codegen for the instance placed in 972:13311 renders both
+ * layers on `Status=default`, which is what put it here, and the naming has
+ * since been confirmed as a slip in the file rather than intent in the code.
+ * It ships as a raster because the vector carries an effect; at 1.7KB that is
+ * cheaper than arguing with it.
  *
  * Both layers overflow the 142x20 content box to 144.45x22.339 — that overhang
  * IS the tail, so the box stays 142x20 and the art is allowed out of it.

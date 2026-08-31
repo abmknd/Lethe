@@ -656,6 +656,15 @@ computed weight disagreed with the drawn one on every 20px glyph in the sidebars
 It has been removed rather than kept for the record, because a superseded rule
 sitting under a live one is a rule someone will implement.
 
+**`Button Text` hover is a WEIGHT step, not an underline.** `Status=hover`
+keeps the size, the leading and the ink and moves Body 4B to Title 4C — both
+14/16, Regular to Medium. "See all" measures 42 in both states, so the step
+costs no layout shift.
+
+**The right sidebars' follow / message actions are `Badge Button` `outline`,
+not `subtle`** — white with a 1px `text/neutral/deep` ring, the same skin as the
+header controls. `subtle` (Blue 50) stays for the socials row only.
+
 **"Would you like to meet?" came back as a COMPONENT — `Suggested-Profile`
 972:13736 (frame 972:13311).** Not as the old banner heading, which stays
 hidden. It is the 88 avatar plus a `Suggestion Bubble` (`Status=default,

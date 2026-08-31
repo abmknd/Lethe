@@ -647,8 +647,9 @@ function PromoCard({
  * reads as a bar rather than a badge. Every `follow-profile` in the file sets
  * it.
  *
- * The action is a `Badge Button` `subtle` with NEUTRAL ink — Blue 50 behind a
- * `text/default` glyph, not a blue one.
+ * The action is a `Badge Button` `outline` with NEUTRAL ink — white with a 1px
+ * `text/neutral/deep` ring, the same skin as the header controls. It was the
+ * `subtle` Blue 50 fill; outline is what these two lists take.
  */
 function PeopleCard({
   title, people, action, actionLabel,
@@ -675,7 +676,7 @@ function PeopleCard({
                   <span className={'truncate text-[var(--text-default-placeholder)] ' + BODY_4A}>{p.handle}</span>
                 </span>
               </div>
-              <BadgeButton label={actionLabel(p.name)} glyph={action} tone="subtle" />
+              <BadgeButton label={actionLabel(p.name)} glyph={action} tone="outline" />
             </div>
             <BadgeText>{p.note}</BadgeText>
           </div>
