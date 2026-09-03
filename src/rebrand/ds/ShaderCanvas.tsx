@@ -73,11 +73,19 @@ function compile(gl: WebGLRenderingContext, type: number, src: string) {
 export function ShaderCanvas({
   shader,
   size = 140,
+  width,
   className,
 }: {
   shader: ShaderName;
-  /** CSS pixels. The shaders are composed for 140 and scale cleanly. */
+  /** HEIGHT in CSS pixels, and the unit the shaders are composed against. */
   size?: number;
+  /**
+   * Optional WIDTH. `p` is normalised by `u_res.y`, so widening the canvas
+   * widens the visible x range and leaves the subject's scale untouched — which
+   * is exactly what the two assets that scatter need, so a piece thrown
+   * sideways never meets an edge. Defaults to square.
+   */
+  width?: number;
   className?: string;
 }) {
   const ref = useRef<HTMLCanvasElement>(null);
@@ -113,7 +121,9 @@ export function ShaderCanvas({
     let fs: WebGLShader | null = null;
 
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const px = Math.round(size * dpr);
+    const cssW = width ?? size;
+    const pxW = Math.round(cssW * dpr);
+    const pxH = Math.round(size * dpr);
 
     const build = () => {
       gl = (canvas.getContext('webgl', { alpha: true, premultipliedAlpha: false, antialias: false }) ||
@@ -143,10 +153,10 @@ export function ShaderCanvas({
       gl.enableVertexAttribArray(loc);
       gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
 
-      gl.viewport(0, 0, px, px);
+      gl.viewport(0, 0, pxW, pxH);
       gl.enable(gl.BLEND);
       gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-      gl.uniform2f(gl.getUniformLocation(prog, 'u_res'), px, px);
+      gl.uniform2f(gl.getUniformLocation(prog, 'u_res'), pxW, pxH);
       gl.uniform3f(gl.getUniformLocation(prog, 'u_ink'), ink[0], ink[1], ink[2]);
       gl.uniform3f(gl.getUniformLocation(prog, 'u_field'), field[0], field[1], field[2]);
       return true;
@@ -188,8 +198,8 @@ export function ShaderCanvas({
       }
     };
 
-    canvas.width = px;
-    canvas.height = px;
+    canvas.width = pxW;
+    canvas.height = pxH;
     if (!build()) return;
     start();
 
@@ -243,14 +253,14 @@ export function ShaderCanvas({
         gl = null;
       }
     };
-  }, [shader, size]);
+  }, [shader, size, width]);
 
   return (
     <canvas
       ref={ref}
       aria-hidden
       className={className}
-      style={{ width: size, height: size, display: 'block' }}
+      style={{ width: width ?? size, height: size, display: 'block' }}
     />
   );
 }
