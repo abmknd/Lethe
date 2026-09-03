@@ -17,7 +17,7 @@ of a new session; it names every file worth reading and the order to read them.
 We are mid-way through Phase 4 of the Relethe blue/yellow rebrand, on branch
 `front-end-demo-updates`. Read these before touching anything, in this order:
 
-  1. REBRAND-HANDOFF.md   — state, rules, traps, sunset plan. START HERE.
+  1. REBRAND-HANDOFF.md   — state, rules, traps, retired work, sunset. START HERE.
   2. redesign.md          — the design system. Normative. Supersedes design.md,
                             which is STALE and must not be followed.
   3. REBRAND-PLAN.md      — the phases and what each one owns.
@@ -283,7 +283,81 @@ down the 32 legacy errors here, then `tsconfig.check.json` collapses into
 
 ---
 
-## 6. Open flags
+## 6. Retired work, and where to find it
+
+Things deliberately removed. All of it is in git and none of it needs
+archaeology, but nothing in this doc pointed at it until now, which is exactly
+how deleted work gets re-derived from scratch.
+
+**Restore a whole tree:** `git checkout <commit> -- <path>/`
+**Read one file without restoring:** `git show <commit>:<path>`
+
+### The GLSL hero (`hero/`)
+
+A standalone Three.js workspace: a procedural dithered engraving of three
+figures pushing a boulder up a topographic hill. **41 files**, including eight
+GLSL shaders.
+
+| | |
+|---|---|
+| Removed in | `39078d9` "Scrap the WebGL hero; sanctuary_of_lethe ships" |
+| **Last commit containing it** | **`31d2b93`** |
+| On the remote | yes, on `origin/front-end-demo-updates` and `origin/main` |
+
+```
+hill.frag.glsl        106  3D topographic contours, three layered temporal motions
+boulder.frag.glsl     129  analytic geodesic, 58 Fibonacci facets, rotates on scroll
+figures.frag.glsl      87  engraving generated at SCREEN res from atlas density
+sky.frag.glsl          83  concentric node fields
+lib.glsl               79  3D simplex + fbm3 / fbm3lo
+dither.frag.glsl       40  8x8 Bayer with an organic stipple blend
+figures.vert.glsl      53  instanced quads, tremor, camera
+fullscreen.vert.glsl    8
+```
+
+Plus `scripts/make-atlas.mjs` (SDF anatomy and engraving generator),
+`purity.mjs` (asserts `scrub(p)` is a pure function of p), `shoot.mjs`,
+`perf.mjs`, `poster.mjs`, and `src/figures/choreography.js`.
+
+Two ideas in there are reusable even though the hero is not:
+
+- **Store art as grayscale DENSITY, output 1-bit.** Every animation becomes
+  arithmetic on one number, and every transition reads as a dither dissolve.
+- **Generate marks in the SHADER, not the texture.** Anything authored at
+  texture resolution is mip-averaged into flat grey once minified. Fixing that
+  is what made the figures read at all, and it is the same reason
+  `DaylightBand` draws rather than ships an image.
+
+`hero/SPEC.md` and `hero/WEAKNESSES.md` are worth reading before any revival:
+the second is an honest register of what was still weak.
+
+Note it had its own `package.json` and needed `three`, which was removed from
+the root `package.json` in the same commit. Reviving it standalone means
+`npm install` inside `hero/`.
+
+### The CONNECT app design
+
+CONNECT / FEED in the top bar, a three-up tab rail, a 600-wide profile card.
+Superseded by `AppShell` (FOR YOU / MATCHES / COMMUNITIES).
+
+| | |
+|---|---|
+| Preview route deleted in | `174df09` "Retire the Connect preview…" |
+| Components frozen, not deleted | `ConnectSurface`, `SuggestionCard`, `MatchCard`, old `AppHeader` |
+
+They still exist only because `/connect` mounted them, and `/connect` has since
+moved onto `AppShell` (`c4a666f`). They carry a FROZEN header. Do not extend
+them; delete them at Phase 6 sunset once nothing imports them.
+
+### The all-blue onboarding
+
+Twelve onboarding screens on a Blue 600 canvas throughout, dropped in favour of
+light mode after comparing the two. This is why rule 8 exists. The light
+rebuild is `f780263`; the blue version is in the history before it.
+
+---
+
+## 7. Open flags
 
 **In my court**
 - `/matches` still renders its own old page; it is the Matches row of the shell's
