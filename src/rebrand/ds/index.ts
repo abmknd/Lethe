@@ -33,8 +33,6 @@
  */
 
 export * from './EmptyState';
-export { ShaderCanvas } from './ShaderCanvas';
-export type { ShaderName } from './shaders';
 export * from './SuggestedProfile';
 export * from './type';
 

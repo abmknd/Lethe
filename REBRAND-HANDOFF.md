@@ -5,6 +5,7 @@ that govern it, and the things that were learned the hard way.
 
 **Branch:** `front-end-demo-updates` · **Baseline tag:** `pre-rebrand-baseline`
 **Companion docs:** `redesign.md` (the system) · `REBRAND-PLAN.md` (the phases)
+`illustration.md` (generated art)
 
 ---
 
@@ -23,6 +24,8 @@ We are mid-way through Phase 4 of the Relethe blue/yellow rebrand, on branch
   3. REBRAND-PLAN.md      — the phases and what each one owns.
   4. docs/backend-gaps.md — which profile fields actually have a column, and
                             which the design asks for but the API cannot supply.
+  5. illustration.md      — how the generated art is made. Read before touching
+                            anything in src/assets/spot-illustrations.
 
 The surface we are building is `src/rebrand/app/AppShell.tsx` (FEED tab is now
 "FOR YOU" / MATCHES / COMMUNITIES), previewed at `/rebrand/app`. Its design

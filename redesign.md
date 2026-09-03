@@ -672,6 +672,13 @@ a slightly-wrong icon rather than an error. It caught `user-group` on the first
 run at 19.33x14.33; that one is recorded at its real grid of 20 and still
 renders 1px at 16 because `Icon` scales the stroke.
 
+**Spot illustrations are generated, not stored.** The animated marks in
+`src/assets/spot-illustrations/` are raymarched SDFs dithered to one bit through
+the brand's Bayer construction, recovered from the retired hero (31d2b93). They
+sit with the images because that is what they are, they follow the colour tokens
+at runtime, and they are documented in full in `illustration.md` — read that
+before changing one.
+
 **`Button Text` hover is a WEIGHT step, not an underline.** `Status=hover`
 keeps the size, the leading and the ink and moves Body 4B to Title 4C — both
 14/16, Regular to Medium. "See all" measures 42 in both states, so the step

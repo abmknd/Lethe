@@ -1,13 +1,13 @@
 import { useEffect, useRef } from 'react';
-import { SHADERS, type ShaderName } from './shaders';
 
 /**
- * SHADER CANVAS — the WebGL harness the animated assets share.
+ * SPOT ILLUSTRATION — the WebGL host every animated asset renders through.
  *
- * One fullscreen triangle, one fragment shader, one draw call. It exists as a
- * design-system component rather than inside the empty state because the
- * `dynamic_icons` workstream needs exactly this and should not grow a second
- * copy of it.
+ * One fullscreen triangle, one fragment shader, one draw call. It takes a
+ * shader SOURCE rather than a name from a registry, so an asset file is
+ * self-contained and importable on its own — an illustration is a module you
+ * import, like any other asset in `src/assets`, not an entry in a table
+ * somewhere else.
  *
  * WHAT IT TAKES CARE OF, none of which is optional in a real app:
  *
@@ -39,9 +39,7 @@ attribute vec2 a_pos;
 void main(){ gl_Position = vec4(a_pos, 0.0, 1.0); }
 `;
 
-/** The frame each shader is frozen at when motion is reduced — chosen so the
- *  shape reads at rest: box turned open to camera, ball whole, gear whole. */
-const STILL: Record<ShaderName, number> = { box: 1.1, ball: 1.2, gear: 1.4 };
+
 
 /**
  * THE TEMPORAL DITHER, from the retired hero (31d2b93).
@@ -63,30 +61,37 @@ function compile(gl: WebGLRenderingContext, type: number, src: string) {
   if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) {
     // Surfaced rather than swallowed: a silent compile failure looks exactly
     // like "the designer's asset is missing", and costs an hour to find.
-    console.error('[ShaderCanvas] compile failed:', gl.getShaderInfoLog(sh));
+    console.error('[SpotIllustration] compile failed:', gl.getShaderInfoLog(sh));
     gl.deleteShader(sh);
     return null;
   }
   return sh;
 }
 
-export function ShaderCanvas({
-  shader,
-  size = 140,
-  width,
-  className,
-}: {
-  shader: ShaderName;
-  /** HEIGHT in CSS pixels, and the unit the shaders are composed against. */
+/** What a caller may set on any spot illustration. */
+export type SpotProps = {
+  /** HEIGHT in CSS pixels. The assets are composed against 180. */
   size?: number;
-  /**
-   * Optional WIDTH. `p` is normalised by `u_res.y`, so widening the canvas
-   * widens the visible x range and leaves the subject's scale untouched — which
-   * is exactly what the two assets that scatter need, so a piece thrown
-   * sideways never meets an edge. Defaults to square.
-   */
-  width?: number;
   className?: string;
+};
+
+export function SpotIllustration({
+  source,
+  size = 180,
+  width,
+  still,
+  className,
+}: SpotProps & {
+  /** The fragment shader. Each asset module owns its own. */
+  source: string;
+  /**
+   * Natural WIDTH. `p` is normalised by `u_res.y`, so widening the canvas
+   * widens the visible x range and leaves the subject's scale untouched — which
+   * is what assets whose pieces travel sideways need. Scales with `size`.
+   */
+  width: number;
+  /** The frame to freeze on when motion is reduced. */
+  still: number;
 }) {
   const ref = useRef<HTMLCanvasElement>(null);
 
@@ -125,7 +130,9 @@ export function ShaderCanvas({
     let fs: WebGLShader | null = null;
 
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const cssW = width ?? size;
+    /* The natural box is authored against 180 tall; scale the width with it so
+       an asset keeps its framing at any size. */
+    const cssW = (width / 180) * size;
     const pxW = Math.round(cssW * dpr);
     const pxH = Math.round(size * dpr);
 
@@ -135,7 +142,7 @@ export function ShaderCanvas({
       if (!gl) return false;
 
       vs = compile(gl, gl.VERTEX_SHADER, VERT);
-      fs = compile(gl, gl.FRAGMENT_SHADER, SHADERS[shader]);
+      fs = compile(gl, gl.FRAGMENT_SHADER, source);
       if (!vs || !fs) return false;
 
       prog = gl.createProgram()!;
@@ -143,7 +150,7 @@ export function ShaderCanvas({
       gl.attachShader(prog, fs);
       gl.linkProgram(prog);
       if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
-        console.error('[ShaderCanvas] link failed:', gl.getProgramInfoLog(prog));
+        console.error('[SpotIllustration] link failed:', gl.getProgramInfoLog(prog));
         return false;
       }
       gl.useProgram(prog);
@@ -185,7 +192,7 @@ export function ShaderCanvas({
       if (gl && prog) {
         const off = OFFSETS[temporalIndex];
         gl.uniform2f(gl.getUniformLocation(prog, 'u_temporal'), off[0], off[1]);
-        gl.uniform1f(gl.getUniformLocation(prog, 'u_time'), reduced ? STILL[shader] : clock);
+        gl.uniform1f(gl.getUniformLocation(prog, 'u_time'), reduced ? still : clock);
         gl.clearColor(0, 0, 0, 0);
         gl.clear(gl.COLOR_BUFFER_BIT);
         gl.drawArrays(gl.TRIANGLES, 0, 3);
@@ -258,14 +265,14 @@ export function ShaderCanvas({
         gl = null;
       }
     };
-  }, [shader, size, width]);
+  }, [source, size, width, still]);
 
   return (
     <canvas
       ref={ref}
       aria-hidden
       className={className}
-      style={{ width: width ?? size, height: size, display: 'block' }}
+      style={{ width: (width / 180) * size, height: size, display: 'block' }}
     />
   );
 }

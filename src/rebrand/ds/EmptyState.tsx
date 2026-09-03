@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react';
-import { ShaderCanvas } from './ShaderCanvas';
-import type { ShaderName } from './shaders';
+import { BrokenBall, BrokenGear, EmptyBox } from '../../assets/spot-illustrations';
 import { Button } from './Button';
 import { BODY_3A } from './type';
 
@@ -28,23 +27,21 @@ import { BODY_3A } from './type';
 
 export type EmptyStateKind = 'empty' | 'client' | 'server';
 
-/** `width` is set where pieces fly sideways, so nothing is clipped mid-fall. */
-const PRESET: Record<EmptyStateKind, { shader: ShaderName; width: number; title: string; body: string }> = {
+/** Each illustration owns its own natural width and still frame, so this only
+ *  picks which mark belongs to which kind of nothing. */
+const PRESET: Record<EmptyStateKind, { Art: (p: { size?: number }) => JSX.Element; title: string; body: string }> = {
   empty: {
-    shader: 'box',
-    width: 200,
+    Art: EmptyBox,
     title: 'Nothing here yet.',
     body: 'Once there is something worth showing, it will show up here.',
   },
   client: {
-    shader: 'ball',
-    width: 270,
+    Art: BrokenBall,
     title: 'Oops, don’t look at us...',
     body: 'Looks like things are laggy on your end. Refresh or try again later',
   },
   server: {
-    shader: 'gear',
-    width: 270,
+    Art: BrokenGear,
     title: 'Don’t worry, this is on us.',
     body: 'We’re currently looking into the issue and will fix it asap. Sorry 😬',
   },
@@ -78,7 +75,7 @@ export function EmptyState({
       role={isError ? 'alert' : 'status'}
       className="flex flex-col items-center px-[32px] py-[56px] text-center"
     >
-      <ShaderCanvas shader={preset.shader} size={180} width={preset.width} />
+      <preset.Art size={180} />
       <h2 className="rebrand-display mt-[16px] text-[30px] leading-[110%] text-[var(--text-default-heading)]">
         {title ?? preset.title}
       </h2>
