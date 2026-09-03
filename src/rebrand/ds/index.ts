@@ -32,6 +32,9 @@
  *   CONNECT surface next to it is retired and frozen; do not extend it.
  */
 
+export * from './EmptyState';
+export { ShaderCanvas } from './ShaderCanvas';
+export type { ShaderName } from './shaders';
 export * from './SuggestedProfile';
 export * from './type';
 
