@@ -533,12 +533,18 @@ float map(vec3 p){
     float y = fallWithBounce(tau, hubY, 0.42, GRAV, restY, landed);
     float ta = min(tau, landed);
 
-    /* Pieces part along the fault, so left goes left. Kept small: two halves
-       flung to the corners read as an explosion, and this broke, not blew up. */
-    float vx    = -sg * 0.125;
+    /* Pieces part along the fault, so left goes left.
+       THEY USED TO OVERLAP ONCE LANDED, and a union of two intersecting solids
+       grows edges where they cross — which read as four small pieces rather
+       than two. Once each half settles FLAT its footprint is the full diameter,
+       not the half-disc it was in the air, so the separation has to clear ~0.33
+       and 0.125 * flight never did. Measured: they resolved as one blob.
+       Also pushed apart in z, so if they do graze, one is clearly in front of
+       the other instead of merging into it. */
+    float vx    = -sg * 0.275;
     float slide = 1.0 - exp(-3.2 * max(tau - landed, 0.0));
     float x = travel + vx * ta + vx * 0.06 * slide;
-    float z = -sg * 0.028 * ta;
+    float z = -sg * 0.090 * ta;
 
     float set = smoothstep(landed, landed + 0.30, tau);
     float az  = roll + (-sg) * 4.0 * ta;
