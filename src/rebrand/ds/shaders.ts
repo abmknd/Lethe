@@ -178,11 +178,20 @@ export const BOX = /* glsl */ `${PRELUDE}
 const float CYCLE = 6.0;
 float gT;
 
+/**
+ * THE SWING DIRECTION WAS BACKWARDS. Closed, the leaf points INWARD (-z) across
+ * the opening. Taking it to -2.6 rad swept it DOWN through the inside of the
+ * box and left it pointing up and outward, which is why the lid looked like it
+ * opened from the outside up.
+ *
+ * A carton flap goes UP AND OVER. In this frame the leaf direction is
+ * (0, sin a, -cos a): a=0 inward, a=PI/2 straight up, a=PI outward level, and
+ * a=3.5 outward and drooping. So the open angle is POSITIVE and just past PI —
+ * it sweeps up through vertical and folds down outside the wall.
+ */
 float flap(vec3 p, float yaw, float open){
-  /* hinge on the rim of one wall */
   vec3 q = rotY(yaw) * p - vec3(0.0, 0.150, 0.183);
-  q = rotX(mix(0.0, -2.60, open)) * q;
-  /* closed, the leaf lies inward across the opening */
+  q = rotX(mix(0.0, 3.50, open)) * q;
   return sdRoundBox3(q - vec3(0.0, 0.0, -0.082), vec3(0.160, 0.009, 0.084), 0.008);
 }
 
@@ -223,9 +232,8 @@ void main(){
   }
   if(!hit){ gl_FragColor = vec4(u_ink, 0.0); return; }
 
-  float dens = shadeDensity(ro + rd * t, rd);
-  dens *= 1.0 - smoothstep(CYCLE - 0.40, CYCLE - 0.06, lt);
-  gl_FragColor = inkFrom(dens);
+  /* No fade at the seam — the loop is a clean replay, not a dip to nothing. */
+  gl_FragColor = inkFrom(shadeDensity(ro + rd * t, rd));
 }
 `;
 
@@ -284,16 +292,25 @@ float map(vec3 p){
         float release = 2.25 + (1.0 - length(rest) / (RAD + BX)) * 1.10 + rh * 0.18;
         float tau = max(lt - release, 0.0);
 
+        /* THE WHOLE BALL TURNS BEFORE IT LETS GO. The assembly angle is frozen
+           at each brick's own release, so a brick that has come loose keeps the
+           orientation and position it had at the moment it left and stops
+           tracking the assembly. Rotating 'rest' rather than the sample point
+           is what keeps every piece rigid through the handover. */
+        float aSpin = 0.62 * min(lt, release);
+        mat3  A     = rotY(aSpin);
+        vec3  rw    = A * rest;
+
         float restY = FLOORY + BY;
         float landed;
-        float y = fallWithBounce(tau, rest.y, 0.14, 1.75, restY, landed);
+        float y = fallWithBounce(tau, rw.y, 0.14, 1.75, restY, landed);
 
         /* Spread mostly sideways. Depth scatter is a third of it: a brick
            thrown at the camera grows and leaves the frame through the bottom
            edge, which reads as a clipping bug rather than as a throw. */
-        vec3 dir = normalize(rest + vec3(0.001, 0.002, 0.001));
+        vec3 dir = normalize(rw + vec3(0.001, 0.002, 0.001));
         float sp = min(tau, landed);
-        vec3 T = vec3(rest.x + dir.x * 0.40 * sp, y, rest.z + dir.z * 0.15 * sp);
+        vec3 T = vec3(rw.x + dir.x * 0.40 * sp, y, rw.z + dir.z * 0.15 * sp);
 
         /* Spin FORWARD to a flat pose. Never rewind: lerping a spun angle back
            toward a fixed target is what made pieces appear to flip over. */
@@ -304,7 +321,7 @@ float map(vec3 p){
         float ax = wx * ta;
         ax = mix(ax, (rnd1((ax - 1.5708) / PI)) * PI + 1.5708, set);  /* nearest flat */
 
-        mat3 Rm = rotZ(wz * ta) * rotX(ax);
+        mat3 Rm = rotX(ax) * rotZ(wz * ta) * A;   /* tilt last, in world space */
         d = min(d, brick((p - T) * Rm, rest));
       }
     }
@@ -410,7 +427,11 @@ float map(vec3 p){
     float ax  = sg * 2.6 * ta;
     ax = mix(ax, (rnd1((ax - 1.5708) / PI)) * PI + 1.5708, set);
 
-    mat3 Rm = rotZ(az) * rotX(ax);
+    /* ORDER MATTERS AND IT WAS WRONG. With rotZ * rotX the settle laid the
+       disc flat and then rotZ — about the WORLD z — stood it straight back up
+       on its edge. The spin belongs in BODY space and the lay-flat in world
+       space, so the tilt has to come first in the product. */
+    mat3 Rm = rotX(ax) * rotZ(az);
     d = min(d, gearHalf((p - vec3(x, y, z)) * Rm, sg, crack));
   }
   return d;
@@ -434,9 +455,8 @@ void main(){
   }
   if(!hit){ gl_FragColor = vec4(u_ink, 0.0); return; }
 
-  float dens = shadeDensity(ro + rd * t, rd);
-  dens *= 1.0 - smoothstep(CYCLE - 0.40, CYCLE - 0.06, lt);
-  gl_FragColor = inkFrom(dens);
+  /* No fade at the seam — the loop is a clean replay, not a dip to nothing. */
+  gl_FragColor = inkFrom(shadeDensity(ro + rd * t, rd));
 }
 `;
 
