@@ -108,6 +108,10 @@ export function ShaderCanvas({
       return [((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255] as const;
     };
     const ink = hex(css.getPropertyValue('--color-blue-600'), '#0000f2');
+    /* The duotone's lift. Blue 500 rather than a tint of 600, so the two tones
+       are both real ramp steps and the lighter one stays saturated — a washed
+       tint is exactly the flatness this is meant to fix. */
+    const ink2 = hex(css.getPropertyValue('--color-blue-500'), '#3333f5');
     const field = hex(css.getPropertyValue('--surface-neutral-default'), '#ffffff');
 
     let raf = 0;
@@ -158,6 +162,7 @@ export function ShaderCanvas({
       gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
       gl.uniform2f(gl.getUniformLocation(prog, 'u_res'), pxW, pxH);
       gl.uniform3f(gl.getUniformLocation(prog, 'u_ink'), ink[0], ink[1], ink[2]);
+      gl.uniform3f(gl.getUniformLocation(prog, 'u_ink2'), ink2[0], ink2[1], ink2[2]);
       gl.uniform3f(gl.getUniformLocation(prog, 'u_field'), field[0], field[1], field[2]);
       return true;
     };

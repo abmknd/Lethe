@@ -33,7 +33,8 @@ export const PRELUDE = /* glsl */ `
 precision highp float;
 uniform vec2  u_res;
 uniform float u_time;
-uniform vec3  u_ink;
+uniform vec3  u_ink;    /* the deep — Blue 600 */
+uniform vec3  u_ink2;   /* the lift — Blue 500, for the duotone */
 uniform vec3  u_field;
 uniform vec2  u_temporal;
 
@@ -59,12 +60,30 @@ float cellHash(vec2 p){
 
 const float DITHER_NOISE = 0.10;
 
+/**
+ * CLUSTER 0.5 — the Bayer lattice is sampled at half resolution, so one
+ * threshold cell covers a 2x2 block of device pixels. At DPR 2 that is one CSS
+ * pixel per cell: the stipple clumps into visible grains instead of dissolving
+ * into per-pixel fizz, which is what "washed out" was. Coarser dots, more
+ * contrast between them, same construction underneath.
+ */
+const float CLUSTER = 0.5;
+
+/**
+ * DUOTONE. It is still one bit of COVERAGE — a pixel is inked or it is not —
+ * but the ink itself takes one of two tones by how dark that area is. The deep
+ * carries the shadows and the lift carries the mid-lit stipple, so a shaded
+ * underside separates from a lit face by hue as well as by dot count. That is
+ * the luminous separation; going further would flatten the shading it is meant
+ * to reveal.
+ */
 vec4 inkFrom(float density){
-  float t = mix(Bayer8(gl_FragCoord.xy + u_temporal),
-                cellHash(gl_FragCoord.xy + u_temporal * 3.0),
-                DITHER_NOISE);
+  vec2 cell = gl_FragCoord.xy * CLUSTER + u_temporal;
+  float t = mix(Bayer8(cell), cellHash(cell * 3.0), DITHER_NOISE);
   t = t * (63.0 / 64.0) + (0.5 / 64.0);
-  return vec4(u_ink, step(t, clamp(density, 0.0, 1.0)));
+  float d = clamp(density, 0.0, 1.0);
+  vec3 col = mix(u_ink2, u_ink, smoothstep(0.30, 0.78, d));
+  return vec4(col, step(t, d));
 }
 
 /* ── 3D primitives ───────────────────────────────────────────────────────── */
@@ -123,8 +142,13 @@ float shadeDensity(vec3 pos, vec3 rd){
   float rim = pow(1.0 - clamp(dot(n, -rd), 0.0, 1.0), 3.5);
 
   float lum = amb * ao * 0.38 + dif * ao * 0.86 + rim * 0.10;
-  lum = pow(clamp(lum, 0.0, 1.0), 0.80);
-  return clamp(mix(0.05, 1.0, 1.0 - lum), 0.0, 1.0);
+
+  /* Expand the useful band, then an S-curve. Expansion alone would clip the
+     deeps flat; the S keeps the midtones that carry the shading and only
+     steepens the slope between them. */
+  lum = clamp((lum - 0.16) / (0.88 - 0.16), 0.0, 1.0);
+  lum = lum * lum * (3.0 - 2.0 * lum);
+  return clamp(mix(0.02, 1.0, 1.0 - lum), 0.0, 1.0);
 }
 
 mat3 lookAt(vec3 ro, vec3 ta){
@@ -254,16 +278,21 @@ void main(){
  * unshippable. The bound grows as the pieces scatter so it never clips them.
  */
 export const BALL = /* glsl */ `${PRELUDE}
-const float CYCLE = 5.8;
-const float BX    = 0.060;   /* brick half width / depth */
-const float BY    = 0.040;   /* brick half height        */
-const float GAP   = 0.009;
-const float RAD   = 0.200;
+/* 2x2x2, not 3x3x3. Eight big bricks read as PARTS at 140px; twenty-seven
+   small ones read as texture, which was the whole complaint. */
+const float CYCLE = 4.6;
+const float BX    = 0.092;   /* brick half width / depth */
+const float BY    = 0.072;   /* brick half height        */
+const float GAP   = 0.010;
+const float RAD   = 0.186;
 float gT;
 
 float brick(vec3 q, vec3 rest){
-  float d = sdRoundBox3(q, vec3(BX, BY, BX), 0.010);
-  d = min(d, sdCylY(q - vec3(0.0, BY + 0.013, 0.0), 0.014, 0.026));
+  float d = sdRoundBox3(q, vec3(BX, BY, BX), 0.014);
+  /* four studs, so a face still reads as a brick face at this size */
+  vec3 sq = q - vec3(0.0, BY + 0.016, 0.0);
+  sq.xz = abs(sq.xz) - BX * 0.46;
+  d = min(d, sdCylY(sq, 0.016, 0.032));
   float e = length(q + rest) - RAD;      /* clip in ASSEMBLY space */
   return max(d, e * 0.55);
 }
@@ -271,33 +300,35 @@ float brick(vec3 q, vec3 rest){
 float map(vec3 p){
   float lt = mod(gT, CYCLE);
 
-  float spread = smoothstep(2.3, 4.3, lt);
+  float spread = smoothstep(1.9, 3.4, lt);
   float bound  = length(p - vec3(0.0, mix(0.0, -0.09, spread), 0.0))
-               - (RAD + 0.08 + spread * 0.52);
+               - (RAD + 0.11 + spread * 0.46);
   if(bound > 0.05) return bound;
 
   float d = 1e9;
-  for(int i = 0; i < 3; i++){
-    for(int j = 0; j < 3; j++){
-      for(int k = 0; k < 3; k++){
+  for(int i = 0; i < 2; i++){
+    for(int j = 0; j < 2; j++){
+      for(int k = 0; k < 2; k++){
         float fi = float(i), fj = float(j), fk = float(k);
         /* size PLUS a gap, per axis — no interpenetration, real seams */
-        vec3 rest = (vec3(fi, fj, fk) - 1.0)
+        vec3 rest = (vec3(fi, fj, fk) - 0.5)
                   * vec3(BX * 2.0 + GAP, BY * 2.0 + GAP, BX * 2.0 + GAP);
-        if(length(rest) > RAD + BX * 0.8) continue;
 
-        vec2  id  = vec2(fi * 3.0 + fj, fk);
+        vec2  id  = vec2(fi * 2.0 + fj, fk);
         float rh  = cellHash(id);
 
-        float release = 2.25 + (1.0 - length(rest) / (RAD + BX)) * 1.10 + rh * 0.18;
+        float release = 1.95 + rh * 0.30;
         float tau = max(lt - release, 0.0);
 
-        /* THE WHOLE BALL TURNS BEFORE IT LETS GO. The assembly angle is frozen
-           at each brick's own release, so a brick that has come loose keeps the
-           orientation and position it had at the moment it left and stops
-           tracking the assembly. Rotating 'rest' rather than the sample point
-           is what keeps every piece rigid through the handover. */
-        float aSpin = 0.62 * min(lt, release);
+        /* THE SPIN WINDS UP, and that is what appears to throw it apart. The
+           angle is quadratic in time, so angular speed rises linearly and the
+           break lands at the fastest moment rather than arriving out of
+           nowhere. Frozen at each brick's own release, so a loose brick keeps
+           the orientation and position it had when it left and stops tracking
+           the assembly — rotating 'rest' rather than the sample point is what
+           keeps every piece rigid through the handover. */
+        float ls    = min(lt, release);
+        float aSpin = 0.30 * ls + 0.62 * ls * ls;
         mat3  A     = rotY(aSpin);
         vec3  rw    = A * rest;
 
@@ -415,11 +446,13 @@ float map(vec3 p){
     float y = fallWithBounce(tau, hubY, 0.55, GRAV, restY, landed);
     float ta = min(tau, landed);
 
-    /* horizontal carries through the bounce, then friction takes it */
-    float vx    = sg * 0.30;
+    /* Horizontal carries through the bounce, then friction takes it. Kept
+       small on purpose: two halves flung to the corners read as an explosion,
+       and this is a thing that broke, not a thing that detonated. */
+    float vx    = sg * 0.125;
     float slide = 1.0 - exp(-3.2 * max(tau - landed, 0.0));
-    float x = travel + vx * ta + vx * 0.09 * slide;
-    float z = sg * 0.045 * ta;
+    float x = travel + vx * ta + vx * 0.06 * slide;
+    float z = sg * 0.028 * ta;
 
     /* spin freezes at landing; tilt eases FORWARD to the nearest flat pose */
     float set = smoothstep(landed, landed + 0.28, tau);
