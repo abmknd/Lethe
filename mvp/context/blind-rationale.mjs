@@ -41,6 +41,24 @@ function formatThemeList(tokens) {
   return top[0] ?? '';
 }
 
+/**
+ * A theme, carried as an EMPHASIS SPAN rather than one joined string.
+ *
+ * The Suggested card draws each signal bullet in two colours: the sentence in
+ * `text/default/placeholder` with the operative phrase stepped up to
+ * `text/default/body`. That phrase is always the shared tokens — the part that
+ * is actually about these two people, as opposed to the stock framing around
+ * it. Splitting here is free because this is where the two halves are already
+ * separate; joining them and asking the client to find the seam again is not.
+ *
+ * `label` stays, pre-joined, so existing consumers and the leak guard are
+ * unaffected. It is exactly `pre + emph + post`.
+ */
+function theme(kind, pre, tokens, post = '') {
+  const emph = formatThemeList(tokens);
+  return { kind, label: `${pre}${emph}${post}`, pre, emph, post };
+}
+
 const ROLE_CATEGORY_LABELS = {
   builder: 'A builder',
   operator: 'An operator',
@@ -125,19 +143,19 @@ export function buildBlindRationale({ recommendation = {}, viewerProfile, candid
   const themes = [];
   const theyHelp = sharedTokens(vp.asks, cp.offers);
   if (theyHelp.length) {
-    themes.push({ kind: 'they_help', label: `Can help with ${formatThemeList(theyHelp)}` });
+    themes.push(theme('they_help', 'Can help with ', theyHelp));
   }
   const youHelp = sharedTokens(cp.asks, vp.offers);
   if (youHelp.length) {
-    themes.push({ kind: 'you_help', label: `Looking for something you offer: ${formatThemeList(youHelp)}` });
+    themes.push(theme('you_help', 'Looking for something you offer: ', youHelp));
   }
   const interests = sharedTokens(vp.interests, cp.interests);
   if (interests.length) {
-    themes.push({ kind: 'shared_interest', label: `Shared interest in ${formatThemeList(interests)}` });
+    themes.push(theme('shared_interest', 'Shared interest in ', interests));
   }
   const objectives = sharedTokens(vp.objectives, cp.objectives);
   if (objectives.length) {
-    themes.push({ kind: 'shared_objective', label: `Both working toward ${formatThemeList(objectives)}` });
+    themes.push(theme('shared_objective', 'Both working toward ', objectives));
   }
 
   const rationale = {

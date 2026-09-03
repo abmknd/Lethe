@@ -8,6 +8,53 @@ that govern it, and the things that were learned the hard way.
 
 ---
 
+## 0. Starting a new chat — paste this
+
+Everything below is deliberately self-contained. Paste it as the first message
+of a new session; it names every file worth reading and the order to read them.
+
+```text
+We are mid-way through Phase 4 of the Relethe blue/yellow rebrand, on branch
+`front-end-demo-updates`. Read these before touching anything, in this order:
+
+  1. REBRAND-HANDOFF.md   — state, rules, traps, sunset plan. START HERE.
+  2. redesign.md          — the design system. Normative. Supersedes design.md,
+                            which is STALE and must not be followed.
+  3. REBRAND-PLAN.md      — the phases and what each one owns.
+  4. docs/backend-gaps.md — which profile fields actually have a column, and
+                            which the design asks for but the API cannot supply.
+
+The surface we are building is `src/rebrand/app/AppShell.tsx` (FEED tab is now
+"FOR YOU" / MATCHES / COMMUNITIES), previewed at `/rebrand/app`. Its design
+system is `src/rebrand/ds/` — one file per Figma component, node id on each.
+Icons are generated: `scripts/icons.manifest.json` plus
+`node scripts/import-figma-icons.mjs`. Never hand-write a glyph.
+
+The CONNECT design is RETIRED. `ConnectSurface`, `SuggestionCard`, `MatchCard`
+and the old `AppHeader` carry a FROZEN header — do not extend them. `/connect`
+is already migrated onto AppShell as MATCHES/Suggested and is the template for
+migrating the remaining pages.
+
+Figma file key `d4i3aGDu0mH8BRe5zxmMmA`. Two rules that cost real time:
+  - ALWAYS call `get_design_context` on a named node. `get_metadata` gives
+    boxes only and will produce something that measures right and looks wrong.
+  - NEVER read a placed icon through an `I<frame>;<component>;<slot>` path. It
+    returns the COMPONENT DEFAULT, not the override. Read the top-level node.
+
+`npm run check:frontend` (typecheck -> lint -> build) must pass before any
+commit. `vite build` alone is not a typecheck and has shipped runtime errors.
+
+Conventions: work on `front-end-demo-updates`; "deploy"/"commit" means commit,
+push, and open a PR to main — never push to main. Draft PR review text only,
+never submit to GitHub unless asked. No em-dashes in output. Log every change
+in the "Relethe Changelog" Notion doc the same session it lands. Split flags
+into "In my court" and "In your court".
+
+Tell me you have read these and what you understand the next step to be.
+```
+
+---
+
 ## 1. Where we are
 
 | Phase | State |
@@ -20,46 +67,48 @@ that govern it, and the things that were learned the hard way.
 | 5 · Non-React surfaces (email, favicon, og-image) | not started |
 | 6 · Promote and sunset `src/rebrand/` | not started |
 
-### Done in Phase 4 so far
-- Token spine promoted to `:root` in `src/styles/tokens.css`, shared by app
-  and rebrand. 55 tokens. `rebrand.css` declares none of its own.
-- **Match card** (`src/rebrand/app/MatchCard.tsx`): blind / awaiting / revealed.
-- **All twelve onboarding screens**, rebuilt light on the ramp from the KYC
-  reference. Shell split into `KYCFlow` (the card) and `KYCModal` (the scrim),
-  so the gallery drives all twelve without auth.
-- **Desktop two-column layout** per the Figma `Implement Design Specifications`
-  frame: card left, illustration plate right, gated on a CONTAINER query at
-  1160px so the gallery's fixed frames behave correctly. 11 plates committed
-  from `white_themes/portrait_art` (5.0MB, 900px q86).
-- **New primitives:** DaylightBand, SelectRow, CheckDot, Chip, Well,
-  ListContainer/ListBand, FieldShell/FieldInput, Textarea, Accordion, IconTile,
-  StepHeader/StepSection/SectionLabel, Button `tertiary`.
-- **`src/styles/rebrand-surface.css`**, imported by the app AND the rebrand.
-- **Component gallery** at `gallery.html`: step chips 1–12, 560/375 toggle.
+### Phase 4, part one — onboarding (done, 2026-08)
+- Token spine at `:root` in `src/styles/tokens.css`, shared by app and rebrand.
+- **All twelve onboarding screens** on the ramp, desktop two-column per the
+  Figma spec frame, 11 portrait plates committed.
+- Primitives: DaylightBand, SelectRow, CheckDot, Chip, Well, ListContainer,
+  FieldShell, Textarea, Accordion, IconTile, StepHeader, Button `tertiary`.
+- `src/styles/rebrand-surface.css`, imported by app AND rebrand.
+- Component gallery at `gallery.html`.
+
+### Phase 4, part two — the app shell (current work, 2026-08-30/31)
+
+**THE SURFACE IS `src/rebrand/app/AppShell.tsx`** — FEED / MATCHES /
+COMMUNITIES, built from `relethe-feed` 750:184 (feed), 907:22311 (matches) and
+972:13311 (suggested). Preview at `/rebrand/app`.
+
+**The CONNECT design is RETIRED.** CONNECT / FEED in the top bar, a three-up tab
+rail, a 600-wide card. `ConnectSurface`, `SuggestionCard`, `MatchCard` and the
+old `AppHeader` carry a FROZEN header and take no further investment. Its
+preview route is deleted. They still exist only because `/connect` mounts them.
+
+**A design system exists at `src/rebrand/ds/`** — one file per Figma component,
+node id on each, re-exported from `ds/index.ts`. Avatar, AvatarStack,
+BadgeButton, BadgeIcon, BadgeText, Button, ButtonText, Chip, Divider, Icon,
+LocationMeta, NavItem, SectionLabel, Sidebar, SuggestedProfile, TabBar, Tag,
+ToggleButton, Questionnaire, and the type scale in `ds/type.ts`.
+
+**Icons are local, generated, and committed.** `scripts/icons.manifest.json`
+records name → Figma node → size → provenance URL; `node scripts/import-figma-icons.mjs`
+regenerates `src/assets/system_icons/`. Never hand-write a glyph.
+
+**`/connect` (live) has been migrated** onto AppShell as MATCHES/Suggested. It
+is the first real page on the new shell and the template for the rest.
 
 ### Next up — in this order
 
-Ordered by the seam rule (REBRAND-PLAN, "How this lands in the product"): the
-boundary a user actually walks across comes first.
-
-1. **ConnectPage** — `KYCPaused` says "You'll find it in Connect", so onboarding
-   hands the user straight across a brand boundary today. 363 lines, 19 hexes,
-   no chartreuse: small, and it closes the seam we just created.
-2. **Post card → Feed** — drawn in Figma on the `components` board. Feed itself
-   is only 6 hexes; the card is the work.
-3. **Profile card → ProfilePage** — also drawn in Figma (Blue 100 header band,
-   availability toggle, checklist, interest pills). 687 lines, 49 hexes. Note
-   Figma tints completed checklist rows blue where redesign.md 5.7 says
-   Black 100 — reconcile before building.
-4. **MatchesPage / MatchRevealPage** — 8 and 10 hexes; both consume the match
-   card, which already exists.
-5. **MessagesPage** — 452 lines, 25 hexes, 15 chartreuse.
-6. **SettingsPage** — 1366 lines, 77 hexes, 36 chartreuse. The biggest single
-   surface in the app; do it last, when every primitive it needs exists.
-
-Counts from `grep` on 2026-08-16, not from the Changelog.
-
----
+1. **`/matches`** — the Matches row of the same rail (907:22311). It still
+   renders its own old page. Same migration shape as `/connect`.
+2. **Feed, Profile, Messages, Settings, Communities** — each a page migration
+   onto `AppShell`, one small revertible PR at a time.
+3. **Burn down the 32 legacy type errors** so `tsconfig.check.json` can collapse
+   into `tsconfig.json` and the gate covers all of `src`.
+4. **Phase 6 sunset** once the pages are migrated (see section 6).
 
 ## 2. Rules that must not be broken
 
@@ -145,7 +194,35 @@ the gallery looked perfect. The surface now lives in
 `src/styles/rebrand-surface.css`, imported by both. Check the app, not only the
 gallery.
 
+### Reading Figma — the two rules that matter most
+
+**Call `get_design_context`, never `get_metadata` alone.** Metadata is boxes and
+positions. It does not carry which token a fill is, which of two `chat` glyphs a
+control uses, or that an emphasis is a colour step rather than a bold. A pass
+built from metadata measured correctly and looked wrong in a dozen places.
+
+**Do NOT read a placed icon through an instance path.**
+`get_design_context` on `I<frame>;<component>;<slot>` returns the COMPONENT'S
+DEFAULT for that slot, not the frame's override — both sidebars' selected rows
+come back as `home-03` because that is what `Nav Item`'s icon slot defaults to.
+Reading those paths produced a phantom "the sidebar mixes 16px and 20px glyphs"
+report that was chased twice and did not exist. Read the TOP-LEVEL node; in its
+generated ternary the false branch is the 16px variant, and that reflects what
+is actually placed.
+
+Related: the `size="20px"` prop in generated code is an artifact of the same
+collapsing. Trust `className`/geometry and the top-level read, not the prop.
+
 ### Other traps hit
+- An inline or `block` box inside a button is sized by TYPOGRAPHY, not contents:
+  a 32 avatar measured 39, an 88 avatar measured 95, a 6px dot measured 6x24.
+  The fix is always `flex` on the wrapper.
+- `vite build` is NOT a typecheck. It shipped a duplicate declaration, a missing
+  import and a stale object key, each of which threw in the browser on a green
+  build. `npm run typecheck` exists now; use it.
+- Icon exports are the ELEMENTS bounding box, not the icon box. They must be
+  centred into a `size` viewBox, and if `size` is wrong the glyph crops in
+  silence. The importer guards this now.
 - Guarding with `if ('vLocal' not in src)` matched the existing `vLocalY`, so a
   varying was never added and the program silently failed to link.
 - The gallery must import the app stylesheet too, or KYC steps stack
@@ -168,16 +245,54 @@ npm run dev                  # app + previews on :5173
 | `/rebrand` | the landing inside the real router |
 
 ```bash
-npm run build                # must pass before any commit
-npx tsx scripts/verify-diagnostic.mjs   # survey scoring intact
-node scripts/optimize-illustrations.mjs # masters -> WebP q94 @1280
+npm run check:frontend       # typecheck -> lint -> build. MUST pass before any commit
+npm run typecheck            # scoped gate: src/rebrand + src/assets. Green.
+npm run typecheck:all        # whole of src. 32 pre-existing errors, being burned down
+node scripts/import-figma-icons.mjs      # regenerate icons from the manifest
+npx tsx scripts/verify-diagnostic.mjs    # survey scoring intact
+node scripts/optimize-illustrations.mjs  # masters -> WebP q94 @1280
 ```
+
+`/rebrand/app` is the app-shell preview. `/rebrand/connect` is GONE — it
+previewed the retired design.
 
 ---
 
-## 5. Open flags
+## 5. How the rebrand lands in the product
+
+The sunset plan, so it is not re-derived every session.
+
+**A · Build.** Surfaces live in `src/rebrand/`, previewed at `/rebrand/*`,
+built from `get_design_context` on named nodes.
+
+**B · Migrate, page by page, never big-bang.** The `/connect` → MATCHES/Suggested
+move is the template: split the shell into a layout, leave the page's real
+data-fetching alone, swap only what it renders, verify, ship. One small PR per
+page so any of them can be reverted alone.
+
+**C · Sunset by subtraction.** A file is deleted only when nothing imports it:
+1. delete the `/rebrand/*` preview route once its live page is migrated
+2. move the component out of `src/rebrand/` into its permanent home
+3. delete the retired component (the frozen Connect build)
+4. delete the demo data that only fed the preview
+
+**D · Cleanup you can trust.** With `noUnusedLocals` on, an unreferenced export
+is a BUILD ERROR, not something to hunt for — dead code announces itself. Burn
+down the 32 legacy errors here, then `tsconfig.check.json` collapses into
+`tsconfig.json` and the gate covers all of `src`.
+
+---
+
+## 6. Open flags
 
 **In my court**
+- `/matches` still renders its own old page; it is the Matches row of the shell's
+  own rail and should join it next.
+- 32 legacy type errors under `typecheck:all` — mostly unused shadcn leftovers
+  in `src/app/components/ui/` importing a `buttonVariants` that was never
+  exported, plus a `button.tsx`/`Button.tsx` casing collision.
+- `bulb` in the icon manifest has a stale provenance URL. The committed
+  `bulb.tsx` is fine; only a re-run needs the refresh.
 - The old `src/app/components/DiagnosticModal.tsx` still holds its own copy of
   the survey data. It should import from `src/lib/diagnostic.ts` so the two
   cannot drift, or be deleted once the rebrand landing goes live.
@@ -189,6 +304,15 @@ node scripts/optimize-illustrations.mjs # masters -> WebP q94 @1280
   is correct but ugly.
 
 **In your court**
+- ~~The blind Suggested card.~~ CLOSED. `candidate` is null while blind (the
+  type says so) and Suggested fetches exactly those rows, but the card is not
+  empty: the role chip is `blindRationale.roleCategory`, About is `insightText`,
+  SIGNAL is `overlapThemes`. The avatar falls back to initials, which is the
+  Avatar component's designed behaviour and literally what Figma's placeholder
+  draws. A blind card missing a face and a surname is the FEATURE, not a gap.
+- **`whyMatched` emphasis.** The design colours part of each signal bullet;
+  `blindRationale.overlapThemes` now carries `{pre, emph, post}` so it renders,
+  but any new bullet source needs the same split.
 - **Committed art weight.** Onboarding added 5.0MB of WebP. Dropping the KYC
   encode to 760px q82 would halve it; the constant is one line in
   `scripts/optimize-illustrations.mjs`.

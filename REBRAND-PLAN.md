@@ -188,7 +188,155 @@ From the supplied in-app reference image, already partially spec'd in
 - Signal overview: header block, bullets, common interests, mutuals,
   availability day cards, socials, pass/match
 
-### 4c. Edge cases and loose ends
+### 4c. Asset systems
+
+Two asset workstreams that are not screens and do not belong to any one surface.
+Both sit in Phase 4 rather than later because **every surface after this one
+consumes them** — an icon decided in Phase 5 is an icon re-drawn in Phase 5.
+
+#### 4c-i. `system_icons` — the product icon set
+
+**Closed: the library is HugeIcons, adopted whole as the Relethe icon library.**
+Nothing is drawn by us. The whole set is in scope, not a 240-icon subset.
+
+**Ship it from npm, not from a Figma export.**
+
+```
+@hugeicons/react            the renderer
+@hugeicons/core-free-icons  the icon data — MIT
+```
+
+This settles the earlier "Figma or hardcoded SVG" question by making it moot:
+the drawing already exists as a maintained, versioned, tree-shakeable package,
+so exporting thousands of SVGs out of Figma reproduces by hand what `npm i`
+does correctly. The Figma file stays the design-side source; the package is the
+code-side source; they are the same drawings from the same publisher.
+
+What an export would cost, concretely, and why we are not paying it: the MCP
+caps SVG assets at 20 per node, so the library is ~169 calls. Every exported
+file also carries two baked-in artefacts that have to be stripped — a
+`<rect width="24" height="24" fill="#1E1E1E"/>` behind the glyph and the parent
+sheet's `<rect width="1144" ... fill="white"/>` — plus a literal `#100A0A`
+stroke that must become `currentColor`. That is a bespoke cleanup pipeline
+maintained forever, against a package that needs none of it.
+
+##### The style, measured
+
+Read off `calendar-01` as it exists in the file, not specified from memory:
+
+```
+viewBox        0 0 24 24
+stroke-width   1.5          as DRAWN by the vendor
+linecap        round
+linejoin       round
+fill           none — strokes only
+colour         currentColor
+```
+
+**We render it lighter than it is drawn.** Decision: **1px at 16, 1.25px at 24**
+(redesign.md 5.5.1). The drawn weight is the vendor's decision; the rendered
+weight is ours, and 1.5 at every size reads heavy against Archivo at 13–14px.
+
+The trap, which is why `iconStroke(size)` exists rather than a constant:
+`stroke-width` is in viewBox units, so a 24-grid icon rendered at 16px has its
+stroke scaled by `16/24` along with everything else. **The attribute goes DOWN
+as the icon gets bigger.**
+
+```
+16px display   ->  strokeWidth 1.5    ->  1.0 rendered
+24px display   ->  strokeWidth 1.25   ->  1.25 rendered
+```
+
+Passing `1` for a 16px icon gives 0.67 on screen, which is the mistake this
+would otherwise invite at all 47 call sites.
+
+This is a *stroke* width, not a *border* width. The 1.25px card borders in
+redesign.md 4 and 5.4 are a different property and do not change.
+
+##### The usage map survives, with a different job
+
+`scripts/icon-inventory.mjs` no longer lists what to draw. It maps the **240
+semantic names the product calls icons by** onto library icons, and generates
+`docs/system-icons.md`. Worth keeping because:
+
+1. A call site reads `match-blind`, not `user-search-01`.
+2. Swapping the pack later touches one file rather than 47.
+3. It is the only record of which icons the product actually uses, which is
+   what makes the lucide migration finishable.
+
+Using an icon outside the map is fine — the whole library is available. The map
+is a naming layer, not a whitelist.
+
+##### What still needs a human decision
+
+Around 60 of the 240 have no name-equivalent in any general library and resolve
+by *meaning* rather than by name. These are one judgement call each:
+
+- the fourteen role families from Step 9
+- `match-blind` / `match-revealed` / `match-pending`
+- `content-flowing` / `content-fading` / `content-faded`
+- `daylight-band`, `confidence-band`, `signal-overlap`
+- `trust-ledger`, `provenance`, `no-show`
+
+##### Steps
+
+1. `npm i @hugeicons/react @hugeicons/core-free-icons`
+2. One `Icon` wrapper owning size, 1.5 stroke and `currentColor`, so no caller
+   sets any of them.
+3. Resolve the 240 map entries against the library's own names; the ~60 above
+   get chosen deliberately.
+4. Migrate the 42 lucide call sites, surface by surface.
+5. Remove `lucide-react` from `package.json`. That is the completion test.
+
+**Coverage caveat.** The Figma file carries both `-round` and `-sharp` variants,
+which suggests the paid tier; `core-free-icons` is the free set. If a mapped
+icon turns out to be pro-only, that is a coverage question to settle at step 3,
+not a licensing one — the free package is MIT.
+
+#### 4c-ii. `dynamic_icons` — ten animated marks
+
+Ten square marks, **80px base size, responsive up to 200px**, animated with
+WebGL/GLSL, living in `src/assets/dynamic_icons/`. The diagnostic illustration
+on the landing page is the first: it should be alive, not a static plate.
+
+**Rules:**
+
+```
+aspect          1:1, always
+size            80 base, fluid to 200; a shader must not assume pixel size
+motion          ambient and slow — a mark that loops visibly is a distraction.
+                No motion under `prefers-reduced-motion`; render one static frame
+fallback        every dynamic icon has a static WebP twin, shown when WebGL is
+                unavailable or the program fails to link. A hole is not a state
+colour          samples the ramp via uniforms; a shader does not carry its own
+                hex any more than a component does
+budget          one shared canvas/context where several appear together — ten
+                contexts on one page is ten GPU allocations
+```
+
+**Carried from the deleted hero WebGL work, so it is not re-learned:** a guard
+of the form `if (!src.includes('vLocal'))` matched the existing `vLocalY`, so a
+varying was never injected and the program silently failed to link. Shader
+string surgery needs exact-token matching, and a link failure must be *loud* in
+dev and *fall back* in production.
+
+### 4c-iii. Backend gaps, logged not fixed
+
+Rebuilding a surface against its frame forces every field on screen to come from
+somewhere, and when it cannot, that is a gap. They are collected in
+[docs/backend-gaps.md](docs/backend-gaps.md) and **deferred by decision** until
+the UI overhaul is done.
+
+The one that is not a column and blocks the others: **the blind gate contradicts
+the Connect design.** `Recommendation.candidate` is null while a match is blind,
+but the frames show identity above PASS / MATCH. Answering that decides whether
+the rest is real work or post-reveal-only.
+
+Standing rule while they are open: **a missing field renders empty, never
+invented.** An empty block is an honest gap; plausible fiction is a lie that
+reaches production.
+
+### 4d. Edge cases and loose ends
 
 The parts that never make it into a reference frame and are therefore always
 missing at build time. Each needs a design, not an improvisation:

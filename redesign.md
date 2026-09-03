@@ -69,6 +69,26 @@ Titles / Buttons / Body — Archivo:
 
 > Note: earlier extractions labelled Body 5A/5B and the tags as "Inter". That was wrong — they are Archivo. (Archivo Light 300 is now loaded, so Body 6 and the timezone label render as specified rather than falling back to Regular.)
 
+#### Corrections from the Figma variables, 2026-08-23
+
+The table above predates the file's type variables. Where they disagree, **the
+variables win** — they are what the frames actually reference:
+
+| Style | This document said | Figma variable |
+|---|---|---|
+| Heading 6 | Parkinsans Medium 20 / 100% | **Parkinsans Medium 24 / 28** |
+| Body 4 | Archivo Regular 14 / 16 | **Archivo Regular 14 / 20** |
+| Body 5A | Archivo Regular 13 / 18 | **Archivo Regular 13 / 16** |
+| Body 5B | Archivo Regular 13 / 16 | **Archivo Light 13 / 16** |
+| Title 4B | Archivo Medium 14 / 16 | **Archivo Medium 14 / 20** |
+| Title 6 | Archivo Medium 12 / 120% | **Archivo Medium 12 / 16** |
+| Button 3 | Archivo Medium 13 / 120% / 1px | **Archivo Medium 13 / 16 / 1px** |
+
+The line-heights are the substantive change: the paragraph scale is `P4 20`,
+`P5 16`, `P6 16`, so 14px body copy leads at 20 and everything at 13 or 12 leads
+at 16. Body 5B is also **Light (300)**, not Regular — which is why 300 had to be
+in the font import.
+
 ### How styles are actually applied
 
 | Role | Style |
@@ -98,6 +118,112 @@ Error     CC0003  FF0004  FF3336  FF6668  FF999B  FFCCCD  FFE6E6  FFF2F2
 Warning   CC4400  FF5500  FF7733  FF9966  FFBB99  FFDDCC  FFEEE6  FFF6F2
           700     600     500     400     300     200     100     50
 ```
+
+### 2.1 The Neutral ramp, and Figma's semantic layer
+
+**Correction, 2026-08-23.** The ramps above were extracted before the Figma file
+grew a variable system. It has two things this document did not:
+
+**A NEUTRAL ramp, which is warm and is not Black.** Every step carries slightly
+more red than blue. Ink on a Relethe surface is Neutral; Black stays for the
+places that want a true grey — hairlines, scrim, the daylight band's off state.
+
+```
+Neutral   100A0A  282323  403B3B  585454  706C6C  888585  9C9C9C  C3C1C1  DBDADA  F2F2F2  FAFAFA
+          900     800     700     600     500     400     300     250     200     100     50
+```
+
+**Extension, 2026-08-30.** Five steps were added after reading the app frames
+with `get_design_context`: `585454`, `706C6C`, `9C9C9C`, `C3C1C1` and `DBDADA`
+all arrive as Figma variables (`icons/disabled/default`, `text/default/subtle`,
+`text/default/placeholder`, `icons/neutral/subtle`, `border/neutral/subtle`), so
+by the rule below they are ramp steps, not drift.
+
+**The step NUMBERS are ours, the hexes are Figma's.** Figma exposes these by
+role, not by a numbered neutral scale — `search_design_system` returns no
+`Neutral` variable at all — so the numbering is inferred from luminance
+position. `250` exists because the observed ramp has one more step between 300
+and 200 than a decade scale has room for. When the two disagree, **the semantic
+name and the hex are the authority; the number is a filing label.**
+
+**And one repoint that changes pixels:** `text-default-placeholder` was on
+Neutral 400 (`#888585`). The file now resolves it to `#9C9C9C`, so it moves to
+Neutral 300. Every label, handle, meta line and input placeholder on a rebrand
+surface lightens by one step.
+
+This retracts an earlier mistake worth naming: `#403b3b` and `#888585` arrived
+from a frame, were not in the Black ramp, and got snapped to Black 600 and
+Black 400 under the reconciliation rule. They were never drift — they are named
+steps in a ramp the token file did not have. **The reconciliation rule only
+applies to a hex with no variable behind it.** If Figma names it, it is a token,
+and the answer is to add the ramp rather than round the value.
+
+**A semantic layer.** Figma names colour by ROLE, and the frames reference those
+names. The code uses the same vocabulary — `/` becomes `-` — so a frame and a
+component describe one thing rather than two:
+
+```
+surface-page-beta         Neutral 50    the page ground
+surface-neutral-default   White         cards, bars
+surface-neutral-subtle    Neutral 50    tags, inset rows
+surface-primary-subtle    Blue 50       primary-tinted fills
+surface-primary-default   Blue 600
+
+surface-success-subtle    Success 50
+
+text-default-heading      Neutral 900   a name, a card title, body copy in a
+                                        card — heavier than `body`
+text-default-body         Neutral 800   body copy
+text-default-caption      Neutral 700   tag and secondary text
+text-default-subtle       Neutral 500   avatar initials, DAILY GOAL, the right
+                                        half of a two-part label row
+text-default-placeholder  Neutral 300   labels, meta, hints
+text-default-highlight-blue  Blue 600
+text-primary-default      Blue 600      a Button label, a Button Text link
+text-neutral-heading      White         a heading ON Blue 600
+text-neutral-hover        Blue 200      body copy ON Blue 600
+text-neutral-deep         Neutral 100   the Badge Button hairline
+text-success-deep         Success 800
+text-primary-on-color     Blue 50       label ON Blue 600 — not White
+text-on-color-heading     White
+
+border-neutral-default    Neutral 100   every divider and card edge
+border-neutral-subtle     Neutral 200   the quiet outline on a list-row Button
+border-disabled-deep      Neutral 100
+border-primary-default    Blue 600
+border-primary-highlight  White         the ring around an Avatar
+border-page-alpha         White         the ring that separates a badge
+
+icons-neutral-default     Neutral 900
+icons-neutral-subtle      Neutral 250   the post separation dot
+icons-primary-default     Blue 600
+icons-disabled-default    Neutral 600   an action-bar count
+icons-disabled-on-color   Neutral 300
+```
+
+Figma also carries its border scale as variables, and the code takes them
+verbatim rather than re-deriving them:
+
+```
+border-width-sm     1px      Avatar at 32 and under, the list-row Button
+border-width-md     1.5px    every 32-tall outline Button
+border-width-lg     2px      Avatar at 40 and over
+border-radius-md    8px      Tag
+border-radius-round 240px    every pill and every round control
+```
+
+`round` is 240 rather than 9999 because 240 is the number in the file, and no
+control is tall enough for the two to differ.
+
+**Figma strokes are INSIDE the shape; CSS borders are not.** A `Button` is 32
+tall in the file with 8px padding and a 1.5px stroke: 8 + 16 + 8 = 32, stroke
+included. Declaring that as `border` renders 35. Where a component's box size is
+specified, the stroke is drawn as an inset `box-shadow`, which paints inside the
+box and costs no layout. Where the box has an explicit width and height, a
+`border` is fine — `box-sizing: border-box` already absorbs it.
+
+Defined in [src/styles/tokens.css](src/styles/tokens.css). Each resolves to a
+ramp step; none carries its own hex.
 
 ### Retired one-offs
 
@@ -208,7 +334,7 @@ chosen per screen**:
 
 ```
 label → heading                6
-heading → body                 4
+heading → body                12
 header block → content        24
 group → sibling group         24
 group label → its group        8
@@ -216,13 +342,148 @@ item → item within a group   4–8
 inside a card / well         12–16
 ```
 
+**These are OPTICAL values, not metric ones**, and the difference bit once
+already. `heading → body` was 4 in the first cut, taken straight from the
+reference. It read cramped, and measuring says why: the heading is 32px set at
+`line-height: 100%`, so there is **zero leading beneath it** — its descenders
+sit flush on the box edge — while the body's 120% line-height contributes only
+1.6px above. A metric 4 was therefore a ~5.6px optical gap, *tighter* than the
+metric 6 above it, under a heading four times the label's size.
+
+So when two elements have different internal leading, the number that makes
+their gaps *read* equal is not the same number. Set the value by what it looks
+like and record the reason; do not derive it from the box model alone.
+
 Margins must not double-count. Where a section label follows body copy, the
 copy drops its bottom margin and the label owns the 24. Body copy is capped at
 **44ch** — past that a 560px card starts reading like a document.
 
+---
+
+## 3a. Mobile — normative
+
+Mobile is not a narrower desktop. These rules apply to every surface, and a
+surface is not finished until it has been checked at **375** as well as at
+desktop.
+
+### The primary action must always be reachable
+
+Non-negotiable, and the rule most easily broken by accident. The onboarding
+preview shipped for a few hours with CONTINUE **94px below the fold** on a
+375px screen, unreachable, because a fixed pixel height assumed how tall the
+surrounding chrome was.
+
+```
+never   h-[min(760px, 100vh)]     a guess about the space, and vh is the wrong unit
+always  a flex column with min-h-0 on the scrolling child
+```
+
+The container gives the height; the surface fills it. Only the card BODY
+scrolls, so the footer stays put.
+
+### Units and insets
+
+- **`dvh`, never `vh`.** Mobile browser chrome shrinks the visual viewport and
+  `vh` keeps measuring the larger one. That is exactly how a primary action ends
+  up under the address bar.
+- **Safe areas are not padding the browser gives you.** Anything pinned to an
+  edge takes `max(<pad>, env(safe-area-inset-*))`.
+- Touch targets are **44px** minimum, even where the graphic is smaller — pad
+  the hit area rather than growing the mark (SegmentedBar already does this).
+
+### Layout transforms
+
+Breakpoints are **container** queries wherever a component can be mounted at
+more than one width — a modal, a preview route and a gallery frame are three
+different widths for the same component, and a viewport query gets all three
+wrong.
+
+| Space | Onboarding shell |
+|---|---|
+| ≥ 1120 | split: card left, plate right, two flush halves |
+| < 1120 | stacked: plate as a banner above the card |
+
+**A side-by-side layout stacks; it does not drop its other half.** Hiding the
+plate on mobile would strip the brand from the breakpoint most people use. The
+banner is a share of the shell (`22%`, floor 112, ceiling 200) so a short
+viewport gives the form its room back, and it anchors `center 30%` because a
+hard crop from a portrait plate should keep faces, not torsos.
+
+### Page padding
+
+```
+page gutter    12 mobile · 24 desktop
+card padding   16 everywhere
+```
+
+### Images
+
+A surface that shows art at two very different sizes ships **two sources** and
+lets `srcset` choose. The onboarding plates are 900px for the 560px column and
+640px for the banner: 480KB against 200KB a step, and mobile is where that
+matters most.
+
 The rhythm is owned by `StepHeader` and `StepSection` (5.13) rather than
 re-applied per screen, so it is a property of the system and not eleven
 independent decisions that drift apart.
+
+#### Generation prompts — normative
+
+Every illustration in the product is generated from one of **two templates**.
+They are recorded here so a new plate matches the existing ones instead of being
+re-derived, and so the house style survives whoever writes the next prompt.
+
+Both are Cyber-Classical: **micro-mosaic dithered pointillism**, where the whole
+image is an ultra-dense pixelated matrix of dithered micro-dots on a flat solid
+ground. Shadow and mass come *only* from varying dot density, letting the ground
+bleed through natively — never from a second colour. Both are edge-to-edge and
+**frameless**: no outer boxes, no framing edges. The two differ only in which
+way the two brand colours run.
+
+**Cobalt-themed** — white dots on electric cobalt blue, square:
+
+> An edge-to-edge Cyber-Classical illustration in a square aspect ratio
+> featuring an exterior perspective of the Roman Pantheon and its massive
+> octastyle Corinthian portico. Scholars stand in the foreground plaza looking
+> up toward a beam of radial light and vector grids bursting from the dome's
+> top. Completely frameless and borderless composition with no outer boxes or
+> framing edges. Executed in a hyper-detailed micro-mosaic dithered pointillism
+> style, where every portico column, triangular pediment, stone dome curve, and
+> plaza cobblestone is rendered entirely through an ultra-dense pixelated matrix
+> of dithered stark white micro-dots onto a flat, solid electric cobalt blue
+> background. Deep structural shadows and architectural mass are formed solely
+> through varying dot densities, allowing the cobalt blue canvas to bleed
+> through natively to create shading. Radial polar grids and guilloche wave
+> rings radiate outward from the dome. Esoteric technology aesthetic, early
+> digital display artifact, flat graphic wallpaper, square aspect ratio.
+
+**Light-themed** — cobalt dots on stark white, 7:9 vertical:
+
+> An edge-to-edge Cyber-Classical illustration in a 7:9 vertical aspect ratio
+> with HD resolution clarity. Depicting two elderly men intently engaged in a
+> game of chess at a concrete park table, surrounded by a standing crowd of
+> curious onlookers watching the next move. Executed in a hyper-detailed
+> micro-mosaic dithered pointillism style, where every carved chess piece,
+> furrowed brow, wool coat texture, and park tree leaf is rendered entirely
+> through an ultra-dense pixelated matrix of dithered electric cobalt blue
+> micro-dots onto a flat, solid stark white background. Deep structural shadows
+> and intense mental concentration are formed solely through varying dot
+> densities, allowing the white canvas to bleed through natively. Strategic
+> decision tree vectors and game-probability grids hover over the chessboard.
+> Completely frameless and borderless composition with no outer boxes or
+> framing edges. Esoteric technology aesthetic, early digital display artifact,
+> flat graphic wallpaper, ultra-high-definition, HD fidelity, 7:9 aspect ratio.
+> `--ar 7:9`
+
+**To generate a new plate, swap only the subject clause** — the Pantheon, the
+chess game — and the clause naming what the dots resolve into (*every portico
+column…*, *every carved chess piece…*). Everything else is the style contract
+and stays verbatim. Changing the ground colour, introducing a third colour,
+adding a frame, or dropping the density-only shading rule takes the image out
+of the system.
+
+Pick **cobalt** where the art sits on or against a Blue 600 field, and **light**
+where it sits on white or Yellow 50.
 
 ---
 
@@ -382,7 +643,110 @@ round, post card `0` with the sections carrying their own inset.
 
 ### 5.5 Icon button
 
-`40 x 40`, padding `10px`, radius `40px`. Icon `20px`, stroke 1.25px.
+`40 x 40`, padding `10px`, radius `40px`. Icon `20px`, stroke per 5.5.1.
+
+### 5.5.1 Icon stroke — normative
+
+**The weight is the LIBRARY's, not ours.** Figma ships each glyph with a `Size`
+of 16, 20 or 32 and a `Weight` of 1px or 2px, and that is what renders.
+
+An earlier house rule here computed a size-relative curve — 1px at 16, 1.25px at
+24 — and it was wrong twice over: **24 is not a size this library draws**, and a
+computed weight disagreed with the drawn one on every 20px glyph in the sidebars.
+It has been removed rather than kept for the record, because a superseded rule
+sitting under a live one is a rule someone will implement.
+
+**Do NOT read an instance path for a placed icon.** `get_design_context` on
+`I<frame>;<component>;<slot>` returns the COMPONENT'S DEFAULT for that slot, not
+the frame's override — both sidebars' selected rows come back as `home-03`
+because that is what `Nav Item`'s icon slot defaults to. Reading those paths is
+what produced a phantom "the sidebar mixes 16px and 20px glyphs" report. Read
+the TOP-LEVEL node (the Sidebar itself); its ternary's false branch is the 16px
+variant, and that reflects what is actually placed.
+
+**The rail is on 16px exports.** md nav rows place 16px icons, so the manifest
+entries are 16px nodes. The importer now GUARDS this: if an export is more than
+1.5 units wider or taller than its recorded `size`, it throws instead of
+centring — a 20px draw in a 16 viewBox loses a slice off every edge and reads as
+a slightly-wrong icon rather than an error. It caught `user-group` on the first
+run at 19.33x14.33; that one is recorded at its real grid of 20 and still
+renders 1px at 16 because `Icon` scales the stroke.
+
+**`Button Text` hover is a WEIGHT step, not an underline.** `Status=hover`
+keeps the size, the leading and the ink and moves Body 4B to Title 4C — both
+14/16, Regular to Medium. "See all" measures 42 in both states, so the step
+costs no layout shift.
+
+**The right sidebars' follow / message actions are `Badge Button` `outline`,
+not `subtle`** — white with a 1px `text/neutral/deep` ring, the same skin as the
+header controls. `subtle` (Blue 50) stays for the socials row only.
+
+**"Would you like to meet?" came back as a COMPONENT — `Suggested-Profile`
+972:13736 (frame 972:13311).** Not as the old banner heading, which stays
+hidden. It is the 88 avatar plus a `Suggestion Bubble` (`Status=default,
+Type=long`, 142x20) pinned at `right:76` so its right edge lands at x=12 and its
+tail points back into the avatar. THE NAME IS NOT IN IT — the bubble asks the
+question, the h2 directly below answers who. Two layers, both drawn in the
+default state: the filled shape (`surface/neutral/subtle`, tail in the path) and
+a dashed outline that ships as a 1.7KB raster because its vector carries an
+effect. `Type=compact` exists and is not built; no frame places it.
+
+**The Suggested card was REDESIGNED — 956:12189 replaces 911:4246.** Not a
+revision; almost nothing of the old card survives. The heading "Would you like
+to meet X?" is gone (the node is still there, `hidden="true"`). A new 130-tall
+`prompt-banner` carries a band of artwork. The avatar is 88 (`Size=xxxl`, a new
+Avatar variant), centred, lifted -57 so it straddles the banner edge. Name and
+role are centred beneath it; About is centred, full width, above the columns.
+SIGNAL moved out of the right column into a full-width band below both columns
+with its header hidden — no bulb, no label, bullets only, 16/20 rather than
+14/20. `location-meta` is dropped from the card. Left column is now interests +
+formats; right is endorsed + socials. Verified at 760x728 with a 130 banner, an
+88 avatar and 459/1/300 columns.
+
+**`Nav Item` has a `Size` axis, and the app is on `md`.** 792:3012 ships md (40
+tall) and lg (48). Every rail in the product places md: p-12, a 16 glyph, P4
+14/16 type, Title 4C when selected. A six-item `Sidebar` is 276, not 324. This
+was built at lg before the axis existed, so the whole rail was one size too
+large — verified corrected at 248x276 with 40 rows.
+
+**Export from the size the frame PLACES.** A glyph is redrawn per size in this
+library, not scaled: `favourite` occupies 75% of its 16px box (`inset-[12.5%_8.33%]`)
+and 83.3% of its 20px one. Exporting the heart from an 18px node put it at 66.7%
+and it read visibly small next to its four neighbours in the post action bar —
+which are all 16px variants. If a frame places 16, the manifest entry is 16.
+
+**And the viewBox is centred.** Figma exports the `elements` group, so the
+export's viewBox is that group's BOUNDING BOX — `searching` at 20px comes back
+17.6667 x 16, not 20 x 20. Dropping those coordinates into a `0 0 20 20` box
+pinned every glyph to its top-left corner at the wrong scale, which is what made
+the Badge Buttons read as off-centre. The importer now offsets the viewBox by
+half the difference on each axis, which is exact because the group is centred in
+the icon box.
+
+**The rule, in full:**
+
+| | |
+|---|---|
+| Sizes the library draws | **16 · 20 · 32** |
+| Weights the library draws | **1px · 2px** |
+| What a glyph renders at | its own `Size` and `Weight`, unchanged |
+| Manifest entry | the size and weight of the node the frame PLACES |
+
+`stroke-width` is in viewBox units, so it is only ever rescaled when a call site
+asks for a size other than the glyph's own: `iconStroke(size, grid, weight)`
+returns `weight * grid / size`, which is just `weight` in the normal case.
+
+`grid` is required. It briefly had a default of 24, and two call sites in the
+KYC flow kept passing one argument — computing `NaN` and dropping the stroke off
+both glyphs on a green build. Caught by `npm run typecheck`, which is why that
+gate exists.
+
+This is a *stroke* width. The 1.25px card borders elsewhere in this document are
+a different property and are unchanged.
+
+> The library (`system_icons`, HugeIcons) is drawn at 1.5 in a 24 viewBox, which
+> renders 1.5px at 24. We render it lighter on purpose — the drawn weight is the
+> vendor's decision, the rendered weight is ours.
 
 | Intent | Fill | Icon |
 |---|---|---|
@@ -512,6 +876,212 @@ is no `surface` prop to flip, so a step *cannot* accidentally be built on blue.
 | **FieldShell** / **FieldInput** | A field that carries more than its input — a mark, a fixed label, a hint. The border and focus ring belong to the shell so the composite lights up as one control. |
 | **Textarea** | White fill, Black 200 border, radius 8, Body 3. |
 | **Accordion** | A disclosure with a count, where the count answers "did I do this one?". |
+| **CountryMark** | A country as two letters on a Blue 100 tile in Blue 600. See below. |
+
+**CountryMark, and why it is not a flag.** Emoji flags were the first attempt
+and they are unreliable by platform: Windows ships no flag glyphs at all and
+renders the regional-indicator pair as bare grey letters, which is how the
+cohort list arrived as "almost invisible". Real flag artwork fixes legibility
+and breaks something worse — twelve full-colour rectangles would be the only
+full-colour elements in a system built from two hues, and [2](#2-color) exists
+to prevent exactly that. So the ISO code IS the mark, drawn from the ramp:
+identical on every platform, and needing no asset, no CDN and no licence.
+
+```
+28 x 20 · radius 4 · Blue 100 fill · Blue 600 text
+Archivo Medium 11 / 0.5px tracking, uppercase
+aria-hidden — the city name beside it already says where this is
+```
+
+This also retires the flag-emoji exemption in [7](#chrome-scroll-and-type):
+there is now **no emoji anywhere in the system**, data or otherwise.
+
+### 5.14 Review-surface components
+
+Components for looking at the product, never part of it. They live in the
+primitive layer because they are reused across review surfaces, and they are
+listed separately so nobody reaches for one on a real screen.
+
+| Component | Where it belongs |
+|---|---|
+| **NumberPagination** | The gallery, and previews whose purpose is jumping between states. **Not onboarding.** |
+
+**NumberPagination is not a progress control.** It arrived from the KYC round's
+HTML guide, where jumping straight to screen 9 is the whole point of the page,
+and it does not belong in the flow itself: a sequence you can skip around is not
+a sequence. The product's progress read-out is the **SegmentedBar** ([5.8](#58-progress-bar)),
+which is deliberately non-interactive and `aria-hidden`, because the step is
+already announced in the copy.
+
+### 5.15 The design system folder — normative
+
+`src/rebrand/ds/` holds **one module per Figma component, named as Figma names
+it**, with the node id in the module's own doc comment. **A screen imports from
+here; it never re-implements one inline.** That rule exists because the first
+pass at the app shell did re-implement them, and eleven separate mismatches
+followed from it.
+
+The four rules the folder keeps:
+
+1. **Read the node.** Every number, token and glyph comes from
+   `get_design_context` on a named node — never a screenshot, never a frame's
+   bounding boxes. Geometry does not carry which token a fill is, or which of
+   three `chat` glyphs a control uses.
+2. **Never draw a glyph.** Icons come from `src/assets/system_icons`. The only
+   exceptions are a circle and a hairline, which have no drawing in them.
+3. **Figma strokes are INSIDE the shape** ([2.1](#21-the-neutral-ramp-and-figmas-semantic-layer)).
+4. **Figma's variant axes are the props, minus the ones the browser owns.**
+   `Status=hover` is a CSS state, not an argument.
+
+Built: Avatar · Avatar Stack · Badge Button · Badge Icon · Badge Text · Button ·
+Button Text · Button Text Cap · Check · Compact Icon · Compact Item · Divider ·
+Enter Button · Field Normal · Field Buttoned · Hint · Info Text · Input · Item
+Button Text · Label · Nav Button Text · Nav Item · Nob · Number Symbol ·
+Placeholder · Question Item · Questionnaire · Sidebar · Switch Button · Switch
+Toggle · Symbols · Tab Bar · Tag · Text Field · Text Icon Menu · Text Icon Nav ·
+Text Input · Toggle Button · location-meta · gender · birthday.
+
+Also built: **Chip** (863:4043) and **Text Icon Menu**.
+
+Not built: **Badge Icon `Shape=star`** — no surviving frame places one. The
+circle is exact in CSS; the star waits until a screen asks for it.
+
+### 5.15.2 The surface — normative
+
+**`src/rebrand/app/AppShell.tsx` is the app.** FEED / MATCHES / COMMUNITIES in
+the top bar, built from `relethe-feed` 750:184 (feed), 907:22311 (matches) and
+911:4246 (suggested).
+
+**The CONNECT surface is retired.** CONNECT / FEED in the top bar, a three-up
+tab rail, a 600-wide profile card — `ConnectSurface`, `SuggestionCard`,
+`MatchCard` and the old `AppHeader`. Its preview route `/rebrand/connect` is
+deleted; the files carry a FROZEN header and take no further investment.
+
+**`/connect` has moved (2026-08-30).** It is not a surface of its own: it is the
+**Suggested** row of the MATCHES tab, `relethe-feed` 911:4246, and it now renders
+`AppShell` like the preview does. `src/app/ConnectPage.tsx` supplies real
+recommendations where `AppPreviewPage` supplies demo ones; nothing else differs.
+The path is still `/connect` because that is what the app links to, and renaming
+it is a separate change with its own redirects.
+
+`AppShell` is a LAYOUT, not a screen — header, rail, grid, `children`, optional
+`aside`. Omitting `aside` drops the grid to two columns, which is the real
+difference between 911:4246 (248 + 760) and 907:22311 (248 + 416 + 320).
+
+`ConnectSurface` and friends still exist only because nothing else has claimed
+them yet. **`/matches` is the remaining caller of the old design** and is the
+Matches row of the same rail; it should join this shell next, after which the
+retired files can be deleted.
+
+### 5.15.1 A variant set is AXES, not cases — normative
+
+`Chip` has 224 variants. It is 190 lines, because Figma composes those 224 from
+five independent axes and the component takes five props:
+
+```
+Status  default · hover · focus · disabled · success · error · warning   (7)
+Type    choice · tag · input · meta                                      (4)
+Size    sm · md                                                          (2)
+State   inactive · active                                                (2)
+Style   subtle-fill · grey-fill                                          (2)
+```
+
+**Enumerating a variant set is the wrong shape.** Read what each axis changes,
+express that, and the matrix falls out. Two of the seven Statuses — `hover` and
+`focus` — are browser states and become CSS rather than props, per rule 4.
+
+**But derive from READS, not from a pattern.** Every remaining Status was read
+from its own node (default 863:4132, disabled 863:4176, success 863:4187, error
+863:4198, warning 863:4209), and the ramp turned out not to be uniform:
+`border/success/subtle-hover` is Success **200** where error and warning border
+on their **100**. A rule inferred from one hue would have got the other three
+wrong and looked deliberate.
+
+What each axis actually changes, for the next set:
+
+| Axis | Effect |
+|---|---|
+| Size | `sm` py-4 + Body 5A → 24; `md` py-6 + Body 4A → 32. **The type size moves with it** — md is not sm with more padding. |
+| Type | `choice`/`tag` px-8 radius 8; `input`/`meta` px-12 radius 240. `meta` adds a leading 4px Badge Icon; `input` overrides the fill. |
+| State | `active` swaps to `surface/{status}/default` with a white label, drops the border, and tightens the gap 8 → 4. `tag`/`input`/`meta` gain a trailing 12px `cancel-01` — the +16 those variants show in the file. |
+| Style | `grey-fill` is the same drawing with the hue removed: Neutral 50 behind `border/disabled/deep`, body ink. |
+
+| Component | Figma | What it is |
+|---|---|---|
+| **Button** | 767:3012 | `md` px-12 py-8 → 32 tall, Button 2A; `sm` px-12 py-2 → 20 tall, Body 5C. Tones: `outline`, `outline-on-color`, `fill`, `subtle`, `neutral`. **Weight is per tone, not per size** — PASS is Medium and MATCH beside it is Regular. |
+| **ButtonText** | 893:19211 | A label-only action. "See all". |
+| **BadgeButton** | 865:5792 | 32 round, a 16 glyph, p-8. `outline` = white with a 1px `text/neutral/deep` ring; `subtle` = Blue 50, no ring. **Ink is a separate axis from fill** — the glyph's `Color` variant is `Neutral` in both right sidebars and `Primary` only in the socials row, so a `subtle` fill does NOT imply blue ink. Optional 6px Blue 600 dot pinned 1.5 from the top right. |
+| **Tag** | 863:3673 | px-12 py-8, radius 8, Body 4B in `text/default/caption` → 32 tall. `default` = Blue 50, `neutral` = Neutral 50. |
+| **BadgeText** | 863:3236 / 860:2688 | px-8 py-2, radius 6, Title 6 → 20 tall. NOT a small Tag: different padding, radius and type. Statuses: `neutral` (Neutral 50 / caption), `default` (Blue 50 / Blue 600), `success`. **It HUGS its label** — every `follow-profile` sets `items-start` on the column that holds it, and a flex column's default `align-items: stretch` will otherwise pull it to full width. |
+| **NavItem** | 791:2951 / 792:3042 | p-14, radius 12, a 20 glyph and a 16/20 label → 48 tall, which is what makes a six-item `Sidebar` exactly 324. |
+| **SectionLabel** | — | 12/16 **Regular** in `text/default/placeholder`. Not 13/16 Medium with a 1px tracking, which is what four sections were carrying. |
+| **Divider** | — | 1px of `border/neutral/default`. |
+| **Avatar / AvatarStack** | 903:19925 / 935:4357 | Sizes xxs 16 · xs 20 · sm 32 · lg 40 · xl 64 · xxl 72 — **there is no md**. A white `border/primary/highlight` ring on every avatar: 1px at 32 and under, 2px at 40 and over. Initials sit under the image. |
+| **Brandmark** | 708:137 | The exported `brandmark_blue`, inset 5% of its box. `src/assets/logos` holds eight marks; nothing draws one. |
+
+**Tag against BadgeText** is the distinction that gets confused. A Tag is a
+32-tall attribute of a person — a role, an interest, a meeting format. A Badge
+Text is a 20-tall annotation on a row — a status beside a name, a note under a
+handle. Reach for the one whose height the row already implies.
+
+### 5.16 Sidebar — normative
+
+`Sidebar` (907:22811) has **three types**, six items each, and each item's glyph
+is fixed by the file. It is recorded here because it was got wrong once:
+
+```
+feed          For you home-01 · Following user-multiple · Insights chart-relationship
+              Explore searching · Bookmarks bookmark-01 · Activity clock-03
+matches       Matches puzzle · Suggested user-check-02 · Upcoming calendar-03
+              Endorsed checkmark-badge-02 · Invited user-add-02 · Disavowed user-remove-02
+communities   Communities user-group · Invites mail-open · Open Spaces volleyball
+              Events calendar-favorite-02 · Manage setting-03 · Start a community plus-sign-circle
+```
+
+Eleven of those eighteen were previously a different glyph, chosen by reading
+the label and picking something that fit the word — `compass` for Explore,
+`flash` for Activity, the `-01` draw wherever the file uses the `-02`. **A label
+does not name its icon.** Read the component.
+
+### 5.17 Feed post — normative
+
+`post-N` in `relethe-feed` 750:184. The 8 is between the two blocks, not around
+any one part, which is the thing that reads wrong if it is guessed:
+
+```
+post-N            p-20, gap 8, border-b
+  post-content    gap 16
+    post-header       40   author-info (gap 6) · more-options 16
+    post-caption      Body 3A in text/default/body
+    post-media        376x300, radius 12
+  action-bar        28
+```
+
+- **authorship** puts the name and the time on ONE line with a 4px
+  `icons/neutral/subtle` dot between them (gap 6), and the handle underneath.
+  The name is Title 4B, the time and handle Body 4A in `text/default/placeholder`.
+- **action-bar** items are `p-6` around a 16 glyph — a 28 control, not 32 or 36 —
+  and the count is Body 5B (13/16 **Light**) in `icons/disabled/default`. Left
+  and right groups both gap 6.
+- **composer-bar** is px-16 py-12 around a 40 avatar (64 tall) with its own
+  bottom rule, an **18px** placeholder, and a 20 `sent` centred in a 24 box.
+
+### 5.18 card-playful-illustrated — TWO cards, normative
+
+The banner is not one component reused. `feed` 877:18748 and `matches`
+907:22465 share a skeleton — a 140 image, then gap-16 / px-20 / pt-16 / pb-24
+content, then an action row — and agree on nothing else:
+
+| | feed | matches |
+|---|---|---|
+| surface | Blue 50 | Blue 600 |
+| artwork | cafe, plain | fresco, `mix-blend-lighten` |
+| heading | `text/default/heading` | `text/neutral/heading` |
+| body | `text/default/subtle` | `text/neutral/hover` |
+| action | Button `fill` | Button `outline-on-color` |
+
+Drawing the matches card in both places is what "the feed banner is wrong"
+meant. Check which frame a card belongs to before reusing one.
 
 ---
 
@@ -617,13 +1187,27 @@ Consequences, all of which follow from the one decision:
 
 ### Chrome: scroll and type
 
-- Scroll tracks get a **reserved gutter** (`scrollbar-gutter: stable`, 8px thumb
-  inset 2px, Black 100 on light / Blue 500 on blue). A track never overlays
-  content, so a row does not reflow the moment a list gets one item longer.
+- **No platform scrollbar on a rebrand surface.** `Relethe App.dc.html`
+  suppresses it globally and none of the app frames draw one, so a default grey
+  bar down the feed column reads as a foreign object. `.rebrand-root` and
+  everything inside it hide it; so do `html` and `body` on a page that mounts a
+  rebrand surface, matched with `:root:has(.rebrand-root)` so an app page that
+  does not keeps its own. **Both `html` and `body` have to be named** — the
+  legacy stylesheet puts `overflow-y: auto` on `body`, and hiding it on `html`
+  alone still left a live bar and a 15px gutter. Scrolling is untouched; only
+  the chrome is gone.
+- **Correction, 2026-08-30.** The rule below is now the opt-IN, not the default.
+  It applies where a scroll region genuinely needs to advertise itself.
+- Where a track is drawn, it gets a **reserved gutter**
+  (`scrollbar-gutter: stable`, 8px thumb inset 2px, Black 100 on light / Blue
+  500 on blue) via `.rebrand-scroll`. A track never overlays content, so a row
+  does not reflow the moment a list gets one item longer.
 - A card's header and footer are **fixed**; only the body scrolls. Progress and
   the primary action never move between steps.
-- **No emoji in the type system.** The objectives list loses its icons. City
-  flags stay: they are data, not decoration.
+- **No emoji in the type system, with no exceptions.** The objectives list loses
+  its icons. City flags were briefly exempted as "data, not decoration" — that
+  exemption is retired, because a flag emoji is not data on a platform that
+  cannot draw one. Countries render as **CountryMark** ([5.13](#513-step-scaffolding)).
 - **No italic display face exists**, so former italic quotes become Body 5A in a
   well — same role, different signal.
 

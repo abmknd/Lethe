@@ -17,6 +17,40 @@ import type { ReactNode, ButtonHTMLAttributes, InputHTMLAttributes, TextareaHTML
 
 export type Surface = 'light' | 'blue';
 
+// ---------------------------------------------------------------- icon stroke
+
+/**
+ * The sizes the icon library is DRAWN at. Figma's `Size` variant is 16, 20 or
+ * 32 and nothing else; 24 does not exist in this library.
+ */
+export const ICON_SIZE = { sm: 16, md: 20, lg: 32 } as const;
+
+/**
+ * The stroke-width ATTRIBUTE for an icon rendered at `size`.
+ *
+ * **The weight is the library's, not ours.** Figma ships each glyph with a
+ * `Weight` variant of 1px or 2px at each size, and that is now what renders. An
+ * earlier version of this file computed a target instead — 1px at 16, 1.25px at
+ * 24 — which was a house rule invented before the library was read properly. It
+ * had two problems: 24 is not a size this library draws, and a computed weight
+ * silently disagrees with the drawn one on every 20px glyph in the sidebars.
+ *
+ * The trap this function still exists to remove: `strokeWidth` is in VIEWBOX
+ * UNITS, not screen pixels. Each generated component's viewBox is one unit per
+ * pixel AT ITS OWN `grid`, so at native size the attribute is simply the weight.
+ * Render a 16-grid glyph at 20 and it scales by 20/16, taking its stroke with
+ * it, so the attribute has to come down to compensate.
+ *
+ *     16-grid at 16px, 1px weight  ->  1.0   attr
+ *     16-grid at 20px, 1px weight  ->  0.8   attr  (renders 1px)
+ *     32-grid at 32px, 2px weight  ->  2.0   attr
+ *
+ * Nobody should be doing that arithmetic at a call site.
+ */
+export function iconStroke(size: number, grid: number, weight = 1): number {
+  return Number(((weight * grid) / size).toFixed(3));
+}
+
 const cx = (...parts: (string | false | null | undefined)[]) => parts.filter(Boolean).join(' ');
 
 // ---------------------------------------------------------------- pills
@@ -300,11 +334,16 @@ export function SegmentedToggle<T extends string>({
   value,
   onChange,
   label,
+  marker,
 }: {
   options: readonly T[];
   value: T;
   onChange: (v: T) => void;
   label: string;
+  /** Puts a Blue 600 dot on the active segment. For navigation, where "which
+   *  one am I on" has to survive a glance; a plain fill change does not, once
+   *  the track and the segment are both near-white. */
+  marker?: boolean;
 }) {
   return (
     <div role="radiogroup" aria-label={label} className="flex w-full gap-0 rounded-[40px] bg-[var(--color-black-100)] p-[4px]">
@@ -317,13 +356,17 @@ export function SegmentedToggle<T extends string>({
             aria-checked={active}
             onClick={() => onChange(opt)}
             className={cx(
-              'flex-1 rounded-[40px] px-[12px] py-[8px] text-[13px] font-medium leading-[1.2] tracking-[1px] transition-colors',
+              'flex flex-1 items-center justify-center gap-[8px] whitespace-nowrap rounded-[40px] px-[12px] py-[8px]',
+              'text-[13px] font-medium leading-[1.2] tracking-[1px] transition-colors',
               'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-blue-600)]',
               active
                 ? 'bg-[var(--color-white)] text-[var(--color-blue-600)]'
                 : 'text-[var(--color-black-400)] hover:text-[var(--color-black-500)]',
             )}
           >
+            {marker && active ? (
+              <span aria-hidden className="size-[6px] shrink-0 rounded-full bg-[var(--color-blue-600)]" />
+            ) : null}
             {opt}
           </button>
         );
@@ -626,8 +669,14 @@ export function StepHeader({ label, heading, body }: { label: string; heading: R
       <h2 className="rebrand-display mt-[6px] text-[32px] font-normal leading-[100%] text-[var(--color-black-700)]">
         {heading}
       </h2>
+      {/* 12, not the 4 the scale first said. The scale measures BOXES, and a
+          32px display line set at line-height 100% has zero leading under it —
+          its descenders sit flush on the box edge — while the 14px uppercase
+          label above has no descenders at all. So a metric 4 here read TIGHTER
+          than the metric 6 above it, under a heading four times the size.
+          These are optical values; see redesign.md 3. */}
       {body ? (
-        <p className="mt-[4px] max-w-[44ch] text-[16px] leading-[120%] text-[var(--color-black-700)]">{body}</p>
+        <p className="mt-[12px] max-w-[44ch] text-[16px] leading-[120%] text-[var(--color-black-700)]">{body}</p>
       ) : null}
     </header>
   );
@@ -848,6 +897,81 @@ export function FieldShell({ children, className = '' }: { children: ReactNode; 
   );
 }
 
+/**
+ * NUMBER PAGINATION — a review control, not a product control.
+ *
+ * It came from the KYC round's HTML guide, where jumping straight to screen 9
+ * is the whole point of the page. It has no business inside onboarding itself:
+ * a flow whose steps you can skip around is not a flow, and the product's
+ * progress read-out is the SegmentedBar, which is deliberately non-interactive.
+ *
+ * Kept here because it is genuinely reusable across review surfaces — the
+ * gallery, and whatever previews come after it. Registered in redesign.md as a
+ * review-surface component so nobody reaches for it on a real screen.
+ */
+export function NumberPagination({
+  items,
+  value,
+  onChange,
+  label,
+  className = '',
+}: {
+  items: { value: number; label: string }[];
+  value: number;
+  onChange: (value: number) => void;
+  label: string;
+  className?: string;
+}) {
+  return (
+    <nav aria-label={label} className={cx('flex gap-[4px]', className)}>
+      {items.map((item) => {
+        const active = item.value === value;
+        return (
+          <button
+            key={item.value}
+            type="button"
+            aria-current={active ? 'step' : undefined}
+            onClick={() => onChange(item.value)}
+            className={cx(
+              'shrink-0 rounded-[8px] border px-[9px] py-[6px] text-[13px] leading-[18px] tabular-nums transition-colors',
+              'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-blue-600)]',
+              active
+                ? 'border-[var(--color-blue-600)] bg-[var(--color-blue-600)] text-[var(--color-white)]'
+                : 'border-[var(--color-black-200)] bg-[var(--color-white)] text-[var(--color-black-700)] hover:border-[var(--color-black-300)]',
+            )}
+          >
+            {item.label}
+          </button>
+        );
+      })}
+    </nav>
+  );
+}
+
+/**
+ * A country, as a mark. Two letters on a Blue 100 tile in Blue 600.
+ *
+ * NOT a flag. Emoji flags were the first attempt and they are unreliable by
+ * platform — Windows has no flag glyphs at all and renders the regional
+ * indicator pair as bare grey letters, which is how this arrived as "almost
+ * invisible". Real flag artwork fixes legibility and breaks something worse:
+ * twelve full-colour rectangles would be the only full-colour elements in a
+ * system built from two hues, and 2.x exists to stop exactly that.
+ *
+ * So the code is the mark, drawn from the ramp, identical on every platform
+ * and needing no asset, no CDN and no licence.
+ */
+export function CountryMark({ code }: { code: string }) {
+  return (
+    <span
+      aria-hidden
+      className="grid h-[20px] w-[28px] shrink-0 place-items-center rounded-[4px] bg-[var(--color-blue-100)] text-[11px] font-medium leading-none tracking-[0.5px] text-[var(--color-blue-600)]"
+    >
+      {code}
+    </span>
+  );
+}
+
 /** The bare input that lives inside a FieldShell. */
 export function FieldInput({ className = '', ...rest }: InputHTMLAttributes<HTMLInputElement>) {
   return (
@@ -925,7 +1049,8 @@ function ChevronGlyph({ open }: { open: boolean }) {
       aria-hidden
       className={cx('shrink-0 text-[var(--color-black-500)] transition-transform', open && 'rotate-180')}
     >
-      <path d="M2.5 4.5L6 8l3.5-3.5" fill="none" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" />
+      {/* Drawn on a 12 grid at 12px, so the attribute IS the rendered weight. */}
+      <path d="M2.5 4.5L6 8l3.5-3.5" fill="none" stroke="currentColor" strokeWidth={iconStroke(12, 12)} strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }

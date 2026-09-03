@@ -13,6 +13,8 @@ import logomarkWhite from '../assets/logos/logomark_white.svg';
 import logomarkBlue from '../assets/logos/logomark_blue.svg';
 import logowordWhite from '../assets/logos/logoword_white.svg';
 import logowordBlue from '../assets/logos/logoword_blue.svg';
+import brandmarkWhite from '../assets/logos/brandmark_white.svg';
+import brandmarkBlue from '../assets/logos/brandmark_blue.svg';
 import type { Surface } from './primitives';
 
 export function Logomark({ size = 20, surface = 'blue' }: { size?: number; surface?: Surface }) {
@@ -38,6 +40,29 @@ export function Logoword({ height = 20, surface = 'blue' }: { height?: number; s
       style={{ height }}
       className="block w-auto shrink-0 select-none"
     />
+  );
+}
+
+/**
+ * BRANDMARK — the six-petal mark, on its own.
+ *
+ * Figma's `relethe-logos` (708:137) has the app header on `Property 1 =
+ * brandmark_blue`, and the file's own artwork sits at inset 5% of its box: a 32
+ * frame carries a 28.8 mark, not a 32 one. That 5% is the difference between
+ * the header logo reading as placed and reading as jammed into its corner.
+ *
+ * `logomark` and `brandmark` are two different drawings in this set, so they
+ * get two components rather than one with a flag. The app header wants this one.
+ */
+export function Brandmark({ size = 32, surface = 'light' }: { size?: number; surface?: Surface }) {
+  return (
+    <span className="relative block shrink-0" style={{ width: size, height: size }}>
+      <img
+        src={surface === 'blue' ? brandmarkWhite : brandmarkBlue}
+        alt="Relethe"
+        className="absolute inset-[5%] size-[90%] select-none"
+      />
+    </span>
   );
 }
 

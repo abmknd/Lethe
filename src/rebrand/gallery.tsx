@@ -4,7 +4,7 @@ import './rebrand.css';
 import '../styles/index.css';
 import { KYCFlow, STEP_DONE, STEP_PAUSED, TOTAL_STEPS } from '../app/components/kyc/KYCFlow';
 import { BlindMatchCard, AwaitingMatchCard, RevealedMatchCard } from './app/MatchCard';
-import { Chip, SegmentedToggle } from './primitives';
+import { NumberPagination, SegmentedToggle } from './primitives';
 import anika from '../assets/dummies/anika-sharma.png';
 import marcus from '../assets/dummies/marcus-webb.png';
 import priya from '../assets/dummies/priya-nair.png';
@@ -78,14 +78,14 @@ const NOTES: { title: string; body: string }[] = [
  * Dev-only: a separate Vite entry that never ships.
  */
 const FRAMES = {
-  '1216 DESKTOP': { w: 1216, h: 720 },
+  '1120 DESKTOP': { w: 1120, h: 720 },
   '560 CARD': { w: 560, h: 720 },
   '375 MOBILE': { w: 375, h: 760 },
 } as const;
 
 function Gallery() {
   const [step, setStep] = useState(1);
-  const [width, setWidth] = useState<keyof typeof FRAMES>('1216 DESKTOP');
+  const [width, setWidth] = useState<keyof typeof FRAMES>('1120 DESKTOP');
   const frame = FRAMES[width];
 
   return (
@@ -112,13 +112,16 @@ function Gallery() {
             onChange={setWidth}
           />
         </div>
-        <div className="flex flex-1 flex-wrap justify-end gap-[4px]">
-          {STEP_LABELS.map((label, i) => (
-            <Chip key={label} selected={step === i + 1} onClick={() => setStep(i + 1)}>
-              {label}
-            </Chip>
-          ))}
-        </div>
+        {/* Jumping between screens is what a gallery is FOR, which is the one
+            place this control belongs. It is deliberately absent from
+            /rebrand/onboarding and from the product. */}
+        <NumberPagination
+          label="Jump to onboarding screen"
+          className="flex-1 flex-wrap justify-end"
+          items={STEP_LABELS.map((label, i) => ({ value: i + 1, label }))}
+          value={step}
+          onChange={setStep}
+        />
       </div>
 
       <div className="flex flex-wrap items-start gap-[40px]">

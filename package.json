@@ -23,10 +23,13 @@
     "verify:signup": "node scripts/verify-signup.mjs",
     "seed:match": "node scripts/seed-test-match.mjs",
     "build": "vite build",
-    "check:frontend": "vite build",
+    "check:frontend": "npm run typecheck && npm run lint && vite build",
     "check:backend": "npm run mvp:test:backend && cucumber-js --import 'mvp/tests/step-definitions/**/*.mjs' mvp/tests/features/l0-happy-paths.feature mvp/tests/features/l1-insufficient-input.feature mvp/tests/features/l2-matching-failure.feature mvp/tests/features/l3-match-bypass.feature --tags 'not @skip' --no-strict",
     "check:release": "npm run check:frontend && npm run verify:diagnostic && npm run check:backend && npm run verify:stage7 && npm run verify:rls && npm run verify:signup && npm run verify:waitlist && npm run verify:magic-link",
-    "verify:diagnostic": "tsx scripts/verify-diagnostic.mjs"
+    "verify:diagnostic": "tsx scripts/verify-diagnostic.mjs",
+    "typecheck": "tsc -p tsconfig.check.json",
+    "typecheck:all": "tsc --noEmit",
+    "lint": "eslint . --max-warnings 5"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.95.2",
@@ -90,13 +93,20 @@
   },
   "devDependencies": {
     "@cucumber/cucumber": "^12.8.2",
+    "@eslint/js": "^9.39.5",
     "@tailwindcss/vite": "4.1.12",
     "@types/node": "^22.0.0",
     "@types/react": "^18.3.0",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "4.7.0",
+    "eslint": "^9.39.5",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.5.5",
+    "globals": "^17.11.0",
     "supabase": "^2.98.2",
     "tailwindcss": "4.1.12",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.68.0",
     "vite": "^6.4.2"
   },
   "peerDependencies": {

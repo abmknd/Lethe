@@ -53,6 +53,7 @@
   --color-black-100: #f2f2f2;
   --color-black-50:  #fafafa;
 
+  --color-success-800: #00920c;  /* text/success/deep */
   --color-success-700: #00c310;
   --color-success-600: #00f314;
   --color-success-500: #33f643;
@@ -81,6 +82,101 @@
   --color-warning-200: #ffddcc;
   --color-warning-100: #ffeee6;
   --color-warning-50:  #fff6f2;
+
+  /* ---- Neutral ramp (Figma `Neutral`) ------------------------------------
+   *
+   * NOT the same as the Black ramp above, and that is the point. Figma's
+   * neutrals are WARM — every step carries slightly more red than blue —
+   * whereas Black is a pure grey ramp. Reading #403b3b as "nearly #333333" and
+   * snapping it was wrong: these are named steps in a real ramp, not drift.
+   *
+   * Ink on a Relethe surface is Neutral. Black stays for the places that want
+   * a true grey: hairlines, scrim, the daylight band's off state.
+   */
+  --color-neutral-900: #100a0a;  /* icons/neutral/default, text/default/heading */
+  --color-neutral-800: #282323;  /* text/default/body     */
+  --color-neutral-700: #403b3b;  /* text/default/caption  */
+  --color-neutral-600: #585454;  /* icons/disabled/default */
+  --color-neutral-500: #706c6c;  /* text/default/subtle   */
+  --color-neutral-400: #888585;
+  --color-neutral-300: #9c9c9c;  /* text/default/placeholder */
+  --color-neutral-250: #c3c1c1;  /* icons/neutral/subtle  */
+  --color-neutral-200: #dbdada;  /* border/neutral/subtle */
+  --color-neutral-100: #f2f2f2;  /* border/neutral/default */
+  --color-neutral-50:  #fafafa;  /* surface/page/beta     */
+
+  /* ---- Figma semantic layer ----------------------------------------------
+   *
+   * Figma names colours by ROLE and the frames reference those names, so the
+   * code has to speak the same vocabulary or every screen becomes a
+   * translation exercise. Each resolves to a ramp step; none carries its own
+   * hex. Names match the Figma variables exactly, `/` becoming `-`.
+   */
+  --surface-page-beta:       var(--color-neutral-50);
+  --surface-neutral-default: var(--color-white);
+  --surface-neutral-subtle:  var(--color-neutral-50);
+  --surface-primary-default: var(--color-blue-600);
+  --surface-primary-subtle:  var(--color-blue-50);
+  --surface-primary-subtle-hover: var(--color-blue-100); /* a Switch Button track */
+  --border-primary-subtle-hover: var(--color-blue-100); /* a Field Normal's rest border */
+  --surface-success-subtle:  var(--color-success-50);
+  --surface-error-subtle:    var(--color-error-50);
+  --surface-warning-subtle:  var(--color-warning-50);
+  --surface-success-default: var(--color-success-600);
+  --surface-error-default:   var(--color-error-600);
+  --surface-warning-default: var(--color-warning-600);
+
+  --text-default-heading:     var(--color-neutral-900);
+  --text-default-body:        var(--color-neutral-800);
+  --text-default-caption:     var(--color-neutral-700);
+  --text-default-subtle:      var(--color-neutral-500);
+  --text-default-placeholder: var(--color-neutral-300);
+  --text-default-highlight-blue: var(--color-blue-600);
+  --text-primary-default:     var(--color-blue-600);
+  --text-neutral-heading:     var(--color-white);
+  --text-neutral-hover:       var(--color-blue-200);
+  --text-neutral-deep:        var(--color-neutral-100);
+  --text-success-deep:        var(--color-success-800);
+  --text-error-default:       var(--color-error-600); /* the Label required mark */
+  /* Chip's Status ramp. Note the steps are NOT uniform across the four hues —
+     `border/success/subtle-hover` is Success 200 where error and warning use
+     their 100. That asymmetry is the file's, read from four variants, and it is
+     recorded rather than smoothed. */
+  --text-primary-default-hover: var(--color-blue-700);
+  --text-error-default-hover:   var(--color-error-700);
+  --text-warning-default-hover: var(--color-warning-700);
+  --border-primary-subtle-focus:  var(--color-blue-200);
+  --border-success-subtle-hover:  var(--color-success-200);
+  --border-error-subtle-hover:    var(--color-error-100);
+  --border-warning-subtle-hover:  var(--color-warning-100);
+  --text-on-color-heading:    var(--color-white);
+  --text-primary-on-color:    var(--color-blue-50);
+
+  --border-neutral-default: var(--color-neutral-100);
+  --border-neutral-subtle:  var(--color-neutral-200);
+  --border-neutral-deep:    var(--color-neutral-300); /* an unchecked Check box */
+  --border-error-default:   var(--color-error-600);
+  --border-disabled-deep:   var(--color-neutral-100);
+  --border-primary-default: var(--color-blue-600);
+  --border-primary-highlight: var(--color-white);
+  --border-page-alpha:      var(--color-white);
+
+  /* Border/Width and Border/Radius, straight off the Figma variables. `round`
+     is 240 rather than 9999: a pill that tall never appears, so the two are the
+     same pixel, and 240 is the number the file actually carries. */
+  --border-width-sm: 1px;
+  --border-width-md: 1.5px;
+  --border-width-lg: 2px;
+  --border-radius-xs: 2px;
+  --border-radius-md: 8px;
+  --border-radius-xxl: 32px;
+  --border-radius-round: 240px;
+
+  --icons-neutral-default:   var(--color-neutral-900);
+  --icons-neutral-subtle:    var(--color-neutral-250); /* the post separation dot */
+  --icons-primary-default:   var(--color-blue-600);
+  --icons-disabled-default:  var(--color-neutral-600); /* an action-bar count */
+  --icons-disabled-on-color: var(--color-neutral-300);
 
   /* ---- Semantic aliases -------------------------------------------------- */
   /* Semantic aliases. Each resolves to a ramp token; none carries its own

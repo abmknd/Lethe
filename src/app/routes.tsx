@@ -26,6 +26,7 @@ import AdminEventsPage from "./admin/AdminEventsPage";
 import ErrorBoundary from "./ErrorBoundary";
 import RebrandPage from "../rebrand/RebrandPage";
 import OnboardingPreviewPage from "../rebrand/OnboardingPreviewPage";
+import AppPreviewPage from "../rebrand/AppPreviewPage";
 
 const baseUrl = import.meta.env.BASE_URL;
 const routerOptions = baseUrl === "/" ? undefined : { basename: baseUrl.replace(/\/$/, "") };
@@ -35,6 +36,13 @@ export const router = createBrowserRouter([
   // Staged rebrand previews — full-bleed, outside the app shell (sunset later).
   // One route per rebranded surface, so every surface can be clicked through in
   // the real router while it is being built rather than reviewed as a picture.
+  //
+  // `/rebrand/connect` IS GONE. The Connect design it previewed — CONNECT/FEED
+  // in the top bar, a three-up tab rail, the 600-wide profile card — is retired.
+  // `/rebrand/app` is the surface we are building on: FEED / MATCHES /
+  // COMMUNITIES, `relethe-feed` 750:184 / 907:22311 / 911:4246. Keeping a review
+  // route pointed at a retired design is how a retired design keeps getting
+  // reviewed.
   {
     path: "/rebrand",
     Component: RebrandPage,
@@ -43,6 +51,11 @@ export const router = createBrowserRouter([
   {
     path: "/rebrand/onboarding",
     Component: OnboardingPreviewPage,
+    ErrorBoundary,
+  },
+  {
+    path: "/rebrand/app",
+    Component: AppPreviewPage,
     ErrorBoundary,
   },
   {

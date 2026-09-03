@@ -1,0 +1,36 @@
+{
+  "$comment": [
+    "THE ENFORCED TYPECHECK.",
+    "",
+    "`npm run typecheck` runs this, and it is green. It covers the rebrand",
+    "surface, the design system and the generated icon set — the code the next",
+    "30+ pages are built on.",
+    "",
+    "It is scoped rather than whole-project on purpose. `npm run typecheck:all`",
+    "runs the full `src` and currently reports 32 errors, all of them predating",
+    "this file: unused shadcn leftovers under `components/ui` that import a",
+    "`buttonVariants` the local Button never exported, a `button.tsx` /",
+    "`Button.tsx` casing collision, and a handful of nullable reads in",
+    "AdminConnectPage and PostCard.",
+    "",
+    "A gate that is red on the day it lands is a gate everyone learns to ignore.",
+    "This one blocks new drift immediately; the 32 are a backlog to burn down,",
+    "and when it reaches zero this file collapses into tsconfig.json.",
+    "",
+    "WHY IT EXISTS AT ALL: `vite build` is not a typecheck. It shipped a",
+    "duplicate `Tag` declaration, a missing `ICON_SIZE` import and a `RAIL_ICON`",
+    "key that no longer existed — each of which threw in the browser on a green",
+    "build."
+  ],
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noUnusedLocals": true,
+    "noUnusedParameters": true
+  },
+  "include": [
+    "src/vite-env.d.ts",
+    "src/rebrand",
+    "src/assets",
+    "src/styles"
+  ]
+}

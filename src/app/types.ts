@@ -103,7 +103,12 @@ export interface PublicProfile {
 
 export interface BlindRationale {
   roleCategory: string;
-  overlapThemes: { kind: string; label: string }[];
+  /**
+   * `label` is the whole sentence. `pre`/`emph`/`post` are the same sentence
+   * split at the shared tokens, so the Suggested card can render the two-colour
+   * emphasis the design asks for. `label === pre + emph + post`.
+   */
+  overlapThemes: { kind: string; label: string; pre: string; emph: string; post: string }[];
   availabilityCompatibility: string;
   confidenceBand: 'low' | 'medium' | 'high';
 }

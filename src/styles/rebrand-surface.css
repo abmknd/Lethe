@@ -73,6 +73,47 @@
   .rebrand-root .rebrand-display { font-family: var(--font-display); }
 }
 
+/* Touch targets, on touch devices only.
+   The graphic may be smaller than the target; the target may not be smaller
+   than the finger. Nav pills and the wordmark link measured 32-34px tall on the
+   landing — legible, but under the 44px floor. Gated on `pointer: coarse` so
+   desktop keeps the drawn size and only real touch input pays for the padding.
+   Opt out with .rb-hit-exempt where a control is genuinely decorative. */
+@media (pointer: coarse) {
+  .rebrand-root :is(button, [role="button"], a[href]):not(.rb-hit-exempt) {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* No platform scrollbar anywhere on a rebrand surface.
+   `Relethe App.dc.html` suppresses it globally and the app frames are drawn
+   without one, so a default grey bar down the feed column is a visible foreign
+   object — it was showing on every scrollable region. Scrolling itself is
+   untouched: the content still scrolls by wheel, trackpad, keyboard and touch,
+   only the chrome is gone. Opt back in with `.rebrand-scroll` below, which is
+   the one styled bar the system does draw. */
+.rebrand-root,
+.rebrand-root *,
+.rebrand-root *::before,
+.rebrand-root *::after {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.rebrand-root::-webkit-scrollbar,
+.rebrand-root *::-webkit-scrollbar { width: 0; height: 0; display: none; }
+
+/* The document scroller is `html` or `body` — neither is inside `.rebrand-root`,
+   so the rule above left the one bar you actually see on a full-page rebrand
+   surface. Both are named: the legacy stylesheet puts `overflow-y: auto` on
+   BODY, so hiding it on `html` alone still left a 15px gutter and a live bar.
+   `:has` scopes it: a page that mounts a rebrand surface loses the platform
+   bar, and an app page that does not keeps it. */
+:root:has(.rebrand-root),
+:root:has(.rebrand-root) body { scrollbar-width: none; -ms-overflow-style: none; }
+:root:has(.rebrand-root)::-webkit-scrollbar,
+:root:has(.rebrand-root) body::-webkit-scrollbar { width: 0; height: 0; display: none; }
+
 /* Scroll chrome. A track gets its own reserved gutter so it never overlays a
    row, and the thumb is a ramp step rather than the platform default grey.
    redesign.md "Chrome - scroll and type". */
