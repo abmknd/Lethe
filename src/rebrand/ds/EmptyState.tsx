@@ -32,19 +32,19 @@ export type EmptyStateKind = 'empty' | 'client' | 'server';
 const PRESET: Record<EmptyStateKind, { shader: ShaderName; width: number; title: string; body: string }> = {
   empty: {
     shader: 'box',
-    width: 150,
+    width: 200,
     title: 'Nothing here yet.',
     body: 'Once there is something worth showing, it will show up here.',
   },
   client: {
     shader: 'ball',
-    width: 210,
+    width: 270,
     title: 'Oops, don’t look at us...',
     body: 'Looks like things are laggy on your end. Refresh or try again later',
   },
   server: {
     shader: 'gear',
-    width: 210,
+    width: 270,
     title: 'Don’t worry, this is on us.',
     body: 'We’re currently looking into the issue and will fix it asap. Sorry 😬',
   },
@@ -78,7 +78,7 @@ export function EmptyState({
       role={isError ? 'alert' : 'status'}
       className="flex flex-col items-center px-[32px] py-[56px] text-center"
     >
-      <ShaderCanvas shader={preset.shader} size={140} width={preset.width} />
+      <ShaderCanvas shader={preset.shader} size={180} width={preset.width} />
       <h2 className="rebrand-display mt-[16px] text-[30px] leading-[110%] text-[var(--text-default-heading)]">
         {title ?? preset.title}
       </h2>

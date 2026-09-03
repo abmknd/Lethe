@@ -10,7 +10,7 @@
  * The construction is the retired hero's (removed in 39078d9, alive in
  * 31d2b93, `hero/src/shaders/dither.frag.glsl`): an 8x8 ordered Bayer threshold
  * blended toward per-cell hash noise, density in, one bit out. Two departures,
- * because these are 140px objects and the hero was a full-bleed landscape:
+ * because these are small objects and the hero was a full-bleed landscape:
  * noise 0.30 -> 0.10, and the luminance is gammaed with the density floor at
  * 0.05. At landscape scale a woven Bayer grid is the problem; at this size the
  * SPECKLE is, and it was eating the seams between parts.
@@ -61,13 +61,13 @@ float cellHash(vec2 p){
 const float DITHER_NOISE = 0.10;
 
 /**
- * CLUSTER 0.5 — the Bayer lattice is sampled at half resolution, so one
- * threshold cell covers a 2x2 block of device pixels. At DPR 2 that is one CSS
- * pixel per cell: the stipple clumps into visible grains instead of dissolving
- * into per-pixel fizz, which is what "washed out" was. Coarser dots, more
- * contrast between them, same construction underneath.
+ * CLUSTER — how many device pixels one threshold cell covers. It went to 0.5
+ * (2x2 blocks) to fight a washed-out look and that was the wrong lever: the
+ * grain got heavy and lumpy without the silhouette getting any crisper. Back to
+ * 1.0, and the contrast problem is solved where it actually lives — at the
+ * OUTLINE and in the ramp below.
  */
-const float CLUSTER = 0.5;
+const float CLUSTER = 1.0;
 
 /**
  * DUOTONE. It is still one bit of COVERAGE — a pixel is inked or it is not —
@@ -82,7 +82,9 @@ vec4 inkFrom(float density){
   float t = mix(Bayer8(cell), cellHash(cell * 3.0), DITHER_NOISE);
   t = t * (63.0 / 64.0) + (0.5 / 64.0);
   float d = clamp(density, 0.0, 1.0);
-  vec3 col = mix(u_ink2, u_ink, smoothstep(0.30, 0.78, d));
+  /* Graded across nearly the whole range rather than a narrow crossover, so
+     the two inks read as a ramp between them and not as two flat plates. */
+  vec3 col = mix(u_ink2, u_ink, smoothstep(0.08, 0.88, d));
   return vec4(col, step(t, d));
 }
 
@@ -110,6 +112,23 @@ float opExtrude(vec3 p, float d2, float h, float r){
 /* GLSL ES 1.0 has no round(). */
 float rnd1(float x){ return floor(x + 0.5); }
 
+/**
+ * PING-PONG TIME. Plays 0..CYCLE, then CYCLE..0.
+ *
+ * Everything downstream is a pure function of this clock, so running it
+ * backwards runs the WHOLE animation backwards: the pieces rise off the ground,
+ * retrace the exact arcs they fell along, and reassemble. That is free, and it
+ * is the only way to get a reversal that actually matches the break — hand-
+ * animating a separate "reassemble" would drift from the path the pieces took.
+ *
+ * The seam is at the two turning points, where velocity is zero and the frame
+ * either side is identical. There is nothing to fade.
+ */
+float pingPong(float t, float cycle){
+  float ph = mod(t, cycle * 2.0);
+  return ph < cycle ? ph : cycle * 2.0 - ph;
+}
+
 /* ── march and shade ─────────────────────────────────────────────────────── */
 
 float map(vec3 p);
@@ -134,21 +153,33 @@ float calcAO(vec3 p, vec3 n){
 
 const vec3 LIG = vec3(0.485, 0.728, 0.485);
 
+/**
+ * THE SILHOUETTE IS DRAWN SOLID, and that is what was missing.
+ *
+ * A lit face has a low ink density by design, and against a WHITE card a lit
+ * face at the object's edge simply dissolves — the form loses its boundary and
+ * the whole thing reads as a smudge. Shading alone cannot fix that, because the
+ * problem is at exactly the place shading says "bright".
+ *
+ * So the grazing band gets forced to full ink regardless of how lit it is. The
+ * object always has a hard contour; inside it, the ramp does its normal work.
+ * The floor is also back up to 0.13, so a lit face keeps a light stipple rather
+ * than going empty and merging with the card.
+ */
 float shadeDensity(vec3 pos, vec3 rd){
   vec3  n   = calcNormal(pos);
   float dif = clamp(dot(n, LIG), 0.0, 1.0);
   float amb = 0.38 + 0.34 * n.y;
   float ao  = calcAO(pos, n);
-  float rim = pow(1.0 - clamp(dot(n, -rd), 0.0, 1.0), 3.5);
+  float graze = 1.0 - abs(dot(n, -rd));
 
-  float lum = amb * ao * 0.38 + dif * ao * 0.86 + rim * 0.10;
-
-  /* Expand the useful band, then an S-curve. Expansion alone would clip the
-     deeps flat; the S keeps the midtones that carry the shading and only
-     steepens the slope between them. */
+  float lum = amb * ao * 0.38 + dif * ao * 0.88;
   lum = clamp((lum - 0.16) / (0.88 - 0.16), 0.0, 1.0);
   lum = lum * lum * (3.0 - 2.0 * lum);
-  return clamp(mix(0.02, 1.0, 1.0 - lum), 0.0, 1.0);
+
+  float dens = mix(0.13, 1.0, 1.0 - lum);
+  float edge = smoothstep(0.62, 0.93, graze);      /* the contour */
+  return clamp(max(dens, edge), 0.0, 1.0);
 }
 
 mat3 lookAt(vec3 ro, vec3 ta){
@@ -220,9 +251,10 @@ float flap(vec3 p, float yaw, float open){
 }
 
 float map(vec3 p){
-  float lt = mod(gT, CYCLE);
-  /* closed, then one smooth opening, then open for the rest */
-  float open = smoothstep(0.85, 2.15, lt);
+  /* NO LOOP HERE. The lid opens once, on the global clock, and stays open —
+     it is not a cycle, so there is no seam to smooth. The turn carries on
+     underneath it forever. */
+  float open = smoothstep(0.85, 2.15, gT);
 
   p = rotY(gT * 0.50) * p;
   p.y -= 0.010 * sin(gT * 1.05);
@@ -240,7 +272,6 @@ float map(vec3 p){
 
 void main(){
   gT = u_time;
-  float lt = mod(u_time, CYCLE);
   vec2 p  = (gl_FragCoord.xy - 0.5 * u_res) / u_res.y;
   vec3 ro = vec3(0.0, 0.44, 1.40);
   vec3 ta = vec3(0.0, -0.02, 0.0);
@@ -278,7 +309,7 @@ void main(){
  * unshippable. The bound grows as the pieces scatter so it never clips them.
  */
 export const BALL = /* glsl */ `${PRELUDE}
-/* 2x2x2, not 3x3x3. Eight big bricks read as PARTS at 140px; twenty-seven
+/* 2x2x2, not 3x3x3. Eight big bricks read as PARTS at this size; twenty-seven
    small ones read as texture, which was the whole complaint. */
 const float CYCLE = 4.6;
 const float BX    = 0.092;   /* brick half width / depth */
@@ -298,7 +329,7 @@ float brick(vec3 q, vec3 rest){
 }
 
 float map(vec3 p){
-  float lt = mod(gT, CYCLE);
+  float lt = pingPong(gT, CYCLE);
 
   float spread = smoothstep(1.9, 3.4, lt);
   float bound  = length(p - vec3(0.0, mix(0.0, -0.09, spread), 0.0))
@@ -384,7 +415,7 @@ void main(){
  * 3 · ROLLING GEAR THAT BREAKS, BOUNCES ONCE AND SETTLES.
  *
  * Rolls 4px right and 4px back, twice — 4px literal, since one unit is the
- * canvas height, so 4/140 = 0.02857 — and WITHOUT SLIPPING, rotation tied to
+ * canvas height — and WITHOUT SLIPPING, rotation tied to
  * travel by `-x/R` rather than to the clock. Then it cracks and the halves
  * become rigid bodies with an impulse, spin and gravity.
  *
@@ -405,7 +436,19 @@ void main(){
 export const GEAR = /* glsl */ `${PRELUDE}
 const float CYCLE = 5.8;
 const float R     = 0.165;
-const float PX    = 0.0071428;   /* 1/140 */
+/**
+ * ONE SCREEN PIXEL, MEASURED — not 1/height.
+ *
+ * "One unit is the canvas height" only holds for an untilted camera with the
+ * subject exactly at the target depth. This camera is tilted and the gear sits
+ * in front of its target, so the true scale is 1.385x that assumption: with
+ * PX = 1/180 the 4px roll rendered as 5.54px. Calibrated by rendering the roll
+ * and measuring its centroid travel, then dividing.
+ *
+ * RE-MEASURE THIS IF THE CAMERA MOVES. It is a property of the projection, not
+ * of the canvas.
+ */
+const float PX    = 0.0042800;
 const float BREAK = 3.05;
 const float GRAV  = 1.85;
 float gT;
@@ -422,7 +465,7 @@ float gearHalf(vec3 q, float sg, float crack){
 }
 
 float map(vec3 p){
-  float lt = mod(gT, CYCLE);
+  float lt = pingPong(gT, CYCLE);
 
   float travel = 0.0;
   if(lt < 2.8){
@@ -472,7 +515,6 @@ float map(vec3 p){
 
 void main(){
   gT = u_time;
-  float lt = mod(u_time, CYCLE);
   vec2 p  = (gl_FragCoord.xy - 0.5 * u_res) / u_res.y;
   vec3 ro = vec3(0.0, 0.30, 1.42);
   vec3 ta = vec3(0.0, -0.055, 0.0);
