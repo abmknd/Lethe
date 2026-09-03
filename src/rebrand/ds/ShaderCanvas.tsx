@@ -40,8 +40,8 @@ void main(){ gl_Position = vec4(a_pos, 0.0, 1.0); }
 `;
 
 /** The frame each shader is frozen at when motion is reduced — chosen so the
- *  shape reads at rest: hand mid-wave, oval whole, gear whole. */
-const STILL: Record<ShaderName, number> = { hand: 0.6, oval: 1.2, gear: 1.4 };
+ *  shape reads at rest: box turned open to camera, ball whole, gear whole. */
+const STILL: Record<ShaderName, number> = { box: 1.1, ball: 1.2, gear: 1.4 };
 
 /**
  * THE TEMPORAL DITHER, from the retired hero (31d2b93).

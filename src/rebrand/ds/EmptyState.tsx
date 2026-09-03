@@ -10,10 +10,9 @@ import { BODY_3A } from './type';
  * The three are not interchangeable and the distinction is the whole point:
  *
  *   `empty`   the page works, there is simply nothing in it yet. The user's
- *             move. A waving hand, because nothing is wrong.
+ *             move. An open box turning slowly, because nothing is wrong.
  *   `client`  the request did not arrive — offline, flaky, a bad route. Their
- *             end. An oval of interlocking pieces that stops holding and
- *             falls apart onto the floor.
+ *             end. A ball built from bricks that stops holding together.
  *   `server`  we broke it. Ours. A gear that rolls, cracks and snaps.
  *
  * Getting these backwards is the failure mode worth guarding: telling someone
@@ -31,12 +30,12 @@ export type EmptyStateKind = 'empty' | 'client' | 'server';
 
 const PRESET: Record<EmptyStateKind, { shader: ShaderName; title: string; body: string }> = {
   empty: {
-    shader: 'hand',
+    shader: 'box',
     title: 'Nothing here yet.',
     body: 'Once there is something worth showing, it will show up here.',
   },
   client: {
-    shader: 'oval',
+    shader: 'ball',
     title: 'Oops, don’t look at us...',
     body: 'Looks like things are laggy on your end. Refresh or try again later',
   },
