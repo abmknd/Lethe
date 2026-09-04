@@ -404,10 +404,11 @@ rebuild is `f780263`; the blue version is in the history before it.
   is correct but ugly.
 
 **In your court**
-- **Notion changelog entries for the illustration work cite PR #119.** That PR
-  merged on 2026-09-03 and carried the app-shell work, the `/connect` migration,
-  the icon importer and the typecheck gate — NOT the illustrations. They need
-  repointing at the PR that actually carries them.
+- ~~Notion changelog entries cite the wrong PR.~~ CLOSED, and the claim was
+  wrong: no entry ever mis-cited #119. What was actually stale was nine #119
+  entries still marked "pushed, NOT merged" after it merged on 2026-09-03, and
+  the illustration work having no entry at all. Both fixed 2026-09-04; the
+  illustrations are logged against [PR #120](https://github.com/abmknd/relethe/pull/120).
 - ~~The blind Suggested card.~~ CLOSED. `candidate` is null while blind (the
   type says so) and Suggested fetches exactly those rows, but the card is not
   empty: the role chip is `blindRationale.roleCategory`, About is `insightText`,
