@@ -2,117 +2,210 @@ import { PRELUDE } from './prelude';
 import { SpotIllustration, type SpotProps } from './SpotIllustration';
 
 /**
- * 5 · A GAVEL THAT COMES DOWN — a request accepted, a decision made.
+ * 5 · A GAVEL COMES DOWN, AND THE THING IS DECIDED.
  *
- * A stationary sounding block and a gavel that falls onto it, thuds, bounces
- * once and settles. Reversing the clock lifts it back for the next strike, so
- * the loop is down-hold-up-hold and there is no separate raise to animate.
+ * For the moment a match request is accepted.
  *
- *   BLOCK   `sdRoundBox3` at the floor rest height. It never moves — it is the
- *           thing being struck, and a sounding block that bobs sympathetically
- *           turns a decision into a collision between two loose objects.
- *   GAVEL   a horizontal cylinder head with a cylindrical handle raked out of
- *           it. `sdCylY` with the sample point swizzled or rotated, since the
- *           prelude's cylinder is Y-axis and adding a near-duplicate primitive
- *           per orientation is how a shared prelude rots.
- *   STRIKE  `fallWithBounce` at restitution 0.34 — the same dead thud as
- *           everything else that lands in this set.
+ * ── The anatomy ─────────────────────────────────────────────────────────────
  *
- * THE PARTS DO NOT INTERSECT. At rest the head sits 0.002 above the block's
- * top face, touching along a line rather than sinking into it. A union of two
- * interpenetrating solids grows edges where they cross, and those edges read
- * as extra pieces — the mistake that made the broken gear look like four
- * fragments (illustration.md §9).
+ * A gavel is NOT a mallet on a stick. It is a stout BARREL — short, fat, banded
+ * near each end with a raised collar — and the handle leaves that barrel's SIDE
+ * at a right angle to its axis. Head axis along X, handle along Z, ninety
+ * degrees apart in body space, then yawed about Y so the barrel sits three-
+ * quarter on and the handle runs left and toward the camera.
  *
- * ROTATION ORDER is `rotX(tilt) * rotZ(swing)`, per illustration.md §7. The
- * brief asked for `rotZ(spin) * rotX(tilt)` while describing "tilt in world
- * space, spin in body space" — but in a body-to-world product the RIGHT factor
- * applies first, in body space, so that composition delivers the opposite of
- * its own description. It is the same inversion that stood the gear's halves
- * on their edges. The described intent is what is implemented here.
+ * ── The blow is a SWING, about a hand ───────────────────────────────────────
  *
- * Rotation FREEZES on landing: `ta = min(tau, landed)` drives every angle, so
- * after impact they hold rather than unwinding. Nothing eases back toward a
- * target it has already passed.
+ * This is the part that has to be right, because the blow is the whole mark.
+ *
+ * A gavel is not dropped. It is held near the end of the handle and swung, so
+ * every point on it travels an ARC about that grip: the head lifts up and back,
+ * the handle is slanted the whole way, and the whole body rotates as one. An
+ * earlier pass translated it straight down with the handle level, which is why
+ * it read as a falling object rather than a struck blow.
+ *
+ * So there is a HAND — a fixed point 0.20 along the handle — and the gavel
+ * rotates rigidly about it. The rotation is about the body's own Y axis, which
+ * is the axis perpendicular to both the handle and the head, so the swing stays
+ * in the vertical plane the handle lies in. The angle is BALLISTIC, the same
+ * arithmetic as everything else here, only in radians: it accelerates into the
+ * block instead of easing into it.
+ *
+ * At the bottom of the arc the angle is exactly zero, which is where the head's
+ * axis stands vertical and its flat circular FACE meets the block square. A
+ * judge strikes with the face, not the side.
+ *
+ * ── The staging ─────────────────────────────────────────────────────────────
+ *
+ *   WIND-UP   held up and back, still, for a quarter second. A strike with no
+ *             pause before it is just a moving object.
+ *   THE BLOW  the arc, accelerating, face-down onto the block.
+ *   DWELL     everything freezes for 45ms at contact. Two or three held frames
+ *             is the difference between a hit and a pass-through.
+ *   RECOIL    the block takes the blow, jolting down and ringing back on a
+ *             damped sine, and the gavel rebounds off it at the shared
+ *             restitution. The rebound speed comes out of the swing itself.
+ *   PUT DOWN  a short arc left — clear of the block, not across the frame —
+ *             rolling onto its side in the air and landing flat, head nearest
+ *             the block, handle trailing away.
+ *
+ * ── Why the roll waits ──────────────────────────────────────────────────────
+ *
+ * Upright, the head hangs HEAD_L below its centre. Mid-roll that grows to
+ * sqrt(HEAD_L^2 + COL_R^2) — MORE than either end pose — so a barrel is at its
+ * lowest while standing on the corner between face and side. Rolling while
+ * still over the stone drove it straight through. The roll therefore holds off
+ * until the head is past the block and then completes before touchdown.
  */
 export const GAVEL = /* glsl */ `${PRELUDE}
-const float CYCLE = 2.00;
-const float GRAV  = 2.10;
+const float GRAV = 2.10;
+const float HALF_PI = 1.57079633;
 
-/* sounding block */
-const float BLK_W = 0.168, BLK_H = 0.034, BLK_D = 0.094;
-const float BLK_Y = FLOORY + BLK_H;
-const float BLK_TOP = FLOORY + BLK_H * 2.0;
+/* ── the sounding block ──────────────────────────────────────────────────────
+   A plinth with a smaller slab on it. One box reads as a crate; the step
+   between the two is what makes it a made object. Kept small and low: the
+   gavel has to get past it without clipping. */
+const float BLK_X = 0.150;
+const float PLI_H = 0.009, PLI_W = 0.093, PLI_D = 0.080;
+const float SLB_H = 0.012, SLB_W = 0.075, SLB_D = 0.064;
+const float BLK_TOP = FLOORY + PLI_H * 2.0 + SLB_H * 2.0;
 
-/* gavel */
-const float HEAD_R = 0.060, HEAD_L = 0.088;
-const float BAR_R  = 0.025, BAR_L  = 0.124;   /* half-length of the handle */
-const float RAKE   = 0.58;                    /* handle angle from vertical  */
+/* ── the gavel ───────────────────────────────────────────────────────────────
+   Half-length 0.098 against radius 0.068 is a BARREL, not a rod. The collars
+   stand 0.010 proud and stop short of the ends, so the FACE is what strikes and
+   the collars are what it rests on. */
+const float HEAD_R = 0.068, HEAD_L = 0.098;
+const float COL_R  = 0.078, COL_T  = 0.012, COL_X = 0.078;
+const float BAR_R  = 0.023, BAR_L  = 0.112, BAR_Z = 0.140;
+const float KNOB_R = 0.030;
+const float TIP_Z  = BAR_Z + BAR_L;
+const float HAND_Z = 0.200;                 /* the grip, along the handle */
 
-/* Head rests ON the block with a hair of clearance, never inside it. */
-const float REST_Y = BLK_TOP + HEAD_R + 0.002;
-/* MEASURED, not chosen. At 0.185 the raised handle's tip crossed the top edge
-   for the first beat — 11 border pixels. The gavel is scaled for presence in
-   its box, so the headroom it has to be lifted through is small. */
-const float LIFT   = 0.132;
-float gT;
+/* Yawed past a right angle: handle LEFT and forward, HEAD nearest the block.
+   Note the sign — this prelude's rotY takes (0,0,1) to (-sin a, 0, cos a). */
+const float YAW = 1.021;
 
-/* The gavel in its own space: head at the origin, handle raked up and right. */
-float gavel(vec3 q){
-  /* Head: the prelude's cylinder is Y-axis, so swizzle to lay it along X. */
+const float STRIKE_X = BLK_X;                     /* face centred on the slab */
+const float STRIKE_Y = BLK_TOP + HEAD_L;
+const float REST_X   = -0.105;
+const float REST_Y   = FLOORY + COL_R;            /* lying on its collars */
+
+const float SWING = 0.85;                   /* how far back it is drawn */
+const float ANGA  = 22.0;                   /* angular gravity, rad/s^2 */
+const float RIS_B = 0.191;                  /* nose-down so the knob lands */
+
+const float POISE = 0.26, DWELL = 0.045, CYCLE = 2.10;
+
+float gT, gJolt;
+vec3  gHead;
+mat3  gM;
+
+float gavelBody(vec3 q){
+  /* the barrel, axis along X, FLAT ended — the face is the striking surface */
   float d = sdCylY(q.yxz, HEAD_L, HEAD_R);
 
-  /* Handle: same trick, rotated into the rake and pushed out along itself. */
-  vec3 h = rotZ(RAKE) * q;
-  h.y -= BAR_L + HEAD_R * 0.55;
-  d = min(d, sdCylY(h, BAR_L, BAR_R));
+  /* both collars at once: folding x about zero mirrors one disc into two */
+  vec3 c = q; c.x = abs(c.x) - COL_X;
+  d = min(d, sdCylY(c.yxz, COL_T, COL_R));
+
+  /* the handle, leaving the barrel's SIDE at a right angle to its axis */
+  vec3 h = q; h.z -= BAR_Z;
+  d = min(d, sdCylY(h.xzy, BAR_L, BAR_R));
+
+  /* the knob, which stops the handle reading as a cut-off pipe */
+  d = min(d, sdSphere(q - vec3(0.0, 0.0, TIP_Z), KNOB_R));
   return d;
 }
 
 float map(vec3 p){
-  float lt = pingPong(gT, CYCLE);
-
-  /* ── the strike ─────────────────────────────────────────────────────────
-     Dropped, not thrown: v0 = 0. One bounce, then still. */
-  float landed;
-  float y  = fallWithBounce(lt, REST_Y + LIFT, 0.0, GRAV, REST_Y, landed);
-  float ta = min(lt, landed);            /* every angle freezes at impact */
-  float k  = clamp(ta / landed, 0.0, 1.0);
-
-  /* Raised it is cocked back; it straightens into the blow and HOLDS there. */
-  float swing = mix(0.34, 0.0, k);
-  float tilt  = mix(0.10, 0.0, k);
-
-  /* rotX(tilt) * rotZ(swing): swing in body space, tilt in world space. */
-  mat3 Rm = rotX(tilt) * rotZ(swing);
-
-  float d = sdRoundBox3(p - vec3(0.0, BLK_Y, 0.0), vec3(BLK_W, BLK_H, BLK_D), 0.008);
-  d = min(d, gavel((p - vec3(0.0, y, 0.0)) * Rm));
-  return d;
+  vec3 b = p - vec3(BLK_X, gJolt, 0.0);
+  float d = sdRoundBox3(b - vec3(0.0, FLOORY + PLI_H, 0.0),
+                        vec3(PLI_W, PLI_H, PLI_D), 0.006);
+  d = min(d, sdRoundBox3(b - vec3(0.0, FLOORY + PLI_H * 2.0 + SLB_H, 0.0),
+                         vec3(SLB_W, SLB_H, SLB_D), 0.007));
+  return min(d, gavelBody((p - gHead) * gM));
 }
 
 void main(){
   gT = u_time;
+
+  /* The impact pose: barrel upright, face down, handle level and yawed left. */
+  mat3 M0 = rotY(YAW) * rotZ(HALF_PI);
+  vec3 impact = vec3(STRIKE_X, STRIKE_Y, 0.0);
+  vec3 hand   = impact - M0 * vec3(0.0, 0.0, -HAND_Z);
+
+  /* ── the swing ───────────────────────────────────────────────────────────
+     Ballistic in ANGLE: drawn back to -SWING, accelerating to zero at the
+     bottom of the arc, which is where the face is square on the stone. The
+     head's speed at that instant is what the rebound is built from, so the
+     bounce is proportional to the swing rather than a fixed hop. */
+  float t1  = sqrt(2.0 * SWING / ANGA);
+  float vHd = ANGA * t1 * HAND_Z;               /* head speed at contact */
+  float v1  = 0.34 * vHd;                       /* off the block */
+  float vFl = sqrt(v1 * v1 + 2.0 * GRAV * (STRIKE_Y - REST_Y));
+  float t2  = (v1 + vFl) / GRAV;
+  float v2  = 0.34 * vFl;                       /* settling hop */
+  float t3  = 2.0 * v2 / GRAV;
+
+  float lt  = pingPong(gT, CYCLE);
+  float tau = lt - POISE;
+  float hit = max(tau - t1, 0.0);               /* time since contact */
+  tau -= clamp(hit, 0.0, DWELL);                /* freeze through the dwell */
+
+  if(tau < t1){
+    /* ON THE ARC, still in the hand: one angle places and orients the whole
+       body, so the translation and the rotation cannot disagree. */
+    float ta = max(tau, 0.0);
+    float th = -SWING + 0.5 * ANGA * ta * ta;
+    mat3  R  = M0 * rotY(th);
+    gHead = hand + R * vec3(0.0, 0.0, -HAND_Z);
+    gM    = R;
+  } else {
+    float s = tau - t1;
+    float k = clamp(s / t2, 0.0, 1.0);           /* how far through the toss */
+    float y;
+    if(s < t2){
+      y = STRIKE_Y + v1 * s - 0.5 * GRAV * s * s;
+    } else if(s < t2 + t3){
+      float u = s - t2;
+      y = REST_Y + v2 * u - 0.5 * GRAV * u * u;
+    } else {
+      y = REST_Y;
+    }
+    /* Roll onto its side IN THE AIR, but only once past the block and finished
+       before touchdown — see the note above on why mid-roll is the lowest the
+       barrel ever hangs. */
+    float r = clamp((k - 0.70) / 0.24, 0.0, 1.0);
+    r = r * r * (3.0 - 2.0 * r);
+
+    gHead = vec3(mix(STRIKE_X, REST_X, k), y, 0.0);
+    gM    = rotY(YAW) * rotZ(HALF_PI + r * HALF_PI) * rotX(RIS_B * r);
+  }
+
+  /* ── the block takes the blow ─────────────────────────────────────────────
+     A damped sine, struck at contact: down first, then ringing back up. */
+  gJolt = hit <= 0.0 ? 0.0 : -0.011 * exp(-13.0 * hit) * sin(28.0 * hit);
+
   vec2 p  = (gl_FragCoord.xy - 0.5 * u_res) / u_res.y;
-  vec3 ro = vec3(0.0, 0.30, 1.42);
-  vec3 ta = vec3(0.0, -0.055, 0.0);
-  vec3 rd = aimed(lookAt(ro, ta), p, 1.90);
+  vec3 ro  = vec3(-0.067, 0.27, 0.92);
+  vec3 tgt = vec3(-0.067, -0.052, 0.0);
+  vec3 rd  = aimed(lookAt(ro, tgt), p, 1.87);
 
   float t = 0.0;
-  bool hit = false;
-  for(int i = 0; i < 72; i++){
+  bool sky = true;
+  for(int i = 0; i < 78; i++){
     float d = map(ro + rd * t);
-    if(d < 0.0016){ hit = true; break; }
+    if(d < 0.0016){ sky = false; break; }
     t += d;
     if(t > 3.2) break;
   }
-  if(!hit){ gl_FragColor = vec4(u_ink, 0.0); return; }
+  if(sky){ gl_FragColor = vec4(u_ink, 0.0); return; }
   gl_FragColor = inkFrom(shadeDensity(ro + rd * t, rd));
 }
 `;
 
 export function Gavel(props: SpotProps) {
-  return <SpotIllustration source={GAVEL} width={240} still={1.40} {...props} />;
+  return <SpotIllustration source={GAVEL} width={250} still={1.60} {...props} />;
 }
 
 export const GAVEL_SOURCE = GAVEL;

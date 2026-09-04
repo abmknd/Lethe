@@ -40,7 +40,7 @@ import { EmptyBox } from '../../assets/spot-illustrations';
 | `broken-ball.tsx` | a ball of bricks that spins up and comes apart. Their end |
 | `broken-gear.tsx` | a gear that drops, cracks and splits. Our end |
 | `success-monument.tsx` | three solids stack themselves, then take a bow |
-| `gavel.tsx` | a gavel strikes a sounding block. A request accepted |
+| `gavel.tsx` | a gavel is swung onto a sounding block, then set down beside it. A request accepted |
 | `index.ts` | the barrel |
 
 Every asset is `PRELUDE + its own map() + its own main()`. An asset file should
@@ -269,12 +269,65 @@ ax = mix(ax, rnd1((ax - 1.5708) / PI) * PI + 1.5708, set);
 
 At most a quarter turn, always forward.
 
+### A struck tool swings; it does not fall
+
+`gavel` was built three times before the blow read, and each failure is worth
+keeping:
+
+1. **A thin cylinder with a rod on the end is a lollipop, not a gavel.** The head
+   is a stout BARREL with collars, and the handle leaves its *side* at a right
+   angle to its axis. Head along body X, handle along body Z.
+2. **A judge strikes with the FACE.** At contact the head's axis is *vertical*
+   and the flat circular end meets the block. The second build struck along the
+   barrel's length, like a rolling pin, which is the one thing the mark exists
+   to show.
+3. **The blow is an ARC about a hand, not a vertical drop.** A gavel is gripped
+   near the end of the handle, so every point on it travels a circle about that
+   grip — the head lifts up and back, and the handle is *slanted* the whole way.
+   Translating it straight down with the handle level reads as a falling object.
+
+The fix for (3) is one angle for the whole body:
+
+```glsl
+mat3 M0   = rotY(YAW) * rotZ(HALF_PI);          /* the impact pose */
+vec3 hand = impact - M0 * vec3(0.0, 0.0, -HAND_Z);
+mat3 R    = M0 * rotY(-SWING + 0.5 * ANGA * ta * ta);   /* ballistic in ANGLE */
+gHead = hand + R * vec3(0.0, 0.0, -HAND_Z);
+gM    = R;
+```
+
+Rotating about **body Y** keeps the swing in the vertical plane the handle lies
+in, and the angle reaching exactly zero at the bottom of the arc is what puts
+the face square on the stone. Position and orientation come from the same
+number, so they cannot disagree. The head's speed at contact, `ANGA*t1*HAND_Z`,
+is what the rebound is built from — the bounce is proportional to the swing.
+
+### A barrel is lowest MID-roll
+
+Upright, a barrel hangs `HEAD_L` below its centre; on its side, `COL_R`. Between
+those it stands on the corner between face and side, at
+`sqrt(HEAD_L² + COL_R²)` — **more than either end pose**. Rolling it over while
+it was still above the sounding block drove it 0.029 through the stone. Delay
+the roll until the head is past the obstacle, and finish it before touchdown.
+
+The same shape explains why interpolating a topple is wrong: a lerp between the
+two end heights passes *under* the true profile for the whole move. Rotate about
+the real contact edge, or wait until there is nothing to hit.
+
 ### Rotation order
 
 `rotX(tilt) * rotZ(spin)`, **not** the reverse. Composed the other way, the tilt
 lays a disc flat and then `rotZ` — about the *world* z — stands it straight back
 up on its edge. The spin belongs in body space and the lay-flat in world space,
 so the tilt comes first in the product.
+
+### Check the sign before trusting a yaw
+
+This prelude's `rotY(a)` maps `(0,0,1)` to `(-sin a, 0, cos a)` — the *negative*
+sine, because `mat3(...)` fills column by column. Assuming the other convention
+mirrored the whole gavel and left the handle pointing at the block where the
+head should have been, which measured as two objects merging into one blob at
+rest. Derive the sign from the constructor, or render one frame and look.
 
 ---
 
@@ -291,7 +344,16 @@ floor fell out of shot.
 
 `p` is normalised by `u_res.y`, so a **wider** canvas widens the visible x range
 and leaves the subject's scale alone. Assets whose pieces travel sideways get
-the room: 200×180 for the box, 270×180 for the two that scatter.
+the room: 200×180 for the box, 270×180 for the two that scatter, 250×180 for the
+gavel, which swings across the frame and then sets down beside its block.
+
+### Fill the height, and know which way zoom runs
+
+`aimed(cam, p, zoom)` — visible height is `dist / zoom`, so a **larger** zoom
+magnifies. Getting that backwards scaled the gavel *down* while trying to scale
+it up. Fit by measurement: render the whole cycle into an oversized frame, take
+the union of the ink bounds, and solve for the target and the zoom. The gavel
+sits at 160 of 180 rows with no frame touching a border.
 
 Each asset owns its natural width and scales it with `size`, so a caller only
 ever sets a height.
