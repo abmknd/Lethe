@@ -39,6 +39,7 @@ import { EmptyBox } from '../../assets/spot-illustrations';
 | `empty-box.tsx` | an open box, turning. Nothing is wrong |
 | `broken-ball.tsx` | a ball of bricks that spins up and comes apart. Their end |
 | `broken-gear.tsx` | a gear that drops, cracks and splits. Our end |
+| `success-monument.tsx` | three solids stack themselves, then take a bow |
 | `index.ts` | the barrel |
 
 Every asset is `PRELUDE + its own map() + its own main()`. An asset file should
@@ -196,6 +197,27 @@ pixel-exact — frames at `t` and `2·CYCLE − t` differ by zero pixels.
 An asset with no event (the box) simply does not loop: it opens once on the
 global clock and turns forever, so it has no seam at all.
 
+### Assembly is the same physics as collapse
+
+`success-monument` builds rather than breaks, and it uses `fallWithBounce`
+unchanged: each piece is dropped with `v0 = 0` onto the one below and thuds into
+place. **A success and a failure obeying the same arithmetic is the point** —
+what differs is the sequence, not the mechanics, and that is why the set reads
+as one family.
+
+It also demonstrates the reversal paying for itself twice over. There is no
+disassembly animation anywhere in that file; running the clock backwards lifts
+every piece along the exact arc it fell on.
+
+Two details worth copying:
+
+- the celebratory rock pivots at the **base**, not the centre. A monument tips
+  on its footing; pivoting at the middle reads as a floating object being
+  waggled.
+- the rock's envelope is `sin(PI * fract(beat))`, so every beat starts and ends
+  at exactly zero. The stack is upright at each boundary, which is what makes
+  two hops read as one gesture rather than as a stutter.
+
 ### Ballistics
 
 ```glsl
@@ -253,6 +275,13 @@ the room: 200×180 for the box, 270×180 for the two that scatter.
 
 Each asset owns its natural width and scales it with `size`, so a caller only
 ever sets a height.
+
+### Entrances are not exempt
+
+A piece falling in from above the frame is still clipping. `success-monument`
+dropped its pieces from 0.30 above rest, which put the sphere's crown outside
+the top edge for the whole first beat; it reads as a rendering bug, not as an
+entrance. Measured down to 0.15, where the whole cycle is clean.
 
 ### Depth scatter is not free
 

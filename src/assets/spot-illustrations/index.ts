@@ -32,3 +32,4 @@ export { PRELUDE } from './prelude';
 export { EmptyBox, BOX_SOURCE } from './empty-box';
 export { BrokenBall, BALL_SOURCE } from './broken-ball';
 export { BrokenGear, GEAR_SOURCE } from './broken-gear';
+export { SuccessMonument, MONUMENT_SOURCE } from './success-monument';

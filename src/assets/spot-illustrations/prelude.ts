@@ -105,6 +105,8 @@ mat3 rotX(float a){ float c=cos(a), s=sin(a); return mat3(1.,0.,0., 0.,c,-s, 0.,
 mat3 rotY(float a){ float c=cos(a), s=sin(a); return mat3(c,0.,s, 0.,1.,0., -s,0.,c); }
 mat3 rotZ(float a){ float c=cos(a), s=sin(a); return mat3(c,-s,0., s,c,0., 0.,0.,1.); }
 
+float sdSphere(vec3 p, float r){ return length(p) - r; }
+
 float sdRoundBox3(vec3 p, vec3 b, float r){
   vec3 q = abs(p) - b + r;
   return min(max(q.x, max(q.y, q.z)), 0.0) + length(max(q, 0.0)) - r;
