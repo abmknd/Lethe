@@ -103,6 +103,25 @@ regenerates `src/assets/system_icons/`. Never hand-write a glyph.
 **`/connect` (live) has been migrated** onto AppShell as MATCHES/Suggested. It
 is the first real page on the new shell and the template for the rest.
 
+### Phase 4, part three — spot illustrations (2026-09)
+
+**Five animated marks live in `src/assets/spot-illustrations/`**, one file each,
+sharing `prelude.ts` and the `SpotIllustration` host: `empty-box`,
+`broken-ball`, `broken-gear`, `success-monument`, `gavel`. They are GENERATED —
+a raymarched SDF, lit, dithered to one bit — not images.
+
+**Read `illustration.md` before touching any of them.** It documents the whole
+technique and every constant that was measured rather than chosen. Reinventing
+the approach produces washed-out mush; this is the third pipeline that worked.
+
+`EmptyState` (`src/rebrand/ds/EmptyState.tsx`) wraps three of them as
+`empty` / `client` / `server`. All five are on `/rebrand/states`.
+
+**Verify these by measuring pixels, not by looking.** Render the cycle to an
+offscreen canvas and count: ink bounds, frames touching a border, connected
+components on a 3x downsampled mask, reversal exactness by XOR. Every real
+defect here was found that way; several were invisible in a screenshot.
+
 ### Next up — in this order
 
 1. **`/matches`** — the Matches row of the same rail (907:22311). It still
@@ -365,6 +384,10 @@ rebuild is `f780263`; the blue version is in the history before it.
 **In my court**
 - `/matches` still renders its own old page; it is the Matches row of the shell's
   own rail and should join it next.
+- **No state component wraps `SuccessMonument` or `Gavel`.** Both are finished
+  and reviewable on `/rebrand/states`, but no screen has asked for one yet, so
+  the surface was not invented for them. Wiring either in is a few lines once
+  the destination is known — the gavel is for a match request being accepted.
 - 32 legacy type errors under `typecheck:all` — mostly unused shadcn leftovers
   in `src/app/components/ui/` importing a `buttonVariants` that was never
   exported, plus a `button.tsx`/`Button.tsx` casing collision.
@@ -381,6 +404,14 @@ rebuild is `f780263`; the blue version is in the history before it.
   is correct but ugly.
 
 **In your court**
+- **`front-end-demo-updates` has no open PR.** As of 2026-09-04 it carries 16
+  commits ahead of main (app-shell work, the `/connect` migration, the icon
+  importer, the typecheck/lint gate, and the five spot illustrations). Check
+  with `git rev-list --count origin/main..front-end-demo-updates` rather than
+  trusting this number. Nothing ships until a PR opens.
+- **Notion changelog entries for the illustration work cite PR #119, which was
+  already merged on 2026-09-03.** They need repointing at whatever PR actually
+  carries these commits.
 - ~~The blind Suggested card.~~ CLOSED. `candidate` is null while blind (the
   type says so) and Suggested fetches exactly those rows, but the card is not
   empty: the role chip is `blindRationale.roleCategory`, About is `insightText`,
