@@ -404,14 +404,10 @@ rebuild is `f780263`; the blue version is in the history before it.
   is correct but ugly.
 
 **In your court**
-- **`front-end-demo-updates` has no open PR.** As of 2026-09-04 it carries 16
-  commits ahead of main (app-shell work, the `/connect` migration, the icon
-  importer, the typecheck/lint gate, and the five spot illustrations). Check
-  with `git rev-list --count origin/main..front-end-demo-updates` rather than
-  trusting this number. Nothing ships until a PR opens.
-- **Notion changelog entries for the illustration work cite PR #119, which was
-  already merged on 2026-09-03.** They need repointing at whatever PR actually
-  carries these commits.
+- **Notion changelog entries for the illustration work cite PR #119.** That PR
+  merged on 2026-09-03 and carried the app-shell work, the `/connect` migration,
+  the icon importer and the typecheck gate — NOT the illustrations. They need
+  repointing at the PR that actually carries them.
 - ~~The blind Suggested card.~~ CLOSED. `candidate` is null while blind (the
   type says so) and Suggested fetches exactly those rows, but the card is not
   empty: the role chip is `blindRationale.roleCategory`, About is `insightText`,
