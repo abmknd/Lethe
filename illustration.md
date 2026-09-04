@@ -194,8 +194,27 @@ It is also seamless for free: the turning points are where velocity is zero and
 the frames either side are identical, so **there is nothing to fade**. Verified
 pixel-exact — frames at `t` and `2·CYCLE − t` differ by zero pixels.
 
-An asset with no event (the box) simply does not loop: it opens once on the
-global clock and turns forever, so it has no seam at all.
+### Not every asset should reverse
+
+Ping-pong is right when the event is a **collapse**: running it backwards is a
+free, exactly-matching reassembly. It is wrong when the event is an **arrival**.
+
+There are three looping patterns in use, and picking the wrong one is a
+storytelling mistake rather than a technical one:
+
+| Pattern | Used by | Why |
+|---|---|---|
+| ping-pong | `broken-ball`, `broken-gear` | the event is a collapse; reversing rebuilds it for free |
+| never loops | `empty-box` | the lid opens once and stays; the turn carries on underneath |
+| **saturate, then loop a gesture** | `success-monument` | the build is a one-time arrival, so its clock saturates at `min(gT, BUILT)` and the dance runs forever on a second clock |
+
+Un-stacking the monument would undo the very thing the mark exists to say. Two
+clocks — one that saturates, one that loops — is how an asset arrives once and
+then keeps expressing.
+
+A repeating gesture also needs a **rest**. The monument rocks for two beats then
+holds for two. Rocking without pause stops reading as celebration and starts
+reading as a wobble it cannot control.
 
 ### Assembly is the same physics as collapse
 

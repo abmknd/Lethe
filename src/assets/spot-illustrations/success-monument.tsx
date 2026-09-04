@@ -19,17 +19,17 @@ import { SpotIllustration, type SpotProps } from './SpotIllustration';
  *           about the BASE, not its centre — a monument tips on its footing,
  *           and rotating about the middle reads as a floating object being
  *           waggled.
- *   LIFT    reversing the clock takes the whole thing apart perfectly: the
- *           dance runs backwards and every piece rises along the exact arc it
- *           fell on. There is no reassembly animation to write, and none to
- *           drift out of sync with the build.
+ *   AND THEN IT KEEPS DANCING. This asset does NOT reverse. The other three do,
+ *   because their event is a collapse and running it backwards is a free
+ *   reassembly — but here the build is a one-time arrival, and un-stacking it
+ *   would undo the very thing the mark exists to say. The build clock
+ *   saturates and the dance loops underneath it, forever.
  *
  * The grazing band is forced to full ink by the prelude, so the stepped
  * silhouette stays crisp against a white card instead of dissolving where the
  * light hits the shoulders of the base and the crown of the sphere.
  */
 export const MONUMENT = /* glsl */ `${PRELUDE}
-const float CYCLE = 4.6;
 const float GRAV  = 2.10;
 
 /* rest CENTRES, stacked from the floor up */
@@ -68,20 +68,36 @@ float dropY(float rest, float release, float lt){
 }
 
 float map(vec3 p){
-  float lt = pingPong(gT, CYCLE);
+  /**
+   * TWO CLOCKS, AND NO PING-PONG.
+   *
+   * This asset does not reverse. The other three do, because their event is a
+   * collapse and running it backwards is a free reassembly; here the build is
+   * a one-time arrival and un-stacking it would undo the very thing the mark
+   * is there to say.
+   *
+   * So the BUILD clock saturates — 'min(gT, BUILT)' — and every piece is
+   * pinned at its rest position from that moment on. The DANCE clock then runs
+   * forever on its own cycle underneath it.
+   */
+  float bt = min(gT, BUILT);
+  float dt = max(gT - BUILT, 0.0);
 
-  /* ── the bow, once it is built ────────────────────────────────────────────
-     Up-left-down, then up-right-down. Rocking about the BASE rather than the
-     centre: a monument tips on its footing, and pivoting at the middle reads
-     as a floating object being waggled. The envelope is sin(PI*k), so each
-     beat starts and ends at exactly zero — the stack is upright at every beat
-     boundary, which is what keeps two hops reading as one gesture. */
-  float dt = lt - BUILT;
+  /* ── the bow, repeating ───────────────────────────────────────────────────
+     Up-left-down, up-right-down, then two beats of stillness before it goes
+     again. The rest is what makes it a GESTURE rather than a metronome: rock
+     without pause and it stops reading as celebration and starts reading as a
+     wobble it cannot control.
+
+     It rocks about the BASE, not the centre — a monument tips on its footing,
+     and pivoting at the middle reads as a floating object being waggled. The
+     envelope is sin(PI*k), so every beat starts and ends at exactly zero and
+     the stack is upright at each boundary. */
+  float beat = mod(dt, BEAT * 4.0) / BEAT;
   float lean = 0.0, hop = 0.0;
-  if(dt > 0.0 && dt < BEAT * 2.0){
-    float beat = dt / BEAT;
-    float env  = sin(PI * fract(beat));
-    lean = (floor(beat) < 0.5 ? -1.0 : 1.0) * env * 0.155;
+  if(beat < 2.0){
+    float env = sin(PI * fract(beat));
+    lean = (beat < 1.0 ? -1.0 : 1.0) * env * 0.155;
     hop  = env * 0.032;
   }
   vec3 pivot = vec3(0.0, FLOORY, 0.0);
@@ -92,9 +108,9 @@ float map(vec3 p){
      Each piece falls and thuds onto the one below, in order. Same ballistics
      as the things that break: a success and a failure obey the same
      arithmetic, and only the sequence differs. */
-  float d = sdCylY(q - vec3(0.0, dropY(BASE_Y, REL0, lt), 0.0), BASE_H, BASE_R);
-  d = min(d, sdHexPrismY(q - vec3(0.0, dropY(MID_Y, REL1, lt), 0.0), MID_R, MID_H));
-  d = min(d, sdSphere(q - vec3(0.0, dropY(TOP_Y, REL2, lt), 0.0), TOP_R));
+  float d = sdCylY(q - vec3(0.0, dropY(BASE_Y, REL0, bt), 0.0), BASE_H, BASE_R);
+  d = min(d, sdHexPrismY(q - vec3(0.0, dropY(MID_Y, REL1, bt), 0.0), MID_R, MID_H));
+  d = min(d, sdSphere(q - vec3(0.0, dropY(TOP_Y, REL2, bt), 0.0), TOP_R));
   return d;
 }
 
@@ -119,7 +135,7 @@ void main(){
 `;
 
 export function SuccessMonument(props: SpotProps) {
-  return <SpotIllustration source={MONUMENT} width={220} still={3.0} {...props} />;
+  return <SpotIllustration source={MONUMENT} width={220} still={2.70} {...props} />;
 }
 
 export const MONUMENT_SOURCE = MONUMENT;
