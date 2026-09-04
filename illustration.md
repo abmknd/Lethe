@@ -40,6 +40,7 @@ import { EmptyBox } from '../../assets/spot-illustrations';
 | `broken-ball.tsx` | a ball of bricks that spins up and comes apart. Their end |
 | `broken-gear.tsx` | a gear that drops, cracks and splits. Our end |
 | `success-monument.tsx` | three solids stack themselves, then take a bow |
+| `gavel.tsx` | a gavel strikes a sounding block. A request accepted |
 | `index.ts` | the barrel |
 
 Every asset is `PRELUDE + its own map() + its own main()`. An asset file should
@@ -204,7 +205,7 @@ storytelling mistake rather than a technical one:
 
 | Pattern | Used by | Why |
 |---|---|---|
-| ping-pong | `broken-ball`, `broken-gear` | the event is a collapse; reversing rebuilds it for free |
+| ping-pong | `broken-ball`, `broken-gear`, `gavel` | the event is reversible in kind — a collapse rebuilds, a strike lifts |
 | never loops | `empty-box` | the lid opens once and stays; the turn carries on underneath |
 | **saturate, then loop a gesture** | `success-monument` | the build is a one-time arrival, so its clock saturates at `min(gT, BUILT)` and the dance runs forever on a second clock |
 

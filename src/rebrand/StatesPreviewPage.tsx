@@ -1,6 +1,6 @@
 import './rebrand.css';
 import { EmptyState } from './ds';
-import { SuccessMonument } from '../assets/spot-illustrations';
+import { Gavel, SuccessMonument } from '../assets/spot-illustrations';
 
 /**
  * The three empty / error states, side by side so the animations can be
@@ -41,6 +41,18 @@ export default function StatesPreviewPage() {
           <SuccessMonument size={180} />
           <h2 className="rebrand-display mt-[16px] text-[30px] leading-[110%] text-[var(--text-default-heading)]">
             That's done.
+          </h2>
+          <p className="mt-[12px] max-w-[42ch] text-[16px] leading-[20px] text-[var(--text-default-caption)]">
+            A placeholder line, so the mark can be judged next to type at the size it will run.
+          </p>
+        </div>
+
+        {/* 5 — a decision landed. Same reason as the monument: no state
+            component yet, because no screen has asked for one. */}
+        <div className="flex flex-col items-center rounded-[16px] bg-[var(--surface-neutral-default)] px-[32px] py-[56px] text-center">
+          <Gavel size={180} />
+          <h2 className="rebrand-display mt-[16px] text-[30px] leading-[110%] text-[var(--text-default-heading)]">
+            Request accepted.
           </h2>
           <p className="mt-[12px] max-w-[42ch] text-[16px] leading-[20px] text-[var(--text-default-caption)]">
             A placeholder line, so the mark can be judged next to type at the size it will run.
